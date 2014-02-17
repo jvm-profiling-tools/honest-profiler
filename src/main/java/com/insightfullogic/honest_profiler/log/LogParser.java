@@ -5,9 +5,9 @@ import java.nio.*;
 
 public class LogParser {
 
-    private static final int TRACE_START = 0;
-    private static final int STACK_FRAME = 1;
-    private static final int NEW_METHOD = 2;
+    private static final int TRACE_START = 1;
+    private static final int STACK_FRAME = 2;
+    private static final int NEW_METHOD = 3;
 
     private final EventListener listener;
 

@@ -27,9 +27,9 @@ typedef bool (*GetFrameInformation)(const JVMPI_CallFrame &frame,
                                     jvmtiEnv *jvmti, MethodListener &logWriter);
 
 const size_t FIFO_SIZE = 10;
-const byte TRACE_START = 0;
-const byte FRAME = 1;
-const byte NEW_METHOD = 2;
+const byte TRACE_START = 1;
+const byte FRAME = 2;
+const byte NEW_METHOD = 3;
 
 // LogWriter should be independently testable without spinning up a JVM
 class LogWriter final : public QueueListener, public MethodListener {
