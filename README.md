@@ -9,15 +9,18 @@ http://jeremymanson.blogspot.co.uk/2013/07/lightweight-asynchronous-sampling.htm
 Compiling
 ---------
 
-On ubuntu:
-
 ```
-sudo apt-get install libunittest++-dev
 make
+mvn package
 ```
 
 Dependencies
 ------------
 
-unittest++
+unittest++ - a unit testing library
+
+To install on debian/ubuntu:
+```
+sudo apt-get install libunittest++-dev
+```
 
