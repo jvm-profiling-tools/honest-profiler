@@ -5,6 +5,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class FakeEventListener implements EventListener {
@@ -20,6 +21,10 @@ public class FakeEventListener implements EventListener {
     public void hasSeenEvent(LogEvent event) {
         System.out.println(events);
         assertThat(events, hasItem(equalTo(event)));
+    }
+
+    public void seenEventCount(int expectedNumberOfEvents) {
+        assertEquals(expectedNumberOfEvents, events.size());
     }
 
     @Override

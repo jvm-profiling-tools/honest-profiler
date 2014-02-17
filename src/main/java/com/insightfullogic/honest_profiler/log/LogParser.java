@@ -2,23 +2,34 @@ package com.insightfullogic.honest_profiler.log;
 
 import java.io.*;
 import java.nio.*;
+import java.nio.channels.FileChannel;
+
+import static java.nio.channels.FileChannel.MapMode.READ_ONLY;
 
 public class LogParser {
 
+    private static final int NOT_WRITTEN = 0;
     private static final int TRACE_START = 1;
     private static final int STACK_FRAME = 2;
     private static final int NEW_METHOD = 3;
+    public static final int POLL_INTERVAL = 10;
 
     private final EventListener listener;
+
+    private volatile boolean running;
 
     public LogParser(EventListener listener) {
         this.listener = listener;
     }
 
     public void parse(File file) {
-        try {
-            DataInputStream input = new DataInputStream(new FileInputStream(file));
-            while (readRecord(input))
+        running = true;
+        try (RandomAccessFile input = new RandomAccessFile(file, "r")) {
+            // Using memory mapped files allows us to use the log as a
+            // form of IPC
+            MappedByteBuffer buffer = input.getChannel().map(READ_ONLY, 0, file.length());
+
+            while (readRecord(buffer))
                 ;
             listener.endOfLog();
         } catch (IOException e) {
@@ -26,56 +37,71 @@ public class LogParser {
         }
     }
 
-    private boolean readRecord(DataInputStream input) throws IOException {
-        int type = input.read();
-        if (type == -1) {
-            return false;
-        }
+    public void stop() {
+        running = false;
+    }
 
+    private boolean readRecord(ByteBuffer input) throws IOException {
+        if (!input.hasRemaining() || !running)
+            return false;
+
+        byte type = input.get();
+        switch (type) {
+            case NOT_WRITTEN:
+                retry(input);
+                return true;
+            case TRACE_START:
+                readTraceStart(input);
+                return true;
+            case STACK_FRAME:
+                readStackFrame(input);
+                return true;
+            case NEW_METHOD:
+                readNewMethod(input);
+                return true;
+        }
+        return false;
+    }
+
+    private void retry(ByteBuffer input) {
+        // back back one byte since we've just read a 0
+        input.position(input.position() - 1);
+        pause();
+    }
+
+    private void pause() {
         try {
-            switch (type) {
-                case TRACE_START:
-                    readTraceStart(input);
-                    return true;
-                case STACK_FRAME:
-                    readStackFrame(input);
-                    return true;
-                case NEW_METHOD:
-                    readNewMethod(input);
-                    return true;
-            }
-            return false;
-        } catch (EOFException e) {
+            Thread.sleep(POLL_INTERVAL);
+        } catch (InterruptedException e) {
             e.printStackTrace();
-            return false;
         }
     }
 
-    private void readNewMethod(DataInputStream input) throws IOException {
-        Method newMethod = new Method(input.readLong(), readString(input), readString(input), readString(input));
+    private void readNewMethod(ByteBuffer input) throws IOException {
+        Method newMethod = new Method(input.getLong(), readString(input), readString(input), readString(input));
         newMethod.accept(listener);
     }
 
-    private String readString(DataInputStream input) throws IOException {
-        int size = input.readInt();
+    private String readString(ByteBuffer input) throws IOException {
+        int size = input.getInt();
         char[] buffer = new char[size];
         // conversion from c style characters to Java.
         for(int i = 0; i < size; i++) {
-            buffer[i] = (char) input.readByte();
+            buffer[i] = (char) input.get();
         }
         return new String(buffer);
     }
 
-    private void readStackFrame(DataInputStream input) throws IOException {
-        int lineNumber = input.readInt();
-        long methodId = input.readLong();
+    private void readStackFrame(ByteBuffer input) throws IOException {
+        int lineNumber = input.getInt();
+        long methodId = input.getLong();
         StackFrame stackFrame = new StackFrame(lineNumber, methodId);
         stackFrame.accept(listener);
     }
 
-    private void readTraceStart(DataInputStream input) throws IOException {
-        int numberOfFrames = input.readInt();
-        long threadId = input.readLong();
+    private void readTraceStart(ByteBuffer input) throws IOException {
+        int numberOfFrames = input.getInt();
+        long threadId = input.getLong();
         TraceStart traceStart = new TraceStart(numberOfFrames, threadId);
         traceStart.accept(listener);
     }

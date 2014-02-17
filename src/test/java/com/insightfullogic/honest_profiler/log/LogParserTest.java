@@ -4,6 +4,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.IOException;
+
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -40,5 +43,11 @@ public class LogParserTest {
         events.hasSeenEvent(new Method(1, PRINT_STREAM_JAVA, PRINTSTREAM, "printf"));
         events.hasSeenEvent(new Method(2, PRINT_STREAM_JAVA, PRINTSTREAM, "append"));
     }
+
+    @Test
+    public void readsAllEvents() {
+        events.seenEventCount(8);
+    }
+
 
 }
