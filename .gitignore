@@ -1,0 +1,20 @@
+
+# binaries
+build-*
+target/
+
+# vim
+*.swp
+
+# JDK crashes
+hs_err_pid*
+
+# output files
+log.hpl
+dump.hpl
+traces.txt
+
+# IDE
+.idea
+honest-profiler.iml
+
