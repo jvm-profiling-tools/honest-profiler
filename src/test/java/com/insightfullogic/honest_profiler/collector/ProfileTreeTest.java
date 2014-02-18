@@ -19,7 +19,7 @@ public class ProfileTreeTest {
     @Test
     public void rendersSingleNode() {
         collector.handle(new TraceStart(1, 1));
-        collector.handle(new StackFrame(20, 5));
+        collector.handle(new StackFrame(20, ProfileFixtures.printlnId));
         collector.handle(ProfileFixtures.println);
         collector.endOfLog();
 
@@ -41,7 +41,7 @@ public class ProfileTreeTest {
 
     @Test
     public void collectsSplitMethods() {
-        printlnCallingAppendAndPrintf(1);
+        printlnCallingPrintfAndAppend(1);
         collector.endOfLog();
 
         ProfileTreeNode node = assertProfileHasSingleTree();
@@ -50,8 +50,8 @@ public class ProfileTreeTest {
 
     @Test
     public void collectsFromMultipleThreads() {
-        printlnCallingAppendAndPrintf(1);
-        printlnCallingAppendAndPrintf(2);
+        printlnCallingPrintfAndAppend(1);
+        printlnCallingPrintfAndAppend(2);
         collector.endOfLog();
 
         List<ProfileTree> trees = listener.getProfile().getTrees();
@@ -68,20 +68,20 @@ public class ProfileTreeTest {
         assertNode(ProfileFixtures.printf, 0.5, children.get(1));
     }
 
-    private void printlnCallingAppendAndPrintf(int threadId) {
+    private void printlnCallingPrintfAndAppend(int threadId) {
         printlnCallingAppend(threadId);
         collector.handle(new TraceStart(2, threadId));
-        collector.handle(new StackFrame(20, 5));
-        collector.handle(new StackFrame(20, 7));
+        collector.handle(new StackFrame(20, ProfileFixtures.printfId));
         collector.handle(ProfileFixtures.printf);
+        collector.handle(new StackFrame(20, ProfileFixtures.printlnId));
     }
 
     private void printlnCallingAppend(int threadId) {
         collector.handle(new TraceStart(2, threadId));
-        collector.handle(new StackFrame(20, 5));
-        collector.handle(ProfileFixtures.println);
-        collector.handle(new StackFrame(20, 6));
+        collector.handle(new StackFrame(20, ProfileFixtures.appendId));
         collector.handle(ProfileFixtures.append);
+        collector.handle(new StackFrame(20, ProfileFixtures.printlnId));
+        collector.handle(ProfileFixtures.println);
     }
 
     private ProfileTreeNode assertProfileHasSingleTree() {

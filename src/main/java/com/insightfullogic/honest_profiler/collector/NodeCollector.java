@@ -15,21 +15,17 @@ public final class NodeCollector {
 
     private final Map<Long, NodeCollector> childrenByMethodId;
 
-    private Method method;
+    private long methodId;
     private int visits;
 
-    public NodeCollector(Method method) {
-        this(method, 1);
+    public NodeCollector(long methodId) {
+        this(methodId, 1);
     }
 
-    public NodeCollector(Method method, int visits) {
-        this.method = method;
+    public NodeCollector(long methodId, int visits) {
+        this.methodId = methodId;
         this.visits = visits;
         childrenByMethodId = new HashMap<>();
-    }
-
-    public void setMethod(Method method) {
-        this.method = method;
     }
 
     public Stream<NodeCollector> children() {
@@ -40,13 +36,9 @@ public final class NodeCollector {
         return new ArrayList<>(childrenByMethodId.values());
     }
 
-    public Method getMethod() {
-        return method;
-    }
-
-    public NodeCollector newChildCall(long methodId, Function<Long, Method> nameRegistry) {
+    public NodeCollector newChildCall(long methodId) {
         return childrenByMethodId.compute(methodId, (id, prev) ->
-            prev == null ? new NodeCollector(nameRegistry.apply(id))
+            prev == null ? new NodeCollector(id)
                          : prev.callAgain()
         );
     }
@@ -57,17 +49,19 @@ public final class NodeCollector {
     }
 
     // Only gets called on a root node
-    public ProfileTreeNode normalise() {
-        return normaliseBy(visits);
+    public ProfileTreeNode normalise(Function<Long, Method> nameRegistry) {
+        return normaliseBy(visits, nameRegistry);
     }
 
-    private ProfileTreeNode normaliseBy(int parentVisits) {
+    private ProfileTreeNode normaliseBy(int parentVisits, Function<Long, Method> nameRegistry) {
+        Method method = nameRegistry.apply(methodId);
+
         double timeShare = (double) visits / parentVisits;
 
         List<ProfileTreeNode> children
             = childrenByMethodId.values()
                                 .stream()
-                                .map(child -> child.normaliseBy(visits))
+                                .map(child -> child.normaliseBy(visits, nameRegistry))
                                 .collect(toList());
 
         return new ProfileTreeNode(method, timeShare, children);
