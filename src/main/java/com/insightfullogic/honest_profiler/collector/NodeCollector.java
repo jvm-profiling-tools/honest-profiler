@@ -61,7 +61,7 @@ public final class NodeCollector {
         List<ProfileTreeNode> children
             = childrenByMethodId.values()
                                 .stream()
-                                .map(child -> child.normaliseBy(visits, nameRegistry))
+                                .map(child -> child.normaliseBy(parentVisits, nameRegistry))
                                 .collect(toList());
 
         return new ProfileTreeNode(method, timeShare, children);
