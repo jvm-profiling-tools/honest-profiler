@@ -67,6 +67,7 @@ public class LogCollector implements EventListener {
             collectStackFrame(reversalStack.pop());
         }
         expectedNumberOfFrames = NOT_AWAITING;
+        //emitProfile();
     }
 
     private void collectStackFrame(StackFrame stackFrame) {
@@ -90,15 +91,21 @@ public class LogCollector implements EventListener {
     @Override
     public void handle(Method newMethod) {
         methodNames.put(newMethod.getMethodId(), newMethod);
+        //if (expectedNumberOfFrames == NOT_AWAITING)
+        //    emitProfile();
     }
 
     @Override
     public void endOfLog() {
+        emitProfile();
+        logComplete = true;
+    }
+
+    private void emitProfile() {
         List<FlatProfileEntry> flatProfile = buildFlatProfile();
         List<ProfileTree> trees = buildTreeProfile();
         Profile profile = new Profile(traceCount, flatProfile, trees);
         listener.accept(profile);
-        logComplete = true;
     }
 
     private List<ProfileTree> buildTreeProfile() {
@@ -116,7 +123,8 @@ public class LogCollector implements EventListener {
     }
 
     private FlatProfileEntry toFlatProfileEntry(Entry<Long, Integer> entry) {
-        Method method = methodNames.get(entry.getKey());
+        Me
+        thod method = methodNames.get(entry.getKey());
         double timeShare = (double) entry.getValue() / traceCount;
         return new FlatProfileEntry(method, timeShare);
     }

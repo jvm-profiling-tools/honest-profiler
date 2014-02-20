@@ -32,7 +32,7 @@ JAVA_HOME := $(shell \
 	[[ -n "$${JAVA_HOME}" ]] || (echo "Cannot find JAVA_HOME" && exit) ; \
 	echo $${JAVA_HOME})
 AGENT=liblagent.so
-LIBS=-ldl
+LIBS=-ldl -lboost_iostreams
 TEST_LIBS=-lUnitTest++ $(LIBS)
 BUILD_DIR ?= $(shell mkdir build-$(BITS) 2> /dev/null ; echo build-$(BITS))
 TEST_BUILD_DIR ?= $(shell mkdir build-test-$(BITS) 2> /dev/null ; echo build-test-$(BITS))

@@ -41,7 +41,8 @@ public class ConsoleUserInterface implements UserInterface {
     }
 
     private void printMethod(Method method, double timeShare) {
-        console.out().printf("%.2f %s.%s", timeShare, method.getClassName(), method.getMethodName());
+        if (method != null)
+            console.out().printf("%.2f %s.%s", timeShare, method.getClassName(), method.getMethodName());
     }
 
     private void printTreeProfile(Profile profile) {

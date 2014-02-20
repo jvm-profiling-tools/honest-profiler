@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.*;
 import java.nio.channels.FileChannel;
 
+import static java.nio.channels.FileChannel.MapMode.READ_WRITE;
 import static java.nio.channels.FileChannel.MapMode.READ_ONLY;
 
 public class LogParser {
@@ -46,25 +47,30 @@ public class LogParser {
             return false;
 
         byte type = input.get();
-        switch (type) {
-            case NOT_WRITTEN:
-                retry(input);
-                return true;
-            case TRACE_START:
-                readTraceStart(input);
-                return true;
-            case STACK_FRAME:
-                readStackFrame(input);
-                return true;
-            case NEW_METHOD:
-                readNewMethod(input);
-                return true;
+        try {
+            switch (type) {
+                case NOT_WRITTEN:
+                    retry(input);
+                    return true;
+                case TRACE_START:
+                    readTraceStart(input);
+                    return true;
+                case STACK_FRAME:
+                    readStackFrame(input);
+                    return true;
+                case NEW_METHOD:
+                    readNewMethod(input);
+                    return true;
+            }
+        } catch (BufferUnderflowException e) {
+            e.printStackTrace();
         }
         return false;
     }
 
     private void retry(ByteBuffer input) {
         // back back one byte since we've just read a 0
+        //System.out.println("retry");
         input.position(input.position() - 1);
         pause();
     }

@@ -6,10 +6,16 @@
 #include "processor.h"
 #include "log_writer.h"
 
+#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/device/mapped_file.hpp>
+
 #ifndef PROFILER_H
 #define PROFILER_H
 
+namespace io = boost::iostreams;
 using std::ofstream;
+
+typedef io::stream_buffer<io::mapped_file_sink> mapped_buffer;
 
 class SignalHandler {
 public:
@@ -28,6 +34,13 @@ public:
   explicit Profiler(jvmtiEnv *jvmti) : jvmti_(jvmti) {
     // main object graph instantiated here
     // these objects all live for the lifecycle of the program
+    //size_t size = 1024 * 1024;
+//    static io::mapped_file_sink sink;
+//    sink.open("log.hpl", 0);
+    //sink.open("log.hpl", 10 * 1024 * 1024, 0);
+//    mapFile = new mapped_buffer(sink);
+
+    //logFile = new ostream(mapFile);
     logFile = new ofstream("log.hpl", ofstream::out | ofstream::binary);
     writer = new LogWriter(*logFile, &Profiler::lookupFrameInformation, jvmti);
     buffer = new CircularQueue(*writer);
@@ -47,13 +60,16 @@ public:
     delete logFile;
     delete writer;
     delete processor;
+    delete mapFile;
   }
   ;
 
 private:
   jvmtiEnv *jvmti_;
 
-  ofstream *logFile;
+  mapped_buffer *mapFile;
+
+  ostream *logFile;
 
   LogWriter *writer;
 

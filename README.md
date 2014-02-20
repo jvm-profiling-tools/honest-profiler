@@ -31,17 +31,22 @@ Compiling
 ---------
 
 ```
-make
 mvn package
 ```
+
+If you just want to compile the C++ code then the `Makefile` works independently
+of maven.
 
 Dependencies
 ------------
 
+For Java dependencies look in the `pom.xml` file.
+
 unittest++ - a unit testing library
+boost iostreams - used for portable memory mapped files
 
 To install on debian/ubuntu:
 ```
-sudo apt-get install libunittest++-dev
+sudo apt-get install libunittest++-dev libboost-iostreams-dev
 ```
 
