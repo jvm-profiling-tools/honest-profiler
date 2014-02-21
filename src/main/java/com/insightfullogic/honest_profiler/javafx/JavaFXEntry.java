@@ -24,9 +24,8 @@ public class JavaFXEntry extends Application {
         stage.show();
 
         loader.getController(ProfileController.class)
-              .setViewModel(viewModel);
-
-        parser.parse(new File("example.hpl"));
+              .setViewModel(viewModel)
+              .setFileParser(parser::parse);
     }
 
     public static void main(String[] args) {

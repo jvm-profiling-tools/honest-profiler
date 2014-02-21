@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
@@ -10,7 +9,7 @@
             <menus>
                 <Menu mnemonicParsing="false" text="File">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="Open…"/>
+                        <MenuItem mnemonicParsing="false" text="Open…" onAction="#open"/>
                         <SeparatorMenuItem mnemonicParsing="false"/>
                         <MenuItem mnemonicParsing="false" text="Quit" onAction="#quit"/>
                     </items>
@@ -26,12 +25,7 @@
         <StackPane prefHeight="9999" prefWidth="200.0">
             <children>
                 <!--<TreeView prefHeight="200.0" prefWidth="200.0"/>-->
-                <TableView fx:id="flatProfileView" prefHeight="9999" prefWidth="640.0">
-                    <columns>
-                        <TableColumn fx:id="proportions" prefWidth="147.0" text="Time Share"/>
-                        <TableColumn fx:id="methods" prefWidth="492.0" text="Method"/>
-                    </columns>
-                </TableView>
+                <fx:include fx:id="flatProfile" source="FlatProfileView.fxml" />
             </children>
         </StackPane>
     </children>
