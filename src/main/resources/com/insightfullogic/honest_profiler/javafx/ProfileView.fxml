@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox fx:controller="com.insightfullogic.honest_profiler.javafx.ProfileController" prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <MenuBar VBox.vgrow="NEVER">
+            <menus>
+                <Menu mnemonicParsing="false" text="File">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="Open…"/>
+                        <SeparatorMenuItem mnemonicParsing="false"/>
+                        <MenuItem mnemonicParsing="false" text="Quit" onAction="#quit"/>
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="View">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="Tree Profile"/>
+                        <MenuItem mnemonicParsing="false" text="Flat Profile"/>
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+        <StackPane prefHeight="9999" prefWidth="200.0">
+            <children>
+                <!--<TreeView prefHeight="200.0" prefWidth="200.0"/>-->
+                <TableView fx:id="flatProfileView" prefHeight="9999" prefWidth="640.0">
+                    <columns>
+                        <TableColumn fx:id="proportions" prefWidth="147.0" text="Proportion"/>
+                        <TableColumn fx:id="methods" prefWidth="492.0" text="Method"/>
+                    </columns>
+                </TableView>
+            </children>
+        </StackPane>
+    </children>
+</VBox>

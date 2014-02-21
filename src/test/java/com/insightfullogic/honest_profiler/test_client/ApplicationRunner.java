@@ -1,19 +1,19 @@
 package com.insightfullogic.honest_profiler.test_client;
 
 import com.insightfullogic.honest_profiler.FakeConsole;
-import com.insightfullogic.honest_profiler.HonestProfilerEntry;
+import com.insightfullogic.honest_profiler.console.ConsoleEntry;
 import com.insightfullogic.honest_profiler.log.Logs;
 
 import static org.junit.Assert.assertTrue;
 
 public class ApplicationRunner {
 
-    private final HonestProfilerEntry ui;
+    private final ConsoleEntry ui;
     private final FakeConsole console;
 
     public ApplicationRunner() {
         console = new FakeConsole();
-        ui = new HonestProfilerEntry(console);
+        ui = new ConsoleEntry(console);
     }
 
     public void loadLogFrom(String file) {

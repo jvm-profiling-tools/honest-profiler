@@ -1,15 +1,15 @@
-package com.insightfullogic.honest_profiler.user_interface.console;
+package com.insightfullogic.honest_profiler.console;
 
 import com.insightfullogic.honest_profiler.Console;
 import com.insightfullogic.honest_profiler.collector.Profile;
+import com.insightfullogic.honest_profiler.collector.ProfileListener;
 import com.insightfullogic.honest_profiler.collector.ProfileTreeNode;
 import com.insightfullogic.honest_profiler.log.Method;
-import com.insightfullogic.honest_profiler.user_interface.UserInterface;
 
 import java.io.PrintStream;
 import java.util.stream.IntStream;
 
-public class ConsoleUserInterface implements UserInterface {
+public class ConsoleUserInterface implements ProfileListener {
 
     private final Console console;
 

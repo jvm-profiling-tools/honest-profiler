@@ -1,4 +1,4 @@
-package com.insightfullogic.honest_profiler.user_interface.console;
+package com.insightfullogic.honest_profiler.console;
 
 import com.insightfullogic.honest_profiler.FakeConsole;
 import com.insightfullogic.honest_profiler.ProfileFixtures;
@@ -8,13 +8,9 @@ import com.insightfullogic.honest_profiler.collector.ProfileTree;
 import com.insightfullogic.honest_profiler.collector.ProfileTreeNode;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static org.junit.Assert.assertTrue;
 
 public class ConsoleUserInterfaceTest {
 

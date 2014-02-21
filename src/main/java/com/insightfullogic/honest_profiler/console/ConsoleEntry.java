@@ -1,16 +1,15 @@
-package com.insightfullogic.honest_profiler;
+package com.insightfullogic.honest_profiler.console;
 
+import com.insightfullogic.honest_profiler.Console;
 import com.insightfullogic.honest_profiler.collector.LogCollector;
 import com.insightfullogic.honest_profiler.log.LogParser;
-import com.insightfullogic.honest_profiler.user_interface.UserInterface;
-import com.insightfullogic.honest_profiler.user_interface.console.ConsoleUserInterface;
 
 import java.io.File;
 
-public class HonestProfilerEntry {
+public class ConsoleEntry {
 
-    private final LogParser parser;
     private final LogCollector collector;
+    private final LogParser parser;
 
     public static void main(String[] args) {
         if (args.length != 1) {
@@ -18,12 +17,12 @@ public class HonestProfilerEntry {
             System.exit(-1);
         }
 
-        HonestProfilerEntry entry = new HonestProfilerEntry(() -> System.out);
+        ConsoleEntry entry = new ConsoleEntry(() -> System.out);
         entry.loadLogFrom(new File(args[0]));
     }
 
-    public HonestProfilerEntry(Console console) {
-        UserInterface ui = new ConsoleUserInterface(console);
+    public ConsoleEntry(Console console) {
+        ConsoleUserInterface ui = new ConsoleUserInterface(console);
         collector = new LogCollector(ui);
         parser = new LogParser(collector);
     }

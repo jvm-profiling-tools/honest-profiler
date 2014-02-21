@@ -123,8 +123,7 @@ public class LogCollector implements EventListener {
     }
 
     private FlatProfileEntry toFlatProfileEntry(Entry<Long, Integer> entry) {
-        Me
-        thod method = methodNames.get(entry.getKey());
+        Method method = methodNames.get(entry.getKey());
         double timeShare = (double) entry.getValue() / traceCount;
         return new FlatProfileEntry(method, timeShare);
     }
