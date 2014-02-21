@@ -4,8 +4,8 @@ import com.insightfullogic.honest_profiler.FakeConsole;
 import com.insightfullogic.honest_profiler.ProfileFixtures;
 import com.insightfullogic.honest_profiler.collector.FlatProfileEntry;
 import com.insightfullogic.honest_profiler.collector.Profile;
+import com.insightfullogic.honest_profiler.collector.ProfileNode;
 import com.insightfullogic.honest_profiler.collector.ProfileTree;
-import com.insightfullogic.honest_profiler.collector.ProfileTreeNode;
 import org.junit.Test;
 
 import java.util.List;
@@ -19,7 +19,7 @@ public class ConsoleUserInterfaceTest {
 
     @Test
     public void rendersSingleMethod() {
-        ProfileTreeNode root = new ProfileTreeNode(ProfileFixtures.printf, 1.0);
+        ProfileNode root = new ProfileNode(ProfileFixtures.printf, 1.0);
         Profile profile = new Profile(2, asList(new FlatProfileEntry(ProfileFixtures.printf, 1.0)), toTrees(root));
 
         ui.accept(profile);
@@ -29,15 +29,15 @@ public class ConsoleUserInterfaceTest {
         console.outputContains("1.0");
     }
 
-    private List<ProfileTree> toTrees(ProfileTreeNode root) {
+    private List<ProfileTree> toTrees(ProfileNode root) {
         return asList(new ProfileTree(root));
     }
 
     @Test
     public void rendersMultiBranchProfile() {
-        ProfileTreeNode left = new ProfileTreeNode(ProfileFixtures.println, 0.5);
-        ProfileTreeNode right = new ProfileTreeNode(ProfileFixtures.append, 0.5);
-        ProfileTreeNode root = new ProfileTreeNode(ProfileFixtures.printf, 1, asList(left, right));
+        ProfileNode left = new ProfileNode(ProfileFixtures.println, 0.5);
+        ProfileNode right = new ProfileNode(ProfileFixtures.append, 0.5);
+        ProfileNode root = new ProfileNode(ProfileFixtures.printf, 1, asList(left, right));
         Profile profile = new Profile(2, asList(new FlatProfileEntry(ProfileFixtures.printf, 1.0)), toTrees(root));
 
         ui.accept(profile);

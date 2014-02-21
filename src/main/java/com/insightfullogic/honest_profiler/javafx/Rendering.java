@@ -10,18 +10,26 @@ import java.text.MessageFormat;
 
 import static javafx.scene.control.TableColumn.CellDataFeatures;
 
-public class CellValues {
+public class Rendering {
 
     public static SimpleObjectProperty<String> timeShare(CellDataFeatures<FlatProfileEntry, String> features) {
         double timeShare = features.getValue().getTimeShare();
-        String formattedTimeShare = MessageFormat.format("{0,number,#.##%}", timeShare);
+        String formattedTimeShare = renderTimeShare(timeShare);
         return new ReadOnlyObjectWrapper<>(formattedTimeShare);
+    }
+
+    public static String renderTimeShare(double timeShare) {
+        return MessageFormat.format("{0,number,#.##%}", timeShare);
     }
 
     public static SimpleObjectProperty<String> method(CellDataFeatures<FlatProfileEntry, String> features) {
         Method method = features.getValue().getMethod();
-        String representation = method.getClassName() + "." + method.getMethodName();
+        String representation = renderMethod(method);
         return new ReadOnlyObjectWrapper<>(representation);
+    }
+
+    public static String renderMethod(Method method) {
+        return method.getClassName() + "." + method.getMethodName();
     }
 
 }

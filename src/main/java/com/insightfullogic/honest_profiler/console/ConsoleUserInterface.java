@@ -3,7 +3,7 @@ package com.insightfullogic.honest_profiler.console;
 import com.insightfullogic.honest_profiler.Console;
 import com.insightfullogic.honest_profiler.collector.Profile;
 import com.insightfullogic.honest_profiler.collector.ProfileListener;
-import com.insightfullogic.honest_profiler.collector.ProfileTreeNode;
+import com.insightfullogic.honest_profiler.collector.ProfileNode;
 import com.insightfullogic.honest_profiler.log.Method;
 
 import java.io.PrintStream;
@@ -50,7 +50,7 @@ public class ConsoleUserInterface implements ProfileListener {
         profile.getTrees().forEach(tree -> printNode(tree.getRootNode(), 1));
     }
 
-    private void printNode(ProfileTreeNode node, int depth) {
+    private void printNode(ProfileNode node, int depth) {
         PrintStream out = console.out();
         out.print('\n');
 

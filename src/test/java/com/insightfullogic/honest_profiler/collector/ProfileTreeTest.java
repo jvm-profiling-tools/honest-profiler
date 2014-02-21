@@ -23,7 +23,7 @@ public class ProfileTreeTest {
         collector.handle(ProfileFixtures.println);
         collector.endOfLog();
 
-        ProfileTreeNode node = assertProfileHasSingleTree();
+        ProfileNode node = assertProfileHasSingleTree();
         assertEquals(0L, node.children().count());
         assertNode(ProfileFixtures.println, 1.0, node);
     }
@@ -33,7 +33,7 @@ public class ProfileTreeTest {
         printlnCallingAppend(1);
         collector.endOfLog();
 
-        ProfileTreeNode node = assertProfileHasSingleTree();
+        ProfileNode node = assertProfileHasSingleTree();
         assertEquals(1L, node.children().count());
         assertNode(ProfileFixtures.println, 1.0, node);
         assertNode(ProfileFixtures.append, 1.0, node.children().findFirst().get());
@@ -44,7 +44,7 @@ public class ProfileTreeTest {
         printlnCallingPrintfAndAppend(1);
         collector.endOfLog();
 
-        ProfileTreeNode node = assertProfileHasSingleTree();
+        ProfileNode node = assertProfileHasSingleTree();
         assertPrintlnCallingAppendAndPrintf(node);
     }
 
@@ -59,11 +59,11 @@ public class ProfileTreeTest {
         trees.forEach(tree -> assertPrintlnCallingAppendAndPrintf(tree.getRootNode()));
     }
 
-    private void assertPrintlnCallingAppendAndPrintf(ProfileTreeNode node) {
+    private void assertPrintlnCallingAppendAndPrintf(ProfileNode node) {
         assertEquals(2L, node.children().count());
         assertNode(ProfileFixtures.println, 1.0, node);
 
-        List<ProfileTreeNode> children = node.getChildren();
+        List<ProfileNode> children = node.getChildren();
         assertNode(ProfileFixtures.append, 0.5, children.get(0));
         assertNode(ProfileFixtures.printf, 0.5, children.get(1));
     }
@@ -84,7 +84,7 @@ public class ProfileTreeTest {
         collector.handle(ProfileFixtures.println);
     }
 
-    private ProfileTreeNode assertProfileHasSingleTree() {
+    private ProfileNode assertProfileHasSingleTree() {
         Profile profile = listener.getProfile();
         List<ProfileTree> trees = profile.getTrees();
         assertEquals(1, trees.size());
@@ -92,7 +92,7 @@ public class ProfileTreeTest {
         return trees.get(0).getRootNode();
     }
 
-    private void assertNode(Method method, double ratio, ProfileTreeNode node) {
+    private void assertNode(Method method, double ratio, ProfileNode node) {
         assertEquals(ratio, node.getTimeShare(), 0.00001);
         assertEquals(method, node.getMethod());
     }

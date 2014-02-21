@@ -49,22 +49,22 @@ public final class NodeCollector {
     }
 
     // Only gets called on a root node
-    public ProfileTreeNode normalise(Function<Long, Method> nameRegistry) {
+    public ProfileNode normalise(Function<Long, Method> nameRegistry) {
         return normaliseBy(visits, nameRegistry);
     }
 
-    private ProfileTreeNode normaliseBy(int parentVisits, Function<Long, Method> nameRegistry) {
+    private ProfileNode normaliseBy(int parentVisits, Function<Long, Method> nameRegistry) {
         Method method = nameRegistry.apply(methodId);
 
         double timeShare = (double) visits / parentVisits;
 
-        List<ProfileTreeNode> children
+        List<ProfileNode> children
             = childrenByMethodId.values()
                                 .stream()
                                 .map(child -> child.normaliseBy(parentVisits, nameRegistry))
                                 .collect(toList());
 
-        return new ProfileTreeNode(method, timeShare, children);
+        return new ProfileNode(method, timeShare, children);
     }
 
 }

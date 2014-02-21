@@ -3,31 +3,30 @@ package com.insightfullogic.honest_profiler.collector;
 import com.insightfullogic.honest_profiler.log.Method;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static java.util.Collections.emptyList;
 
-public final class ProfileTreeNode {
+public final class ProfileNode {
 
-    private final List<ProfileTreeNode> children;
+    private final List<ProfileNode> children;
     private final Method method;
     private final double timeShare;
 
-    public ProfileTreeNode(Method method, double timeShare) {
+    public ProfileNode(Method method, double timeShare) {
         this(method, timeShare, emptyList());
     }
-    public ProfileTreeNode(Method method, double timeShare, List<ProfileTreeNode> children) {
+    public ProfileNode(Method method, double timeShare, List<ProfileNode> children) {
         this.method = method;
         this.timeShare = timeShare;
         this.children = children;
     }
 
-    public Stream<ProfileTreeNode> children() {
+    public Stream<ProfileNode> children() {
         return children.stream();
     }
 
-    public List<ProfileTreeNode> getChildren() {
+    public List<ProfileNode> getChildren() {
         return children;
     }
 

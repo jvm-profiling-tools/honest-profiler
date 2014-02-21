@@ -2,13 +2,13 @@ package com.insightfullogic.honest_profiler.collector;
 
 public final class ProfileTree {
 
-    private final ProfileTreeNode rootNode;
+    private final ProfileNode rootNode;
 
-    public ProfileTree(ProfileTreeNode rootNode) {
+    public ProfileTree(ProfileNode rootNode) {
         this.rootNode = rootNode;
     }
 
-    public ProfileTreeNode getRootNode() {
+    public ProfileNode getRootNode() {
         return rootNode;
     }
 

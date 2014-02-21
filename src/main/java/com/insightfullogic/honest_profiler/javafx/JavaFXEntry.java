@@ -1,21 +1,23 @@
 package com.insightfullogic.honest_profiler.javafx;
 
 import com.insightfullogic.honest_profiler.collector.LogCollector;
+import com.insightfullogic.honest_profiler.collector.Profile;
 import com.insightfullogic.honest_profiler.log.LogParser;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
-
-import java.io.File;
 
 public class JavaFXEntry extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        ProfileViewModel viewModel = new ProfileViewModel();
-        LogCollector collector = new LogCollector(viewModel);
+        FlatViewModel flatModel = new FlatViewModel();
+        TreeViewModel treeModel = new TreeViewModel();
+
+        Listeners<Profile> listener = new Listeners<Profile>()
+                .of(flatModel::accept)
+                .of(treeModel::accept);
+
+        LogCollector collector = new LogCollector(listener::accept);
         LogParser parser = new LogParser(collector);
 
         SceneLoader loader = new SceneLoader("ProfileView.fxml");
@@ -24,7 +26,8 @@ public class JavaFXEntry extends Application {
         stage.show();
 
         loader.getController(ProfileController.class)
-              .setViewModel(viewModel)
+              .setFlatModel(flatModel)
+              .setTreeModel(treeModel)
               .setFileParser(parser::parse);
     }
 

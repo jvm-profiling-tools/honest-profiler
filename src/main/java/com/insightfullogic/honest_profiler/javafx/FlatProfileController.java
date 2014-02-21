@@ -1,16 +1,9 @@
 package com.insightfullogic.honest_profiler.javafx;
 
 import com.insightfullogic.honest_profiler.collector.FlatProfileEntry;
-import com.insightfullogic.honest_profiler.log.Method;
-import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-
-import java.text.MessageFormat;
-
-import static javafx.scene.control.TableColumn.CellDataFeatures;
 
 public class FlatProfileController {
 
@@ -25,11 +18,11 @@ public class FlatProfileController {
 
     @FXML
     private void initialize() {
-        proportions.setCellValueFactory(CellValues::timeShare);
-        methods.setCellValueFactory(CellValues::method);
+        proportions.setCellValueFactory(Rendering::timeShare);
+        methods.setCellValueFactory(Rendering::method);
     }
 
-    public void setViewModel(ProfileViewModel viewModel) {
+    public void setViewModel(FlatViewModel viewModel) {
         flatProfileView.setItems(viewModel.getFlatProfile());
     }
 

@@ -1,31 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox fx:controller="com.insightfullogic.honest_profiler.javafx.ProfileController" prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.insightfullogic.honest_profiler.javafx.ProfileController">
     <children>
-        <MenuBar VBox.vgrow="NEVER">
-            <menus>
-                <Menu mnemonicParsing="false" text="File">
-                    <items>
-                        <MenuItem mnemonicParsing="false" text="Open…" onAction="#open"/>
-                        <SeparatorMenuItem mnemonicParsing="false"/>
-                        <MenuItem mnemonicParsing="false" text="Quit" onAction="#quit"/>
-                    </items>
-                </Menu>
-                <Menu mnemonicParsing="false" text="View">
-                    <items>
-                        <MenuItem mnemonicParsing="false" text="Tree Profile"/>
-                        <MenuItem mnemonicParsing="false" text="Flat Profile"/>
-                    </items>
-                </Menu>
-            </menus>
-        </MenuBar>
-        <StackPane prefHeight="9999" prefWidth="200.0">
+        <ToolBar prefWidth="200.0">
+            <items>
+                <Button defaultButton="true" mnemonicParsing="false" text="Open" onAction="#open"/>
+                <Button mnemonicParsing="false" text="Flat View" onAction="#flipView"/>
+                <Button mnemonicParsing="false" text="Quit" onAction="#quit"/>
+            </items>
+        </ToolBar>
+        <StackPane fx:id="content" prefHeight="9999" prefWidth="200.0">
             <children>
-                <!--<TreeView prefHeight="200.0" prefWidth="200.0"/>-->
-                <fx:include fx:id="flatProfile" source="FlatProfileView.fxml" />
+                <fx:include fx:id="treeProfile" source="TreeProfileView.fxml"/>
+                <fx:include fx:id="flatProfile" source="FlatProfileView.fxml"/>
             </children>
         </StackPane>
     </children>

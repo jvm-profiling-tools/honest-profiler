@@ -6,15 +6,11 @@ import com.insightfullogic.honest_profiler.collector.ProfileListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toCollection;
-
-public class ProfileViewModel implements ProfileListener {
+public class FlatViewModel implements ProfileListener {
 
     private final ObservableList<FlatProfileEntry> flatProfile;
 
-    public ProfileViewModel() {
+    public FlatViewModel() {
         flatProfile = FXCollections.observableArrayList();
     }
 
@@ -22,7 +18,7 @@ public class ProfileViewModel implements ProfileListener {
     public void accept(Profile profile) {
         flatProfile.clear();
         profile.flatProfile()
-               .collect(toCollection(() -> flatProfile));
+               .forEach(flatProfile::add);
     }
 
     public ObservableList<FlatProfileEntry> getFlatProfile() {
