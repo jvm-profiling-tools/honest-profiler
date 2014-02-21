@@ -23,8 +23,8 @@ public class JavaFXEntry extends Application {
         stage.setScene(loader.load());
         stage.show();
 
-        ProfileController controller = loader.getController();
-        controller.setViewModel(viewModel);
+        loader.getController(ProfileController.class)
+              .setViewModel(viewModel);
 
         parser.parse(new File("example.hpl"));
     }

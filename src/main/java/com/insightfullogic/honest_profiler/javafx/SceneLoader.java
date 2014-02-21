@@ -22,7 +22,7 @@ public class SceneLoader {
         return new Scene(view);
     }
 
-    public <T> T getController() {
+    public <T> T getController(Class<T> cls) {
         return (T) controller;
     }
 
