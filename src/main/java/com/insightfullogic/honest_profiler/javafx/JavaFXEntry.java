@@ -7,31 +7,19 @@ import com.insightfullogic.honest_profiler.javafx.tree.TreeViewModel;
 import com.insightfullogic.honest_profiler.log.LogParser;
 import com.insightfullogic.honest_profiler.util.Listeners;
 import javafx.application.Application;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class JavaFXEntry extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        FlatViewModel flatModel = new FlatViewModel();
-        TreeViewModel treeModel = new TreeViewModel();
-
-        Listeners<Profile> listener = new Listeners<Profile>()
-                .of(flatModel::accept)
-                .of(treeModel::accept);
-
-        LogCollector collector = new LogCollector(listener::accept);
-        LogParser parser = new LogParser(collector);
-
-        SceneLoader loader = new SceneLoader("ProfileView.fxml");
+        ProfileWindow window = new ProfileWindow();
+        Parent root = window.initialise();
         stage.setTitle("Honest Profiler");
-        stage.setScene(loader.load());
+        stage.setScene(new Scene(root));
         stage.show();
-
-        loader.getController(ProfileController.class)
-              .setFlatModel(flatModel)
-              .setTreeModel(treeModel)
-              .setFileParser(parser::parse);
     }
 
     public static void main(String[] args) {

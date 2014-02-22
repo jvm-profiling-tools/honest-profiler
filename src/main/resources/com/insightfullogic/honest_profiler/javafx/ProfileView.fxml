@@ -9,8 +9,8 @@
     <children>
         <ToolBar prefWidth="200.0">
             <items>
-                <Button defaultButton="true" mnemonicParsing="false" text="Open" onAction="#open"/>
-                <Button mnemonicParsing="false" text="Flat View" onAction="#flipView"/>
+                <Button fx:id="open" defaultButton="true" mnemonicParsing="false" text="Open" onAction="#open"/>
+                <Button fx:id="flipView" mnemonicParsing="false" text="Flat View" onAction="#flipView"/>
                 <Button mnemonicParsing="false" text="Quit" onAction="#quit"/>
             </items>
         </ToolBar>
