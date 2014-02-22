@@ -1,5 +1,9 @@
 package com.insightfullogic.honest_profiler.javafx;
 
+import com.insightfullogic.honest_profiler.javafx.flat.FlatProfileController;
+import com.insightfullogic.honest_profiler.javafx.flat.FlatViewModel;
+import com.insightfullogic.honest_profiler.javafx.tree.TreeProfileController;
+import com.insightfullogic.honest_profiler.javafx.tree.TreeViewModel;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -39,8 +43,6 @@ public class ProfileController {
 
     public ProfileController setFileParser(Consumer<File> parser) {
         this.parser = parser;
-        flipContent();
-        parser.accept(new File("example.hpl"));
         return this;
     }
 

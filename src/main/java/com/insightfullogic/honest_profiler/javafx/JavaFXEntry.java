@@ -2,7 +2,10 @@ package com.insightfullogic.honest_profiler.javafx;
 
 import com.insightfullogic.honest_profiler.collector.LogCollector;
 import com.insightfullogic.honest_profiler.collector.Profile;
+import com.insightfullogic.honest_profiler.javafx.flat.FlatViewModel;
+import com.insightfullogic.honest_profiler.javafx.tree.TreeViewModel;
 import com.insightfullogic.honest_profiler.log.LogParser;
+import com.insightfullogic.honest_profiler.util.Listeners;
 import javafx.application.Application;
 import javafx.stage.Stage;
 

@@ -13,7 +13,7 @@ import static org.junit.Assert.assertTrue;
 
 public class ConcurrentLogParserTest {
 
-    private static final int SIZE = 1024 * 1024;
+    private static final int SIZE = 1024 * 1024 * 100;
 
     @Test
     public void canParseLogBeingConcurrentlyWrittenTo() throws IOException {
@@ -59,7 +59,7 @@ public class ConcurrentLogParserTest {
 
     private void finishReading(LogParser parser, ReaderThread thread) {
         parser.stop();
-        sleep(10L);
+        sleep(50L);
         assertTrue("reader thread still running", thread.hasStopped());
     }
 

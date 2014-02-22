@@ -1,4 +1,4 @@
-package com.insightfullogic.honest_profiler.test_client;
+package com.insightfullogic.honest_profiler.console;
 
 import com.insightfullogic.honest_profiler.FakeConsole;
 import com.insightfullogic.honest_profiler.console.ConsoleEntry;
@@ -6,12 +6,12 @@ import com.insightfullogic.honest_profiler.log.Logs;
 
 import static org.junit.Assert.assertTrue;
 
-public class ApplicationRunner {
+public class ConsoleApplicationRunner {
 
     private final ConsoleEntry ui;
     private final FakeConsole console;
 
-    public ApplicationRunner() {
+    public ConsoleApplicationRunner() {
         console = new FakeConsole();
         ui = new ConsoleEntry(console);
     }

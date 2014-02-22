@@ -1,4 +1,4 @@
-package com.insightfullogic.honest_profiler.javafx;
+package com.insightfullogic.honest_profiler.javafx.flat;
 
 import com.insightfullogic.honest_profiler.collector.FlatProfileEntry;
 import com.insightfullogic.honest_profiler.collector.Profile;

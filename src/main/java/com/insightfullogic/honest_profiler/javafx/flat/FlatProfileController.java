@@ -1,6 +1,8 @@
-package com.insightfullogic.honest_profiler.javafx;
+package com.insightfullogic.honest_profiler.javafx.flat;
 
 import com.insightfullogic.honest_profiler.collector.FlatProfileEntry;
+import com.insightfullogic.honest_profiler.javafx.Rendering;
+import com.insightfullogic.honest_profiler.javafx.flat.FlatViewModel;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;

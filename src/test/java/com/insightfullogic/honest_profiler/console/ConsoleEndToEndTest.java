@@ -1,10 +1,10 @@
-package com.insightfullogic.honest_profiler.test_client;
+package com.insightfullogic.honest_profiler.console;
 
 import org.junit.Test;
 
-public class HonestProfilerUIEndToEndTest {
+public class ConsoleEndToEndTest {
 
-    private final ApplicationRunner runner = new ApplicationRunner();
+    private final ConsoleApplicationRunner runner = new ConsoleApplicationRunner();
 
     @Test
     public void displayProfile() {

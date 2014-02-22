@@ -1,4 +1,4 @@
-package com.insightfullogic.honest_profiler.javafx;
+package com.insightfullogic.honest_profiler.util;
 
 import java.util.ArrayList;
 import java.util.List;

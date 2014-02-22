@@ -2,7 +2,7 @@
 
 <?import javafx.scene.control.*?>
 
-<TableView fx:controller="com.insightfullogic.honest_profiler.javafx.FlatProfileController" fx:id="flatProfileView" prefHeight="9999" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<TableView fx:controller="com.insightfullogic.honest_profiler.javafx.flat.FlatProfileController" fx:id="flatProfileView" prefHeight="9999" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
     <columns>
         <TableColumn fx:id="proportions" prefWidth="147.0" text="Time Share"/>
         <TableColumn fx:id="methods" prefWidth="492.0" text="Method"/>
