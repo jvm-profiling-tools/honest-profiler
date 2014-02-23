@@ -24,20 +24,18 @@ public class JavaFXEntry extends Application {
     static Parent createRoot() {
         MutablePicoContainer pico = registerComponents();
         PicoFXLoader loader = pico.getComponent(PicoFXLoader.class);
-        return loader.load("ProfileView.fxml", ProfileController.class);
+        return loader.load("ProfileView.fxml", ProfileViewModel.class);
     }
 
     private static MutablePicoContainer registerComponents() {
         MutablePicoContainer pico = new DefaultPicoContainer(new Caching())
             .addAdapter(new ProfileListenerProvider())
-            .addComponent(FlatViewModel.class)
-            .addComponent(FlatProfileController.class)
-            .addComponent(TreeViewModel.class)
-            .addComponent(TreeProfileController.class)
-            .addComponent(PicoFXLoader.class)
             .addComponent(LogCollector.class)
             .addComponent(LogParser.class)
-            .addComponent(ProfileController.class);
+            .addComponent(FlatViewModel.class)
+            .addComponent(TreeViewModel.class)
+            .addComponent(ProfileViewModel.class)
+            .addComponent(PicoFXLoader.class);
 
         return pico.addComponent(pico);
     }

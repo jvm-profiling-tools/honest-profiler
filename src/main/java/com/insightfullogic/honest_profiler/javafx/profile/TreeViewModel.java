@@ -4,23 +4,26 @@ import com.insightfullogic.honest_profiler.collector.Profile;
 import com.insightfullogic.honest_profiler.collector.ProfileListener;
 import com.insightfullogic.honest_profiler.collector.ProfileNode;
 import com.insightfullogic.honest_profiler.collector.ProfileTree;
+import javafx.fxml.FXML;
 import javafx.scene.control.TreeView;
 
 import java.util.List;
 
 public class TreeViewModel implements ProfileListener {
 
-    private TreeView<ProfileNode> view;
+    @FXML
+    private TreeView<ProfileNode> treeView;
 
-    public void setView(TreeView<ProfileNode> view) {
-        this.view = view;
+    @FXML
+    private void initialize() {
+        treeView.setCellFactory(view -> new TreeViewCell());
     }
 
     @Override
     public void accept(Profile profile) {
         List<ProfileTree> trees = profile.getTrees();
         ProfileNode profileNode = trees.get(0).getRootNode();
-        view.setRoot(new TreeNodeAdapter(profileNode));
+        treeView.setRoot(new TreeNodeAdapter(profileNode));
     }
 
 }

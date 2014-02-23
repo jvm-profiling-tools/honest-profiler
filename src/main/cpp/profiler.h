@@ -34,14 +34,24 @@ public:
   explicit Profiler(jvmtiEnv *jvmti) : jvmti_(jvmti) {
     // main object graph instantiated here
     // these objects all live for the lifecycle of the program
-    //size_t size = 1024 * 1024;
-//    static io::mapped_file_sink sink;
-//    sink.open("log.hpl", 0);
-    //sink.open("log.hpl", 10 * 1024 * 1024, 0);
-//    mapFile = new mapped_buffer(sink);
+    const size_t size = 10 * 1024 * 1024;
+    const char* fileName = "log.hpl";
 
-    //logFile = new ostream(mapFile);
-    logFile = new ofstream("log.hpl", ofstream::out | ofstream::binary);
+    // too large to stack allocate
+    char* zeroingBuffer = new char[size];
+    memset(zeroingBuffer, 0, size);
+    ofstream file("log.hpl", ofstream::out | ofstream::binary);
+    file.write(zeroingBuffer, size);
+    file.close();
+    delete zeroingBuffer;
+
+    std::cout << "opened file" << std::endl;
+
+    static io::mapped_file_sink sink;
+    sink.open(fileName, size, 0);
+    mapFile = new mapped_buffer(sink);
+
+    logFile = new ostream(mapFile);
     writer = new LogWriter(*logFile, &Profiler::lookupFrameInformation, jvmti);
     buffer = new CircularQueue(*writer);
     processor = new Processor(jvmti, *writer, *buffer);

@@ -7,12 +7,13 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 
 import java.io.File;
 
-public class ProfileController {
+public class ProfileViewModel {
 
     private final LogParser parser;
 
@@ -21,7 +22,10 @@ public class ProfileController {
     @FXML
     private StackPane content;
 
-    public ProfileController(LogParser parser) {
+    @FXML
+    private Label traceCount;
+
+    public ProfileViewModel(LogParser parser) {
         this.parser = parser;
         flatView = false;
     }
