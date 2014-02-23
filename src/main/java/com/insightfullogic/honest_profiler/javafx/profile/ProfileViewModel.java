@@ -1,5 +1,7 @@
 package com.insightfullogic.honest_profiler.javafx.profile;
 
+import com.insightfullogic.honest_profiler.collector.Profile;
+import com.insightfullogic.honest_profiler.collector.ProfileListener;
 import com.insightfullogic.honest_profiler.log.LogParser;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -21,9 +23,6 @@ public class ProfileViewModel {
 
     @FXML
     private StackPane content;
-
-    @FXML
-    private Label traceCount;
 
     public ProfileViewModel(LogParser parser) {
         this.parser = parser;

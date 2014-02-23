@@ -34,6 +34,7 @@ public class JavaFXEntry extends Application {
             .addComponent(LogParser.class)
             .addComponent(FlatViewModel.class)
             .addComponent(TreeViewModel.class)
+            .addComponent(TraceCountViewModel.class)
             .addComponent(ProfileViewModel.class)
             .addComponent(PicoFXLoader.class);
 

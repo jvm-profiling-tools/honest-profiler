@@ -5,10 +5,11 @@ import org.picocontainer.injectors.ProviderAdapter;
 
 public class ProfileListenerProvider extends ProviderAdapter {
 
-    public ProfileListener provide(FlatViewModel flatModel, TreeViewModel treeModel) {
+    public ProfileListener provide(FlatViewModel flatModel, TreeViewModel treeModel, TraceCountViewModel countModel) {
         return profile -> {
             flatModel.accept(profile);
             treeModel.accept(profile);
+            countModel.accept(profile);
         };
     }
 

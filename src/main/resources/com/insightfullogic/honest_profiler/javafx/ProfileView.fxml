@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 <VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.insightfullogic.honest_profiler.javafx.profile.ProfileViewModel">
     <children>
         <ToolBar prefWidth="200.0">
@@ -11,13 +11,13 @@
                 <Button fx:id="open" defaultButton="true" mnemonicParsing="false" onAction="#open" text="Open" />
                 <Button fx:id="flipView" mnemonicParsing="false" onAction="#flipView" text="Flat View" />
                 <Button mnemonicParsing="false" onAction="#quit" text="Quit" />
-                <Label fx:id="traceCount" prefHeight="15.0" prefWidth="104.0" />
+                <fx:include source="TraceCountView.fxml" />
             </items>
         </ToolBar>
         <StackPane fx:id="content" prefHeight="9999" prefWidth="200.0">
             <children>
-                <fx:include fx:id="flatProfile" source="FlatProfileView.fxml" />
-                <fx:include fx:id="treeProfile" source="TreeProfileView.fxml" />
+                <fx:include source="FlatProfileView.fxml" />
+                <fx:include source="TreeProfileView.fxml" />
             </children>
         </StackPane>
     </children>
