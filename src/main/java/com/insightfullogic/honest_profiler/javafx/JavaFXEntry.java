@@ -39,13 +39,16 @@ public class JavaFXEntry extends Application {
     }
 
     private static MutablePicoContainer registerComponents(Stage stage) {
+        return registerComponents().addComponent(stage);
+    }
+
+    public static MutablePicoContainer registerComponents() {
         MutablePicoContainer pico = new PicoBuilder()
             .withJavaEE5Lifecycle()
             .withCaching()
             .build()
 
             .addAdapter(new ProfileListenerProvider())
-            .addComponent(stage)
             .addComponent(LogCollector.class)
             .addComponent(LogParser.class)
             .addComponent(FlatViewModel.class)

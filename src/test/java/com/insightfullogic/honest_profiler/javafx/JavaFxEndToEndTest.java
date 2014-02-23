@@ -5,6 +5,7 @@ import org.hamcrest.Matcher;
 import org.junit.Test;
 import org.loadui.testfx.GuiTest;
 import org.loadui.testfx.exceptions.NodeQueryException;
+import org.picocontainer.MutablePicoContainer;
 
 import java.util.concurrent.Callable;
 
@@ -46,8 +47,9 @@ public class JavaFxEndToEndTest extends GuiTest {
 
     @Override
     protected Parent getRootNode() {
-        // TODO
-        return null; //JavaFXEntry.createStart(stage);
+        MutablePicoContainer pico = JavaFXEntry.registerComponents();
+        PicoFXLoader loader = pico.getComponent(PicoFXLoader.class);
+        return loader.load("ProfileView.fxml");
     }
 
 }
