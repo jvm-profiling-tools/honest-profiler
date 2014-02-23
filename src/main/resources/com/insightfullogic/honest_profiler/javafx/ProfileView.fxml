@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 
 <VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.insightfullogic.honest_profiler.javafx.ProfileController">
+      fx:controller="com.insightfullogic.honest_profiler.javafx.profile.ProfileController">
     <children>
         <ToolBar prefWidth="200.0">
             <items>

@@ -1,9 +1,5 @@
-package com.insightfullogic.honest_profiler.javafx;
+package com.insightfullogic.honest_profiler.javafx.profile;
 
-import com.insightfullogic.honest_profiler.javafx.flat.FlatProfileController;
-import com.insightfullogic.honest_profiler.javafx.flat.FlatViewModel;
-import com.insightfullogic.honest_profiler.javafx.tree.TreeProfileController;
-import com.insightfullogic.honest_profiler.javafx.tree.TreeViewModel;
 import com.insightfullogic.honest_profiler.log.LogParser;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -15,7 +11,6 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 
 import java.io.File;
-import java.util.function.Consumer;
 
 public class ProfileController {
 

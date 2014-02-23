@@ -1,8 +1,7 @@
-package com.insightfullogic.honest_profiler.javafx.flat;
+package com.insightfullogic.honest_profiler.javafx.profile;
 
 import com.insightfullogic.honest_profiler.collector.FlatProfileEntry;
 import com.insightfullogic.honest_profiler.javafx.Rendering;
-import com.insightfullogic.honest_profiler.javafx.flat.FlatViewModel;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -10,7 +9,7 @@ import javafx.scene.control.TableView;
 public class FlatProfileController {
 
     private final FlatViewModel viewModel;
-    
+
     @FXML
     private TableView<FlatProfileEntry> flatProfileView;
 

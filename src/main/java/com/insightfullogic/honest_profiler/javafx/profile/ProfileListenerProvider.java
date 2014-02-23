@@ -1,9 +1,7 @@
-package com.insightfullogic.honest_profiler.javafx;
+package com.insightfullogic.honest_profiler.javafx.profile;
 
 import com.insightfullogic.honest_profiler.collector.Profile;
 import com.insightfullogic.honest_profiler.collector.ProfileListener;
-import com.insightfullogic.honest_profiler.javafx.flat.FlatViewModel;
-import com.insightfullogic.honest_profiler.javafx.tree.TreeViewModel;
 import com.insightfullogic.honest_profiler.util.Listeners;
 import org.picocontainer.injectors.ProviderAdapter;
 

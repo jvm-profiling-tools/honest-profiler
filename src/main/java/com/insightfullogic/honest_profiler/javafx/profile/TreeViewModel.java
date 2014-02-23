@@ -1,4 +1,4 @@
-package com.insightfullogic.honest_profiler.javafx.tree;
+package com.insightfullogic.honest_profiler.javafx.profile;
 
 import com.insightfullogic.honest_profiler.collector.Profile;
 import com.insightfullogic.honest_profiler.collector.ProfileListener;

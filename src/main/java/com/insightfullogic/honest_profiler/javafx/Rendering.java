@@ -4,7 +4,6 @@ import com.insightfullogic.honest_profiler.collector.FlatProfileEntry;
 import com.insightfullogic.honest_profiler.log.Method;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.scene.control.TableColumn;
 
 import java.text.MessageFormat;
 

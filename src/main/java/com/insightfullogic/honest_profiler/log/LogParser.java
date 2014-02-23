@@ -1,10 +1,12 @@
 package com.insightfullogic.honest_profiler.log;
 
-import java.io.*;
-import java.nio.*;
-import java.nio.channels.FileChannel;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.BufferUnderflowException;
+import java.nio.ByteBuffer;
+import java.nio.MappedByteBuffer;
 
-import static java.nio.channels.FileChannel.MapMode.READ_WRITE;
 import static java.nio.channels.FileChannel.MapMode.READ_ONLY;
 
 public class LogParser {

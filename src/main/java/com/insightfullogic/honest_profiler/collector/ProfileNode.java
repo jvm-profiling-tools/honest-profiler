@@ -2,7 +2,7 @@ package com.insightfullogic.honest_profiler.collector;
 
 import com.insightfullogic.honest_profiler.log.Method;
 
-import java.util.*;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static java.util.Collections.emptyList;

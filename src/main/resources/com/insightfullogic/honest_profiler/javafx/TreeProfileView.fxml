@@ -2,6 +2,6 @@
 
 <?import javafx.scene.control.*?>
 
-<TreeView fx:controller="com.insightfullogic.honest_profiler.javafx.tree.TreeProfileController" fx:id="treeView"
+<TreeView fx:controller="com.insightfullogic.honest_profiler.javafx.profile.TreeProfileController" fx:id="treeView"
           prefHeight="9999" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
 </TreeView>
