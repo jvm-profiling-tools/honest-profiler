@@ -46,7 +46,8 @@ public class JavaFxEndToEndTest extends GuiTest {
 
     @Override
     protected Parent getRootNode() {
-        return JavaFXEntry.createRoot();
+        // TODO
+        return null; //JavaFXEntry.createStart(stage);
     }
 
 }

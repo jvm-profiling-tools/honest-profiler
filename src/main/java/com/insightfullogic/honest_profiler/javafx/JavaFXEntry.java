@@ -1,42 +1,61 @@
 package com.insightfullogic.honest_profiler.javafx;
 
 import com.insightfullogic.honest_profiler.collector.LogCollector;
+import com.insightfullogic.honest_profiler.discovery.DiscoveryService;
+import com.insightfullogic.honest_profiler.javafx.landing.LandingViewModel;
 import com.insightfullogic.honest_profiler.javafx.profile.*;
 import com.insightfullogic.honest_profiler.log.LogParser;
 import javafx.application.Application;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.picocontainer.DefaultPicoContainer;
 import org.picocontainer.MutablePicoContainer;
+import org.picocontainer.PicoBuilder;
 import org.picocontainer.behaviors.Caching;
+import org.picocontainer.lifecycle.StartableLifecycleStrategy;
+import org.picocontainer.monitors.NullComponentMonitor;
 
 public class JavaFXEntry extends Application {
 
+    private MutablePicoContainer pico;
+
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = createRoot();
         stage.setTitle("Honest Profiler");
-        stage.setScene(new Scene(root));
+        createStart(stage);
         stage.show();
     }
 
-    static Parent createRoot() {
-        MutablePicoContainer pico = registerComponents();
-        PicoFXLoader loader = pico.getComponent(PicoFXLoader.class);
-        return loader.load("ProfileView.fxml", ProfileViewModel.class);
+    @Override
+    public void stop() throws Exception {
+        pico.stop();
     }
 
-    private static MutablePicoContainer registerComponents() {
-        MutablePicoContainer pico = new DefaultPicoContainer(new Caching())
+    void createStart(Stage stage) {
+        pico = registerComponents(stage);
+        WindowViewModel stageModel = pico.getComponent(WindowViewModel.class);
+        Parent parent = stageModel.displayStart();
+        pico.start();
+    }
+
+    private static MutablePicoContainer registerComponents(Stage stage) {
+        MutablePicoContainer pico = new PicoBuilder()
+            .withJavaEE5Lifecycle()
+            .withCaching()
+            .build()
+
             .addAdapter(new ProfileListenerProvider())
+            .addComponent(stage)
             .addComponent(LogCollector.class)
             .addComponent(LogParser.class)
             .addComponent(FlatViewModel.class)
             .addComponent(TreeViewModel.class)
             .addComponent(TraceCountViewModel.class)
             .addComponent(ProfileViewModel.class)
-            .addComponent(PicoFXLoader.class);
+            .addComponent(LandingViewModel.class)
+            .addComponent(WindowViewModel.class)
+            .addComponent(PicoFXLoader.class)
+            .addComponent(DiscoveryService.class);
 
         return pico.addComponent(pico);
     }

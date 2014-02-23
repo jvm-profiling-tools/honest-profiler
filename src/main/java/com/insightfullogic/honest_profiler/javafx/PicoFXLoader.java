@@ -14,7 +14,7 @@ public class PicoFXLoader {
         this.pico = pico;
     }
 
-    public Parent load(String fxml, Class<?> controllerClass) {
+    public Parent load(String fxml) {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
         loader.setControllerFactory(pico::getComponent);
         try {
