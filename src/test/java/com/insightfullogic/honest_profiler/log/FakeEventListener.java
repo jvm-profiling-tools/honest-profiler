@@ -28,6 +28,11 @@ public class FakeEventListener implements EventListener {
     }
 
     @Override
+    public void startOfLog(boolean continuous) {
+
+    }
+
+    @Override
     public void handle(TraceStart traceStart) {
         events.add(traceStart);
     }

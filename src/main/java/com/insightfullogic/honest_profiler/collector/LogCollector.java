@@ -21,6 +21,7 @@ public class LogCollector implements EventListener {
     public static final int NOT_AWAITING = -1;
 
     private final ProfileListener listener;
+
     private final Map<Long, Method> methodNames;
     private final Map<Long, Integer> callCounts;
     private final Map<Long, NodeCollector> treesByThread;
@@ -32,14 +33,31 @@ public class LogCollector implements EventListener {
 
     private int traceCount;
     private boolean logComplete;
+    private boolean continuous;
 
     public LogCollector(ProfileListener listener) {
         this.listener = listener;
+
         methodNames = new HashMap<>();
         callCounts = new HashMap<>();
         treesByThread = new HashMap<>();
         reversalStack = new Stack<>();
 
+        setup(false);
+    }
+
+    @Override
+    public void startOfLog(boolean continuous) {
+        setup(continuous);
+
+        methodNames.clear();
+        callCounts.clear();
+        treesByThread.clear();
+        reversalStack.clear();
+    }
+
+    private void setup(boolean continuous) {
+        this.continuous = continuous;
         traceCount = 0;
         logComplete = false;
         currentTreeNode = null;
@@ -67,7 +85,9 @@ public class LogCollector implements EventListener {
             collectStackFrame(reversalStack.pop());
         }
         expectedNumberOfFrames = NOT_AWAITING;
-        //emitProfile();
+        if (continuous) {
+            emitProfile();
+        }
     }
 
     private void collectStackFrame(StackFrame stackFrame) {
@@ -91,8 +111,9 @@ public class LogCollector implements EventListener {
     @Override
     public void handle(Method newMethod) {
         methodNames.put(newMethod.getMethodId(), newMethod);
-        //if (expectedNumberOfFrames == NOT_AWAITING)
-        //    emitProfile();
+        if (expectedNumberOfFrames == NOT_AWAITING && continuous) {
+            emitProfile();
+        }
     }
 
     @Override

@@ -27,12 +27,23 @@ public class LogParser {
     }
 
     public void parse(File file) {
+        parse(file, false);
+    }
+
+    public void monitor(File file) {
+        ForkJoinPool.commonPool()
+                    .execute(() -> parse(file, true));
+    }
+
+    private void parse(File file, boolean continuous) {
         running = true;
         try (RandomAccessFile input = new RandomAccessFile(file, "r")) {
             // Using memory mapped files allows us to use the log as a
             // form of IPC
-            MappedByteBuffer buffer = input.getChannel().map(READ_ONLY, 0, file.length());
+            MappedByteBuffer buffer = input.getChannel()
+                                           .map(READ_ONLY, 0, file.length());
 
+            listener.startOfLog(continuous);
             while (readRecord(buffer))
                 ;
             listener.endOfLog();
@@ -113,12 +124,6 @@ public class LogParser {
         long threadId = input.getLong();
         TraceStart traceStart = new TraceStart(numberOfFrames, threadId);
         traceStart.accept(listener);
-    }
-
-    // stop when not monitoring
-    public void monitor(File file) {
-        ForkJoinPool.commonPool()
-                    .execute(() -> parse(file));
     }
 
 }
