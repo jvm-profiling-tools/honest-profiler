@@ -16,6 +16,8 @@ public class ProfileListenerProvider extends ProviderAdapter {
         };
     }
 
+    // ViewModel instances can happily update the UI
+    // without worrying about threading implications
     private void onFxThread(Runnable block) {
         if (Platform.isFxApplicationThread()) {
             block.run();
