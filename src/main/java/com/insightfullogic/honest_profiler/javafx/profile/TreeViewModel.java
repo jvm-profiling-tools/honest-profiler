@@ -19,13 +19,13 @@ public class TreeViewModel implements ProfileListener {
     @FXML
     private void initialize() {
         treeView.setCellFactory(view -> new TreeViewCell());
+        treeView.setShowRoot(false);
     }
 
     @Override
     public void accept(Profile profile) {
         List<ProfileTree> trees = profile.getTrees();
-        ProfileNode profileNode = trees.get(0).getRootNode();
-        treeView.setRoot(new TreeNodeAdapter(profileNode));
+        treeView.setRoot(new TreeNodeAdapter(trees));
     }
 
 }

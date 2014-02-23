@@ -4,7 +4,6 @@ import com.insightfullogic.honest_profiler.collector.ProfileNode;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.TreeCell;
-import javafx.scene.control.TreeItem;
 import javafx.scene.paint.Color;
 
 import static com.insightfullogic.honest_profiler.javafx.Rendering.renderMethod;
@@ -18,8 +17,9 @@ public class TreeViewCell extends TreeCell<ProfileNode> {
     private static final int IMAGE_HEIGHT = 15;
 
     private static final int TEXT_HORIZONTAL_INSET = 10;
-    private static final int TEXT_VERTICAL_INSET = 10;
+    private static final int TEXT_VERTICAL_INSET = 12;
 
+    // Hack, couldn't see a better way in Javafx
     @Override
     public void updateIndex(int i) {
         if (removedFromView(i)) {
@@ -41,6 +41,21 @@ public class TreeViewCell extends TreeCell<ProfileNode> {
     protected void updateItem(ProfileNode profileNode, boolean empty) {
         super.updateItem(profileNode, empty);
 
+        TreeNodeAdapter adapter = (TreeNodeAdapter) getTreeItem();
+        if (adapter == null)
+            return;
+
+        switch (adapter.getType()) {
+            case THREAD:
+                setText("Thread " + adapter.getThreadId());
+                return;
+            case METHOD:
+                renderMethodNode(profileNode, empty);
+                return;
+        }
+    }
+
+    private void renderMethodNode(ProfileNode profileNode, boolean empty) {
         if (!empty && isVisible()) {
             setText(renderMethod(profileNode.getMethod()));
             Canvas canvas = new Canvas(IMAGE_WIDTH, IMAGE_HEIGHT);
