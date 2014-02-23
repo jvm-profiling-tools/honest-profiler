@@ -1,10 +1,13 @@
 package com.insightfullogic.honest_profiler.javafx.profile;
 
 import com.insightfullogic.honest_profiler.collector.ProfileListener;
-import org.picocontainer.injectors.ProviderAdapter;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-public class ProfileListenerProvider extends ProviderAdapter {
+@Configuration
+public class ProfileListenerProvider {
 
+    @Bean
     public ProfileListener provide(FlatViewModel flatModel, TreeViewModel treeModel, TraceCountViewModel countModel) {
         return profile -> {
             flatModel.accept(profile);

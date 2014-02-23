@@ -7,8 +7,12 @@ import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import static java.nio.channels.FileChannel.MapMode.READ_ONLY;
 
+@Component
 public class LogParser {
 
     private static final int NOT_WRITTEN = 0;
@@ -21,6 +25,7 @@ public class LogParser {
 
     private volatile boolean running;
 
+    @Autowired
     public LogParser(IEventListener listener) {
         this.listener = listener;
     }

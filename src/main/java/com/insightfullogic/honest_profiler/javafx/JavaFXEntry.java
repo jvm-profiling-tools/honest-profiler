@@ -1,15 +1,13 @@
 package com.insightfullogic.honest_profiler.javafx;
 
-import com.insightfullogic.honest_profiler.collector.LogCollector;
-import com.insightfullogic.honest_profiler.javafx.profile.*;
-import com.insightfullogic.honest_profiler.log.LogParser;
+import com.insightfullogic.honest_profiler.RootMarker;
+import com.insightfullogic.honest_profiler.javafx.profile.ProfileViewModel;
 import javafx.application.Application;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.picocontainer.DefaultPicoContainer;
-import org.picocontainer.MutablePicoContainer;
-import org.picocontainer.behaviors.Caching;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 public class JavaFXEntry extends Application {
 
@@ -22,23 +20,16 @@ public class JavaFXEntry extends Application {
     }
 
     static Parent createRoot() {
-        MutablePicoContainer pico = registerComponents();
-        PicoFXLoader loader = pico.getComponent(PicoFXLoader.class);
+        ApplicationContext pico = registerComponents();
+        PicoFXLoader loader = pico.getBean(PicoFXLoader.class);
         return loader.load("ProfileView.fxml", ProfileViewModel.class);
     }
 
-    private static MutablePicoContainer registerComponents() {
-        MutablePicoContainer pico = new DefaultPicoContainer(new Caching())
-            .addAdapter(new ProfileListenerProvider())
-            .addComponent(LogCollector.class)
-            .addComponent(LogParser.class)
-            .addComponent(FlatViewModel.class)
-            .addComponent(TreeViewModel.class)
-            .addComponent(TraceCountViewModel.class)
-            .addComponent(ProfileViewModel.class)
-            .addComponent(PicoFXLoader.class);
-
-        return pico.addComponent(pico);
+    private static ApplicationContext registerComponents() {
+        final AnnotationConfigApplicationContext pico = new AnnotationConfigApplicationContext();
+        pico.scan(RootMarker.class.getPackage().getName());
+        pico.refresh();
+        return pico;
     }
 
     public static void main(String[] args) {
