@@ -4,6 +4,7 @@ import com.insightfullogic.honest_profiler.javafx.flat.FlatProfileController;
 import com.insightfullogic.honest_profiler.javafx.flat.FlatViewModel;
 import com.insightfullogic.honest_profiler.javafx.tree.TreeProfileController;
 import com.insightfullogic.honest_profiler.javafx.tree.TreeViewModel;
+import com.insightfullogic.honest_profiler.log.LogParser;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -18,32 +19,16 @@ import java.util.function.Consumer;
 
 public class ProfileController {
 
-    @FXML
-    private FlatProfileController flatProfileController;
+    private final LogParser parser;
 
-    @FXML
-    private TreeProfileController treeProfileController;
+    private boolean flatView;
 
     @FXML
     private StackPane content;
 
-    private boolean flatView = false;
-
-    private Consumer<File> parser;
-
-    public ProfileController setFlatModel(FlatViewModel viewModel) {
-        flatProfileController.setViewModel(viewModel);
-        return this;
-    }
-
-    public ProfileController setTreeModel(TreeViewModel viewModel) {
-        treeProfileController.setViewModel(viewModel);
-        return this;
-    }
-
-    public ProfileController setFileParser(Consumer<File> parser) {
+    public ProfileController(LogParser parser) {
         this.parser = parser;
-        return this;
+        flatView = false;
     }
 
     public void quit(ActionEvent event) {
@@ -55,7 +40,7 @@ public class ProfileController {
         fileChooser.setTitle("Open a log file");
         File file = fileChooser.showOpenDialog(null);
         if (file != null)
-            parser.accept(file);
+            parser.parse(file);
     }
 
     public void flipView(ActionEvent event) {

@@ -9,6 +9,8 @@ import javafx.scene.control.TableView;
 
 public class FlatProfileController {
 
+    private final FlatViewModel viewModel;
+    
     @FXML
     private TableView<FlatProfileEntry> flatProfileView;
 
@@ -18,13 +20,14 @@ public class FlatProfileController {
     @FXML
     private TableColumn<FlatProfileEntry, String> methods;
 
+    public FlatProfileController(FlatViewModel viewModel) {
+        this.viewModel = viewModel;
+    }
+
     @FXML
     private void initialize() {
         proportions.setCellValueFactory(Rendering::timeShare);
         methods.setCellValueFactory(Rendering::method);
-    }
-
-    public void setViewModel(FlatViewModel viewModel) {
         flatProfileView.setItems(viewModel.getFlatProfile());
     }
 

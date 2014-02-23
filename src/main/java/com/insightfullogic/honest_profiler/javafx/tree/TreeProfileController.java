@@ -8,15 +8,18 @@ import javafx.scene.control.TreeView;
 
 public class TreeProfileController {
 
+    private final TreeViewModel viewModel;
+
     @FXML
     private TreeView<ProfileNode> treeView;
+
+    public TreeProfileController(TreeViewModel viewModel) {
+        this.viewModel = viewModel;
+    }
 
     @FXML
     private void initialize() {
         treeView.setCellFactory(view -> new TreeViewCell());
-    }
-
-    public void setViewModel(TreeViewModel viewModel) {
         viewModel.setView(treeView);
     }
 

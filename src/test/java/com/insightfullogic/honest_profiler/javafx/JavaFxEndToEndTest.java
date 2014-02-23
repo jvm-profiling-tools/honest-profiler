@@ -16,8 +16,6 @@ import static org.loadui.testfx.controls.TableViews.numberOfRowsIn;
 
 public class JavaFxEndToEndTest extends GuiTest {
 
-    private ProfileWindow window = new ProfileWindow();
-
     @Test
     public void loadsLog() throws InterruptedException {
         // autocompletes
@@ -48,7 +46,7 @@ public class JavaFxEndToEndTest extends GuiTest {
 
     @Override
     protected Parent getRootNode() {
-        return window.initialise();
+        return JavaFXEntry.createRoot();
     }
 
 }
