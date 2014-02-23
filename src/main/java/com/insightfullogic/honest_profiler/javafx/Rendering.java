@@ -28,6 +28,9 @@ public class Rendering {
     }
 
     public static String renderMethod(Method method) {
+        if (method == null)
+            return "unknown";
+
         return method.getClassName() + "." + method.getMethodName();
     }
 
