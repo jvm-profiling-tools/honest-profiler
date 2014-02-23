@@ -5,6 +5,8 @@ import com.insightfullogic.honest_profiler.collector.ProfileListener;
 import com.insightfullogic.honest_profiler.collector.ProfileNode;
 import com.insightfullogic.honest_profiler.collector.ProfileTree;
 import javafx.fxml.FXML;
+import javafx.scene.CacheHint;
+import javafx.scene.Node;
 import javafx.scene.control.TreeView;
 
 import java.util.List;
