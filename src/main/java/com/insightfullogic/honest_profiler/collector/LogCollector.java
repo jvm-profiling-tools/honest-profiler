@@ -1,11 +1,11 @@
 package com.insightfullogic.honest_profiler.collector;
 
-import com.insightfullogic.honest_profiler.log.EventListener;
+import java.util.*;
+
+import com.insightfullogic.honest_profiler.log.IEventListener;
 import com.insightfullogic.honest_profiler.log.Method;
 import com.insightfullogic.honest_profiler.log.StackFrame;
 import com.insightfullogic.honest_profiler.log.TraceStart;
-
-import java.util.*;
 
 import static java.util.Comparator.comparing;
 import static java.util.Map.Entry;
@@ -14,7 +14,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * NB: Stack trace elements come in the opposite way to the profile
  */
-public class LogCollector implements EventListener {
+public class LogCollector implements IEventListener {
 
     private static final Comparator<Entry<Long,Integer>> sortByCount = comparing((Entry<Long, Integer> entry) -> entry.getValue())
                                                                       .reversed();

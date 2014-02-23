@@ -37,7 +37,7 @@ public final class TraceStart implements LogEvent {
     }
 
     @Override
-    public void accept(EventListener listener) {
+    public void accept(IEventListener listener) {
         listener.handle(this);
     }
 

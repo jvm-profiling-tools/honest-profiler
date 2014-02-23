@@ -17,11 +17,11 @@ public class LogParser {
     private static final int NEW_METHOD = 3;
     public static final int POLL_INTERVAL = 10;
 
-    private final EventListener listener;
+    private final IEventListener listener;
 
     private volatile boolean running;
 
-    public LogParser(EventListener listener) {
+    public LogParser(IEventListener listener) {
         this.listener = listener;
     }
 
