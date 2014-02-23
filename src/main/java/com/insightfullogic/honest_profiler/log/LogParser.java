@@ -6,6 +6,7 @@ import java.io.RandomAccessFile;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
+import java.util.concurrent.ForkJoinPool;
 
 import static java.nio.channels.FileChannel.MapMode.READ_ONLY;
 
@@ -112,6 +113,12 @@ public class LogParser {
         long threadId = input.getLong();
         TraceStart traceStart = new TraceStart(numberOfFrames, threadId);
         traceStart.accept(listener);
+    }
+
+    // stop when not monitoring
+    public void monitor(File file) {
+        ForkJoinPool.commonPool()
+                    .execute(() -> parse(file));
     }
 
 }

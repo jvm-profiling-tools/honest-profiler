@@ -14,6 +14,8 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ForkJoinPool;
 
 public class ProfileViewModel {
 
@@ -37,8 +39,9 @@ public class ProfileViewModel {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open a log file");
         File file = fileChooser.showOpenDialog(null);
-        if (file != null)
-            parser.parse(file);
+        if (file != null) {
+            parser.monitor(file);
+        }
     }
 
     public void flipView(ActionEvent event) {
