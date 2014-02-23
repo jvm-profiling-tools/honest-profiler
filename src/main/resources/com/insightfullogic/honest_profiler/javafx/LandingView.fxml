@@ -33,7 +33,7 @@
         <Separator prefWidth="200.0"/>
         <HBox prefHeight="0.0" prefWidth="651.0">
             <children>
-                <Button defaultButton="true" mnemonicParsing="false" prefHeight="12.0" prefWidth="171.0" text="Monitor" onAction="#monitor">
+                <Button fx:id="monitor" disable="true" mnemonicParsing="false" prefHeight="12.0" prefWidth="171.0" text="Monitor" onAction="#monitor">
                     <font>
                         <Font name="Bitstream Vera Sans Bold" size="24.0"/>
                     </font>

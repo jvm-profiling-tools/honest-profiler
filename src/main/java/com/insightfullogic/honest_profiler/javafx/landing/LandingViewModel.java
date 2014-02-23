@@ -9,6 +9,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -23,6 +24,9 @@ public class LandingViewModel implements VirtualMachineListener {
     @FXML
     private VBox landingView;
 
+    @FXML
+    private Button monitor;
+
     private final ToggleGroup toggleMachines;
     private final LogParser parser;
     private final WindowViewModel windowModel;
@@ -31,6 +35,14 @@ public class LandingViewModel implements VirtualMachineListener {
         this.parser = parser;
         this.windowModel = windowModel;
         toggleMachines = new ToggleGroup();
+    }
+
+    @FXML
+    private void initialize() {
+        toggleMachines.selectedToggleProperty()
+                      .addListener((of, from, to) -> {
+                          monitor.setDisable(to == null);
+                      });
     }
 
     public void open(ActionEvent actionEvent) {
@@ -44,8 +56,10 @@ public class LandingViewModel implements VirtualMachineListener {
     }
 
     public void monitor(ActionEvent actionEvent) {
-        // TODO:
-        //parser.monitor(null);
+        windowModel.display(Profile);
+        MachineButton selectedButton = (MachineButton) toggleMachines.getSelectedToggle();
+        File logFile = new File(selectedButton.getUserDir(), "log.hpl");
+        parser.monitor(logFile);
     }
 
     @Override
