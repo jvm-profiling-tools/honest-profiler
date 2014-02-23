@@ -1,11 +1,14 @@
 package com.insightfullogic.honest_profiler.collector;
 
-import com.insightfullogic.honest_profiler.log.EventListener;
+import java.util.*;
+
+import com.insightfullogic.honest_profiler.log.IEventListener;
 import com.insightfullogic.honest_profiler.log.Method;
 import com.insightfullogic.honest_profiler.log.StackFrame;
 import com.insightfullogic.honest_profiler.log.TraceStart;
-
-import java.util.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 import static java.util.Comparator.comparing;
 import static java.util.Map.Entry;
@@ -14,7 +17,8 @@ import static java.util.stream.Collectors.toList;
 /**
  * NB: Stack trace elements come in the opposite way to the profile
  */
-public class LogCollector implements EventListener {
+@Component
+public class LogCollector implements IEventListener {
 
     private static final Comparator<Entry<Long,Integer>> sortByCount = comparing((Entry<Long, Integer> entry) -> entry.getValue())
                                                                       .reversed();
@@ -33,7 +37,8 @@ public class LogCollector implements EventListener {
     private int traceCount;
     private boolean logComplete;
 
-    public LogCollector(ProfileListener listener) {
+    @Autowired
+    public LogCollector(@Qualifier("provide") ProfileListener listener) {
         this.listener = listener;
         methodNames = new HashMap<>();
         callCounts = new HashMap<>();

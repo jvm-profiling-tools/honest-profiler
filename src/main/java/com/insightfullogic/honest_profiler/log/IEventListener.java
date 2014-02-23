@@ -1,6 +1,6 @@
 package com.insightfullogic.honest_profiler.log;
 
-public interface EventListener {
+public interface IEventListener {
 
     public void handle(TraceStart traceStart);
 

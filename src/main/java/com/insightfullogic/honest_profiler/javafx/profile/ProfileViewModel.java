@@ -1,7 +1,7 @@
 package com.insightfullogic.honest_profiler.javafx.profile;
 
-import com.insightfullogic.honest_profiler.collector.Profile;
-import com.insightfullogic.honest_profiler.collector.ProfileListener;
+import java.io.File;
+
 import com.insightfullogic.honest_profiler.log.LogParser;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -9,12 +9,12 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import java.io.File;
-
+@Component
 public class ProfileViewModel {
 
     private final LogParser parser;
@@ -24,6 +24,7 @@ public class ProfileViewModel {
     @FXML
     private StackPane content;
 
+    @Autowired
     public ProfileViewModel(LogParser parser) {
         this.parser = parser;
         flatView = false;

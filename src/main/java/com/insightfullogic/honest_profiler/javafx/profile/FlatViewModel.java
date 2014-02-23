@@ -9,7 +9,9 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import org.springframework.stereotype.Component;
 
+@Component
 public class FlatViewModel implements ProfileListener {
 
     private final ObservableList<FlatProfileEntry> flatProfile;

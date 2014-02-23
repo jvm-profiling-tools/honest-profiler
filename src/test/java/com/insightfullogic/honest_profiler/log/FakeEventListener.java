@@ -8,7 +8,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-public class FakeEventListener implements EventListener {
+public class FakeEventListener implements IEventListener {
 
     private final List<LogEvent> events;
     private boolean isLogParsingComplete;

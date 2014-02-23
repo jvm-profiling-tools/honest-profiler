@@ -6,9 +6,11 @@ import com.insightfullogic.honest_profiler.collector.ProfileNode;
 import com.insightfullogic.honest_profiler.collector.ProfileTree;
 import javafx.fxml.FXML;
 import javafx.scene.control.TreeView;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 public class TreeViewModel implements ProfileListener {
 
     @FXML

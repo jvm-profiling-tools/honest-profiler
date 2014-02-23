@@ -1,22 +1,26 @@
 package com.insightfullogic.honest_profiler.javafx;
 
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import org.picocontainer.MutablePicoContainer;
-
 import java.io.IOException;
 
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
+
+@Component
 public class PicoFXLoader {
 
-    private final MutablePicoContainer pico;
+    private final ApplicationContext pico;
 
-    public PicoFXLoader(MutablePicoContainer pico) {
+    @Autowired
+    public PicoFXLoader(ApplicationContext pico) {
         this.pico = pico;
     }
 
     public Parent load(String fxml, Class<?> controllerClass) {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
-        loader.setControllerFactory(pico::getComponent);
+        loader.setControllerFactory(pico::getBean);
         try {
             return loader.load();
         } catch (IOException e) {

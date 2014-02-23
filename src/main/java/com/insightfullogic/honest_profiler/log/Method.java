@@ -25,7 +25,7 @@ public final class Method implements LogEvent {
     }
 
     @Override
-    public void accept(EventListener listener) {
+    public void accept(IEventListener listener) {
         listener.handle(this);
     }
 
