@@ -36,10 +36,10 @@ public:
     // main object graph instantiated here
     // these objects all live for the lifecycle of the program
     const size_t size = 10 * 1024 * 1024;
-    const char* fileName = "log.hpl";
+    const char *fileName = "log.hpl";
 
     // too large to stack allocate
-    char* zeroingBuffer = new char[size];
+    char *zeroingBuffer = new char[size];
     memset(zeroingBuffer, 0, size);
     ofstream file("log.hpl", ofstream::out | ofstream::binary);
     file.write(zeroingBuffer, size);
@@ -48,7 +48,7 @@ public:
 
     std::cout << "opened file" << std::endl;
 
-    io::mapped_file_sink& sink = *new io::mapped_file_sink();
+    io::mapped_file_sink &sink = *new io::mapped_file_sink();
     sink.open(fileName, size, 0);
     mapFile = new mapped_buffer(sink);
 

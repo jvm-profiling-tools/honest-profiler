@@ -147,7 +147,6 @@ struct sigaction SignalHandler::SetAction(void (*action)(int, siginfo_t *,
   sa.sa_flags = SA_RESTART | SA_SIGINFO;
 #pragma clang diagnostic pop
 
-
   sigemptyset(&sa.sa_mask);
 
   struct sigaction old_handler;

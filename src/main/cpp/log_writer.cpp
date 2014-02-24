@@ -21,8 +21,6 @@ template <typename T> void LogWriter::writeValue(const T &value) {
   }
 }
 
-
-
 // TODO: implement
 static int64_t getThreadId(JNIEnv *env_id) { return (int64_t)env_id; }
 
