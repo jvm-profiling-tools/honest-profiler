@@ -13,16 +13,21 @@ ifeq ($(UNAME), darwin)
     # Why is this not $!$#@ defined?
     PLATFORM_COPTS+=-D__LP64__=1
   endif
+	INCLUDES=
 else ifeq ($(UNAME), linux)
   READLINK_ARGS:=""
   PLATFORM_COPTS:= 
   PLATFORM_WARNINGS:= 
   HEADERS:=include
+	# include of gcc 4.8 headers specifically to work around
+	# https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=729933
+	# equivalent in ubuntu 13.10
+	INCLUDES=-I/usr/include/i386-linux-gnu/c++/4.8/
 endif
 
 # compiler specific options
 ifeq ($(CXX), clang++)
-  CXX_COPTS:=-std=c++11 -stdlib=libc++ -DTARGET_RT_MAC_CFM=0
+  CXX_COPTS:=-std=c++11 -DTARGET_RT_MAC_CFM=0
 	CXX_WARNINGS:=-Weverything -Wno-c++98-compat-pedantic -Wno-padded \
 		-Wno-missing-prototypes
   LDFLAGS+=-Wl,-fatal_warnings -Wl,-std=c++11 -Wl,-stdlib=libc++
@@ -60,7 +65,7 @@ COPTS:=$(PLATFORM_COPTS) $(CXX_COPTS) $(GLOBAL_COPTS) $(PLATFORM_WARNINGS) \
 
 # TODO: consider re-adding in production -fno-exceptions
 
-INCLUDES=-I$(JAVA_HOME)/$(HEADERS) -I$(JAVA_HOME)/$(HEADERS)/$(UNAME) 
+INCLUDES+=-I /usr/include/i386-linux-gnu/c++/4.8/ -I$(JAVA_HOME)/$(HEADERS) -I$(JAVA_HOME)/$(HEADERS)/$(UNAME) 
 TEST_INCLUDES=$(INCLUDES) -I/usr/include/unittest++
 
 # LDFLAGS+=-Wl,--export-dynamic-symbol=Agent_OnLoad
