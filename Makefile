@@ -1,14 +1,13 @@
 SHELL:=/bin/bash
 UNAME:=$(shell uname | tr '[A-Z]' '[a-z]')
 
+LDFLAGS:= 
 ifeq ($(UNAME), darwin)
   READLINK_ARGS:=""
-  PLATFORM_WARNINGS:=-Weverything -Wno-c++98-compat-pedantic -Wno-padded \
-	-Wno-missing-prototypes
-  PLATFORM_COPTS:=-std=c++11 -stdlib=libc++ -DTARGET_RT_MAC_CFM=0
+  PLATFORM_WARNINGS:= 
+  PLATFORM_COPTS:=-DTARGET_RT_MAC_CFM=0
   HEADERS:=Headers
-  CC=clang++
-  LDFLAGS=-Wl,-fatal_warnings -Wl,-std=c++11 -Wl,-stdlib=libc++
+  CXX=clang++
   BITS?=32
   ifeq ($(BITS), 64)
     # Why is this not $!$#@ defined?
@@ -16,13 +15,23 @@ ifeq ($(UNAME), darwin)
   endif
 else ifeq ($(UNAME), linux)
   READLINK_ARGS:="-f"
-  PLATFORM_COPTS:=-mfpmath=sse -std=gnu++0x
-  PLATFORM_WARNINGS:=-Wframe-larger-than=16384 -Wno-unused-but-set-variable \
+  PLATFORM_COPTS:= 
+  PLATFORM_WARNINGS:= 
+  HEADERS:=include
+endif
+
+# compiler specific options
+ifeq ($(CXX), clang++)
+  CXX_COPTS:=-std=c++11 -stdlib=libc++ -DTARGET_RT_MAC_CFM=0
+	CXX_WARNINGS:=-Weverything -Wno-c++98-compat-pedantic -Wno-padded \
+		-Wno-missing-prototypes
+  LDFLAGS+=-Wl,-fatal_warnings -Wl,-std=c++11 -Wl,-stdlib=libc++
+else ifeq ($(CXX), g++)
+	CXX_COPTS:=-mfpmath=sse -std=gnu++0x
+  CXX_WARNINGS:=-Wframe-larger-than=16384 -Wno-unused-but-set-variable \
     -Wunused-but-set-parameter -Wvla -Wno-conversion-null \
     -Wno-builtin-macro-redefined
-  HEADERS:=include
-  CC=g++
-  LDFLAGS=-Wl,--fatal-warnings
+  LDFLAGS+=-Wl,--fatal-warnings
 endif
 
 JAVA_HOME := $(shell \
@@ -46,8 +55,8 @@ GLOBAL_COPTS=-fdiagnostics-show-option \
 	-fno-omit-frame-pointer -fno-strict-aliasing -funsigned-char \
 	-fno-asynchronous-unwind-tables -msse2 -g \
 	-D__STDC_FORMAT_MACROS
-COPTS:=$(PLATFORM_COPTS) $(GLOBAL_COPTS) $(PLATFORM_WARNINGS) \
-	$(GLOBAL_WARNINGS) $(OPT)
+COPTS:=$(PLATFORM_COPTS) $(CXX_COPTS) $(GLOBAL_COPTS) $(PLATFORM_WARNINGS) \
+	$(CXX_WARNINGS) $(GLOBAL_WARNINGS) $(OPT)
 
 # TODO: consider re-adding in production -fno-exceptions
 
@@ -65,17 +74,17 @@ _TEST_OBJECTS=$(TEST_SOURCES:.cc=.pic.o)
 TEST_OBJECTS = $(patsubst $(TEST_DIR)/%,$(TEST_BUILD_DIR)/%,$(_TEST_OBJECTS)) $(OBJECTS)
 
 $(BUILD_DIR)/%.pic.o: $(SRC_DIR)/%.cc
-	$(CC) $(INCLUDES) $(COPTS) -Fvisibility=hidden -fPIC -c $< -o $@
+	$(CXX) $(INCLUDES) $(COPTS) -Fvisibility=hidden -fPIC -c $< -o $@
 
 $(TEST_BUILD_DIR)/%.pic.o: $(TEST_DIR)/%.cc
-	$(CC) $(TEST_INCLUDES) $(COPTS) -Fvisibility=hidden -fPIC -c $< -o $@
+	$(CXX) $(TEST_INCLUDES) $(COPTS) -Fvisibility=hidden -fPIC -c $< -o $@
 
 $(AGENT): $(OBJECTS)
-	$(CC) $(COPTS) -shared -o $(BUILD_DIR)/$(AGENT) \
+	$(CXX) $(COPTS) -shared -o $(BUILD_DIR)/$(AGENT) \
 	  -Bsymbolic $(OBJECTS) $(LIBS)
 
 test: $(TEST_OBJECTS)
-	$(CC) $(COPTS) -o $(TEST_BUILD_DIR)/test \
+	$(CXX) $(COPTS) -o $(TEST_BUILD_DIR)/test \
 	  -Bsymbolic $(TEST_OBJECTS) $(TEST_LIBS)
 	$(TEST_BUILD_DIR)/test
 
