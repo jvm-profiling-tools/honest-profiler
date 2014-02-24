@@ -36,9 +36,15 @@ public class JavaVirtualMachine {
         } catch (AttachNotSupportedException e) {
             e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
+            if (!noSuchProcess(e)) {
+                e.printStackTrace();
+            }
         }
         return false;
+    }
+
+    private boolean noSuchProcess(IOException e) {
+        return e.getMessage().contains("No such process");
     }
 
     public String getId() {

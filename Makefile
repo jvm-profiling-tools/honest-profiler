@@ -1,7 +1,6 @@
 SHELL:=/bin/bash
 UNAME:=$(shell uname | tr '[A-Z]' '[a-z]')
 
-BITS?=32
 ifeq ($(UNAME), darwin)
   READLINK_ARGS:=""
   PLATFORM_WARNINGS:=-Weverything -Wno-c++98-compat-pedantic -Wno-padded \
@@ -10,6 +9,7 @@ ifeq ($(UNAME), darwin)
   HEADERS:=Headers
   CC=clang++
   LDFLAGS=-Wl,-fatal_warnings -Wl,-std=c++11 -Wl,-stdlib=libc++
+  BITS?=32
   ifeq ($(BITS), 64)
     # Why is this not $!$#@ defined?
     PLATFORM_COPTS+=-D__LP64__=1
@@ -34,8 +34,8 @@ JAVA_HOME := $(shell \
 AGENT=liblagent.so
 LIBS=-ldl -lboost_iostreams
 TEST_LIBS=-lUnitTest++ $(LIBS)
-BUILD_DIR ?= $(shell mkdir build-$(BITS) 2> /dev/null ; echo build-$(BITS))
-TEST_BUILD_DIR ?= $(shell mkdir build-test-$(BITS) 2> /dev/null ; echo build-test-$(BITS))
+BUILD_DIR ?= $(shell mkdir build 2> /dev/null ; echo build)
+TEST_BUILD_DIR ?= $(shell mkdir build-test 2> /dev/null ; echo build-test)
 SRC_DIR:=${PWD}/src/main/cpp
 TEST_DIR:=${PWD}/src/test/cpp
 OPT?=-O2
@@ -44,7 +44,7 @@ GLOBAL_WARNINGS=-Wall -Werror -Wformat-security -Wno-char-subscripts \
 	-Woverloaded-virtual
 GLOBAL_COPTS=-fdiagnostics-show-option \
 	-fno-omit-frame-pointer -fno-strict-aliasing -funsigned-char \
-	-fno-asynchronous-unwind-tables -m$(BITS) -msse2 -g \
+	-fno-asynchronous-unwind-tables -msse2 -g \
 	-D__STDC_FORMAT_MACROS
 COPTS:=$(PLATFORM_COPTS) $(GLOBAL_COPTS) $(PLATFORM_WARNINGS) \
 	$(GLOBAL_WARNINGS) $(OPT)

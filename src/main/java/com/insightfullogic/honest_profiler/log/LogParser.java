@@ -44,7 +44,7 @@ public class LogParser {
                                            .map(READ_ONLY, 0, file.length());
 
             listener.startOfLog(continuous);
-            while (readRecord(buffer))
+            while (readRecord(buffer, continuous))
                 ;
             listener.endOfLog();
         } catch (IOException e) {
@@ -56,7 +56,7 @@ public class LogParser {
         running = false;
     }
 
-    private boolean readRecord(ByteBuffer input) throws IOException {
+    private boolean readRecord(ByteBuffer input, boolean continuous) throws IOException {
         if (!input.hasRemaining() || !running)
             return false;
 
@@ -64,8 +64,12 @@ public class LogParser {
         try {
             switch (type) {
                 case NOT_WRITTEN:
-                    retry(input);
-                    return true;
+                    if (continuous) {
+                        retry(input);
+                        return true;
+                    } else {
+                        return false;
+                    }
                 case TRACE_START:
                     readTraceStart(input);
                     return true;
