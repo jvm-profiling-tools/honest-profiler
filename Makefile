@@ -34,7 +34,7 @@ ifeq ($(CXX), clang++)
 else ifeq ($(CXX), g++)
 	CXX_COPTS:=-mfpmath=sse -std=gnu++0x
   CXX_WARNINGS:=-Wframe-larger-than=16384 -Wno-unused-but-set-variable \
-    -Wunused-but-set-parameter -Wvla -Wno-conversion-null \
+    -Wunused-but-set-parameter -Wvla -Wno-conversion-null -Wno-unknown-pragmas \
     -Wno-builtin-macro-redefined
   LDFLAGS+=-Wl,--fatal-warnings
 endif
