@@ -6,6 +6,6 @@ import java.util.Set;
 
 public interface VirtualMachineListener {
 
-    public void update(Set<VirtualMachineDescriptor> added, Set<VirtualMachineDescriptor> removed);
+    public void update(Set<JavaVirtualMachine> added, Set<JavaVirtualMachine> removed);
 
 }

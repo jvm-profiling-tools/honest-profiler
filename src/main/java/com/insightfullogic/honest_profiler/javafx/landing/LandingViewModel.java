@@ -1,5 +1,6 @@
 package com.insightfullogic.honest_profiler.javafx.landing;
 
+import com.insightfullogic.honest_profiler.discovery.JavaVirtualMachine;
 import com.insightfullogic.honest_profiler.discovery.VirtualMachineListener;
 import com.insightfullogic.honest_profiler.javafx.WindowViewModel;
 import com.insightfullogic.honest_profiler.log.LogParser;
@@ -58,12 +59,12 @@ public class LandingViewModel implements VirtualMachineListener {
     public void monitor(ActionEvent actionEvent) {
         windowModel.display(Profile);
         MachineButton selectedButton = (MachineButton) toggleMachines.getSelectedToggle();
-        File logFile = new File(selectedButton.getUserDir(), "log.hpl");
+        File logFile = selectedButton.getJvm().getLogFile();
         parser.monitor(logFile);
     }
 
     @Override
-    public void update(Set<VirtualMachineDescriptor> added, Set<VirtualMachineDescriptor> removed) {
+    public void update(Set<JavaVirtualMachine> added, Set<JavaVirtualMachine> removed) {
         Platform.runLater(() -> {
             ObservableList<Node> children = landingView.getChildren();
             addSpawnedChildren(added, children);
@@ -71,7 +72,7 @@ public class LandingViewModel implements VirtualMachineListener {
         });
     }
 
-    private void addSpawnedChildren(Set<VirtualMachineDescriptor> added, ObservableList<Node> children) {
+    private void addSpawnedChildren(Set<JavaVirtualMachine> added, ObservableList<Node> children) {
         added.forEach(vm -> {
             MachineButton button = new MachineButton(vm);
             button.setToggleGroup(toggleMachines);
@@ -79,9 +80,9 @@ public class LandingViewModel implements VirtualMachineListener {
         });
     }
 
-    private void removeExitedChildren(Set<VirtualMachineDescriptor> removed, ObservableList<Node> children) {
+    private void removeExitedChildren(Set<JavaVirtualMachine> removed, ObservableList<Node> children) {
         removed.forEach(vm -> {
-            children.removeIf(node -> vm.id().equals(node.getId()));
+            children.removeIf(node -> vm.getId().equals(node.getId()));
         });
     }
 

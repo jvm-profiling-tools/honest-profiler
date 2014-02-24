@@ -2,11 +2,16 @@ package com.insightfullogic.honest_profiler.discovery;
 
 import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
+import org.picocontainer.Startable;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Predicate;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -43,9 +48,10 @@ public class DiscoveryService {
         }
     }
 
-    private <T> Set<T> difference(Set<T> left, Set<T> right) {
+    private Set<JavaVirtualMachine> difference(Set<VirtualMachineDescriptor> left, Set<VirtualMachineDescriptor> right) {
         return left.stream()
                    .filter(vm -> !right.contains(vm))
+                   .map(JavaVirtualMachine::new)
                    .collect(toSet());
     }
 
@@ -59,7 +65,7 @@ public class DiscoveryService {
 
     @PreDestroy
     public void stop() {
-        thread.interrupt();
+        thread.interrupt();;
     }
 
 }
