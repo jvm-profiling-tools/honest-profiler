@@ -21,7 +21,7 @@ template <typename T> void LogWriter::writeValue(const T &value) {
   }
 }
 
-#define flush() output_.flush()
+
 
 // TODO: implement
 static int64_t getThreadId(JNIEnv *env_id) { return (int64_t)env_id; }
@@ -52,14 +52,14 @@ void LogWriter::recordTraceStart(const jint numFrames, const int64_t threadId) {
   output_.put(TRACE_START);
   writeValue(numFrames);
   writeValue(threadId);
-  flush();
+  output_.flush();
 }
 
 void LogWriter::recordFrame(const jint lineNumber, const method_id methodId) {
   output_.put(FRAME);
   writeValue(lineNumber);
   writeValue(methodId);
-  flush();
+  output_.flush();
 }
 
 void LogWriter::writeWithSize(const char *value) {
@@ -75,5 +75,5 @@ void LogWriter::recordNewMethod(const int64_t methodId, const char *fileName,
   writeWithSize(fileName);
   writeWithSize(className);
   writeWithSize(methodName);
-  flush();
+  output_.flush();
 }

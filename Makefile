@@ -29,7 +29,7 @@ endif
 ifeq ($(CXX), clang++)
   CXX_COPTS:=-std=c++11 -DTARGET_RT_MAC_CFM=0
 	CXX_WARNINGS:=-Weverything -Wno-c++98-compat-pedantic -Wno-padded \
-		-Wno-missing-prototypes
+		-Wno-missing-prototypes -Wno-weak-vtables -Wno-global-constructors
   LDFLAGS+=-Wl,-fatal_warnings -Wl,-std=c++11 -Wl,-stdlib=libc++
 else ifeq ($(CXX), g++)
 	CXX_COPTS:=-mfpmath=sse -std=gnu++0x

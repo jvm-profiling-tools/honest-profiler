@@ -32,6 +32,7 @@ private:
 class Profiler final {
 public:
   explicit Profiler(jvmtiEnv *jvmti) : jvmti_(jvmti) {
+    // TODO: refactor this to be less painfully awful
     // main object graph instantiated here
     // these objects all live for the lifecycle of the program
     const size_t size = 10 * 1024 * 1024;
@@ -47,7 +48,7 @@ public:
 
     std::cout << "opened file" << std::endl;
 
-    static io::mapped_file_sink sink;
+    io::mapped_file_sink& sink = *new io::mapped_file_sink();
     sink.open(fileName, size, 0);
     mapFile = new mapped_buffer(sink);
 
@@ -72,7 +73,6 @@ public:
     delete processor;
     delete mapFile;
   }
-  ;
 
 private:
   jvmtiEnv *jvmti_;

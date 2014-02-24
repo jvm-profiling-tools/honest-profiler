@@ -48,6 +48,8 @@ void Processor::start(JNIEnv *jniEnv) {
   jthread thread = newThread(jniEnv);
   jvmtiStartFunction callback =
       [](jvmtiEnv * jvmti_env, JNIEnv * jni_env, void * arg) {
+    IMPLICITLY_USE(jvmti_env);
+    IMPLICITLY_USE(jni_env);
     Processor *processor = (Processor *)arg;
     processor->run();
   }

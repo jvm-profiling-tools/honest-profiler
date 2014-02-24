@@ -159,8 +159,6 @@ static bool RegisterJvmti(jvmtiEnv *jvmti) {
   return true;
 }
 
-#define POSITIVE(x) (static_cast<size_t>(x > 0 ? x : 0))
-
 static void ParseArguments(char *options) {
   char *key = options;
   for (char *next = options; next != NULL;

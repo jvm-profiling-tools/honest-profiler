@@ -140,9 +140,13 @@ bool SignalHandler::SetSigprofInterval(int sec, int usec) {
 struct sigaction SignalHandler::SetAction(void (*action)(int, siginfo_t *,
                                                          void *)) {
   struct sigaction sa;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdisabled-macro-expansion"
   sa.sa_handler = NULL;
   sa.sa_sigaction = action;
   sa.sa_flags = SA_RESTART | SA_SIGINFO;
+#pragma clang diagnostic pop
+
 
   sigemptyset(&sa.sa_mask);
 
