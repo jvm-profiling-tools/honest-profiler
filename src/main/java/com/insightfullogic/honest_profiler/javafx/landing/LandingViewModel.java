@@ -47,11 +47,11 @@ public class LandingViewModel implements VirtualMachineListener {
     }
 
     public void open(ActionEvent actionEvent) {
-        windowModel.display(Profile);
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open a log file");
         File file = fileChooser.showOpenDialog(null);
         if (file != null) {
+            windowModel.display(Profile);
             parser.parse(file);
         }
     }

@@ -2,6 +2,7 @@ package com.insightfullogic.honest_profiler.javafx.profile;
 
 import com.insightfullogic.honest_profiler.collector.Profile;
 import com.insightfullogic.honest_profiler.collector.ProfileListener;
+import com.insightfullogic.honest_profiler.javafx.WindowViewModel;
 import com.insightfullogic.honest_profiler.log.LogParser;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -17,31 +18,26 @@ import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 
+import static com.insightfullogic.honest_profiler.javafx.WindowViewModel.Window.Landing;
+
 public class ProfileViewModel {
 
     private final LogParser parser;
+    private final WindowViewModel windows;
 
     private boolean flatView;
 
     @FXML
     private StackPane content;
 
-    public ProfileViewModel(LogParser parser) {
+    public ProfileViewModel(LogParser parser, WindowViewModel windows) {
         this.parser = parser;
+        this.windows = windows;
         flatView = false;
     }
 
     public void quit(ActionEvent event) {
         Platform.exit();
-    }
-
-    public void open(ActionEvent event) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Open a log file");
-        File file = fileChooser.showOpenDialog(null);
-        if (file != null) {
-            parser.monitor(file);
-        }
     }
 
     public void flipView(ActionEvent event) {
@@ -60,6 +56,10 @@ public class ProfileViewModel {
     private void flipButtonText(Button button) {
         flatView = !flatView;
         button.setText(flatView ? "Tree View" : "Flat View");
+    }
+
+    public void back(ActionEvent actionEvent) {
+        windows.display(Landing);
     }
 
 }
