@@ -14,7 +14,7 @@ ifeq ($(UNAME), darwin)
     PLATFORM_COPTS+=-D__LP64__=1
   endif
 else ifeq ($(UNAME), linux)
-  READLINK_ARGS:="-f"
+  READLINK_ARGS:=""
   PLATFORM_COPTS:= 
   PLATFORM_WARNINGS:= 
   HEADERS:=include
@@ -65,18 +65,18 @@ TEST_INCLUDES=$(INCLUDES) -I/usr/include/unittest++
 
 # LDFLAGS+=-Wl,--export-dynamic-symbol=Agent_OnLoad
 
-SOURCES=$(wildcard $(SRC_DIR)/*.cc)
-_OBJECTS=$(SOURCES:.cc=.pic.o)
+SOURCES=$(wildcard $(SRC_DIR)/*.cpp)
+_OBJECTS=$(SOURCES:.cpp=.pic.o)
 OBJECTS = $(patsubst $(SRC_DIR)/%,$(BUILD_DIR)/%,$(_OBJECTS))
 
-TEST_SOURCES=$(wildcard $(TEST_DIR)/*.cc)
-_TEST_OBJECTS=$(TEST_SOURCES:.cc=.pic.o)
+TEST_SOURCES=$(wildcard $(TEST_DIR)/*.cpp)
+_TEST_OBJECTS=$(TEST_SOURCES:.cpp=.pic.o)
 TEST_OBJECTS = $(patsubst $(TEST_DIR)/%,$(TEST_BUILD_DIR)/%,$(_TEST_OBJECTS)) $(OBJECTS)
 
-$(BUILD_DIR)/%.pic.o: $(SRC_DIR)/%.cc
+$(BUILD_DIR)/%.pic.o: $(SRC_DIR)/%.cpp
 	$(CXX) $(INCLUDES) $(COPTS) -Fvisibility=hidden -fPIC -c $< -o $@
 
-$(TEST_BUILD_DIR)/%.pic.o: $(TEST_DIR)/%.cc
+$(TEST_BUILD_DIR)/%.pic.o: $(TEST_DIR)/%.cpp
 	$(CXX) $(TEST_INCLUDES) $(COPTS) -Fvisibility=hidden -fPIC -c $< -o $@
 
 $(AGENT): $(OBJECTS)
