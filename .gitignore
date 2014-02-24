@@ -1,6 +1,6 @@
 
 # binaries
-build-*
+build*
 target/
 
 # vim
