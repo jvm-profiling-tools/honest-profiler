@@ -1,5 +1,8 @@
 #include <UnitTest++.h>
 
+#include <thread>
+#include <vector>
+#include <iostream>
 #include "fixtures.h"
 #include "../../main/cpp/stacktraces.h"
 
@@ -92,4 +95,49 @@ TEST_FIXTURE(GivenQueue, CantOverWriteUnreadInput) {
   }
 
   CHECK(!pop(out));
+}
+
+const int THREAD_COUNT = std::thread::hardware_concurrency();
+const int THREAD_GAP = Size / THREAD_COUNT;
+
+void runnable(int start, CircularQueue* queue) {
+  start *= THREAD_GAP;
+  givenStackTrace(start);
+  int end = start + THREAD_GAP;
+  for (int i = start; i < end; i++) {
+    trace.env_id = (JNIEnv *) i;
+    CHECK(queue->push(trace));
+  }
+}
+
+TEST_FIXTURE(GivenQueue, MultiThreadedRun) {
+  // Given 4 threads pushing in traces
+  std::vector<std::thread> workers;
+  std::vector<int> counters;
+
+  for (int i = 0; i < THREAD_COUNT; i++) {
+    workers.push_back(std::thread(runnable, i, queue));
+    counters.push_back(i * THREAD_GAP);
+  }
+  for (std::thread &thread: workers) {
+    thread.join();
+  }
+
+  // When you pop all the values out of the queue
+  JVMPI_CallTrace out;
+  while(pop(out)) {
+    int counter = (int) out.env_id;
+    int index = counter / THREAD_GAP;
+
+    // Then pushed values are incremental within each thread
+    CHECK_EQUAL(counters[index], counter);
+    counters[index]++;
+  }
+  
+  // And you get the required number of values
+  int total = THREAD_GAP;
+  for (int i : counters) {
+    CHECK_EQUAL(i, total);
+    total += THREAD_GAP;
+  }
 }
