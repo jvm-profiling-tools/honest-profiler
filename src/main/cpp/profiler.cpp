@@ -175,7 +175,7 @@ struct sigaction SignalHandler::SetAction(void (*action)(int, siginfo_t *,
 }
 
 bool Profiler::start(JNIEnv *jniEnv) {
-  int usec_wait = 100000 / kNumInterrupts;
+  int usec_wait = 1000;
 
   memset(failures_, 0, sizeof(failures_));
 
