@@ -55,7 +55,7 @@ public class ConcurrentLogParserTest {
         input.read(buffer);
         output.put(buffer);
     }
-    
+
     private void sleep(long time) {
         try {
             Thread.sleep(time);
