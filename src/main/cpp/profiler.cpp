@@ -89,6 +89,22 @@ bool Profiler::lookupFrameInformation(const JVMPI_CallFrame &frame,
   }*/
 }
 
+void Profiler::initializeMapFile() {
+  const size_t size = 100 * 1024 * 1024;
+  const char *fileName = "log.hpl";
+
+  // Create the log file if need be
+  ofstream file(fileName, ofstream::out | ofstream::binary);
+  file.close();
+
+  // Lives for the lifetime of the program
+  io::mapped_file_sink &sink = *new io::mapped_file_sink();
+  sink.open(fileName, size);
+  sink.resize(size);
+  memset(sink.data(), 0, size);
+  mapFile = new mapped_buffer(sink);
+}
+
 void Profiler::handle(int signum, siginfo_t *info, void *context) {
   IMPLICITLY_USE(signum);
   IMPLICITLY_USE(info);

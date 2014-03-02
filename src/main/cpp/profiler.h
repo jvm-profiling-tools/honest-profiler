@@ -32,26 +32,9 @@ private:
 class Profiler final {
 public:
   explicit Profiler(jvmtiEnv *jvmti) : jvmti_(jvmti) {
-    // TODO: refactor this to be less painfully awful
     // main object graph instantiated here
     // these objects all live for the lifecycle of the program
-    const size_t size = 10 * 1024 * 1024;
-    const char *fileName = "log.hpl";
-
-    // too large to stack allocate
-    char *zeroingBuffer = new char[size];
-    memset(zeroingBuffer, 0, size);
-    ofstream file("log.hpl", ofstream::out | ofstream::binary);
-    file.write(zeroingBuffer, size);
-    file.close();
-    delete zeroingBuffer;
-
-    std::cout << "opened file" << std::endl;
-
-    io::mapped_file_sink &sink = *new io::mapped_file_sink();
-    sink.open(fileName, size, 0);
-    mapFile = new mapped_buffer(sink);
-
+    initializeMapFile();
     logFile = new ostream(mapFile);
     writer = new LogWriter(*logFile, &Profiler::lookupFrameInformation, jvmti);
     buffer = new CircularQueue(*writer);
@@ -88,6 +71,8 @@ private:
   Processor *processor;
 
   SignalHandler handler_;
+
+  void initializeMapFile();
 
   static int failures_[kNumCallTraceErrors + 1]; // they are indexed from 1
 
