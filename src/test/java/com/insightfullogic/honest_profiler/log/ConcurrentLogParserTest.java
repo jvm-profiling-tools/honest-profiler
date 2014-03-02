@@ -26,12 +26,11 @@ public class ConcurrentLogParserTest {
 
             FakeEventListener events = new FakeEventListener();
             LogParser parser = new LogParser(events);
-            ReaderThread thread = new ReaderThread(parser, tmpFile);
-            thread.start();
+
+            parser.monitor(tmpFile);
 
             copyAndCheckFirstEvent(input, buffer, events);
             copyAndCheckSecondEvent(input, buffer, events);
-            finishReading(parser, thread);
         } finally {
             tmpFile.delete();
         }
@@ -56,13 +55,7 @@ public class ConcurrentLogParserTest {
         input.read(buffer);
         output.put(buffer);
     }
-
-    private void finishReading(LogParser parser, ReaderThread thread) {
-        parser.stop();
-        sleep(50L);
-        assertTrue("reader thread still running", thread.hasStopped());
-    }
-
+    
     private void sleep(long time) {
         try {
             Thread.sleep(time);
