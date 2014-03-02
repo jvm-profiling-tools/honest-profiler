@@ -90,7 +90,7 @@ bool Profiler::lookupFrameInformation(const JVMPI_CallFrame &frame,
 }
 
 void Profiler::initializeMapFile() {
-  const size_t size = 100 * 1024 * 1024;
+  const size_t size = 20 * 1024 * 1024;
   const char *fileName = "log.hpl";
 
   // Create the log file if need be
