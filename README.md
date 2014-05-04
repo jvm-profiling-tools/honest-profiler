@@ -45,10 +45,16 @@ For Java dependencies look in the `pom.xml` file.
 unittest++ - a unit testing library
 boost iostreams - used for portable memory mapped files
 
-To install on debian/ubuntu:
-```
-sudo apt-get install libunittest++-dev libboost-iostreams-dev
-```
+To install :
+
+ * On debian/ubuntu:
+
+        sudo apt-get install libunittest++-dev libboost-iostreams-dev
+
+ * On Arch Linux:
+
+        yaourt -S base-devel unittestpp boost boost-libs
+
 Running
 -------
 
