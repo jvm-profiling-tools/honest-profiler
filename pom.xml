@@ -12,6 +12,7 @@
 
     <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <skipTests>false</skipTests>
     </properties>
 
     <dependencies>
@@ -117,6 +118,7 @@
                                     <goal>exec</goal>
                                 </goals>
                                 <configuration>
+                                    <skip>${skipTests}</skip>
                                     <executable>make</executable>
                                     <arguments>
                                         <argument>test</argument>
