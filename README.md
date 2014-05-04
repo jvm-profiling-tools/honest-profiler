@@ -31,6 +31,7 @@ Compiling
 ---------
 
 ```
+export LC_ALL=C
 mvn package
 ```
 
