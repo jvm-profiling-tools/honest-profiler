@@ -22,7 +22,7 @@
   trace.num_frames = 2;                                                        \
   trace.frames = frames;
 
-void checkStackTrace(const JVMPI_CallTrace &trace, const int envId) {
+void checkStackTrace(const JVMPI_CallTrace &trace, const long envId) {
   CHECK_EQUAL(2, trace.num_frames);
   CHECK_EQUAL((JNIEnv *)envId, trace.env_id);
 
@@ -49,7 +49,7 @@ TEST_FIXTURE(GivenQueue, OnlyInOnlyOut) {
   CHECK(!pop(item));
 }
 
-void pushLocalTraceOnto(CircularQueue &queue, const int envId) {
+void pushLocalTraceOnto(CircularQueue &queue, const long envId) {
   givenStackTrace(envId);
   CHECK(queue.push(trace));
 }
@@ -100,11 +100,11 @@ TEST_FIXTURE(GivenQueue, CantOverWriteUnreadInput) {
 const int THREAD_COUNT = std::thread::hardware_concurrency();
 const int THREAD_GAP = Size / THREAD_COUNT;
 
-void runnable(int start, CircularQueue* queue) {
+void runnable(long start, CircularQueue* queue) {
   start *= THREAD_GAP;
   givenStackTrace(start);
   int end = start + THREAD_GAP;
-  for (int i = start; i < end; i++) {
+  for (long i = start; i < end; i++) {
     trace.env_id = (JNIEnv *) i;
     CHECK(queue->push(trace));
   }
@@ -126,8 +126,8 @@ TEST_FIXTURE(GivenQueue, MultiThreadedRun) {
   // When you pop all the values out of the queue
   JVMPI_CallTrace out;
   while(pop(out)) {
-    int counter = (int) out.env_id;
-    int index = counter / THREAD_GAP;
+    long counter = (long) out.env_id;
+    long index = counter / THREAD_GAP;
 
     // Then pushed values are incremental within each thread
     CHECK_EQUAL(counters[index], counter);
