@@ -36,7 +36,8 @@ mvn package
 ```
 
 If you just want to compile the C++ code then the `Makefile` works independently
-of maven.
+of maven. You must have `$JAVA_HOME`  pointing to a JDK install in order to
+compile the C++ component because it relies on jvmti.h.
 
 Dependencies
 ------------
