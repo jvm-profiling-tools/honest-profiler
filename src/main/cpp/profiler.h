@@ -29,7 +29,7 @@ private:
   DISALLOW_COPY_AND_ASSIGN(SignalHandler);
 };
 
-class Profiler final {
+class Profiler {
 public:
   explicit Profiler(jvmtiEnv *jvmti) : jvmti_(jvmti) {
     // main object graph instantiated here

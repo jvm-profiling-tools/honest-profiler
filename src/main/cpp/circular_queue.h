@@ -33,7 +33,7 @@ public:
   virtual ~QueueListener() {}
 };
 
-class CircularQueue final {
+class CircularQueue {
 public:
   explicit CircularQueue(QueueListener &listener)
       : listener_(listener), input(0), output(0) {

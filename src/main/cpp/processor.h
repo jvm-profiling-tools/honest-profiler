@@ -4,7 +4,7 @@
 #ifndef PROCESSOR_H
 #define PROCESSOR_H
 
-class Processor final {
+class Processor {
 
 public:
   explicit Processor(jvmtiEnv *jvmti, LogWriter &logWriter,
