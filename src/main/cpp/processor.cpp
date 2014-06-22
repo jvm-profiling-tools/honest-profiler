@@ -6,6 +6,12 @@
 
 #include "processor.h"
 
+#ifdef WINDOWS
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
+
 // TODO: proper error handling
 static void error(std::string message) { std::cout << message; }
 
@@ -29,6 +35,16 @@ static jthread newThread(JNIEnv *jniEnv) {
   return res;
 }
 
+const uint MILLIS_IN_MICRO = 1000;
+
+void sleep_for_millis(uint period) {
+#ifdef WINDOWS
+    Sleep(period);
+#else
+    usleep(period * MILLIS_IN_MICRO);
+#endif
+}
+
 void Processor::run() {
   while (true) {
     while (buffer_.pop())
@@ -39,7 +55,7 @@ void Processor::run() {
     }
 
     // TODO: make this configurable
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    sleep_for_millis(1);
   }
 }
 

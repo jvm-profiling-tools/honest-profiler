@@ -19,7 +19,7 @@ int Profiler::failures_[kNumCallTraceErrors + 1];
 namespace {
 
 // Helper class to store and reset errno when in a signal handler.
-class ErrnoRaii final {
+class ErrnoRaii {
 public:
   ErrnoRaii() { stored_errno_ = errno; }
   ~ErrnoRaii() { errno = stored_errno_; }
@@ -156,12 +156,16 @@ bool SignalHandler::SetSigprofInterval(int sec, int usec) {
 struct sigaction SignalHandler::SetAction(void (*action)(int, siginfo_t *,
                                                          void *)) {
   struct sigaction sa;
+#ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdisabled-macro-expansion"
+#endif
   sa.sa_handler = NULL;
   sa.sa_sigaction = action;
   sa.sa_flags = SA_RESTART | SA_SIGINFO;
+#ifdef __clang__
 #pragma clang diagnostic pop
+#endif
 
   sigemptyset(&sa.sa_mask);
 

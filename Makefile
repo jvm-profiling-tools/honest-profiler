@@ -31,7 +31,7 @@ ifeq ($(CXX), clang++)
 	CXX_WARNINGS:=-Weverything -Wno-c++98-compat-pedantic -Wno-padded \
 		-Wno-missing-prototypes -Wno-weak-vtables -Wno-global-constructors
   LDFLAGS+=-Wl,-fatal_warnings -Wl,-std=c++11 -Wl,-stdlib=libc++
-else ifeq ($(CXX), g++)
+else ifeq ($(findstring g++,$(CXX)), g++)
 	CXX_COPTS:=-mfpmath=sse -std=gnu++0x
   CXX_WARNINGS:=-Wframe-larger-than=16384 -Wno-unused-but-set-variable \
     -Wunused-but-set-parameter -Wvla -Wno-conversion-null -Wno-unknown-pragmas \
@@ -85,6 +85,7 @@ $(TEST_BUILD_DIR)/%.pic.o: $(TEST_DIR)/%.cpp
 	$(CXX) $(TEST_INCLUDES) $(COPTS) -Fvisibility=hidden -fPIC -c $< -o $@
 
 $(AGENT): $(OBJECTS)
+	echo $(COPTS)
 	$(CXX) $(COPTS) -shared -o $(BUILD_DIR)/$(AGENT) \
 	  -Bsymbolic $(OBJECTS) $(LIBS)
 

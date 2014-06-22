@@ -32,7 +32,7 @@ const byte FRAME = 2;
 const byte NEW_METHOD = 3;
 
 // LogWriter should be independently testable without spinning up a JVM
-class LogWriter final : public QueueListener, public MethodListener {
+class LogWriter : public QueueListener, public MethodListener {
 
 public:
   explicit LogWriter(ostream &output, GetFrameInformation frameLookup,

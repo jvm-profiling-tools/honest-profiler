@@ -9,6 +9,12 @@
     <version>1.0-SNAPSHOT</version>
     <name>Honest Profiler</name>
     <url>http://maven.apache.org</url>
+
+    <properties>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <skipTests>false</skipTests>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.picocontainer</groupId>
@@ -112,6 +118,7 @@
                                     <goal>exec</goal>
                                 </goals>
                                 <configuration>
+                                    <skip>${skipTests}</skip>
                                     <executable>make</executable>
                                     <arguments>
                                         <argument>test</argument>
