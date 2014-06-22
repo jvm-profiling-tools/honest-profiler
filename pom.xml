@@ -50,7 +50,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>com.insightfullogic.honest_profiler.javafx.JavaFXEntry</mainClass>
+                            <mainClass>com.insightfullogic.honest_profiler.delivery.javafx.JavaFXEntry</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

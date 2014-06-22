@@ -1,6 +1,6 @@
 package com.insightfullogic.honest_profiler;
 
-import com.insightfullogic.honest_profiler.log.Method;
+import com.insightfullogic.honest_profiler.core.model.parser.Method;
 
 public class ProfileFixtures {
 

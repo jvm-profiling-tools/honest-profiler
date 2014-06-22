@@ -1,9 +1,7 @@
 package com.insightfullogic.honest_profiler;
 
-import com.insightfullogic.honest_profiler.Console;
-import com.insightfullogic.honest_profiler.log.Method;
-import org.hamcrest.Matchers;
-import org.junit.Assert;
+import com.insightfullogic.honest_profiler.core.model.parser.Method;
+import com.insightfullogic.honest_profiler.delivery.console.Console;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;

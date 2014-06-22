@@ -55,5 +55,5 @@ Running
 *This isn't production ready code!*
 
 * To run the jvmti agent: `java -agentpath:/path/to/location/liblagent.so <normal-java-commandline>`
-* To run the gui client: `java -cp $JAVA_HOME/lib/tools.jar:target/honest-profiler-1.0-SNAPSHOT-jar-with-dependencies.jar com.insightfullogic.honest_profiler.javafx.JavaFXEntry`
+* To run the gui client: `java -cp $JAVA_HOME/lib/tools.jar:target/honest-profiler-1.0-SNAPSHOT-jar-with-dependencies.jar com.insightfullogic.honest_profiler.delivery.javafx.JavaFXEntry`
 
