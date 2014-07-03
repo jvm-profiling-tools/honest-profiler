@@ -1,4 +1,4 @@
-package com.insightfullogic.honest_profiler;
+package com.insightfullogic.honest_profiler.delivery.console;
 
 import com.insightfullogic.honest_profiler.core.model.parser.Method;
 import com.insightfullogic.honest_profiler.delivery.console.Console;

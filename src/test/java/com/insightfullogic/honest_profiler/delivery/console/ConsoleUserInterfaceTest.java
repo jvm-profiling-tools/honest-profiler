@@ -1,6 +1,5 @@
 package com.insightfullogic.honest_profiler.delivery.console;
 
-import com.insightfullogic.honest_profiler.FakeConsole;
 import com.insightfullogic.honest_profiler.ProfileFixtures;
 import com.insightfullogic.honest_profiler.core.model.collector.FlatProfileEntry;
 import com.insightfullogic.honest_profiler.core.model.collector.Profile;
