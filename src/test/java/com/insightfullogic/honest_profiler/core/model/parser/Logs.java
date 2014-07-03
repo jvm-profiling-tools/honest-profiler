@@ -16,7 +16,6 @@ public class Logs {
     }
 
     private static File urlToFile(URL url) {
-        File file;
         try {
             return new File(url.toURI());
         } catch(URISyntaxException e) {
