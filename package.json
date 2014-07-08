@@ -20,8 +20,8 @@
     "start": "http-server -a localhost -p 8000",
 
     "pretest": "npm install",
-    "test": "karma start src/test/webapp/karma.conf.js",
-    "test-single-run": "karma start src/test/webapp/karma.conf.js  --single-run",
+    "test": "karma start src/test/webapp/karma.conf.js --single-run",
+    "tst": "karma start src/test/webapp/karma.conf.js",
 
     "preupdate-webdriver": "npm install",
     "update-webdriver": "webdriver-manager update",

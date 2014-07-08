@@ -158,6 +158,21 @@
                                     <executable>make</executable>
                                 </configuration>
                             </execution>
+
+                            <execution>
+                                <id>npm-test</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <skip>${skipTests}</skip>
+                                    <executable>npm</executable>
+                                    <arguments>
+                                        <argument>test</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
                         </executions>
                     </plugin>
                 </plugins>
