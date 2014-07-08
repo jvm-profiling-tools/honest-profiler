@@ -10,7 +10,7 @@
         <alert ng-show="!machine.profile" type="warning" >We have no profile data about {{ machine.name }}.</alert>
 
         <div ng-show="machine.profile"
-             ng-include="'/app/partials/profileNode.html'"
+             ng-include="'partials/profileNode.html'"
              onload="node = machine.profile; offset = 0; width = 12">
         </div>
 
