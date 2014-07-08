@@ -5,12 +5,18 @@ import org.webbitserver.WebSocketConnection;
 
 public class ConnectionHandler extends BaseWebSocketHandler {
 
-    public void onOpen(WebSocketConnection connection) {
+    private final Connections connections;
 
+    public ConnectionHandler(Connections connections) {
+        this.connections = connections;
+    }
+
+    public void onOpen(WebSocketConnection connection) {
+        connections.add(connection);
     }
 
     public void onClose(WebSocketConnection connection) {
-
+        connections.add(connection);
     }
 
     public void onMessage(WebSocketConnection connection, String message) {

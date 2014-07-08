@@ -17,13 +17,19 @@ public class JavaVirtualMachine {
 
     private final String id;
     private final String displayName;
-    private final boolean agentLoaded;
+
+    private boolean agentLoaded;
     private String userDir;
 
     public JavaVirtualMachine(VirtualMachineDescriptor vmDescriptor) {
-        id = vmDescriptor.id();
-        displayName = vmDescriptor.displayName();
+        this(vmDescriptor.id(), vmDescriptor.displayName());
         agentLoaded = checkAgentLoaded(vmDescriptor);
+    }
+
+    public JavaVirtualMachine(String id, String displayName) {
+        this.id = id;
+        this.displayName = displayName;
+        this.agentLoaded = true;
     }
 
     private boolean checkAgentLoaded(VirtualMachineDescriptor vmDescriptor) {
