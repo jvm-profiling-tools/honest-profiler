@@ -1,0 +1,18 @@
+
+<h1>Virtual Machines</h1>
+
+<accordion close-others="oneAtATime">
+    <accordion-group ng-repeat="machine in machines" ng-init="status.open = true" is-open="status.open">
+        <accordion-heading>
+            {{ machine.name }} <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': status.open, 'glyphicon-chevron-right': !status.open}"></i>
+        </accordion-heading>
+
+        <alert ng-show="!machine.profile" type="warning" >We have no profile data about {{ machine.name }}.</alert>
+
+        <div ng-show="machine.profile"
+             ng-include="'/app/partials/profileNode.html'"
+             onload="node = machine.profile; offset = 0; width = 12">
+        </div>
+
+    </accordion-group>
+</accordion>

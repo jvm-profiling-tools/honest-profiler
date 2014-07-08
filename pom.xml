@@ -29,10 +29,9 @@
             <systemPath>${java.home}/../lib/tools.jar</systemPath>
         </dependency>
         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-            <version>5.0.0.Alpha1</version>
-            <scope>compile</scope>
+            <groupId>org.webbitserver</groupId>
+            <artifactId>webbit</artifactId>
+            <version>0.4.15</version>
         </dependency>
 
         <!-- Test Dependencies -->
@@ -90,12 +89,23 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals><goal>add-source</goal></goals>
+                        <configuration>
+                            <sources>
+                                <source>src/main/java</source>
+                                <source>src/main/webapp</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
-        <resources>
-            <resource>
-                <directory>src/main/webapp</directory>
-            </resource>
-        </resources>
     </build>
 
     <profiles>

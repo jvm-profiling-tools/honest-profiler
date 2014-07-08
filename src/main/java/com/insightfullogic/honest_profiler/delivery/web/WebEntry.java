@@ -1,12 +1,11 @@
 package com.insightfullogic.honest_profiler.delivery.web;
 
-import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
+import app.Root;
+import org.webbitserver.WebServer;
+import org.webbitserver.WebServers;
+import org.webbitserver.handler.StaticFileHandler;
+
+import java.io.File;
 
 public class WebEntry {
 
@@ -14,25 +13,13 @@ public class WebEntry {
 
     public static void main(String[] args) throws Exception {
 
-        EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        String dir = new File(Root.class.getResource("index.html").toURI()).getParent();
 
-        try {
-            ServerBootstrap b = new ServerBootstrap();
-            b.group(bossGroup, workerGroup)
-             .channel(NioServerSocketChannel.class)
-             .handler(new LoggingHandler(LogLevel.INFO))
-             .childHandler(new HttpServerInitializer());
-
-            Channel ch = b.bind(PORT).sync().channel();
-
-            System.out.println("Web socket server started at port " + PORT + '.');
-
-            ch.closeFuture().sync();
-        } finally {
-            bossGroup.shutdownGracefully();
-            workerGroup.shutdownGracefully();
-        }
+        WebServer webServer = WebServers.createWebServer(PORT)
+                .add("/websocket", new ConnectionHandler())
+                .add(new StaticFileHandler(dir))
+                .start()
+                .get();
     }
 
 }
