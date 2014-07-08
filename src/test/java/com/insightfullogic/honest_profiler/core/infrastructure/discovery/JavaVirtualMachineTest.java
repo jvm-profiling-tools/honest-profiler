@@ -1,5 +1,6 @@
 package com.insightfullogic.honest_profiler.core.infrastructure.discovery;
 
+import com.insightfullogic.honest_profiler.core.infrastructure.source.JavaVirtualMachine;
 import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
 import org.junit.Test;

@@ -21,7 +21,7 @@ public class TreeNodeAdapter extends TreeItem<ProfileNode> {
     private final Type type;
     private final int threadId;
 
-    // Root Node
+    // com.insightfullogic.honest_profiler.delivery.console.Root Node
     public TreeNodeAdapter(List<ProfileTree> trees) {
         threadId = NOT_APPLICABLE;
         type = Type.ROOT;

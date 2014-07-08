@@ -1,4 +1,4 @@
-package com.insightfullogic.honest_profiler.core.infrastructure.discovery;
+package com.insightfullogic.honest_profiler.core.infrastructure.source;
 
 import com.sun.tools.attach.AttachNotSupportedException;
 import com.sun.tools.attach.VirtualMachine;

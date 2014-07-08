@@ -1,7 +1,7 @@
 package com.insightfullogic.honest_profiler.delivery.javafx.landing;
 
-import com.insightfullogic.honest_profiler.core.infrastructure.discovery.JavaVirtualMachine;
-import com.insightfullogic.honest_profiler.core.infrastructure.discovery.VirtualMachineListener;
+import com.insightfullogic.honest_profiler.core.infrastructure.source.JavaVirtualMachine;
+import com.insightfullogic.honest_profiler.core.infrastructure.source.VirtualMachineListener;
 import com.insightfullogic.honest_profiler.delivery.javafx.WindowViewModel;
 import com.insightfullogic.honest_profiler.core.model.parser.LogParser;
 import javafx.application.Platform;

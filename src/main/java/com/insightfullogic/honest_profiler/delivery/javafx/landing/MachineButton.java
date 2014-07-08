@@ -1,6 +1,6 @@
 package com.insightfullogic.honest_profiler.delivery.javafx.landing;
 
-import com.insightfullogic.honest_profiler.core.infrastructure.discovery.JavaVirtualMachine;
+import com.insightfullogic.honest_profiler.core.infrastructure.source.JavaVirtualMachine;
 import javafx.geometry.Insets;
 import javafx.scene.control.RadioButton;
 import javafx.scene.text.Font;
