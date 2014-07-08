@@ -1,15 +1,19 @@
+
+APP = 'src/main/webapp/app';
+TEST = 'src/test/webapp/';
+
 module.exports = function(config){
   config.set({
 
-    basePath : '../',
+    basePath : '../../../',
 
     files : [
-      'app/bower_components/angular/angular.js',
-      'app/bower_components/angular-route/angular-route.js',
-      'app/bower_components/angular-mocks/angular-mocks.js',
-      'app/bower_components/underscore/underscore.js',
-      'app/js/**/*.js',
-      'test/unit/**/*.js'
+      APP + '/bower_components/angular/angular.js',
+      APP + '/bower_components/angular-route/angular-route.js',
+      APP + '/bower_components/angular-mocks/angular-mocks.js',
+      APP + '/bower_components/underscore/underscore.js',
+      APP + '/js/**/*.js',
+      TEST + '/unit/**/*.js'
     ],
 
     autoWatch : true,
@@ -27,7 +31,7 @@ module.exports = function(config){
             ],
 
     junitReporter : {
-      outputFile: 'test_out/unit.xml',
+      outputFile: 'target/angular_unit.xml',
       suite: 'unit'
     }
 
