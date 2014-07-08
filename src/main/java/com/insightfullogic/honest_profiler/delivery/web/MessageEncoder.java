@@ -5,19 +5,14 @@ import com.insightfullogic.honest_profiler.core.infrastructure.source.JavaVirtua
 public class MessageEncoder {
 
     public String addJavaVirtualMachine(JavaVirtualMachine machine) {
-        return jvmMessage("addJvm", machine);
+        return String.format(
+                "{ \"type\": \"addJvm\", \"machine\": { \"name\": \"%s\", \"id\": \"%s\" } }",
+                machine.getDisplayName(),
+                machine.getId());
     }
 
     public String removeJavaVirtualMachine(JavaVirtualMachine machine) {
-        return jvmMessage("removeJvm", machine);
-    }
-
-    private String jvmMessage(String type, JavaVirtualMachine machine) {
-        return String.format(
-            "{ type: %s, machine: { name: %s, id: %s } }",
-            type,
-            machine.getDisplayName(),
-            machine.getId());
+        return String.format("{ \"type\": \"removeJvm\", \"id\": \"%s\" }", machine.getId());
     }
 
 }

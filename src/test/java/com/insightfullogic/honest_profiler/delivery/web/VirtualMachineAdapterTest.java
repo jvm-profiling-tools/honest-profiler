@@ -31,13 +31,13 @@ public class VirtualMachineAdapterTest {
         it.should("send information about added JVMs", expect -> {
             adapter.update(singleton(jvm), emptySet());
 
-            verify(connections).sendAll("{ type: addJvm, machine: { name: com.intellij.idea.Main, id: 12432 } }");
+            verify(connections).sendAll("{ \"type\": \"addJvm\", \"machine\": { \"name\": \"com.intellij.idea.Main\", \"id\": \"12432\" } }");
         });
 
         it.should("send information about removed JVMs", expect -> {
             adapter.update(emptySet(), singleton(jvm));
 
-            verify(connections).sendAll("{ type: removeJvm, machine: { name: com.intellij.idea.Main, id: 12432 } }");
+            verify(connections).sendAll("{ \"type\": \"removeJvm\", \"id\": \"12432\" }");
         });
 
     });
