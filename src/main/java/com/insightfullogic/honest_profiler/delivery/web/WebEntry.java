@@ -1,8 +1,9 @@
 package com.insightfullogic.honest_profiler.delivery.web;
 
 import app.Root;
-import com.insightfullogic.honest_profiler.core.infrastructure.source.DiscoveryService;
+import com.insightfullogic.honest_profiler.core.adapters.source.LocalMachineFinder;
 import com.insightfullogic.honest_profiler.core.model.collector.LogCollector;
+import com.insightfullogic.honest_profiler.core.model.machines.MachineFindingAgent;
 import com.insightfullogic.honest_profiler.core.model.parser.LogParser;
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.PicoBuilder;
@@ -26,7 +27,7 @@ public class WebEntry {
 
         try {
             WebServers.createWebServer(PORT)
-                      .add("/websocket", container.getComponent(ConnectionHandler.class))
+                      .add("/clients", container.getComponent(ClientHandler.class))
                       .add(new StaticFileHandler(staticDir))
                       .start()
                       .get();
@@ -41,13 +42,14 @@ public class WebEntry {
                 .withCaching()
                 .build()
 
+                .addComponent(LocalMachineFinder.class)
                 .addComponent(MessageEncoder.class)
-                .addComponent(VirtualMachineAdapter.class)
+                .addComponent(MachineAdapter.class)
                 .addComponent(Connections.class)
-                .addComponent(ConnectionHandler.class)
+                .addComponent(ClientHandler.class)
                 .addComponent(LogCollector.class)
                 .addComponent(LogParser.class)
-                .addComponent(DiscoveryService.class);
+                .addComponent(MachineFindingAgent.class);
 
         return pico.addComponent(pico);
     }

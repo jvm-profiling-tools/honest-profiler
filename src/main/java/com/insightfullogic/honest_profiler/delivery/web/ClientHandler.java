@@ -3,11 +3,11 @@ package com.insightfullogic.honest_profiler.delivery.web;
 import org.webbitserver.BaseWebSocketHandler;
 import org.webbitserver.WebSocketConnection;
 
-public class ConnectionHandler extends BaseWebSocketHandler {
+public class ClientHandler extends BaseWebSocketHandler {
 
     private final Connections connections;
 
-    public ConnectionHandler(Connections connections) {
+    public ClientHandler(Connections connections) {
         this.connections = connections;
     }
 

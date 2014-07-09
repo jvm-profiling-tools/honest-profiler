@@ -1,7 +1,7 @@
 package com.insightfullogic.honest_profiler.delivery.javafx.landing;
 
-import com.insightfullogic.honest_profiler.core.infrastructure.source.JavaVirtualMachine;
-import com.insightfullogic.honest_profiler.core.infrastructure.source.VirtualMachineListener;
+import com.insightfullogic.honest_profiler.core.model.machines.VirtualMachine;
+import com.insightfullogic.honest_profiler.core.model.machines.MachineListener;
 import com.insightfullogic.honest_profiler.delivery.javafx.WindowViewModel;
 import com.insightfullogic.honest_profiler.core.model.parser.LogParser;
 import javafx.application.Platform;
@@ -19,7 +19,7 @@ import java.util.Set;
 
 import static com.insightfullogic.honest_profiler.delivery.javafx.WindowViewModel.Window.Profile;
 
-public class LandingViewModel implements VirtualMachineListener {
+public class LandingViewModel implements MachineListener {
 
     @FXML
     private VBox landingView;
@@ -63,7 +63,7 @@ public class LandingViewModel implements VirtualMachineListener {
     }
 
     @Override
-    public void update(Set<JavaVirtualMachine> added, Set<JavaVirtualMachine> removed) {
+    public void update(Set<VirtualMachine> added, Set<VirtualMachine> removed) {
         Platform.runLater(() -> {
             ObservableList<Node> children = landingView.getChildren();
             addSpawnedChildren(added, children);
@@ -71,7 +71,7 @@ public class LandingViewModel implements VirtualMachineListener {
         });
     }
 
-    private void addSpawnedChildren(Set<JavaVirtualMachine> added, ObservableList<Node> children) {
+    private void addSpawnedChildren(Set<VirtualMachine> added, ObservableList<Node> children) {
         added.forEach(vm -> {
             MachineButton button = new MachineButton(vm);
             button.setToggleGroup(toggleMachines);
@@ -79,7 +79,7 @@ public class LandingViewModel implements VirtualMachineListener {
         });
     }
 
-    private void removeExitedChildren(Set<JavaVirtualMachine> removed, ObservableList<Node> children) {
+    private void removeExitedChildren(Set<VirtualMachine> removed, ObservableList<Node> children) {
         removed.forEach(vm -> {
             children.removeIf(node -> vm.getId().equals(node.getId()));
         });

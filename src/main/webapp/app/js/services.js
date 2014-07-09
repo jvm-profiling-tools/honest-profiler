@@ -8,7 +8,7 @@ angular.module('hp.services', [])
     .factory('events', [
         function() {
             // TODO: remove hard coding
-            var wsUri = "ws://localhost:8080/websocket";
+            var wsUri = "ws://localhost:8080/clients";
 
             return {
                 start: function(listener) {
@@ -45,7 +45,10 @@ angular.module('hp.services', [])
             var machineList = [];
 
             function notify() {
-                $rootScope.$broadcast('virtualMachineChange', virtualMachines);
+                // TODO: force re-rendering in a less inefficient manner
+                if(!$rootScope.$$phase) {
+                    $rootScope.$apply();
+                }
             }
 
             var virtualMachines = {

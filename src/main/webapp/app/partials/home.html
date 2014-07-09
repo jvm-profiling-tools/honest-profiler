@@ -7,7 +7,9 @@
             {{ machine.name }} <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': status.open, 'glyphicon-chevron-right': !status.open}"></i>
         </accordion-heading>
 
-        <alert ng-show="!machine.profile" type="warning" >We have no profile data about {{ machine.name }}.</alert>
+        <alert ng-show="!machine.profile && machine.agent" type="warning" >We have no profile data about {{ machine.name }}.</alert>
+
+        <alert ng-show="!machine.agent" type="info" >{{ machine.name }} does not have an agent loaded.</alert>
 
         <div ng-show="machine.profile"
              ng-include="'partials/profileNode.html'"

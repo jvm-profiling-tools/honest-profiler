@@ -1,17 +1,18 @@
 package com.insightfullogic.honest_profiler.delivery.web;
 
-import com.insightfullogic.honest_profiler.core.infrastructure.source.JavaVirtualMachine;
+import com.insightfullogic.honest_profiler.core.model.machines.VirtualMachine;
 
 public class MessageEncoder {
 
-    public String addJavaVirtualMachine(JavaVirtualMachine machine) {
+    public String addJavaVirtualMachine(VirtualMachine machine) {
         return String.format(
-                "{ \"type\": \"addJvm\", \"machine\": { \"name\": \"%s\", \"id\": \"%s\" } }",
+                "{ \"type\": \"addJvm\", \"machine\": { \"name\": \"%s\", \"id\": \"%s\", \"agent\": %b } }",
                 machine.getDisplayName(),
-                machine.getId());
+                machine.getId(),
+                machine.isAgentLoaded());
     }
 
-    public String removeJavaVirtualMachine(JavaVirtualMachine machine) {
+    public String removeJavaVirtualMachine(VirtualMachine machine) {
         return String.format("{ \"type\": \"removeJvm\", \"id\": \"%s\" }", machine.getId());
     }
 

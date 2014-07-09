@@ -1,6 +1,6 @@
 package com.insightfullogic.honest_profiler.delivery.javafx.landing;
 
-import com.insightfullogic.honest_profiler.core.infrastructure.source.JavaVirtualMachine;
+import com.insightfullogic.honest_profiler.core.model.machines.VirtualMachine;
 import javafx.geometry.Insets;
 import javafx.scene.control.RadioButton;
 import javafx.scene.text.Font;
@@ -13,9 +13,9 @@ public class MachineButton extends RadioButton {
 
     private static final Font font = new Font("Bitstream Vera Sans Bold", 16);
 
-    private final JavaVirtualMachine jvm;
+    private final VirtualMachine jvm;
 
-    public MachineButton(JavaVirtualMachine jvm) {
+    public MachineButton(VirtualMachine jvm) {
         super(jvm.getDisplayName());
         this.jvm = jvm;
         setDisable(!jvm.isAgentLoaded());
@@ -23,7 +23,7 @@ public class MachineButton extends RadioButton {
         setButtonStyling();
     }
 
-    public JavaVirtualMachine getJvm() {
+    public VirtualMachine getJvm() {
         return jvm;
     }
 

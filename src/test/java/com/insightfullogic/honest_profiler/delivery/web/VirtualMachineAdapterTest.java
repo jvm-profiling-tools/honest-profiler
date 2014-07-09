@@ -1,6 +1,6 @@
 package com.insightfullogic.honest_profiler.delivery.web;
 
-import com.insightfullogic.honest_profiler.core.infrastructure.source.JavaVirtualMachine;
+import com.insightfullogic.honest_profiler.core.model.machines.VirtualMachine;
 import com.insightfullogic.lambdabehave.JunitSuiteRunner;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -14,14 +14,14 @@ import static org.mockito.Mockito.verify;
 public class VirtualMachineAdapterTest {
 
     Connections connections;
-    JavaVirtualMachine jvm = new JavaVirtualMachine("12432", "com.intellij.idea.Main");
-    VirtualMachineAdapter adapter;
+    VirtualMachine jvm = new VirtualMachine("12432", "com.intellij.idea.Main", true, "");
+    MachineAdapter adapter;
 
     { describe("The Java Virtual Machine Adapter", it -> {
 
         it.shouldSetup(() -> {
             connections = Mockito.mock(Connections.class);
-            adapter = new VirtualMachineAdapter(connections, new MessageEncoder());
+            adapter = new MachineAdapter(connections, new MessageEncoder());
         });
 
         it.should("Register for connections", expect -> {
@@ -31,7 +31,7 @@ public class VirtualMachineAdapterTest {
         it.should("send information about added JVMs", expect -> {
             adapter.update(singleton(jvm), emptySet());
 
-            verify(connections).sendAll("{ \"type\": \"addJvm\", \"machine\": { \"name\": \"com.intellij.idea.Main\", \"id\": \"12432\" } }");
+            verify(connections).sendAll("{ \"type\": \"addJvm\", \"machine\": { \"name\": \"com.intellij.idea.Main\", \"id\": \"12432\", \"agent\": true } }");
         });
 
         it.should("send information about removed JVMs", expect -> {

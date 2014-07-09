@@ -1,4 +1,4 @@
-package com.insightfullogic.honest_profiler.core.infrastructure.store;
+package com.insightfullogic.honest_profiler.core.adapters.store;
 
 import com.insightfullogic.honest_profiler.core.model.store.Logs;
 
