@@ -33,6 +33,11 @@
             <artifactId>webbit</artifactId>
             <version>0.4.15</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>2.5.0</version>
+        </dependency>
 
         <!-- Test Dependencies -->
         <dependency>
@@ -98,6 +103,22 @@
                                 <source>src/main/webapp</source>
                             </sources>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>de.softwareforge.mojo</groupId>
+                <artifactId>maven-protoc-plugin</artifactId>
+                <version>0.2-HPS-2</version>
+                <configuration>
+                    <protocExecutable>/usr/bin/protoc</protocExecutable>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>testCompile</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
