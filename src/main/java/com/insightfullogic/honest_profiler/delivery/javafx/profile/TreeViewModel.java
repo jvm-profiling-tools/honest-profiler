@@ -1,9 +1,9 @@
 package com.insightfullogic.honest_profiler.delivery.javafx.profile;
 
-import com.insightfullogic.honest_profiler.core.model.collector.Profile;
-import com.insightfullogic.honest_profiler.core.model.collector.ProfileListener;
-import com.insightfullogic.honest_profiler.core.model.collector.ProfileNode;
-import com.insightfullogic.honest_profiler.core.model.collector.ProfileTree;
+import com.insightfullogic.honest_profiler.model.collector.Profile;
+import com.insightfullogic.honest_profiler.model.collector.ProfileListener;
+import com.insightfullogic.honest_profiler.model.collector.ProfileNode;
+import com.insightfullogic.honest_profiler.model.collector.ProfileTree;
 import javafx.fxml.FXML;
 import javafx.scene.control.TreeView;
 

@@ -1,10 +1,10 @@
 package com.insightfullogic.honest_profiler.delivery.console;
 
 import com.insightfullogic.honest_profiler.ProfileFixtures;
-import com.insightfullogic.honest_profiler.core.model.collector.FlatProfileEntry;
-import com.insightfullogic.honest_profiler.core.model.collector.Profile;
-import com.insightfullogic.honest_profiler.core.model.collector.ProfileNode;
-import com.insightfullogic.honest_profiler.core.model.collector.ProfileTree;
+import com.insightfullogic.honest_profiler.model.collector.FlatProfileEntry;
+import com.insightfullogic.honest_profiler.model.collector.Profile;
+import com.insightfullogic.honest_profiler.model.collector.ProfileNode;
+import com.insightfullogic.honest_profiler.model.collector.ProfileTree;
 import org.junit.Test;
 
 import java.util.List;

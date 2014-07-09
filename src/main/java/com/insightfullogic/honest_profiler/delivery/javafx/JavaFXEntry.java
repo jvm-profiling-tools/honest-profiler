@@ -1,10 +1,10 @@
 package com.insightfullogic.honest_profiler.delivery.javafx;
 
-import com.insightfullogic.honest_profiler.core.model.collector.LogCollector;
-import com.insightfullogic.honest_profiler.core.model.machines.MachineFindingAgent;
+import com.insightfullogic.honest_profiler.model.collector.LogCollector;
+import com.insightfullogic.honest_profiler.model.machines.MachineFindingAgent;
 import com.insightfullogic.honest_profiler.delivery.javafx.landing.LandingViewModel;
 import com.insightfullogic.honest_profiler.delivery.javafx.profile.*;
-import com.insightfullogic.honest_profiler.core.model.parser.LogParser;
+import com.insightfullogic.honest_profiler.model.parser.LogParser;
 import javafx.application.Application;
 import javafx.scene.Parent;
 import javafx.stage.Stage;

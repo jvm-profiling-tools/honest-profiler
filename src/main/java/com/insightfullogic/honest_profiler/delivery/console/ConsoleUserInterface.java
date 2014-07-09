@@ -1,9 +1,9 @@
 package com.insightfullogic.honest_profiler.delivery.console;
 
-import com.insightfullogic.honest_profiler.core.model.collector.Profile;
-import com.insightfullogic.honest_profiler.core.model.collector.ProfileListener;
-import com.insightfullogic.honest_profiler.core.model.collector.ProfileNode;
-import com.insightfullogic.honest_profiler.core.model.parser.Method;
+import com.insightfullogic.honest_profiler.model.collector.Profile;
+import com.insightfullogic.honest_profiler.model.collector.ProfileListener;
+import com.insightfullogic.honest_profiler.model.collector.ProfileNode;
+import com.insightfullogic.honest_profiler.model.parser.Method;
 
 import java.io.PrintStream;
 import java.util.stream.IntStream;

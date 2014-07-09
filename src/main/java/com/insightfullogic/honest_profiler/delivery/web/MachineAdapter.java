@@ -1,7 +1,7 @@
 package com.insightfullogic.honest_profiler.delivery.web;
 
-import com.insightfullogic.honest_profiler.core.model.machines.VirtualMachine;
-import com.insightfullogic.honest_profiler.core.model.machines.MachineListener;
+import com.insightfullogic.honest_profiler.model.machines.VirtualMachine;
+import com.insightfullogic.honest_profiler.model.machines.MachineListener;
 import org.webbitserver.WebSocketConnection;
 
 import java.util.HashSet;
