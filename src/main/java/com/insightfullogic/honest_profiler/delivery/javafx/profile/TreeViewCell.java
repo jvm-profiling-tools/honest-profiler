@@ -1,6 +1,6 @@
 package com.insightfullogic.honest_profiler.delivery.javafx.profile;
 
-import com.insightfullogic.honest_profiler.model.collector.ProfileNode;
+import com.insightfullogic.honest_profiler.core.collector.ProfileNode;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.TreeCell;

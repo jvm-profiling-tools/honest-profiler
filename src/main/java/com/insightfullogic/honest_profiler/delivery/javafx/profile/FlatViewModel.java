@@ -1,8 +1,8 @@
 package com.insightfullogic.honest_profiler.delivery.javafx.profile;
 
-import com.insightfullogic.honest_profiler.model.collector.FlatProfileEntry;
-import com.insightfullogic.honest_profiler.model.collector.Profile;
-import com.insightfullogic.honest_profiler.model.collector.ProfileListener;
+import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
+import com.insightfullogic.honest_profiler.core.collector.Profile;
+import com.insightfullogic.honest_profiler.core.collector.ProfileListener;
 import com.insightfullogic.honest_profiler.delivery.javafx.Rendering;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

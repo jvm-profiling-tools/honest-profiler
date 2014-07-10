@@ -1,7 +1,7 @@
 package com.insightfullogic.honest_profiler.delivery.javafx.profile;
 
 import com.insightfullogic.honest_profiler.delivery.javafx.WindowViewModel;
-import com.insightfullogic.honest_profiler.model.parser.LogParser;
+import com.insightfullogic.honest_profiler.core.parser.LogParser;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;

@@ -1,6 +1,6 @@
 package com.insightfullogic.honest_profiler.delivery.console;
 
-import com.insightfullogic.honest_profiler.model.parser.Method;
+import com.insightfullogic.honest_profiler.core.parser.Method;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;

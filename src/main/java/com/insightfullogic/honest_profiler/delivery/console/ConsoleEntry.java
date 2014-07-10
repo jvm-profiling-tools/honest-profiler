@@ -1,7 +1,7 @@
 package com.insightfullogic.honest_profiler.delivery.console;
 
-import com.insightfullogic.honest_profiler.model.collector.LogCollector;
-import com.insightfullogic.honest_profiler.model.parser.LogParser;
+import com.insightfullogic.honest_profiler.core.collector.LogCollector;
+import com.insightfullogic.honest_profiler.core.parser.LogParser;
 
 import java.io.File;
 

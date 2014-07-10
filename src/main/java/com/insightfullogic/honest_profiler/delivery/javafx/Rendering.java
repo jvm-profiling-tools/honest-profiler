@@ -1,7 +1,7 @@
 package com.insightfullogic.honest_profiler.delivery.javafx;
 
-import com.insightfullogic.honest_profiler.model.collector.FlatProfileEntry;
-import com.insightfullogic.honest_profiler.model.parser.Method;
+import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
+import com.insightfullogic.honest_profiler.core.parser.Method;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleObjectProperty;
 

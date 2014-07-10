@@ -1,6 +1,6 @@
 package com.insightfullogic.honest_profiler.delivery.console;
 
-import com.insightfullogic.honest_profiler.model.parser.Logs;
+import com.insightfullogic.honest_profiler.core.parser.Logs;
 
 import static org.junit.Assert.assertTrue;
 

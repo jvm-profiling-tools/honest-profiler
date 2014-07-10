@@ -1,8 +1,5 @@
 /**
- * Infrastructure for different ways of connecting to java virtual machines.
- *
- * Machine Discovery
- * Event log sources
+ * Infrastructure for sources of information about logs.
  */
 package com.insightfullogic.honest_profiler.adapters.source;
 
