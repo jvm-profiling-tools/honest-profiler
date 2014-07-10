@@ -1,19 +1,21 @@
-package com.insightfullogic.honest_profiler.core.conductor;
+package com.insightfullogic.honest_profiler.adapters.sources;
 
+import com.insightfullogic.honest_profiler.core.conductor.MachineListener;
 import com.insightfullogic.honest_profiler.core.sources.MachineSource;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.List;
 
-public class MachineFindingAgent {
+// TODO: combine this and LocalMachineSource into one class
+public class LocalMachineFindingAgent {
 
     private final MachineListener listener;
     private final List<MachineSource> finders;
 
     private Thread thread;
 
-    public MachineFindingAgent(MachineListener listener, List<MachineSource> finders) {
+    public LocalMachineFindingAgent(MachineListener listener, List<MachineSource> finders) {
         this.listener = listener;
         this.finders = finders;
     }
