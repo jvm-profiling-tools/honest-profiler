@@ -34,6 +34,7 @@ public class WebSocketMachineFinder extends BaseWebSocketHandler implements Mach
     @Override
     public void onClose(WebSocketConnection connection) {
         VirtualMachine machine = machines.remove(connection);
+        added.remove(machine);
         add(machine, removed);
     }
 
@@ -55,7 +56,7 @@ public class WebSocketMachineFinder extends BaseWebSocketHandler implements Mach
     }
 
     private Set<VirtualMachine> drain(Queue<VirtualMachine> queue) {
-        Set<VirtualMachine> machines = new HashSet<VirtualMachine>();
+        Set<VirtualMachine> machines = new HashSet<>();
         while (!queue.isEmpty()) {
             machines.add(queue.remove());
         }
