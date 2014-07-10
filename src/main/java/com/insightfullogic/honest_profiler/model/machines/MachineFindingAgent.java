@@ -2,31 +2,32 @@ package com.insightfullogic.honest_profiler.model.machines;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.util.List;
 
 public class MachineFindingAgent {
 
     private final MachineListener listener;
-    private final MachineFinder service;
+    private final List<MachineFinder> finders;
 
     private Thread thread;
 
-    public MachineFindingAgent(MachineListener listener, MachineFinder service) {
+    public MachineFindingAgent(MachineListener listener, List<MachineFinder> finders) {
         this.listener = listener;
-        this.service = service;
+        this.finders = finders;
     }
 
     @PostConstruct
     public void start() {
-        System.out.println("Starting");
         thread = new Thread(this::discoverVirtualMachines);
         thread.setDaemon(true);
         thread.start();
     }
 
     public void discoverVirtualMachines() {
+        System.out.println("Started");
         try {
             while (!Thread.currentThread().isInterrupted()) {
-                service.poll(listener);
+                finders.forEach(finder -> finder.poll(listener));
 
                 sleep();
             }

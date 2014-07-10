@@ -12,14 +12,14 @@ import java.util.function.Function;
 public class MachineAdapter implements MachineListener, Consumer<WebSocketConnection> {
 
     private final Set<VirtualMachine> machines;
-    private final Connections connections;
+    private final ClientConnections clients;
     private final MessageEncoder messages;
 
-    public MachineAdapter(Connections connections, MessageEncoder messages) {
-        this.connections = connections;
+    public MachineAdapter(ClientConnections clients, MessageEncoder messages) {
+        this.clients = clients;
         this.messages = messages;
         machines = new HashSet<>();
-        connections.setListener(this);
+        clients.setListener(this);
     }
 
     @Override
@@ -34,7 +34,7 @@ public class MachineAdapter implements MachineListener, Consumer<WebSocketConnec
     private void sendAll(Set<VirtualMachine> removed, Function<VirtualMachine, String> messageFactory) {
         removed.stream()
                .map(messageFactory)
-               .forEach(connections::sendAll);
+               .forEach(clients::sendAll);
     }
 
     @Override

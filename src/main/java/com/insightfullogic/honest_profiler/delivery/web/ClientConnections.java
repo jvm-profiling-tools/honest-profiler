@@ -8,13 +8,13 @@ import java.util.function.Consumer;
 
 import static java.util.Collections.synchronizedList;
 
-public class Connections {
+public class ClientConnections {
 
     private final List<WebSocketConnection> connections;
 
     private Consumer<WebSocketConnection> listener;
 
-    public Connections() {
+    public ClientConnections() {
         this.connections = synchronizedList(new ArrayList<>());
     }
 

@@ -2,6 +2,7 @@ package com.insightfullogic.honest_profiler.delivery.web;
 
 import app.Root;
 import com.insightfullogic.honest_profiler.adapters.source.LocalMachineFinder;
+import com.insightfullogic.honest_profiler.adapters.source.WebSocketMachineFinder;
 import com.insightfullogic.honest_profiler.model.collector.LogCollector;
 import com.insightfullogic.honest_profiler.model.machines.MachineFindingAgent;
 import com.insightfullogic.honest_profiler.model.parser.LogParser;
@@ -18,15 +19,15 @@ public class WebEntry {
     private static final int PORT = Integer.parseInt(System.getProperty("port", "8080"));
 
     public static void main(String[] args) throws Exception {
-        final URL url = Root.class.getResource("index.html");
-        System.out.println(url);
-        final String staticDir = new File(url.toURI()).getParent();
+        URL url = Root.class.getResource("index.html");
+        String staticDir = new File(url.toURI()).getParent();
 
         MutablePicoContainer container = registerComponents();
         container.start();
 
         try {
             WebServers.createWebServer(PORT)
+                      .add("/agents", container.getComponent(WebSocketMachineFinder.class))
                       .add("/clients", container.getComponent(ClientHandler.class))
                       .add(new StaticFileHandler(staticDir))
                       .start()
@@ -42,10 +43,11 @@ public class WebEntry {
                 .withCaching()
                 .build()
 
+                .addComponent(WebSocketMachineFinder.class)
                 .addComponent(LocalMachineFinder.class)
                 .addComponent(MessageEncoder.class)
                 .addComponent(MachineAdapter.class)
-                .addComponent(Connections.class)
+                .addComponent(ClientConnections.class)
                 .addComponent(ClientHandler.class)
                 .addComponent(LogCollector.class)
                 .addComponent(LogParser.class)

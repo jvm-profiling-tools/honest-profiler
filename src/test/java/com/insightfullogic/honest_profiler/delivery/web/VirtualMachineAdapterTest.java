@@ -13,31 +13,31 @@ import static org.mockito.Mockito.verify;
 @RunWith(JunitSuiteRunner.class)
 public class VirtualMachineAdapterTest {
 
-    Connections connections;
+    ClientConnections clients;
     VirtualMachine jvm = new VirtualMachine("12432", "com.intellij.idea.Main", true, "");
     MachineAdapter adapter;
 
     { describe("The Java Virtual Machine Adapter", it -> {
 
         it.shouldSetup(() -> {
-            connections = Mockito.mock(Connections.class);
-            adapter = new MachineAdapter(connections, new MessageEncoder());
+            clients = Mockito.mock(ClientConnections.class);
+            adapter = new MachineAdapter(clients, new MessageEncoder());
         });
 
         it.should("Register for connections", expect -> {
-            verify(connections).setListener(adapter);
+            verify(clients).setListener(adapter);
         });
 
         it.should("send information about added JVMs", expect -> {
             adapter.update(singleton(jvm), emptySet());
 
-            verify(connections).sendAll("{ \"type\": \"addJvm\", \"machine\": { \"name\": \"com.intellij.idea.Main\", \"id\": \"12432\", \"agent\": true } }");
+            verify(clients).sendAll("{ \"type\": \"addJvm\", \"machine\": { \"name\": \"com.intellij.idea.Main\", \"id\": \"12432\", \"agent\": true } }");
         });
 
         it.should("send information about removed JVMs", expect -> {
             adapter.update(emptySet(), singleton(jvm));
 
-            verify(connections).sendAll("{ \"type\": \"removeJvm\", \"id\": \"12432\" }");
+            verify(clients).sendAll("{ \"type\": \"removeJvm\", \"id\": \"12432\" }");
         });
 
     });
