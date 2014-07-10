@@ -1,9 +1,9 @@
 package com.insightfullogic.honest_profiler.adapters;
 
-import com.insightfullogic.honest_profiler.adapters.machines.Messages;
-import com.insightfullogic.honest_profiler.adapters.machines.WebSocketMachineFinder;
-import com.insightfullogic.honest_profiler.core.machines.MachineListener;
-import com.insightfullogic.honest_profiler.core.machines.VirtualMachine;
+import com.insightfullogic.honest_profiler.adapters.sources.Messages;
+import com.insightfullogic.honest_profiler.adapters.sources.WebSocketMachineFinder;
+import com.insightfullogic.honest_profiler.core.conductor.MachineListener;
+import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.insightfullogic.lambdabehave.JunitSuiteRunner;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;

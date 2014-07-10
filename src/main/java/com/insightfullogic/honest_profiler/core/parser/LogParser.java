@@ -57,7 +57,7 @@ public class LogParser {
         running = false;
     }
 
-    private boolean readRecord(ByteBuffer input, boolean continuous) throws IOException {
+    public boolean readRecord(ByteBuffer input, boolean continuous) throws IOException {
         if (!input.hasRemaining() || !running)
             return false;
 

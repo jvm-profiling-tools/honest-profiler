@@ -1,10 +1,10 @@
 package com.insightfullogic.honest_profiler.delivery.web;
 
 import app.Root;
-import com.insightfullogic.honest_profiler.adapters.machines.LocalMachineFinder;
-import com.insightfullogic.honest_profiler.adapters.machines.WebSocketMachineFinder;
+import com.insightfullogic.honest_profiler.adapters.sources.LocalMachineFinder;
+import com.insightfullogic.honest_profiler.adapters.sources.WebSocketMachineFinder;
 import com.insightfullogic.honest_profiler.core.collector.LogCollector;
-import com.insightfullogic.honest_profiler.core.machines.MachineFindingAgent;
+import com.insightfullogic.honest_profiler.core.conductor.MachineFindingAgent;
 import com.insightfullogic.honest_profiler.core.parser.LogParser;
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.PicoBuilder;

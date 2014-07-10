@@ -1,9 +1,9 @@
-package com.insightfullogic.honest_profiler.adapters.machines;
+package com.insightfullogic.honest_profiler.adapters.sources;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.insightfullogic.honest_profiler.core.machines.MachineFinder;
-import com.insightfullogic.honest_profiler.core.machines.MachineListener;
-import com.insightfullogic.honest_profiler.core.machines.VirtualMachine;
+import com.insightfullogic.honest_profiler.core.sources.MachineFinder;
+import com.insightfullogic.honest_profiler.core.conductor.MachineListener;
+import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import org.webbitserver.BaseWebSocketHandler;
 import org.webbitserver.WebSocketConnection;
 

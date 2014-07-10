@@ -1,4 +1,6 @@
-package com.insightfullogic.honest_profiler.core.machines;
+package com.insightfullogic.honest_profiler.core.conductor;
+
+import com.insightfullogic.honest_profiler.core.sources.MachineFinder;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;

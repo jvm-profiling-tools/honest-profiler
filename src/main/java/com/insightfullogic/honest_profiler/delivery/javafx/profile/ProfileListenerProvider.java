@@ -1,6 +1,6 @@
 package com.insightfullogic.honest_profiler.delivery.javafx.profile;
 
-import com.insightfullogic.honest_profiler.core.collector.ProfileListener;
+import com.insightfullogic.honest_profiler.core.conductor.ProfileListener;
 import javafx.application.Platform;
 import org.picocontainer.injectors.ProviderAdapter;
 

@@ -1,7 +1,7 @@
 package com.insightfullogic.honest_profiler.delivery.javafx;
 
 import com.insightfullogic.honest_profiler.core.collector.LogCollector;
-import com.insightfullogic.honest_profiler.core.machines.MachineFindingAgent;
+import com.insightfullogic.honest_profiler.core.conductor.MachineFindingAgent;
 import com.insightfullogic.honest_profiler.delivery.javafx.landing.LandingViewModel;
 import com.insightfullogic.honest_profiler.delivery.javafx.profile.*;
 import com.insightfullogic.honest_profiler.core.parser.LogParser;

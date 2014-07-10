@@ -1,4 +1,6 @@
-package com.insightfullogic.honest_profiler.core.machines;
+package com.insightfullogic.honest_profiler.core.conductor;
+
+import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 
 import java.util.Set;
 

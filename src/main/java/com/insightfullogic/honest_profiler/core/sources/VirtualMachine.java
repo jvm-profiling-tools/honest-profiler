@@ -1,4 +1,4 @@
-package com.insightfullogic.honest_profiler.core.machines;
+package com.insightfullogic.honest_profiler.core.sources;
 
 import java.io.File;
 import java.util.Objects;

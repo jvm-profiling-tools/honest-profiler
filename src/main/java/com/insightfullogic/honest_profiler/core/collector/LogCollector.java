@@ -1,5 +1,6 @@
 package com.insightfullogic.honest_profiler.core.collector;
 
+import com.insightfullogic.honest_profiler.core.conductor.ProfileListener;
 import com.insightfullogic.honest_profiler.core.parser.EventListener;
 import com.insightfullogic.honest_profiler.core.parser.Method;
 import com.insightfullogic.honest_profiler.core.parser.StackFrame;

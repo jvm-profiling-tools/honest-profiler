@@ -1,6 +1,6 @@
 package com.insightfullogic.honest_profiler.delivery.web;
 
-import com.insightfullogic.honest_profiler.core.machines.VirtualMachine;
+import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 
 public class MessageEncoder {
 
