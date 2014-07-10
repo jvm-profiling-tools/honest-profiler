@@ -37,7 +37,7 @@ public class WebSocketMachineSourceTest {
 
         it.shouldSetup(() -> {
             reset(connection, logConsumer, conductor, listener);
-            when(conductor.onNewLog(any())).thenReturn(logConsumer);
+            when(conductor.onNewLog(any(), any())).thenReturn(logConsumer);
             when(logConsumer.getMachine()).thenReturn(machine);
 
             finder = new WebSocketMachineSource(conductor, listener);

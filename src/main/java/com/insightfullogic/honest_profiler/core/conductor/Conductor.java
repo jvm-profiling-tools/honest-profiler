@@ -7,14 +7,12 @@ import com.insightfullogic.honest_profiler.core.store.LogSaver;
 public class Conductor {
 
     private final LogRepo logRepo;
-    private final ProfileListener listener;
 
-    public Conductor(LogRepo logRepo, ProfileListener listener) {
+    public Conductor(LogRepo logRepo) {
         this.logRepo = logRepo;
-        this.listener = listener;
     }
 
-    public LogConsumer onNewLog(VirtualMachine machine) {
+    public LogConsumer onNewLog(VirtualMachine machine, ProfileListener listener) {
         LogSaver saver = logRepo.onNewLog(machine);
         return new LogConsumer(machine, saver, listener);
     }

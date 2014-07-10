@@ -4,6 +4,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.insightfullogic.honest_profiler.core.conductor.Conductor;
 import com.insightfullogic.honest_profiler.core.conductor.LogConsumer;
 import com.insightfullogic.honest_profiler.core.conductor.MachineListener;
+import com.insightfullogic.honest_profiler.core.conductor.ProfileListener;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import org.webbitserver.BaseWebSocketHandler;
 import org.webbitserver.WebSocketConnection;
@@ -55,9 +56,9 @@ public class WebSocketMachineSource extends BaseWebSocketHandler {
         try {
             Messages.NewMachine newMachine = Messages.NewMachine.parseFrom(message);
             VirtualMachine machine = new VirtualMachine(newMachine.getId(), newMachine.getDisplayName(), true, "");
-            LogConsumer consumer = conductor.onNewLog(machine);
+            ProfileListener profileListener = listener.add(machine);
+            LogConsumer consumer = conductor.onNewLog(machine, profileListener);
             machines.put(connection, consumer);
-            listener.add(machine);
         } catch (InvalidProtocolBufferException e) {
             e.printStackTrace();
         }

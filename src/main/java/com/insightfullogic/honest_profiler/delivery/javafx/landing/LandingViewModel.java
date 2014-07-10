@@ -1,6 +1,7 @@
 package com.insightfullogic.honest_profiler.delivery.javafx.landing;
 
 import com.insightfullogic.honest_profiler.core.conductor.MachineListener;
+import com.insightfullogic.honest_profiler.core.conductor.ProfileListener;
 import com.insightfullogic.honest_profiler.core.parser.LogParser;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.insightfullogic.honest_profiler.delivery.javafx.WindowViewModel;
@@ -62,13 +63,15 @@ public class LandingViewModel implements MachineListener {
     }
 
     @Override
-    public void add(VirtualMachine machine) {
+    public ProfileListener add(VirtualMachine machine) {
         Platform.runLater(() -> {
             ObservableList<Node> children = landingView.getChildren();
             MachineButton button = new MachineButton(machine);
             button.setToggleGroup(toggleMachines);
             children.add(button);
         });
+        // TODO
+        return null;
     }
 
     @Override
