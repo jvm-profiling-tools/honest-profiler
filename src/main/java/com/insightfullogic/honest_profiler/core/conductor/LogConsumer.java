@@ -8,7 +8,7 @@ import com.insightfullogic.honest_profiler.core.store.LogSaver;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public final class LogConsumer {
+public class LogConsumer {
 
     private final VirtualMachine machine;
     private final LogSaver saver;
@@ -38,4 +38,7 @@ public final class LogConsumer {
         parser.stop();
     }
 
+    public VirtualMachine getMachine() {
+        return machine;
+    }
 }

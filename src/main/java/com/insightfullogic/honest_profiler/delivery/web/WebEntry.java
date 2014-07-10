@@ -3,6 +3,7 @@ package com.insightfullogic.honest_profiler.delivery.web;
 import app.Root;
 import com.insightfullogic.honest_profiler.adapters.sources.LocalMachineSource;
 import com.insightfullogic.honest_profiler.adapters.sources.WebSocketMachineSource;
+import com.insightfullogic.honest_profiler.adapters.store.FileLogRepo;
 import com.insightfullogic.honest_profiler.core.collector.LogCollector;
 import com.insightfullogic.honest_profiler.core.conductor.MachineFindingAgent;
 import com.insightfullogic.honest_profiler.core.parser.LogParser;
@@ -43,6 +44,7 @@ public class WebEntry {
                 .withCaching()
                 .build()
 
+                .addComponent(FileLogRepo.class)
                 .addComponent(WebSocketMachineSource.class)
                 .addComponent(LocalMachineSource.class)
                 .addComponent(MessageEncoder.class)

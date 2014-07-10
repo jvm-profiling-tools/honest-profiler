@@ -1,12 +1,15 @@
 package com.insightfullogic.honest_profiler.adapters.sources;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.insightfullogic.honest_profiler.core.sources.MachineSource;
+import com.insightfullogic.honest_profiler.core.conductor.Conductor;
+import com.insightfullogic.honest_profiler.core.conductor.LogConsumer;
 import com.insightfullogic.honest_profiler.core.conductor.MachineListener;
+import com.insightfullogic.honest_profiler.core.sources.MachineSource;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import org.webbitserver.BaseWebSocketHandler;
 import org.webbitserver.WebSocketConnection;
 
+import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Queue;
@@ -16,11 +19,13 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class WebSocketMachineSource extends BaseWebSocketHandler implements MachineSource {
 
-    private final Map<WebSocketConnection, VirtualMachine> machines;
+    private final Map<WebSocketConnection, LogConsumer> machines;
     private final Queue<VirtualMachine> added;
     private final Queue<VirtualMachine> removed;
+    private final Conductor conductor;
 
-    public WebSocketMachineSource() {
+    public WebSocketMachineSource(Conductor conductor) {
+        this.conductor = conductor;
         added = new ConcurrentLinkedQueue<>();
         removed = new ConcurrentLinkedQueue<>();
         machines = new ConcurrentHashMap<>();
@@ -33,17 +38,33 @@ public class WebSocketMachineSource extends BaseWebSocketHandler implements Mach
 
     @Override
     public void onClose(WebSocketConnection connection) {
-        VirtualMachine machine = machines.remove(connection);
-        added.remove(machine);
-        add(machine, removed);
+        LogConsumer consumer = machines.remove(connection);
+        if (consumer != null) {
+            VirtualMachine machine = consumer.getMachine();
+            added.remove(machine);
+            add(machine, removed);
+        }
     }
 
     @Override
     public void onMessage(WebSocketConnection connection, byte[] message) {
+        if (machines.containsKey(connection)) {
+            ByteBuffer buffer = ByteBuffer.wrap(message);
+            LogConsumer consumer = machines.get(connection);
+            if (consumer != null) {
+                consumer.accept(buffer);
+            }
+        } else {
+            newMachine(connection, message);
+        }
+    }
+
+    private void newMachine(WebSocketConnection connection, byte[] message) {
         try {
             Messages.NewMachine newMachine = Messages.NewMachine.parseFrom(message);
             VirtualMachine machine = new VirtualMachine(newMachine.getId(), newMachine.getDisplayName(), true, "");
-            machines.put(connection, machine);
+            LogConsumer consumer = conductor.onNewLog(machine);
+            machines.put(connection, consumer);
             add(machine, added);
         } catch (InvalidProtocolBufferException e) {
             e.printStackTrace();
