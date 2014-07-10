@@ -19,6 +19,4 @@ public class Conductor {
         return new LogConsumer(machine, saver, listener);
     }
 
-
-
 }

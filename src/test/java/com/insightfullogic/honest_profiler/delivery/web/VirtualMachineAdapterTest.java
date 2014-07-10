@@ -6,8 +6,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
 import static com.insightfullogic.lambdabehave.Suite.describe;
-import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
 import static org.mockito.Mockito.verify;
 
 @RunWith(JunitSuiteRunner.class)
@@ -29,13 +27,13 @@ public class VirtualMachineAdapterTest {
         });
 
         it.should("send information about added JVMs", expect -> {
-            adapter.update(singleton(jvm), emptySet());
+            adapter.add(jvm);
 
             verify(clients).sendAll("{ \"type\": \"addJvm\", \"machine\": { \"name\": \"com.intellij.idea.Main\", \"id\": \"12432\", \"agent\": true } }");
         });
 
         it.should("send information about removed JVMs", expect -> {
-            adapter.update(emptySet(), singleton(jvm));
+            adapter.remove(jvm);
 
             verify(clients).sendAll("{ \"type\": \"removeJvm\", \"id\": \"12432\" }");
         });

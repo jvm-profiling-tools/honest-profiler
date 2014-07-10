@@ -1,9 +1,9 @@
 package com.insightfullogic.honest_profiler.delivery.javafx.landing;
 
-import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.insightfullogic.honest_profiler.core.conductor.MachineListener;
-import com.insightfullogic.honest_profiler.delivery.javafx.WindowViewModel;
 import com.insightfullogic.honest_profiler.core.parser.LogParser;
+import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
+import com.insightfullogic.honest_profiler.delivery.javafx.WindowViewModel;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -15,7 +15,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 
 import java.io.File;
-import java.util.Set;
 
 import static com.insightfullogic.honest_profiler.delivery.javafx.WindowViewModel.Window.Profile;
 
@@ -63,25 +62,23 @@ public class LandingViewModel implements MachineListener {
     }
 
     @Override
-    public void update(Set<VirtualMachine> added, Set<VirtualMachine> removed) {
+    public void add(VirtualMachine machine) {
         Platform.runLater(() -> {
             ObservableList<Node> children = landingView.getChildren();
-            addSpawnedChildren(added, children);
-            removeExitedChildren(removed, children);
-        });
-    }
-
-    private void addSpawnedChildren(Set<VirtualMachine> added, ObservableList<Node> children) {
-        added.forEach(vm -> {
-            MachineButton button = new MachineButton(vm);
+            MachineButton button = new MachineButton(machine);
             button.setToggleGroup(toggleMachines);
             children.add(button);
         });
     }
 
-    private void removeExitedChildren(Set<VirtualMachine> removed, ObservableList<Node> children) {
-        removed.forEach(vm -> {
-            children.removeIf(node -> vm.getId().equals(node.getId()));
+    @Override
+    public void remove(VirtualMachine machine) {
+        Platform.runLater(() -> {
+            String id = machine.getId();
+            ObservableList<Node> children = landingView.getChildren();
+            children.removeIf(node -> {
+                return id.equals(node.getId());
+            });
         });
     }
 

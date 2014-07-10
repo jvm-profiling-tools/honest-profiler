@@ -1,8 +1,8 @@
 package com.insightfullogic.honest_profiler.adapters.sources;
 
-import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
-import com.insightfullogic.honest_profiler.core.sources.MachineSource;
 import com.insightfullogic.honest_profiler.core.conductor.MachineListener;
+import com.insightfullogic.honest_profiler.core.sources.MachineSource;
+import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.sun.tools.attach.AttachNotSupportedException;
 import com.sun.tools.attach.VirtualMachineDescriptor;
 
@@ -10,9 +10,8 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.toSet;
 
 public class LocalMachineSource implements MachineSource {
 
@@ -20,20 +19,25 @@ public class LocalMachineSource implements MachineSource {
     private static final String AGENT_NAME = "liblagent.so";
     private static final String USER_DIR = "user.dir";
 
-    private Set<VirtualMachineDescriptor> previous = new HashSet<>();
+    private Set<VirtualMachineDescriptor> previous = new HashSet<VirtualMachineDescriptor>();
 
     @Override
     public void poll(MachineListener listener) {
         Set<VirtualMachineDescriptor> current = new HashSet<>(com.sun.tools.attach.VirtualMachine.list());
-        listener.update(difference(current, previous), difference(previous, current));
+        difference(current, previous, listener::add);
+        difference(previous, current, listener::remove);
         previous = current;
     }
 
-    private Set<VirtualMachine> difference(Set<VirtualMachineDescriptor> left, Set<VirtualMachineDescriptor> right) {
-        return left.stream()
-                   .filter(vm -> !right.contains(vm))
-                   .flatMap(this::attach)
-                   .collect(toSet());
+    private void difference(
+        Set<VirtualMachineDescriptor> left,
+        Set<VirtualMachineDescriptor> right,
+        Consumer<VirtualMachine> action) {
+
+        left.stream()
+            .filter(vm -> !right.contains(vm))
+            .flatMap(this::attach)
+            .forEach(action);
     }
 
     private Stream<VirtualMachine> attach(VirtualMachineDescriptor vmDescriptor) {

@@ -1,14 +1,14 @@
 package com.insightfullogic.honest_profiler.delivery.web;
 
-import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.insightfullogic.honest_profiler.core.conductor.MachineListener;
+import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import org.webbitserver.WebSocketConnection;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
+// Not thread safe
 public class MachineAdapter implements MachineListener, Consumer<WebSocketConnection> {
 
     private final Set<VirtualMachine> machines;
@@ -23,25 +23,22 @@ public class MachineAdapter implements MachineListener, Consumer<WebSocketConnec
     }
 
     @Override
-    public void update(Set<VirtualMachine> added, Set<VirtualMachine> removed) {
-        machines.removeAll(removed);
-        machines.addAll(added);
-
-        sendAll(removed, messages::removeJavaVirtualMachine);
-        sendAll(added, messages::addJavaVirtualMachine);
-    }
-
-    private void sendAll(Set<VirtualMachine> removed, Function<VirtualMachine, String> messageFactory) {
-        removed.stream()
-               .map(messageFactory)
-               .forEach(clients::sendAll);
-    }
-
-    @Override
     public void accept(WebSocketConnection connection) {
         machines.forEach(machine -> {
             connection.send(messages.addJavaVirtualMachine(machine));
         });
+    }
+
+    @Override
+    public void add(VirtualMachine machine) {
+        machines.add(machine);
+        clients.sendAll(messages.addJavaVirtualMachine(machine));
+    }
+
+    @Override
+    public void remove(VirtualMachine machine) {
+        machines.remove(machine);
+        clients.sendAll(messages.removeJavaVirtualMachine(machine));
     }
 
 }
