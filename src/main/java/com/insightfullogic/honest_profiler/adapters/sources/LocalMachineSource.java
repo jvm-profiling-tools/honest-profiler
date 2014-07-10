@@ -1,7 +1,7 @@
 package com.insightfullogic.honest_profiler.adapters.sources;
 
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
-import com.insightfullogic.honest_profiler.core.sources.MachineFinder;
+import com.insightfullogic.honest_profiler.core.sources.MachineSource;
 import com.insightfullogic.honest_profiler.core.conductor.MachineListener;
 import com.sun.tools.attach.AttachNotSupportedException;
 import com.sun.tools.attach.VirtualMachineDescriptor;
@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toSet;
 
-public class LocalMachineFinder implements MachineFinder {
+public class LocalMachineSource implements MachineSource {
 
     private static final String VM_ARGS = "sun.jvm.args";
     private static final String AGENT_NAME = "liblagent.so";

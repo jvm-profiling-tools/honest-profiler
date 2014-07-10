@@ -1,8 +1,8 @@
 package com.insightfullogic.honest_profiler.delivery.web;
 
 import app.Root;
-import com.insightfullogic.honest_profiler.adapters.sources.LocalMachineFinder;
-import com.insightfullogic.honest_profiler.adapters.sources.WebSocketMachineFinder;
+import com.insightfullogic.honest_profiler.adapters.sources.LocalMachineSource;
+import com.insightfullogic.honest_profiler.adapters.sources.WebSocketMachineSource;
 import com.insightfullogic.honest_profiler.core.collector.LogCollector;
 import com.insightfullogic.honest_profiler.core.conductor.MachineFindingAgent;
 import com.insightfullogic.honest_profiler.core.parser.LogParser;
@@ -27,7 +27,7 @@ public class WebEntry {
 
         try {
             WebServers.createWebServer(PORT)
-                      .add("/agents", container.getComponent(WebSocketMachineFinder.class))
+                      .add("/agents", container.getComponent(WebSocketMachineSource.class))
                       .add("/clients", container.getComponent(ClientHandler.class))
                       .add(new StaticFileHandler(staticDir))
                       .start()
@@ -43,8 +43,8 @@ public class WebEntry {
                 .withCaching()
                 .build()
 
-                .addComponent(WebSocketMachineFinder.class)
-                .addComponent(LocalMachineFinder.class)
+                .addComponent(WebSocketMachineSource.class)
+                .addComponent(LocalMachineSource.class)
                 .addComponent(MessageEncoder.class)
                 .addComponent(MachineAdapter.class)
                 .addComponent(ClientConnections.class)

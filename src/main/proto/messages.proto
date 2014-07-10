@@ -1,6 +1,6 @@
 package tutorial;
 
-option java_package = "com.insightfullogic.honest_profiler.adapters.source";
+option java_package = "com.insightfullogic.honest_profiler.adapters.sources";
 option java_outer_classname = "Messages";
 
 message NewMachine {

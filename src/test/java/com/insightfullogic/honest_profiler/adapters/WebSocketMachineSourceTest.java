@@ -1,7 +1,7 @@
 package com.insightfullogic.honest_profiler.adapters;
 
 import com.insightfullogic.honest_profiler.adapters.sources.Messages;
-import com.insightfullogic.honest_profiler.adapters.sources.WebSocketMachineFinder;
+import com.insightfullogic.honest_profiler.adapters.sources.WebSocketMachineSource;
 import com.insightfullogic.honest_profiler.core.conductor.MachineListener;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.insightfullogic.lambdabehave.JunitSuiteRunner;
@@ -17,7 +17,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(JunitSuiteRunner.class)
-public class WebSocketMachineFinderTest {{
+public class WebSocketMachineSourceTest {{
 
     describe("Web Socket Machine Finder", it -> {
 
@@ -29,7 +29,7 @@ public class WebSocketMachineFinderTest {{
 
         VirtualMachine machine = new VirtualMachine("123@erdos", "com.intellij.idea.Main", true, "");
         WebSocketConnection connection = mock(WebSocketConnection.class);
-        WebSocketMachineFinder finder = new WebSocketMachineFinder();
+        WebSocketMachineSource finder = new WebSocketMachineSource();
         MachineListener listener = mock(MachineListener.class);
 
         it.shouldSetup(() -> reset(listener));

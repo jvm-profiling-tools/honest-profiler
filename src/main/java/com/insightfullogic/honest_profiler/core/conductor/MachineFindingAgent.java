@@ -1,6 +1,6 @@
 package com.insightfullogic.honest_profiler.core.conductor;
 
-import com.insightfullogic.honest_profiler.core.sources.MachineFinder;
+import com.insightfullogic.honest_profiler.core.sources.MachineSource;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -9,11 +9,11 @@ import java.util.List;
 public class MachineFindingAgent {
 
     private final MachineListener listener;
-    private final List<MachineFinder> finders;
+    private final List<MachineSource> finders;
 
     private Thread thread;
 
-    public MachineFindingAgent(MachineListener listener, List<MachineFinder> finders) {
+    public MachineFindingAgent(MachineListener listener, List<MachineSource> finders) {
         this.listener = listener;
         this.finders = finders;
     }

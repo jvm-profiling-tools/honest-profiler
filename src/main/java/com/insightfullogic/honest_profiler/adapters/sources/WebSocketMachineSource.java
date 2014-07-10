@@ -1,7 +1,7 @@
 package com.insightfullogic.honest_profiler.adapters.sources;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.insightfullogic.honest_profiler.core.sources.MachineFinder;
+import com.insightfullogic.honest_profiler.core.sources.MachineSource;
 import com.insightfullogic.honest_profiler.core.conductor.MachineListener;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import org.webbitserver.BaseWebSocketHandler;
@@ -14,13 +14,13 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class WebSocketMachineFinder extends BaseWebSocketHandler implements MachineFinder {
+public class WebSocketMachineSource extends BaseWebSocketHandler implements MachineSource {
 
     private final Map<WebSocketConnection, VirtualMachine> machines;
     private final Queue<VirtualMachine> added;
     private final Queue<VirtualMachine> removed;
 
-    public WebSocketMachineFinder() {
+    public WebSocketMachineSource() {
         added = new ConcurrentLinkedQueue<>();
         removed = new ConcurrentLinkedQueue<>();
         machines = new ConcurrentHashMap<>();
