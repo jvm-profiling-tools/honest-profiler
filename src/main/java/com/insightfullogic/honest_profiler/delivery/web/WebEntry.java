@@ -9,6 +9,7 @@ import com.insightfullogic.honest_profiler.core.conductor.Conductor;
 import com.insightfullogic.honest_profiler.core.parser.LogParser;
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.PicoBuilder;
+import org.webbitserver.WebServer;
 import org.webbitserver.WebServers;
 import org.webbitserver.handler.StaticFileHandler;
 
@@ -27,12 +28,12 @@ public class WebEntry {
         container.start();
 
         try {
-            WebServers.createWebServer(PORT)
-                      .add("/agents", container.getComponent(WebSocketMachineSource.class))
-                      .add("/clients", container.getComponent(ClientHandler.class))
-                      .add(new StaticFileHandler(staticDir))
-                      .start()
-                      .get();
+            WebServer server = WebServers.createWebServer(PORT)
+                                         .add("/agents", container.getComponent(WebSocketMachineSource.class))
+                                         .add("/clients", container.getComponent(ClientHandler.class))
+                                         .add(new StaticFileHandler(staticDir));
+
+            server.start().get();
         } finally {
             container.stop();
         }
