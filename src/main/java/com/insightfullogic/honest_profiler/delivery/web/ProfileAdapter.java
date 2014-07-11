@@ -20,7 +20,9 @@ public class ProfileAdapter implements ProfileListener {
     @Override
     public void accept(Profile profile) {
         try {
-            System.out.println(mapper.writeValueAsString(profile));
+            NewProfileMessage newProfile = new NewProfileMessage(machine.getId(), profile);
+            String message = mapper.writeValueAsString(newProfile);
+            clients.sendAll(message);
         } catch (Exception e) {
             e.printStackTrace();
         }

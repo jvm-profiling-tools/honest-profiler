@@ -11,29 +11,34 @@ describe('service', function() {
     };
 
     var profile = {
-       timeShare: 1.0,
-       method: {
-           className: "Foo",
-           methodName: "bar"
-       },
-       children: [
-           {
-               timeShare: 0.5,
-               method: {
+        "traceCount":81,
+        "trees":[{
+            "rootNode": {
+                timeShare: 1.0,
+                method: {
                    className: "Foo",
-                   methodName: "baz"
-               },
-               children: []
-           },
-           {
-               timeShare: 0.5,
-               method: {
-                   className: "Foo",
-                   methodName: "bin"
-               },
-               children: []
-           }
-       ]
+                   methodName: "bar"
+                },
+                children: [
+                    {
+                       timeShare: 0.5,
+                       method: {
+                           className: "Foo",
+                           methodName: "baz"
+                       },
+                       children: []
+                   },
+                   {
+                       timeShare: 0.5,
+                       method: {
+                           className: "Foo",
+                           methodName: "bin"
+                       },
+                       children: []
+                   }
+               ]
+            }
+        }]
     };
 
     var machineWithProfile = {

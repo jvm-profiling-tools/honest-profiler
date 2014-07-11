@@ -19,6 +19,9 @@ angular.module('hp.services', [])
                         },
                         removeJvm: function(msg) {
                             listener.remove(msg.id);
+                        },
+                        newProfile: function(msg) {
+                            listener.newProfile(msg.id, msg.profile);
                         }
                     };
 
