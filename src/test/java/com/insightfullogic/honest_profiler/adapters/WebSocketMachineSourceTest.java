@@ -52,20 +52,20 @@ public class WebSocketMachineSourceTest {
             finder.onMessage(connection, newMachine);
 
             then:
-            verify(listener).add(machine);
+            verify(listener).onNewMachine(machine);
             verifyNoMoreInteractions(listener);
         });
 
         it.should("recognise a removed machine", expect -> {
             given:
             finder.onMessage(connection, newMachine);
-            verify(listener).add(machine);
+            verify(listener).onNewMachine(machine);
 
             when:
             finder.onClose(connection);
 
             then:
-            verify(listener).remove(machine);
+            verify(listener).onClosedMachine(machine);
             verifyNoMoreInteractions(listener);
         });
 

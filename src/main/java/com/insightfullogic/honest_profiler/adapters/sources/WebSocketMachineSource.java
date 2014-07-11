@@ -35,7 +35,7 @@ public class WebSocketMachineSource extends BaseWebSocketHandler {
         LogConsumer consumer = machines.remove(connection);
         if (consumer != null) {
             VirtualMachine machine = consumer.getMachine();
-            listener.remove(machine);
+            listener.onClosedMachine(machine);
         }
     }
 
@@ -56,7 +56,7 @@ public class WebSocketMachineSource extends BaseWebSocketHandler {
         try {
             Messages.NewMachine newMachine = Messages.NewMachine.parseFrom(message);
             VirtualMachine machine = new VirtualMachine(newMachine.getId(), newMachine.getDisplayName(), true, "");
-            ProfileListener profileListener = listener.add(machine);
+            ProfileListener profileListener = listener.onNewMachine(machine);
             LogConsumer consumer = conductor.onNewLog(machine, profileListener);
             machines.put(connection, consumer);
         } catch (InvalidProtocolBufferException e) {

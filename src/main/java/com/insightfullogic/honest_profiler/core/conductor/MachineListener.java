@@ -4,8 +4,8 @@ import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 
 public interface MachineListener {
 
-    public ProfileListener add(VirtualMachine machine);
+    ProfileListener onNewMachine(VirtualMachine machine);
 
-    public void remove(VirtualMachine machine);
+    void onClosedMachine(VirtualMachine machine);
 
 }

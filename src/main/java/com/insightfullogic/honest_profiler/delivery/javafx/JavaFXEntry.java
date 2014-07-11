@@ -1,7 +1,7 @@
 package com.insightfullogic.honest_profiler.delivery.javafx;
 
 import com.insightfullogic.honest_profiler.core.collector.LogCollector;
-import com.insightfullogic.honest_profiler.adapters.sources.LocalMachineFindingAgent;
+import com.insightfullogic.honest_profiler.adapters.sources.LocalMachineSource;
 import com.insightfullogic.honest_profiler.delivery.javafx.landing.LandingViewModel;
 import com.insightfullogic.honest_profiler.delivery.javafx.profile.*;
 import com.insightfullogic.honest_profiler.core.parser.LogParser;
@@ -54,7 +54,7 @@ public class JavaFXEntry extends Application {
             .addComponent(LandingViewModel.class)
             .addComponent(WindowViewModel.class)
             .addComponent(PicoFXLoader.class)
-            .addComponent(LocalMachineFindingAgent.class);
+            .addComponent(LocalMachineSource.class);
 
         return pico.addComponent(pico);
     }

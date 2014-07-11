@@ -63,7 +63,7 @@ public class LandingViewModel implements MachineListener {
     }
 
     @Override
-    public ProfileListener add(VirtualMachine machine) {
+    public ProfileListener onNewMachine(VirtualMachine machine) {
         Platform.runLater(() -> {
             ObservableList<Node> children = landingView.getChildren();
             MachineButton button = new MachineButton(machine);
@@ -75,7 +75,7 @@ public class LandingViewModel implements MachineListener {
     }
 
     @Override
-    public void remove(VirtualMachine machine) {
+    public void onClosedMachine(VirtualMachine machine) {
         Platform.runLater(() -> {
             String id = machine.getId();
             ObservableList<Node> children = landingView.getChildren();

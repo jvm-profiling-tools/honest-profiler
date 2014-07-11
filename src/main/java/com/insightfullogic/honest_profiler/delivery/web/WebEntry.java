@@ -6,7 +6,6 @@ import com.insightfullogic.honest_profiler.adapters.sources.WebSocketMachineSour
 import com.insightfullogic.honest_profiler.adapters.store.FileLogRepo;
 import com.insightfullogic.honest_profiler.core.collector.LogCollector;
 import com.insightfullogic.honest_profiler.core.conductor.Conductor;
-import com.insightfullogic.honest_profiler.adapters.sources.LocalMachineFindingAgent;
 import com.insightfullogic.honest_profiler.core.parser.LogParser;
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.PicoBuilder;
@@ -56,7 +55,7 @@ public class WebEntry {
                 .addComponent(ClientHandler.class)
                 .addComponent(LogCollector.class)
                 .addComponent(LogParser.class)
-                .addComponent(LocalMachineFindingAgent.class);
+                .addComponent(LocalMachineSource.class);
 
         return pico.addComponent(pico);
     }

@@ -1,11 +1,12 @@
 package com.insightfullogic.honest_profiler.adapters.sources;
 
 import com.insightfullogic.honest_profiler.core.conductor.MachineListener;
-import com.insightfullogic.honest_profiler.core.sources.MachineSource;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.sun.tools.attach.AttachNotSupportedException;
 import com.sun.tools.attach.VirtualMachineDescriptor;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Properties;
@@ -13,26 +14,61 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-public class LocalMachineSource implements MachineSource {
+public class LocalMachineSource {
 
     private static final String VM_ARGS = "sun.jvm.args";
     private static final String AGENT_NAME = "liblagent.so";
     private static final String USER_DIR = "user.dir";
 
-    private Set<VirtualMachineDescriptor> previous = new HashSet<VirtualMachineDescriptor>();
+    private final MachineListener listener;
 
-    @Override
-    public void poll(MachineListener listener) {
+    private Set<VirtualMachineDescriptor> previous;
+    private Thread thread;
+
+    public LocalMachineSource(MachineListener listener) {
+        this.listener = listener;
+        previous = new HashSet<>();
+    }
+
+    @PostConstruct
+    public void start() {
+        thread = new Thread(this::discoverVirtualMachines);
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    public void discoverVirtualMachines() {
+        System.out.println("Started");
+        try {
+            while (!Thread.currentThread().isInterrupted()) {
+                poll();
+
+                sleep();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sleep() {
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            // Ignore
+        }
+    }
+
+    public void poll() {
         Set<VirtualMachineDescriptor> current = new HashSet<>(com.sun.tools.attach.VirtualMachine.list());
-        difference(current, previous, listener::add);
-        difference(previous, current, listener::remove);
+        difference(current, previous, listener::onNewMachine);
+        difference(previous, current, listener::onClosedMachine);
         previous = current;
     }
 
     private void difference(
-        Set<VirtualMachineDescriptor> left,
-        Set<VirtualMachineDescriptor> right,
-        Consumer<VirtualMachine> action) {
+            Set<VirtualMachineDescriptor> left,
+            Set<VirtualMachineDescriptor> right,
+            Consumer<VirtualMachine> action) {
 
         left.stream()
             .filter(vm -> !right.contains(vm))
@@ -64,6 +100,11 @@ public class LocalMachineSource implements MachineSource {
 
     private boolean noSuchProcess(IOException e) {
         return e.getMessage().contains("No such process");
+    }
+
+    @PreDestroy
+    public void stop() {
+        thread.interrupt();
     }
 
 }

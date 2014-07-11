@@ -27,13 +27,13 @@ public class VirtualMachineAdapterTest {
         });
 
         it.should("send information about added JVMs", expect -> {
-            adapter.add(jvm);
+            adapter.onNewMachine(jvm);
 
             verify(clients).sendAll("{ \"type\": \"addJvm\", \"machine\": { \"name\": \"com.intellij.idea.Main\", \"id\": \"12432\", \"agent\": true } }");
         });
 
         it.should("send information about removed JVMs", expect -> {
-            adapter.remove(jvm);
+            adapter.onClosedMachine(jvm);
 
             verify(clients).sendAll("{ \"type\": \"removeJvm\", \"id\": \"12432\" }");
         });

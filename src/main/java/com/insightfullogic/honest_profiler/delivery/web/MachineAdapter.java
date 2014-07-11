@@ -30,14 +30,14 @@ public class MachineAdapter implements MachineListener, Consumer<WebSocketConnec
     }
 
     @Override
-    public ProfileAdapter add(VirtualMachine machine) {
+    public ProfileAdapter onNewMachine(VirtualMachine machine) {
         machines.add(machine);
         clients.sendAll(messages.addJavaVirtualMachine(machine));
         return new ProfileAdapter(machine, clients);
     }
 
     @Override
-    public void remove(VirtualMachine machine) {
+    public void onClosedMachine(VirtualMachine machine) {
         machines.remove(machine);
         clients.sendAll(messages.removeJavaVirtualMachine(machine));
     }
