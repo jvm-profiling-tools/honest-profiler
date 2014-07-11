@@ -1,14 +1,15 @@
 package com.insightfullogic.honest_profiler.delivery.console;
 
-import com.insightfullogic.honest_profiler.core.collector.LogCollector;
-import com.insightfullogic.honest_profiler.core.parser.LogParser;
+import com.insightfullogic.honest_profiler.adapters.store.FileLogRepo;
+import com.insightfullogic.honest_profiler.core.conductor.Conductor;
 
 import java.io.File;
+import java.io.IOException;
 
 public class ConsoleEntry {
 
-    private final LogCollector collector;
-    private final LogParser parser;
+    private final Conductor conductor;
+    private final ConsoleUserInterface ui;
 
     public static void main(String[] args) {
         if (args.length != 1) {
@@ -21,17 +22,16 @@ public class ConsoleEntry {
     }
 
     public ConsoleEntry(Console console) {
-        ConsoleUserInterface ui = new ConsoleUserInterface(console);
-        collector = new LogCollector(ui);
-        parser = new LogParser(collector);
-    }
-
-    public boolean hasLoadedLog() {
-        return collector.isLogComplete();
+        ui = new ConsoleUserInterface(console);
+        conductor = new Conductor(new FileLogRepo());
     }
 
     public void loadLogFrom(File file) {
-        parser.parse(file);
+        try {
+            conductor.consumeFile(file, null, ui);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

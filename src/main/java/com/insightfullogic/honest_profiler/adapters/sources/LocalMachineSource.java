@@ -1,6 +1,6 @@
 package com.insightfullogic.honest_profiler.adapters.sources;
 
-import com.insightfullogic.honest_profiler.core.conductor.MachineListener;
+import com.insightfullogic.honest_profiler.core.conductor.*;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.sun.tools.attach.AttachNotSupportedException;
 import com.sun.tools.attach.VirtualMachineDescriptor;
@@ -21,33 +21,29 @@ public class LocalMachineSource {
     private static final String USER_DIR = "user.dir";
 
     private final MachineListener listener;
+    private final Conductor conductor;
+    private final ThreadedAgent threadedAgent;
 
     private Set<VirtualMachineDescriptor> previous;
-    private Thread thread;
 
-    public LocalMachineSource(MachineListener listener) {
+    public LocalMachineSource(MachineListener listener, Conductor conductor) {
         this.listener = listener;
+        this.conductor = conductor;
         previous = new HashSet<>();
+        threadedAgent = new ThreadedAgent(this::discoverVirtualMachines);
     }
 
     @PostConstruct
     public void start() {
-        thread = new Thread(this::discoverVirtualMachines);
-        thread.setDaemon(true);
-        thread.start();
+        threadedAgent.start();
     }
 
-    public void discoverVirtualMachines() {
-        System.out.println("Started");
-        try {
-            while (!Thread.currentThread().isInterrupted()) {
-                poll();
+    public boolean discoverVirtualMachines() {
+        poll();
 
-                sleep();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        sleep();
+
+        return true;
     }
 
     private void sleep() {
@@ -60,7 +56,18 @@ public class LocalMachineSource {
 
     public void poll() {
         Set<VirtualMachineDescriptor> current = new HashSet<>(com.sun.tools.attach.VirtualMachine.list());
-        difference(current, previous, listener::onNewMachine);
+        difference(current, previous, machine -> {
+            ProfileListener profileListener = listener.onNewMachine(machine);
+            if (machine.isAgentLoaded()) {
+                LogConsumer logConsumer = null;
+                try {
+                    logConsumer = conductor.pipeFile(machine.getLogFile(), machine, profileListener);
+                    new ThreadedAgent(logConsumer::run).start();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
         difference(previous, current, listener::onClosedMachine);
         previous = current;
     }
@@ -104,7 +111,7 @@ public class LocalMachineSource {
 
     @PreDestroy
     public void stop() {
-        thread.interrupt();
+        threadedAgent.stop();
     }
 
 }

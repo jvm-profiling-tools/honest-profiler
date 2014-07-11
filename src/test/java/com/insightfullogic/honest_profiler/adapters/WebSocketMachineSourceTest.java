@@ -3,7 +3,7 @@ package com.insightfullogic.honest_profiler.adapters;
 import com.insightfullogic.honest_profiler.adapters.sources.Messages;
 import com.insightfullogic.honest_profiler.adapters.sources.WebSocketMachineSource;
 import com.insightfullogic.honest_profiler.core.conductor.Conductor;
-import com.insightfullogic.honest_profiler.core.conductor.LogConsumer;
+import com.insightfullogic.honest_profiler.core.conductor.DataConsumer;
 import com.insightfullogic.honest_profiler.core.conductor.MachineListener;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.insightfullogic.lambdabehave.JunitSuiteRunner;
@@ -31,14 +31,14 @@ public class WebSocketMachineSourceTest {
 
         VirtualMachine machine = new VirtualMachine("123@erdos", "com.intellij.idea.Main", true, "");
         WebSocketConnection connection = mock(WebSocketConnection.class);
-        LogConsumer logConsumer = mock(LogConsumer.class);
+        DataConsumer dataConsumer = mock(DataConsumer.class);
         Conductor conductor = mock(Conductor.class);
         MachineListener listener = mock(MachineListener.class);
 
         it.shouldSetup(() -> {
-            reset(connection, logConsumer, conductor, listener);
-            when(conductor.onNewLog(any(), any())).thenReturn(logConsumer);
-            when(logConsumer.getMachine()).thenReturn(machine);
+            reset(connection, dataConsumer, conductor, listener);
+            when(conductor.pipeData(any(), any())).thenReturn(dataConsumer);
+            when(dataConsumer.getMachine()).thenReturn(machine);
 
             finder = new WebSocketMachineSource(conductor, listener);
         });
@@ -97,7 +97,7 @@ public class WebSocketMachineSourceTest {
             finder.onMessage(connection, data);
 
             then:
-            verify(logConsumer).accept(ByteBuffer.wrap(data));
+            verify(dataConsumer).accept(ByteBuffer.wrap(data));
         });
 
     });

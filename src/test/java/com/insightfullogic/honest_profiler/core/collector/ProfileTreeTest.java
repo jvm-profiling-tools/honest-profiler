@@ -9,12 +9,11 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class ProfileTreeTest {
 
     private final FakeProfileListener listener = new FakeProfileListener();
-    private final LogCollector collector = new LogCollector(listener);
+    private final LogCollector collector = new LogCollector(listener, false);
 
     @Test
     public void rendersSingleNode() {

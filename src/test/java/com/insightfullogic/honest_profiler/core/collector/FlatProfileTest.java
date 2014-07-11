@@ -14,7 +14,7 @@ import static org.junit.Assert.assertTrue;
 public class FlatProfileTest {
 
     private final FakeProfileListener listener = new FakeProfileListener();
-    private final LogCollector collector = new LogCollector(listener);
+    private final LogCollector collector = new LogCollector(listener, false);
 
     @Test
     public void looksUpMethodNames() {

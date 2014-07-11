@@ -1,8 +1,6 @@
 package com.insightfullogic.honest_profiler.delivery.console;
 
-import com.insightfullogic.honest_profiler.core.parser.Logs;
-
-import static org.junit.Assert.assertTrue;
+import com.insightfullogic.honest_profiler.core.conductor.Logs;
 
 public class ConsoleApplicationRunner {
 
@@ -16,10 +14,6 @@ public class ConsoleApplicationRunner {
 
     public void loadLogFrom(String file) {
         ui.loadLogFrom(Logs.logFile(file));
-    }
-
-    public void hasLoadedLog() {
-        assertTrue("hasn't Loaded the log", ui.hasLoadedLog());
     }
 
     public void displayContainsMethodOrClass(String method) {

@@ -54,8 +54,7 @@ public class WebEntry {
                 .addComponent(ClientConnections.class)
                 .addComponent(ClientHandler.class)
                 .addComponent(LogCollector.class)
-                .addComponent(LogParser.class)
-                .addComponent(LocalMachineSource.class);
+                .addComponent(LogParser.class);
 
         return pico.addComponent(pico);
     }

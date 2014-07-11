@@ -9,7 +9,6 @@ public class ConsoleEndToEndTest {
     @Test
     public void displayProfile() {
         runner.loadLogFrom("log0.hpl");
-        runner.hasLoadedLog();
         runner.displayContainsMethodOrClass("PrintStream.printf");
         runner.displayContainsMethodOrClass("PrintStream.append");
     }

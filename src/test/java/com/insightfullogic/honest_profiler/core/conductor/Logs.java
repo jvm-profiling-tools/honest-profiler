@@ -1,4 +1,4 @@
-package com.insightfullogic.honest_profiler.core.parser;
+package com.insightfullogic.honest_profiler.core.conductor;
 
 import java.io.File;
 import java.net.URISyntaxException;

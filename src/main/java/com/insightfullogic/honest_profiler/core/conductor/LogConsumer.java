@@ -1,44 +1,49 @@
 package com.insightfullogic.honest_profiler.core.conductor;
 
-import com.insightfullogic.honest_profiler.core.collector.LogCollector;
-import com.insightfullogic.honest_profiler.core.parser.LogParser;
-import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
-import com.insightfullogic.honest_profiler.core.store.LogSaver;
-
+import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
+import java.io.RandomAccessFile;
+import java.nio.MappedByteBuffer;
+
+import static java.nio.channels.FileChannel.MapMode.READ_ONLY;
 
 public class LogConsumer {
 
-    private final VirtualMachine machine;
-    private final LogSaver saver;
-    private final LogParser parser;
+    private static final long POLL_INTERVAL = 10;
 
-    public LogConsumer(VirtualMachine machine, LogSaver saver, ProfileListener listener) {
-        this.machine = machine;
-        this.saver = saver;
+    private final DataConsumer consumer;
 
-        LogCollector collector = new LogCollector(listener);
-        this.parser = new LogParser(collector);
+    private RandomAccessFile input;
+    private MappedByteBuffer buffer;
+
+    public LogConsumer(File file, DataConsumer consumer) throws IOException {
+        this.consumer = consumer;
+        input = new RandomAccessFile(file, "r");
+        buffer = input.getChannel()
+                      .map(READ_ONLY, 0, file.length());
     }
 
-    public boolean accept(ByteBuffer data) {
+    public boolean run() throws IOException {
+        switch (consumer.accept(buffer)) {
+            case END_OF_LOG:
+                input.close();
+                return false;
+            case NOTHING_READ:
+                sleep();
+                return true;
+            case READ_RECORD:
+                return true;
+        }
+        // should never get here
+        return false;
+    }
+
+    private void sleep() {
         try {
-            saver.save(data);
-            return parser.readRecord(data, true);
-        } catch (IOException e) {
+            Thread.sleep(POLL_INTERVAL);
+        } catch (InterruptedException e) {
             e.printStackTrace();
-            // TODO: log
-            return false;
         }
     }
 
-    public void close() {
-        saver.close();
-        parser.stop();
-    }
-
-    public VirtualMachine getMachine() {
-        return machine;
-    }
 }

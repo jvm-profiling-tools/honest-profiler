@@ -36,7 +36,7 @@ public class LogCollector implements EventListener {
     private boolean logComplete;
     private boolean continuous;
 
-    public LogCollector(ProfileListener listener) {
+    public LogCollector(ProfileListener listener, boolean continuous) {
         this.listener = listener;
 
         methodNames = new HashMap<>();
@@ -44,20 +44,6 @@ public class LogCollector implements EventListener {
         treesByThread = new HashMap<>();
         reversalStack = new Stack<>();
 
-        setup(false);
-    }
-
-    @Override
-    public void startOfLog(boolean continuous) {
-        setup(continuous);
-
-        methodNames.clear();
-        callCounts.clear();
-        treesByThread.clear();
-        reversalStack.clear();
-    }
-
-    private void setup(boolean continuous) {
         this.continuous = continuous;
         traceCount = 0;
         logComplete = false;

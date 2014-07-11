@@ -2,7 +2,7 @@ package com.insightfullogic.honest_profiler.adapters.sources;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.insightfullogic.honest_profiler.core.conductor.Conductor;
-import com.insightfullogic.honest_profiler.core.conductor.LogConsumer;
+import com.insightfullogic.honest_profiler.core.conductor.DataConsumer;
 import com.insightfullogic.honest_profiler.core.conductor.MachineListener;
 import com.insightfullogic.honest_profiler.core.conductor.ProfileListener;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class WebSocketMachineSource extends BaseWebSocketHandler {
 
-    private final Map<WebSocketConnection, LogConsumer> machines;
+    private final Map<WebSocketConnection, DataConsumer> machines;
     private final Conductor conductor;
     private final MachineListener listener;
 
@@ -32,7 +32,7 @@ public class WebSocketMachineSource extends BaseWebSocketHandler {
 
     @Override
     public void onClose(WebSocketConnection connection) {
-        LogConsumer consumer = machines.remove(connection);
+        DataConsumer consumer = machines.remove(connection);
         if (consumer != null) {
             VirtualMachine machine = consumer.getMachine();
             listener.onClosedMachine(machine);
@@ -43,7 +43,7 @@ public class WebSocketMachineSource extends BaseWebSocketHandler {
     public void onMessage(WebSocketConnection connection, byte[] message) {
         if (machines.containsKey(connection)) {
             ByteBuffer buffer = ByteBuffer.wrap(message);
-            LogConsumer consumer = machines.get(connection);
+            DataConsumer consumer = machines.get(connection);
             if (consumer != null) {
                 consumer.accept(buffer);
             }
@@ -57,7 +57,7 @@ public class WebSocketMachineSource extends BaseWebSocketHandler {
             Messages.NewMachine newMachine = Messages.NewMachine.parseFrom(message);
             VirtualMachine machine = new VirtualMachine(newMachine.getId(), newMachine.getDisplayName(), true, "");
             ProfileListener profileListener = listener.onNewMachine(machine);
-            LogConsumer consumer = conductor.onNewLog(machine, profileListener);
+            DataConsumer consumer = conductor.pipeData(machine, profileListener);
             machines.put(connection, consumer);
         } catch (InvalidProtocolBufferException e) {
             e.printStackTrace();
