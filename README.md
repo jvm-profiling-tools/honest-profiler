@@ -42,7 +42,15 @@ compile the C++ component because it relies on jvmti.h.
 Dependencies
 ------------
 
-For Java dependencies look in the `pom.xml` file.
+For Java dependencies look in the `pom.xml` file, apart from lambda-behave, which can be
+installed as follows:
+
+```
+git clone git@github.com:RichardWarburton/lambda-behave.git
+cd lambda-behave/
+git checkout lambda-behave-parent-0.2
+mvn clean install
+```
 
 unittest++ - a unit testing library
 boost iostreams - used for portable memory mapped files
