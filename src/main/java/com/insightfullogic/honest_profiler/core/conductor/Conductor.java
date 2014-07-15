@@ -8,6 +8,7 @@ import com.insightfullogic.honest_profiler.core.store.LogSaver;
 import java.io.File;
 import java.io.IOException;
 
+// TODO: decouple saving from parsing/processing (Possibly remove this class)
 public class Conductor {
 
     private final LogRepo logRepo;

@@ -14,7 +14,6 @@ import static com.insightfullogic.honest_profiler.delivery.javafx.WindowViewMode
 
 public class ProfileViewModel {
 
-    private final LogParser parser;
     private final WindowViewModel windows;
 
     private boolean flatView;
@@ -22,8 +21,7 @@ public class ProfileViewModel {
     @FXML
     private StackPane content;
 
-    public ProfileViewModel(LogParser parser, WindowViewModel windows) {
-        this.parser = parser;
+    public ProfileViewModel(WindowViewModel windows) {
         this.windows = windows;
         flatView = false;
     }

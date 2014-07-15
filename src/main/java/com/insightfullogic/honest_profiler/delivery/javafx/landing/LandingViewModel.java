@@ -1,5 +1,6 @@
 package com.insightfullogic.honest_profiler.delivery.javafx.landing;
 
+import com.insightfullogic.honest_profiler.core.conductor.Conductor;
 import com.insightfullogic.honest_profiler.core.conductor.MachineListener;
 import com.insightfullogic.honest_profiler.core.conductor.ProfileListener;
 import com.insightfullogic.honest_profiler.core.parser.LogParser;
@@ -16,6 +17,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.io.IOException;
 
 import static com.insightfullogic.honest_profiler.delivery.javafx.WindowViewModel.Window.Profile;
 
@@ -28,12 +30,17 @@ public class LandingViewModel implements MachineListener {
     private Button monitor;
 
     private final ToggleGroup toggleMachines;
-    private final LogParser parser;
+    private final Conductor conductor;
     private final WindowViewModel windowModel;
+    private final ProfileListener profileListener;
 
-    public LandingViewModel(LogParser parser, WindowViewModel windowModel) {
-        this.parser = parser;
+    public LandingViewModel(
+            Conductor conductor,
+            WindowViewModel windowModel,
+            ProfileListener profileListener) {
+        this.conductor = conductor;
         this.windowModel = windowModel;
+        this.profileListener = profileListener;
         toggleMachines = new ToggleGroup();
     }
 
@@ -51,7 +58,11 @@ public class LandingViewModel implements MachineListener {
         File file = fileChooser.showOpenDialog(null);
         if (file != null) {
             windowModel.display(Profile);
-            parser.parse(file);
+            try {
+                conductor.consumeFile(file, null, profileListener);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -59,7 +70,7 @@ public class LandingViewModel implements MachineListener {
         windowModel.display(Profile);
         MachineButton selectedButton = (MachineButton) toggleMachines.getSelectedToggle();
         File logFile = selectedButton.getJvm().getLogFile();
-        parser.monitor(logFile);
+        // TODO: monitor
     }
 
     @Override
@@ -70,7 +81,6 @@ public class LandingViewModel implements MachineListener {
             button.setToggleGroup(toggleMachines);
             children.add(button);
         });
-        // TODO
         return null;
     }
 

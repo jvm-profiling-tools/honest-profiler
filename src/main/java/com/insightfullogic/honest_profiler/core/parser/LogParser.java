@@ -1,13 +1,10 @@
 package com.insightfullogic.honest_profiler.core.parser;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
-import static com.insightfullogic.honest_profiler.core.parser.LogParser.LogState.END_OF_LOG;
-import static com.insightfullogic.honest_profiler.core.parser.LogParser.LogState.NOTHING_READ;
-import static com.insightfullogic.honest_profiler.core.parser.LogParser.LogState.READ_RECORD;
+import static com.insightfullogic.honest_profiler.core.parser.LogParser.LogState.*;
 
 public class LogParser {
 
@@ -22,16 +19,6 @@ public class LogParser {
 
     public LogParser(EventListener listener) {
         this.listener = listener;
-    }
-
-    // TODO: delete
-    public void parse(File file) {
-        throw new UnsupportedOperationException("TODO: remove this");
-    }
-
-    // TODO: delete
-    public void monitor(File file) {
-        throw new UnsupportedOperationException("TODO: remove this");
     }
 
     public LogState readRecord(ByteBuffer input) throws IOException {

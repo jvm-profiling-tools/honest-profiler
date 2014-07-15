@@ -1,7 +1,9 @@
 package com.insightfullogic.honest_profiler.delivery.javafx;
 
+import com.insightfullogic.honest_profiler.adapters.store.FileLogRepo;
 import com.insightfullogic.honest_profiler.core.collector.LogCollector;
 import com.insightfullogic.honest_profiler.adapters.sources.LocalMachineSource;
+import com.insightfullogic.honest_profiler.core.conductor.Conductor;
 import com.insightfullogic.honest_profiler.delivery.javafx.landing.LandingViewModel;
 import com.insightfullogic.honest_profiler.delivery.javafx.profile.*;
 import com.insightfullogic.honest_profiler.core.parser.LogParser;
@@ -45,8 +47,10 @@ public class JavaFXEntry extends Application {
             .build()
 
             .addAdapter(new ProfileListenerProvider())
-            .addComponent(LogCollector.class)
-            .addComponent(LogParser.class)
+            /*.addComponent(LogCollector.class)
+            .addComponent(LogParser.class)*/
+            .addComponent(FileLogRepo.class)
+            .addComponent(Conductor.class)
             .addComponent(FlatViewModel.class)
             .addComponent(TreeViewModel.class)
             .addComponent(TraceCountViewModel.class)

@@ -57,8 +57,10 @@ public class WebSocketMachineSource extends BaseWebSocketHandler {
             Messages.NewMachine newMachine = Messages.NewMachine.parseFrom(message);
             VirtualMachine machine = new VirtualMachine(newMachine.getId(), newMachine.getDisplayName(), true, "");
             ProfileListener profileListener = listener.onNewMachine(machine);
-            DataConsumer consumer = conductor.pipeData(machine, profileListener);
-            machines.put(connection, consumer);
+            if (profileListener != null) {
+                DataConsumer consumer = conductor.pipeData(machine, profileListener);
+                machines.put(connection, consumer);
+            }
         } catch (InvalidProtocolBufferException e) {
             e.printStackTrace();
         }

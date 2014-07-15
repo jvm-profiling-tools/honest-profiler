@@ -27,20 +27,8 @@ looks up information about useful things like methods names.
 Based upon code originally open sourced by Jeremy Manson/Google:
 http://jeremymanson.blogspot.co.uk/2013/07/lightweight-asynchronous-sampling.html
 
-Compiling
----------
-
-```
-export LC_ALL=C
-mvn package
-```
-
-If you just want to compile the C++ code then the `Makefile` works independently
-of maven. You must have `$JAVA_HOME`  pointing to a JDK install in order to
-compile the C++ component because it relies on jvmti.h.
-
-Dependencies
-------------
+Installing Dependencies
+-----------------------
 
 For Java dependencies look in the `pom.xml` file, apart from lambda-behave, which can be
 installed as follows:
@@ -64,6 +52,18 @@ To install :
  * On Arch Linux:
 
         yaourt -S base-devel unittestpp boost boost-libs
+
+Compiling
+---------
+
+```
+export LC_ALL=C
+mvn package
+```
+
+If you just want to compile the C++ code then the `Makefile` works independently
+of maven. You must have `$JAVA_HOME`  pointing to a JDK install in order to
+compile the C++ component because it relies on jvmti.h.
 
 Running
 -------
