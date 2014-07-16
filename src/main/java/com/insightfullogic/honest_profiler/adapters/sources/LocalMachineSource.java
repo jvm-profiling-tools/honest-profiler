@@ -1,9 +1,9 @@
 package com.insightfullogic.honest_profiler.adapters.sources;
 
 import com.insightfullogic.honest_profiler.core.conductor.Conductor;
-import com.insightfullogic.honest_profiler.core.conductor.LogConsumer;
 import com.insightfullogic.honest_profiler.core.conductor.MachineListener;
 import com.insightfullogic.honest_profiler.core.conductor.ProfileListener;
+import com.insightfullogic.honest_profiler.core.conductor.ThreadedAgent;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.sun.tools.attach.AttachNotSupportedException;
 import com.sun.tools.attach.VirtualMachineDescriptor;
@@ -61,10 +61,9 @@ public class LocalMachineSource {
         Set<VirtualMachineDescriptor> current = new HashSet<>(com.sun.tools.attach.VirtualMachine.list());
         difference(current, previous, machine -> {
             ProfileListener profileListener = listener.onNewMachine(machine);
-            if (machine.isAgentLoaded()) {
+            if (machine.isAgentLoaded() && profileListener != null) {
                 try {
-                    LogConsumer logConsumer = conductor.pipeFile(machine.getLogFile(), machine, profileListener);
-                    new ThreadedAgent(logConsumer::run).start();
+                    conductor.pipeFile(machine.getLogFile(), machine, profileListener);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

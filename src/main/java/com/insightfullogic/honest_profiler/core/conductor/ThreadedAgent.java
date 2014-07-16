@@ -1,11 +1,9 @@
-package com.insightfullogic.honest_profiler.adapters.sources;
+package com.insightfullogic.honest_profiler.core.conductor;
 
 public class ThreadedAgent implements Runnable {
 
     public static interface Block {
-
         public boolean run() throws Exception;
-
     }
 
     private final Block block;

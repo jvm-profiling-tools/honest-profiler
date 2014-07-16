@@ -3,7 +3,6 @@ package com.insightfullogic.honest_profiler.delivery.javafx.landing;
 import com.insightfullogic.honest_profiler.core.conductor.Conductor;
 import com.insightfullogic.honest_profiler.core.conductor.MachineListener;
 import com.insightfullogic.honest_profiler.core.conductor.ProfileListener;
-import com.insightfullogic.honest_profiler.core.parser.LogParser;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.insightfullogic.honest_profiler.delivery.javafx.WindowViewModel;
 import javafx.application.Platform;
@@ -70,7 +69,11 @@ public class LandingViewModel implements MachineListener {
         windowModel.display(Profile);
         MachineButton selectedButton = (MachineButton) toggleMachines.getSelectedToggle();
         File logFile = selectedButton.getJvm().getLogFile();
-        // TODO: monitor
+        try {
+            conductor.pipeFile(logFile, null, profileListener);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
