@@ -12,12 +12,14 @@ public class LogConsumer {
     private static final long POLL_INTERVAL = 10;
 
     private final DataConsumer consumer;
+    private final boolean continuous;
 
     private RandomAccessFile input;
     private MappedByteBuffer buffer;
 
-    public LogConsumer(File file, DataConsumer consumer) throws IOException {
+    public LogConsumer(File file, DataConsumer consumer, boolean continuous) throws IOException {
         this.consumer = consumer;
+        this.continuous = continuous;
         input = new RandomAccessFile(file, "r");
         buffer = input.getChannel()
                       .map(READ_ONLY, 0, file.length());
@@ -29,8 +31,12 @@ public class LogConsumer {
                 input.close();
                 return false;
             case NOTHING_READ:
-                sleep();
-                return true;
+                if (continuous) {
+                    sleep();
+                } else {
+                    consumer.endOfLog();
+                }
+                return continuous;
             case READ_RECORD:
                 return true;
         }

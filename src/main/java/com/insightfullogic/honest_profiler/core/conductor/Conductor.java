@@ -22,12 +22,12 @@ public class Conductor {
     }
 
     public void pipeFile(File file, VirtualMachine machine, ProfileListener listener) throws IOException {
-        final LogConsumer logConsumer = new LogConsumer(file, pipe(machine, listener, true));
+        final LogConsumer logConsumer = new LogConsumer(file, pipe(machine, listener, true), true);
         new ThreadedAgent(logConsumer::run).start();
     }
 
     public void consumeFile(File file, VirtualMachine machine, ProfileListener listener) throws IOException {
-        LogConsumer consumer = new LogConsumer(file, pipe(machine, listener, false));
+        LogConsumer consumer = new LogConsumer(file, pipe(machine, listener, false), false);
         while (consumer.run())
             ;
     }

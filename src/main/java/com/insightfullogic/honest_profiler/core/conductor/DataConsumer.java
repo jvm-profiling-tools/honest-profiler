@@ -15,11 +15,13 @@ public class DataConsumer {
 
     private final VirtualMachine machine;
     private final LogSaver saver;
+    private final EventListener listener;
     private final LogParser parser;
 
     public DataConsumer(VirtualMachine machine, LogSaver saver, EventListener listener) {
         this.machine = machine;
         this.saver = saver;
+        this.listener = listener;
         this.parser = new LogParser(listener);
     }
 
@@ -29,8 +31,13 @@ public class DataConsumer {
             return parser.readRecord(data);
         } catch (IOException e) {
             e.printStackTrace();
+            endOfLog();
             return END_OF_LOG;
         }
+    }
+
+    public void endOfLog() {
+        listener.endOfLog();
     }
 
     public void close() {

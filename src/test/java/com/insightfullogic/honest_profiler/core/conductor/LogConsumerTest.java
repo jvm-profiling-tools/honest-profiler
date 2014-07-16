@@ -21,7 +21,7 @@ public class LogConsumerTest {{
         it.should("parse a basic log", expect -> {
             EventListener listener = mock(EventListener.class);
             LogSaver saver = mock(LogSaver.class);
-            LogConsumer consumer = new LogConsumer(Logs.log0(), new DataConsumer(null, saver, listener));
+            LogConsumer consumer = new LogConsumer(Logs.log0(), new DataConsumer(null, saver, listener), false);
 
             expect.that(consumer.run()).is(true);
             verify(listener).handle(new TraceStart(2, 5));
