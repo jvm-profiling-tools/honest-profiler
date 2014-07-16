@@ -31,20 +31,21 @@ Installing Dependencies
 -----------------------
 
 For Java dependencies look in the `pom.xml` file, these will be installed
-automatically.
+automatically, apart from the protobuf compiler. Native dependencies are:
 
 unittest++ - a unit testing library
 boost iostreams - used for portable memory mapped files
+protobuf-compiler - the compiler for protobuf messages
 
 To install :
 
  * On debian/ubuntu:
 
-        sudo apt-get install libunittest++-dev libboost-iostreams-dev
+        sudo apt-get install libunittest++-dev libboost-iostreams-dev protobuf-compiler
 
  * On Arch Linux:
 
-        yaourt -S base-devel unittestpp boost boost-libs
+        yaourt -S base-devel unittestpp boost boost-libs protobuf
 
 Compiling
 ---------
