@@ -30,15 +30,8 @@ http://jeremymanson.blogspot.co.uk/2013/07/lightweight-asynchronous-sampling.htm
 Installing Dependencies
 -----------------------
 
-For Java dependencies look in the `pom.xml` file, apart from lambda-behave, which can be
-installed as follows:
-
-```
-git clone git@github.com:RichardWarburton/lambda-behave.git
-cd lambda-behave/
-git checkout lambda-behave-parent-0.2
-mvn clean install
-```
+For Java dependencies look in the `pom.xml` file, these will be installed
+automatically.
 
 unittest++ - a unit testing library
 boost iostreams - used for portable memory mapped files
