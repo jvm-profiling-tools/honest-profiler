@@ -115,9 +115,6 @@
                 <groupId>de.softwareforge.mojo</groupId>
                 <artifactId>maven-protoc-plugin</artifactId>
                 <version>0.2-HPS-2</version>
-                <configuration>
-                    <protocExecutable>/usr/bin/protoc</protocExecutable>
-                </configuration>
                 <executions>
                     <execution>
                         <goals>

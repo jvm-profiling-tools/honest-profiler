@@ -47,6 +47,13 @@ To install :
 
         yaourt -S base-devel unittestpp boost boost-libs protobuf nodejs
 
+Notes on JDK Version
+--------------------
+
+The profiling agent will happily run under OpenJDK, but in order to use the Javafx UI you
+need to use the Oracle JDK.
+
+
 Compiling
 ---------
 
