@@ -5,6 +5,7 @@ import com.insightfullogic.honest_profiler.adapters.sources.WebSocketMachineSour
 import com.insightfullogic.honest_profiler.core.conductor.Conductor;
 import com.insightfullogic.honest_profiler.core.conductor.DataConsumer;
 import com.insightfullogic.honest_profiler.core.conductor.MachineListener;
+import com.insightfullogic.honest_profiler.core.conductor.ProfileListener;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.insightfullogic.lambdabehave.JunitSuiteRunner;
 import org.junit.runner.RunWith;
@@ -34,11 +35,13 @@ public class WebSocketMachineSourceTest {
         DataConsumer dataConsumer = mock(DataConsumer.class);
         Conductor conductor = mock(Conductor.class);
         MachineListener listener = mock(MachineListener.class);
+        ProfileListener profileListener = mock(ProfileListener.class);
 
         it.shouldSetup(() -> {
             reset(connection, dataConsumer, conductor, listener);
             when(conductor.pipeData(any(), any())).thenReturn(dataConsumer);
             when(dataConsumer.getMachine()).thenReturn(machine);
+            when(listener.onNewMachine(any())).thenReturn(profileListener);
 
             finder = new WebSocketMachineSource(conductor, listener);
         });
