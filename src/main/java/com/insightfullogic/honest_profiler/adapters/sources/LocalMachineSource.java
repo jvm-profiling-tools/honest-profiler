@@ -12,7 +12,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -87,13 +86,12 @@ public class LocalMachineSource {
     private Stream<VirtualMachine> attach(VirtualMachineDescriptor vmDescriptor) {
         try {
             com.sun.tools.attach.VirtualMachine vm = com.sun.tools.attach.VirtualMachine.attach(vmDescriptor);
-            Properties agentProperties = vm.getAgentProperties();
-            String vmArgs = agentProperties.getProperty(VM_ARGS);
+            String vmArgs = vm.getAgentProperties().getProperty(VM_ARGS);
 
             String id = vmDescriptor.id();
             String displayName = vmDescriptor.displayName();
             boolean agentLoaded = vmArgs.contains(AGENT_NAME);
-            String userDir = agentProperties.getProperty(USER_DIR);
+            String userDir = getUserDir(vm);
 
             return Stream.of(new VirtualMachine(id, displayName, agentLoaded, userDir));
         } catch (AttachNotSupportedException e) {
@@ -104,6 +102,14 @@ public class LocalMachineSource {
             }
         }
         return Stream.empty();
+    }
+
+    private String getUserDir(com.sun.tools.attach.VirtualMachine vm) throws IOException {
+        final String userDir = vm.getAgentProperties().getProperty(USER_DIR);
+        if (userDir != null)
+            return userDir;
+
+        return vm.getSystemProperties().getProperty(USER_DIR);
     }
 
     private boolean noSuchProcess(IOException e) {
