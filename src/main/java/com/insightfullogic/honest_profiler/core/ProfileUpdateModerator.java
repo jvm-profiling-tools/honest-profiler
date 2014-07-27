@@ -1,4 +1,4 @@
-package com.insightfullogic.honest_profiler.core.conductor;
+package com.insightfullogic.honest_profiler.core;
 
 import com.insightfullogic.honest_profiler.core.collector.Profile;
 

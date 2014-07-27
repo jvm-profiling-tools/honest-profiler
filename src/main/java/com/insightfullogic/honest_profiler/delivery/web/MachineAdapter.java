@@ -1,6 +1,6 @@
 package com.insightfullogic.honest_profiler.delivery.web;
 
-import com.insightfullogic.honest_profiler.core.conductor.MachineListener;
+import com.insightfullogic.honest_profiler.core.MachineListener;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import org.webbitserver.WebSocketConnection;
 

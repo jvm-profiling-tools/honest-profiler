@@ -1,7 +1,7 @@
 package com.insightfullogic.honest_profiler.delivery.console;
 
 import com.insightfullogic.honest_profiler.adapters.store.FileLogRepo;
-import com.insightfullogic.honest_profiler.core.conductor.Conductor;
+import com.insightfullogic.honest_profiler.core.Conductor;
 
 import java.io.File;
 import java.io.IOException;

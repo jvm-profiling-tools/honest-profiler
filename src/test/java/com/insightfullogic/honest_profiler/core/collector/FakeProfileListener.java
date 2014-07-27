@@ -1,6 +1,6 @@
 package com.insightfullogic.honest_profiler.core.collector;
 
-import com.insightfullogic.honest_profiler.core.conductor.ProfileListener;
+import com.insightfullogic.honest_profiler.core.ProfileListener;
 
 public class FakeProfileListener implements ProfileListener {
 

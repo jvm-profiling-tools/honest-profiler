@@ -2,10 +2,10 @@ package com.insightfullogic.honest_profiler.adapters;
 
 import com.insightfullogic.honest_profiler.adapters.sources.Messages;
 import com.insightfullogic.honest_profiler.adapters.sources.WebSocketMachineSource;
-import com.insightfullogic.honest_profiler.core.conductor.Conductor;
-import com.insightfullogic.honest_profiler.core.conductor.DataConsumer;
-import com.insightfullogic.honest_profiler.core.conductor.MachineListener;
-import com.insightfullogic.honest_profiler.core.conductor.ProfileListener;
+import com.insightfullogic.honest_profiler.core.Conductor;
+import com.insightfullogic.honest_profiler.core.DataConsumer;
+import com.insightfullogic.honest_profiler.core.MachineListener;
+import com.insightfullogic.honest_profiler.core.ProfileListener;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.insightfullogic.lambdabehave.JunitSuiteRunner;
 import org.junit.runner.RunWith;
