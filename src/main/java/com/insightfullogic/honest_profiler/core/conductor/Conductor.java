@@ -34,6 +34,13 @@ public class Conductor {
 
     private DataConsumer pipe(VirtualMachine machine, ProfileListener listener, boolean continuous) {
         LogSaver saver = logRepo.onNewLog(machine);
+
+        if (continuous) {
+            ProfileUpdateModerator moderator = new ProfileUpdateModerator(listener);
+            moderator.start();
+            listener = moderator;
+        }
+
         LogCollector collector = new LogCollector(listener, continuous);
         return new DataConsumer(machine, saver, collector);
     }
