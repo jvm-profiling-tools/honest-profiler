@@ -33,7 +33,7 @@ public class ConsoleUserInterface implements ProfileListener {
         out.append("\n\nFlat Profile:");
         profile.flatProfile().forEach(entry -> {
             Method method = entry.getMethod();
-            double timeShare = entry.getTimeShare();
+            double timeShare = entry.getTotalTimeShare();
             out.print("\n\t");
             printMethod(method, timeShare);
         });

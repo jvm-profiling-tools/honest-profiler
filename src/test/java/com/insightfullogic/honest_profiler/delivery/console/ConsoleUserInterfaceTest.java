@@ -19,7 +19,7 @@ public class ConsoleUserInterfaceTest {
     @Test
     public void rendersSingleMethod() {
         ProfileNode root = new ProfileNode(ProfileFixtures.printf, 1.0);
-        Profile profile = new Profile(2, asList(new FlatProfileEntry(ProfileFixtures.printf, 1.0)), toTrees(root));
+        Profile profile = new Profile(2, asList(new FlatProfileEntry(ProfileFixtures.printf, 1.0, 0.0)), toTrees(root));
 
         ui.accept(profile);
 
@@ -37,7 +37,7 @@ public class ConsoleUserInterfaceTest {
         ProfileNode left = new ProfileNode(ProfileFixtures.println, 0.5);
         ProfileNode right = new ProfileNode(ProfileFixtures.append, 0.5);
         ProfileNode root = new ProfileNode(ProfileFixtures.printf, 1, asList(left, right));
-        Profile profile = new Profile(2, asList(new FlatProfileEntry(ProfileFixtures.printf, 1.0)), toTrees(root));
+        Profile profile = new Profile(2, asList(new FlatProfileEntry(ProfileFixtures.printf, 1.0, 0.0)), toTrees(root));
 
         ui.accept(profile);
 

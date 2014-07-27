@@ -11,8 +11,17 @@ import static javafx.scene.control.TableColumn.CellDataFeatures;
 
 public class Rendering {
 
-    public static SimpleObjectProperty<String> timeShare(CellDataFeatures<FlatProfileEntry, String> features) {
-        double timeShare = features.getValue().getTimeShare();
+    public static SimpleObjectProperty<String> totalTimeShare(CellDataFeatures<FlatProfileEntry, String> features) {
+        double timeShare = features.getValue().getTotalTimeShare();
+        return formatTimeShare(timeShare);
+    }
+
+    public static SimpleObjectProperty<String> selfTimeShare(CellDataFeatures<FlatProfileEntry, String> features) {
+        double timeShare = features.getValue().getSelfTimeShare();
+        return formatTimeShare(timeShare);
+    }
+
+    private static SimpleObjectProperty<String> formatTimeShare(double timeShare) {
         String formattedTimeShare = renderTimeShare(timeShare);
         return new ReadOnlyObjectWrapper<>(formattedTimeShare);
     }

@@ -17,14 +17,14 @@ import static java.util.stream.Collectors.toList;
  */
 public class LogCollector implements EventListener {
 
-    private static final Comparator<Entry<Long,Integer>> sortByCount = comparing((Entry<Long, Integer> entry) -> entry.getValue())
-                                                                      .reversed();
+    private static final Comparator<Entry<Long,CallCounts>> sortByCount = comparing((Entry<Long, CallCounts> entry) -> entry.getValue().timeInvokingThis)
+                                                                         .reversed();
     public static final int NOT_AWAITING = -1;
 
     private final ProfileListener listener;
 
     private final Map<Long, Method> methodNames;
-    private final Map<Long, Integer> callCounts;
+    private final Map<Long, CallCounts> callCounts;
     private final Map<Long, NodeCollector> treesByThread;
     private final Stack<StackFrame> reversalStack;
 
@@ -69,7 +69,7 @@ public class LogCollector implements EventListener {
 
     private void collectThreadDump() {
         while (!reversalStack.empty()) {
-            collectStackFrame(reversalStack.pop());
+            collectStackFrame(reversalStack.size() == 1, reversalStack.pop());
         }
         expectedNumberOfFrames = NOT_AWAITING;
         if (continuous) {
@@ -77,9 +77,18 @@ public class LogCollector implements EventListener {
         }
     }
 
-    private void collectStackFrame(StackFrame stackFrame) {
+    private void collectStackFrame(boolean endOfTrace, StackFrame stackFrame) {
         long methodId = stackFrame.getMethodId();
-        callCounts.compute(methodId, (key, previous) -> previous == null ? 1: previous + 1);
+        callCounts.compute(methodId, (key, callCounts) -> {
+            if (callCounts == null) {
+                callCounts = new CallCounts(0, 0);
+            }
+
+            callCounts.timeAppeared++;
+            if (endOfTrace)
+                callCounts.timeInvokingThis++;
+            return callCounts;
+        });
 
         if (currentTreeNode == null) {
             // might be null if the method hasn't been seen before
@@ -130,10 +139,12 @@ public class LogCollector implements EventListener {
                          .collect(toList());
     }
 
-    private FlatProfileEntry toFlatProfileEntry(Entry<Long, Integer> entry) {
+    private FlatProfileEntry toFlatProfileEntry(Entry<Long, CallCounts> entry) {
         Method method = methodNames.get(entry.getKey());
-        double timeShare = (double) entry.getValue() / traceCount;
-        return new FlatProfileEntry(method, timeShare);
+        final CallCounts callCounts = entry.getValue();
+        double totalTimeShare = (double) callCounts.timeAppeared / traceCount;
+        double selfTimeShare = (double) callCounts.timeInvokingThis / traceCount;
+        return new FlatProfileEntry(method, totalTimeShare, selfTimeShare);
     }
 
     public boolean isLogComplete() {

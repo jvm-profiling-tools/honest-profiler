@@ -18,14 +18,18 @@ public class FlatViewModel implements ProfileListener {
     private TableView<FlatProfileEntry> flatProfileView;
 
     @FXML
-    private TableColumn<FlatProfileEntry, String> proportions;
+    private TableColumn<FlatProfileEntry, String> totalTimeShare;
+
+    @FXML
+    private TableColumn<FlatProfileEntry, String> selfTimeShare;
 
     @FXML
     private TableColumn<FlatProfileEntry, String> methods;
 
     @FXML
     private void initialize() {
-        proportions.setCellValueFactory(Rendering::timeShare);
+        totalTimeShare.setCellValueFactory(Rendering::totalTimeShare);
+        selfTimeShare.setCellValueFactory(Rendering::selfTimeShare);
         methods.setCellValueFactory(Rendering::method);
         flatProfileView.setItems(flatProfile);
     }

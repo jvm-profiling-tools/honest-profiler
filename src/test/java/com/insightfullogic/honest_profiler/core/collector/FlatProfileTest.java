@@ -33,7 +33,8 @@ public class FlatProfileTest {
     private void assertEntry(Method method, double ratio, Optional<FlatProfileEntry> mbEntry) {
         assertTrue(mbEntry.isPresent());
         FlatProfileEntry entry = mbEntry.get();
-        assertEquals(ratio, entry.getTimeShare(), 0.00001);
+        assertEquals(ratio, entry.getTotalTimeShare(), 0.00001);
+        assertEquals(ratio, entry.getSelfTimeShare(), 0.00001);
         assertEquals(method, entry.getMethod());
     }
 
@@ -58,7 +59,7 @@ public class FlatProfileTest {
                                              .findFirst());
 
         assertEntry(ProfileFixtures.append, 1.0 / 3, profile.flatProfile()
-                .filter(e -> e.getTimeShare() < 0.5)
+                .filter(e -> e.getTotalTimeShare() < 0.5)
                 .findFirst());
     }
 

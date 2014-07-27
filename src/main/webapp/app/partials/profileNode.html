@@ -4,8 +4,8 @@
     </div>
     <div ng-class="'col-md-' + (width > 6 ? 3 : width)">
         <code>{{ node.method.className }}.{{ node.method.methodName }}()</code>
-        <progressbar value="node.timeShare" max="1.0">
-            {{ node.timeShare * 100 }}%
+        <progressbar value="node.totalTimeShare" max="1.0">
+            {{ node.totalTimeShare * 100 }}%
         </progressbar>
     </div>
 </div>
