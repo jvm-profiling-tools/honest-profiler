@@ -31,6 +31,7 @@ public class ThreadedAgent implements Runnable {
             while (!Thread.currentThread().isInterrupted() && block.run())
                 ;
 
+            System.out.println(Thread.currentThread().getName() + " Stopped");
         } catch (Throwable throwable) {
             // Deliberately catching throwable since we're at the top of a thread
             throwable.printStackTrace();

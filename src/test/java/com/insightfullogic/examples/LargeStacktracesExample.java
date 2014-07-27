@@ -8,7 +8,7 @@ import java.util.stream.IntStream;
 public class LargeStacktracesExample implements Runnable {
 
     public static void main(String[] args) throws Exception {
-        int processors = Runtime.getRuntime().availableProcessors();
+        int processors = Runtime.getRuntime().availableProcessors() * 2;
 
         ExecutorService threadPool = Executors.newFixedThreadPool(processors);
         IntStream.range(0, processors)
@@ -21,7 +21,11 @@ public class LargeStacktracesExample implements Runnable {
             String value = null;
             for (int i = 0; i < 100_000; i++) {
                 value = someSillyMethod();
-                Thread.yield();
+                try {
+                    Thread.sleep(5);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
             System.out.println(value);
         }
