@@ -4,8 +4,14 @@ public class SleepingThreadExample {
 
     public static void main(String[] args) throws Exception {
         while (true) {
-            Thread.sleep(100);
-            subMethod();
+            long time = System.currentTimeMillis();
+            Thread.sleep(500);
+            if ((System.currentTimeMillis() - time) < 500) {
+                System.out.println("Sleep has been broken");
+            }
+            for (int i = 0; i < 1000; i++) {
+                subMethod();
+            }
         }
     }
 
