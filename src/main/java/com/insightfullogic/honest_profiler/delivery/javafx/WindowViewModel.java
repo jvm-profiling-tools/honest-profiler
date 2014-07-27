@@ -28,6 +28,8 @@ public class WindowViewModel {
     public Parent display(Window window) {
         Parent parent = loader.load(window.getFxmlFile());
         stage.setScene(new Scene(parent));
+        stage.setMinWidth(650);
+        stage.setMinHeight(400);
         return parent;
     }
 
