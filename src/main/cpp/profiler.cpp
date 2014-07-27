@@ -129,6 +129,7 @@ void Profiler::handle(int signum, siginfo_t *info, void *context) {
 
   if (trace.num_frames < 0) {
     int idx = -trace.num_frames;
+    // fprintf(stderr, "error: %d %lu\n", idx, (int64_t) trace.env_id);
     if (idx > kNumCallTraceErrors) {
       return;
     }
@@ -145,7 +146,7 @@ bool SignalHandler::SetSigprofInterval(int sec, int usec) {
   timer.it_interval.tv_sec = sec;
   timer.it_interval.tv_usec = usec;
   timer.it_value = timer.it_interval;
-  if (setitimer(ITIMER_REAL, &timer, 0) == -1) {
+  if (setitimer(ITIMER_PROF, &timer, 0) == -1) {
     fprintf(stderr, "Scheduling profiler interval failed with error %d\n",
             errno);
     return false;
@@ -170,7 +171,7 @@ struct sigaction SignalHandler::SetAction(void (*action)(int, siginfo_t *,
   sigemptyset(&sa.sa_mask);
 
   struct sigaction old_handler;
-  if (sigaction(SIGALRM, &sa, &old_handler) != 0) {
+  if (sigaction(SIGPROF, &sa, &old_handler) != 0) {
     fprintf(stderr, "Scheduling profiler action failed with error %d\n", errno);
     return old_handler;
   }
@@ -179,7 +180,7 @@ struct sigaction SignalHandler::SetAction(void (*action)(int, siginfo_t *,
 }
 
 bool Profiler::start(JNIEnv *jniEnv) {
-  int usec_wait = 100;
+  int usec_wait = 1;
 
   memset(failures_, 0, sizeof(failures_));
 
