@@ -1,6 +1,6 @@
 package com.insightfullogic.honest_profiler.delivery.console;
 
-import com.insightfullogic.honest_profiler.core.conductor.Logs;
+import com.insightfullogic.honest_profiler.core.Logs;
 
 public class ConsoleApplicationRunner {
 

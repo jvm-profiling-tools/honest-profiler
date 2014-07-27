@@ -38,9 +38,6 @@ public class DataConsumer {
 
     public void endOfLog() {
         listener.endOfLog();
-    }
-
-    public void close() {
         saver.close();
     }
 

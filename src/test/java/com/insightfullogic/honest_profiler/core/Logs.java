@@ -1,4 +1,4 @@
-package com.insightfullogic.honest_profiler.core.conductor;
+package com.insightfullogic.honest_profiler.core;
 
 import java.io.File;
 import java.net.URISyntaxException;
@@ -11,7 +11,7 @@ public class Logs {
     }
 
     public static File logFile(String file) {
-        URL url = Logs.class.getResource("../../../../../" + file);
+        URL url = Logs.class.getResource("../../../../" + file);
         return urlToFile(url);
     }
 
