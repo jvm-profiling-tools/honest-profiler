@@ -38,4 +38,8 @@ public final class ProfileNode {
         return method;
     }
 
+    @Override
+    public String toString() {
+        return "PN{" + timeShare + " " + method.getMethodName() + children + '}';
+    }
 }

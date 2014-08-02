@@ -12,4 +12,10 @@ public final class ProfileTree {
         return rootNode;
     }
 
+    @Override
+    public String toString() {
+        return "ProfileTree{" +
+                rootNode +
+                '}';
+    }
 }
