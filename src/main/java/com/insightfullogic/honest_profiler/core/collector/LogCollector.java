@@ -55,6 +55,7 @@ public class LogCollector implements EventListener {
     public void handle(TraceStart traceStart) {
         traceCount++;
         expectedNumberOfFrames = traceStart.getNumberOfFrames();
+        reversalStack.clear();
         currentThread = traceStart.getThreadId();
         currentTreeNode = null;
     }

@@ -30,4 +30,11 @@ public final class Profile {
         return trees;
     }
 
+    @Override
+    public String toString() {
+        return "Profile{" +
+                "traceCount: " + traceCount +
+                ", count(trees): " + trees +
+                '}';
+    }
 }
