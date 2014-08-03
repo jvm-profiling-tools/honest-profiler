@@ -54,7 +54,7 @@ public class ConsoleUserInterface implements ProfileListener {
         out.print('\n');
 
         IntStream.range(0, depth).forEach(i -> out.print('\t'));
-        printMethod(node.getMethod(), node.getTimeShare());
+        printMethod(node.getMethod(), node.getTotalTimeShare());
 
         int childDepth = depth + 1;
         node.children().forEach(child -> printNode(child, childDepth));

@@ -46,7 +46,7 @@ public class TreeNodeAdapter extends TreeItem<ProfileNode> {
         super(profileNode);
         threadId = NOT_APPLICABLE;
         type = Type.METHOD;
-        double timeShare = profileNode.getTimeShare();
+        double timeShare = profileNode.getTotalTimeShare();
         setExpanded(timeShare >= TIMESHARE_EXPAND_FACTOR);
         ObservableList<TreeItem<ProfileNode>> children = getChildren();
         profileNode.children()

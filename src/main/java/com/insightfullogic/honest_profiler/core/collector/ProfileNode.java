@@ -11,15 +11,19 @@ public final class ProfileNode {
 
     private final List<ProfileNode> children;
     private final Method method;
-    private final double timeShare;
+    private final double totalTimeShare;
+    private final double selfTimeShare;
 
-    public ProfileNode(Method method, double timeShare) {
-        this(method, timeShare, emptyList());
+    public ProfileNode(Method method, double totalTimeShare) {
+        this(method, totalTimeShare, emptyList());
     }
-    public ProfileNode(Method method, double timeShare, List<ProfileNode> children) {
+    public ProfileNode(Method method, double totalTimeShare, List<ProfileNode> children) {
         this.method = method;
-        this.timeShare = timeShare;
         this.children = children;
+        this.totalTimeShare = totalTimeShare;
+        this.selfTimeShare = totalTimeShare - children.stream()
+                                                      .mapToDouble(ProfileNode::getTotalTimeShare)
+                                                      .sum();
     }
 
     public Stream<ProfileNode> children() {
@@ -30,8 +34,8 @@ public final class ProfileNode {
         return children;
     }
 
-    public double getTimeShare() {
-        return timeShare;
+    public double getTotalTimeShare() {
+        return totalTimeShare;
     }
 
     public Method getMethod() {
@@ -40,6 +44,10 @@ public final class ProfileNode {
 
     @Override
     public String toString() {
-        return "PN{" + timeShare + " " + method.getMethodName() + children + '}';
+        return "PN{" + totalTimeShare + " " + method.getMethodName() + children + '}';
+    }
+
+    public double getSelfTimeShare() {
+        return selfTimeShare;
     }
 }

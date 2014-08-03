@@ -9,8 +9,8 @@ import java.util.stream.Stream;
 public final class Profile {
 
     private final int traceCount;
-    private final List<FlatProfileEntry> flatProfile;
-    private final List<ProfileTree> trees;
+    private List<ProfileTree> trees;
+    private List<FlatProfileEntry> flatProfile;
 
     public Profile(int traceCount, List<FlatProfileEntry> flatProfile, List<ProfileTree> trees) {
         this.traceCount = traceCount;
@@ -20,6 +20,10 @@ public final class Profile {
 
     public int getTraceCount() {
         return traceCount;
+    }
+
+    public List<FlatProfileEntry> getFlatProfile() {
+        return flatProfile;
     }
 
     public Stream<FlatProfileEntry> flatProfile() {
@@ -37,4 +41,5 @@ public final class Profile {
                 ", count(trees): " + trees +
                 '}';
     }
+
 }

@@ -63,7 +63,7 @@ public class TreeViewCell extends TreeCell<ProfileNode> {
             context.setFill(Color.BLACK);
             context.strokeRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
 
-            double timeShare = profileNode.getTimeShare();
+            double timeShare = profileNode.getTotalTimeShare();
             double scaledShare = timeShare * IMAGE_WIDTH;
             double xStart = IMAGE_WIDTH - scaledShare;
             context.setFill(Color.GREEN);
