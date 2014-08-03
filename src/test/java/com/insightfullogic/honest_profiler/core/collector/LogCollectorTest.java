@@ -7,11 +7,9 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class LogCollectorTest {
     private static final int LINE = 123;
@@ -25,13 +23,12 @@ public class LogCollectorTest {
             collector.handle(new Method(i, "a", "Bass", "c" + i));
         }
 
-        assertEquals("methods don't cause profiles", emptyList(), withoutEmpty(found));
+        assertTrue("methods don't cause profiles", found.isEmpty());
 
         int threadId = 0;
-        final int expectedFrames = 2;
-        collector.handle(new TraceStart(expectedFrames, ++threadId));
+        collector.handle(new TraceStart(2, ++threadId));
 
-        assertEquals("nothing to profile still", emptyList(), withoutEmpty(found));
+        assertTrue("nothing to profile still", found.isEmpty());
 
         collector.handle(new StackFrame(LINE, 0));
         collector.handle(new StackFrame(LINE, 1));
@@ -50,16 +47,10 @@ public class LogCollectorTest {
     }
 
     private long[] idOfLastMethodInEachThread(Profile profile) {
-        return profile.getTrees().stream().mapToLong((x) -> x.getRootNode().getMethod().getMethodId()).toArray();
+        return profile.getTrees().stream().mapToLong(x -> x.getRootNode().getMethod().getMethodId()).toArray();
     }
 
     private Profile mostRecentProfile(List<Profile> found) {
         return found.get(found.size() - 1);
     }
-
-    /** TODO why do we need to remove empty profiles? */
-    private List<Profile> withoutEmpty(List<Profile> found) {
-        return found.stream().filter((x) -> x.getTrees().size() != 0).collect(Collectors.toList());
-    }
-
 }
