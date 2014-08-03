@@ -17,41 +17,36 @@ public class LogCollectorTest {
     private static final int LINE = 123;
 
     @Test
-    public void logCollectorCopesWithUnexpectedFrames() {
+    public void logCollectorShouldCopeWithUnexpectedFrames() {
         final List<Profile> found = new ArrayList<>();
-        final LogCollector ut = new LogCollector(found::add, true);
+        final LogCollector collector = new LogCollector(found::add, true);
 
         for (int i = 0; i < 10; i++) {
-            ut.handle(new Method(i, "a", "Bass", "c" + i));
+            collector.handle(new Method(i, "a", "Bass", "c" + i));
         }
 
         assertEquals("methods don't cause profiles", emptyList(), withoutEmpty(found));
 
         int threadId = 0;
         final int expectedFrames = 2;
-        ut.handle(new TraceStart(expectedFrames, ++threadId));
+        collector.handle(new TraceStart(expectedFrames, ++threadId));
 
         assertEquals("nothing to profile still", emptyList(), withoutEmpty(found));
 
-        for (int i = 0; i < expectedFrames; ++i) {
-            ut.handle(new StackFrame(LINE, i));
-        }
-
+        collector.handle(new StackFrame(LINE, 0));
+        collector.handle(new StackFrame(LINE, 1));
         // ..and one unexpected frame
-        ut.handle(new StackFrame(LINE, 2));
+        collector.handle(new StackFrame(LINE, 2));
 
         // normal method afterwards
-        ut.handle(new TraceStart(2, ++threadId));
-        ut.handle(new StackFrame(LINE, 6));
-        ut.handle(new StackFrame(LINE, 7));
+        collector.handle(new TraceStart(2, ++threadId));
+        collector.handle(new StackFrame(LINE, 6));
+        collector.handle(new StackFrame(LINE, 7));
 
         // and continuation
-        ut.handle(new TraceStart(20, ++threadId));
+        collector.handle(new TraceStart(20, ++threadId));
 
-//        System.out.println(withoutEmpty(found));
-
-        // TODO unexpected frame '2' is just outright ignored
-        assertArrayEquals(new long[] { 1, 7 }, idOfLastMethodInEachThread(mostRecentProfile(found)));
+        assertArrayEquals(new long[] { 2, 7 }, idOfLastMethodInEachThread(mostRecentProfile(found)));
     }
 
     private long[] idOfLastMethodInEachThread(Profile profile) {

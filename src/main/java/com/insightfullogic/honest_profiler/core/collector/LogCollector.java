@@ -30,13 +30,11 @@ public class LogCollector implements EventListener {
 
     private long currentThread;
     private NodeCollector currentTreeNode;
-    private int expectedNumberOfFrames;
 
     private int traceCount;
-    private boolean logComplete;
-    private boolean continuous;
+    private boolean immediatelyEmitProfile;
 
-    public LogCollector(ProfileListener listener, boolean continuous) {
+    public LogCollector(ProfileListener listener, boolean immediatelyEmitProfile) {
         this.listener = listener;
 
         methodNames = new HashMap<>();
@@ -44,17 +42,17 @@ public class LogCollector implements EventListener {
         treesByThread = new HashMap<>();
         reversalStack = new Stack<>();
 
-        this.continuous = continuous;
+        this.immediatelyEmitProfile = immediatelyEmitProfile;
         traceCount = 0;
-        logComplete = false;
         currentTreeNode = null;
-        expectedNumberOfFrames = NOT_AWAITING;
     }
 
     @Override
     public void handle(TraceStart traceStart) {
+        collectThreadDump();
+        emitProfileIfNeeded();
         traceCount++;
-        expectedNumberOfFrames = traceStart.getNumberOfFrames();
+        // TODO: log traceStart.getNumberOfFrames();
         reversalStack.clear();
         currentThread = traceStart.getThreadId();
         currentTreeNode = null;
@@ -63,18 +61,11 @@ public class LogCollector implements EventListener {
     @Override
     public void handle(StackFrame stackFrame) {
         reversalStack.push(stackFrame);
-        if (expectedNumberOfFrames == reversalStack.size()) {
-            collectThreadDump();
-        }
     }
 
     private void collectThreadDump() {
         while (!reversalStack.empty()) {
             collectStackFrame(reversalStack.size() == 1, reversalStack.pop());
-        }
-        expectedNumberOfFrames = NOT_AWAITING;
-        if (continuous) {
-            emitProfile();
         }
     }
 
@@ -108,15 +99,19 @@ public class LogCollector implements EventListener {
     @Override
     public void handle(Method newMethod) {
         methodNames.put(newMethod.getMethodId(), newMethod);
-        if (expectedNumberOfFrames == NOT_AWAITING && continuous) {
-            emitProfile();
-        }
+        emitProfileIfNeeded();
     }
 
     @Override
     public void endOfLog() {
+        collectThreadDump();
         emitProfile();
-        logComplete = true;
+    }
+
+    private void emitProfileIfNeeded() {
+        if (traceCount > 0 && immediatelyEmitProfile) {
+            emitProfile();
+        }
     }
 
     private void emitProfile() {
@@ -146,10 +141,6 @@ public class LogCollector implements EventListener {
         double totalTimeShare = (double) callCounts.timeAppeared / traceCount;
         double selfTimeShare = (double) callCounts.timeInvokingThis / traceCount;
         return new FlatProfileEntry(method, totalTimeShare, selfTimeShare);
-    }
-
-    public boolean isLogComplete() {
-        return logComplete;
     }
 
 }
