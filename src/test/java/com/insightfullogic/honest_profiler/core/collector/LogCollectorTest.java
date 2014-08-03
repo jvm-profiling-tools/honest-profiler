@@ -5,8 +5,8 @@ import com.insightfullogic.honest_profiler.core.parser.StackFrame;
 import com.insightfullogic.honest_profiler.core.parser.TraceStart;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
@@ -16,7 +16,7 @@ public class LogCollectorTest {
 
     @Test
     public void logCollectorShouldCopeWithUnexpectedFrames() {
-        final List<Profile> found = new ArrayList<>();
+        final Deque<Profile> found = new ArrayDeque<>();
         final LogCollector collector = new LogCollector(found::add, true);
 
         for (int i = 0; i < 10; i++) {
@@ -43,14 +43,10 @@ public class LogCollectorTest {
         // and continuation
         collector.handle(new TraceStart(20, ++threadId));
 
-        assertArrayEquals(new long[] { 2, 7 }, idOfLastMethodInEachThread(mostRecentProfile(found)));
+        assertArrayEquals(new long[] { 2, 7 }, idOfLastMethodInEachThread(found.getLast()));
     }
 
     private long[] idOfLastMethodInEachThread(Profile profile) {
         return profile.getTrees().stream().mapToLong(x -> x.getRootNode().getMethod().getMethodId()).toArray();
-    }
-
-    private Profile mostRecentProfile(List<Profile> found) {
-        return found.get(found.size() - 1);
     }
 }
