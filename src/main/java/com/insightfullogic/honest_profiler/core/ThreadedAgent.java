@@ -1,16 +1,20 @@
 package com.insightfullogic.honest_profiler.core;
 
+import org.slf4j.Logger;
+
 public class ThreadedAgent implements Runnable {
 
     public static interface Block {
         public boolean run() throws Exception;
     }
 
+    private final Logger logger;
     private final Block block;
 
     private Thread thread;
 
-    public ThreadedAgent(Block block) {
+    public ThreadedAgent(final Logger logger, Block block) {
+        this.logger = logger;
         this.block = block;
     }
 
@@ -26,15 +30,15 @@ public class ThreadedAgent implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("Started");
+        logger.debug("Started");
         try {
             while (!Thread.currentThread().isInterrupted() && block.run())
                 ;
 
-            System.out.println(Thread.currentThread().getName() + " Stopped");
+            logger.debug(Thread.currentThread().getName() + " Stopped");
         } catch (Throwable throwable) {
             // Deliberately catching throwable since we're at the top of a thread
-            throwable.printStackTrace();
+            logger.error(throwable.getMessage(), throwable);
         }
     }
 

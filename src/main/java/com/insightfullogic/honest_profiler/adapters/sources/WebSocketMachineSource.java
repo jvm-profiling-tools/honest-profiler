@@ -6,6 +6,7 @@ import com.insightfullogic.honest_profiler.core.DataConsumer;
 import com.insightfullogic.honest_profiler.core.MachineListener;
 import com.insightfullogic.honest_profiler.core.ProfileListener;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
+import org.slf4j.Logger;
 import org.webbitserver.BaseWebSocketHandler;
 import org.webbitserver.WebSocketConnection;
 
@@ -15,11 +16,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class WebSocketMachineSource extends BaseWebSocketHandler {
 
+    private final Logger logger;
     private final Map<WebSocketConnection, DataConsumer> machines;
     private final Conductor conductor;
     private final MachineListener listener;
 
-    public WebSocketMachineSource(Conductor conductor, MachineListener listener) {
+    public WebSocketMachineSource(final Logger logger, final Conductor conductor, final MachineListener listener) {
+        this.logger = logger;
         this.conductor = conductor;
         this.listener = listener;
         machines = new ConcurrentHashMap<>();
@@ -62,7 +65,7 @@ public class WebSocketMachineSource extends BaseWebSocketHandler {
                 machines.put(connection, consumer);
             }
         } catch (InvalidProtocolBufferException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
     }
 

@@ -1,5 +1,7 @@
 package com.insightfullogic.honest_profiler.core.parser;
 
+import org.slf4j.Logger;
+
 import java.io.IOException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
@@ -14,11 +16,13 @@ public class LogParser {
     private static final int NEW_METHOD = 3;
 
     private final EventListener listener;
+    private final Logger logger;
 
     public static enum LogState { READ_RECORD, NOTHING_READ, END_OF_LOG }
 
-    public LogParser(EventListener listener) {
+    public LogParser(final Logger logger, final EventListener listener) {
         this.listener = listener;
+        this.logger = logger;
     }
 
     public LogState readRecord(ByteBuffer input) throws IOException {
@@ -32,7 +36,6 @@ public class LogParser {
             switch (type) {
                 case NOT_WRITTEN:
                     // back back one byte since we've just read a 0
-                    //System.out.println("retry");
                     input.position(input.position() - 1);
                     return NOTHING_READ;
                 case TRACE_START:
@@ -46,7 +49,7 @@ public class LogParser {
                     return READ_RECORD;
             }
         } catch (BufferUnderflowException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
 
         listener.endOfLog();

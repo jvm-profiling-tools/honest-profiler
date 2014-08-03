@@ -2,6 +2,7 @@ package com.insightfullogic.honest_profiler.delivery.web;
 
 import com.insightfullogic.honest_profiler.core.MachineListener;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
+import org.slf4j.LoggerFactory;
 import org.webbitserver.WebSocketConnection;
 
 import java.util.HashSet;
@@ -33,7 +34,7 @@ public class MachineAdapter implements MachineListener, Consumer<WebSocketConnec
     public ProfileAdapter onNewMachine(VirtualMachine machine) {
         machines.add(machine);
         clients.sendAll(messages.addJavaVirtualMachine(machine));
-        return new ProfileAdapter(machine, clients);
+        return new ProfileAdapter(LoggerFactory.getLogger(ProfileAdapter.class), machine, clients);
     }
 
     @Override

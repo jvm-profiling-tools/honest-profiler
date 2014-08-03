@@ -9,6 +9,7 @@ import com.insightfullogic.honest_profiler.core.ProfileListener;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.insightfullogic.lambdabehave.JunitSuiteRunner;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
 import org.webbitserver.WebSocketConnection;
 
 import java.nio.ByteBuffer;
@@ -36,6 +37,7 @@ public class WebSocketMachineSourceTest {
         Conductor conductor = mock(Conductor.class);
         MachineListener listener = mock(MachineListener.class);
         ProfileListener profileListener = mock(ProfileListener.class);
+        Logger logger = mock(Logger.class);
 
         it.shouldSetup(() -> {
             reset(connection, dataConsumer, conductor, listener);
@@ -43,7 +45,7 @@ public class WebSocketMachineSourceTest {
             when(dataConsumer.getMachine()).thenReturn(machine);
             when(listener.onNewMachine(any())).thenReturn(profileListener);
 
-            finder = new WebSocketMachineSource(conductor, listener);
+            finder = new WebSocketMachineSource(logger, conductor, listener);
         });
 
         it.should("initially know of no machines", expect -> {

@@ -7,6 +7,7 @@ import com.insightfullogic.honest_profiler.core.parser.TraceStart;
 import com.insightfullogic.honest_profiler.core.store.LogSaver;
 import com.insightfullogic.lambdabehave.JunitSuiteRunner;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
 
 import static com.insightfullogic.lambdabehave.Suite.describe;
 import static org.mockito.Mockito.*;
@@ -21,7 +22,8 @@ public class LogConsumerTest {{
         it.should("parse a basic log", expect -> {
             EventListener listener = mock(EventListener.class);
             LogSaver saver = mock(LogSaver.class);
-            LogConsumer consumer = new LogConsumer(Logs.log0(), new DataConsumer(null, saver, listener), false);
+            Logger logger = mock(Logger.class);
+            LogConsumer consumer = new LogConsumer(logger, Logs.log0(), new DataConsumer(logger, null, saver, listener), false);
 
             expect.that(consumer.run()).is(true);
             verify(listener).handle(new TraceStart(2, 5));

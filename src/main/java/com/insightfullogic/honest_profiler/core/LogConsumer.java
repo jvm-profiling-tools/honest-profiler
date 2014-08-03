@@ -1,5 +1,7 @@
 package com.insightfullogic.honest_profiler.core;
 
+import org.slf4j.Logger;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -11,13 +13,20 @@ public class LogConsumer {
 
     private static final long POLL_INTERVAL = 10;
 
+    private final Logger logger;
     private final DataConsumer consumer;
     private final boolean continuous;
 
     private RandomAccessFile input;
     private MappedByteBuffer buffer;
 
-    public LogConsumer(File file, DataConsumer consumer, boolean continuous) throws IOException {
+    public LogConsumer(
+            final Logger logger,
+            final File file,
+            final DataConsumer consumer,
+            final boolean continuous) throws IOException {
+
+        this.logger = logger;
         this.consumer = consumer;
         this.continuous = continuous;
         input = new RandomAccessFile(file, "r");
@@ -48,7 +57,7 @@ public class LogConsumer {
         try {
             Thread.sleep(POLL_INTERVAL);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
     }
 

@@ -1,6 +1,7 @@
 package com.insightfullogic.honest_profiler.core;
 
 import com.insightfullogic.honest_profiler.core.collector.Profile;
+import org.slf4j.Logger;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -8,11 +9,12 @@ public class ProfileUpdateModerator extends Thread implements ProfileListener {
 
     private static final long UI_UPDATE_WINDOW_IN_MS = 1000;
 
+    private final Logger logger;
     private final ProfileListener listener;
+    private final AtomicReference<Profile> incomingProfile = new AtomicReference<>();
 
-    private AtomicReference<Profile> incomingProfile = new AtomicReference<>();
-
-    public ProfileUpdateModerator(ProfileListener listener) {
+    public ProfileUpdateModerator(final Logger logger, final ProfileListener listener) {
+        this.logger = logger;
         this.listener = listener;
         setDaemon(true);
         setName(getClass().getSimpleName());
@@ -31,7 +33,7 @@ public class ProfileUpdateModerator extends Thread implements ProfileListener {
                 Thread.sleep(UI_UPDATE_WINDOW_IN_MS);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
     }
 

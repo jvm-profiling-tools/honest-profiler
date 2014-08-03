@@ -7,6 +7,8 @@ import com.insightfullogic.honest_profiler.core.ThreadedAgent;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.sun.tools.attach.AttachNotSupportedException;
 import com.sun.tools.attach.VirtualMachineDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -22,17 +24,19 @@ public class LocalMachineSource {
     private static final String AGENT_NAME = "liblagent.so";
     private static final String USER_DIR = "user.dir";
 
+    private final Logger logger;
     private final MachineListener listener;
     private final Conductor conductor;
     private final ThreadedAgent threadedAgent;
 
     private Set<VirtualMachineDescriptor> previous;
 
-    public LocalMachineSource(MachineListener listener, Conductor conductor) {
+    public LocalMachineSource(final Logger logger, final MachineListener listener, final Conductor conductor) {
+        this.logger = logger;
         this.listener = listener;
         this.conductor = conductor;
         previous = new HashSet<>();
-        threadedAgent = new ThreadedAgent(this::discoverVirtualMachines);
+        threadedAgent = new ThreadedAgent(LoggerFactory.getLogger(ThreadedAgent.class), this::discoverVirtualMachines);
     }
 
     @PostConstruct
@@ -64,7 +68,7 @@ public class LocalMachineSource {
                 try {
                     conductor.pipeFile(machine.getLogFile(), machine, profileListener);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    logger.error(e.getMessage(), e);
                 }
             }
         });
@@ -95,10 +99,10 @@ public class LocalMachineSource {
 
             return Stream.of(new VirtualMachine(id, displayName, agentLoaded, userDir));
         } catch (AttachNotSupportedException e) {
-            System.err.println(e.getMessage());
+            logger.warn(e.getMessage());
         } catch (IOException e) {
             if (!noSuchProcess(e)) {
-                e.printStackTrace();
+                logger.warn(e.getMessage(), e);
             }
         }
         return Stream.empty();

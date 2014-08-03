@@ -14,6 +14,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,14 +30,17 @@ public class LandingViewModel implements MachineListener {
     private Button monitor;
 
     private final ToggleGroup toggleMachines;
+    private final Logger logger;
     private final Conductor conductor;
     private final WindowViewModel windowModel;
     private final ProfileListener profileListener;
 
     public LandingViewModel(
-            Conductor conductor,
-            WindowViewModel windowModel,
-            ProfileListener profileListener) {
+            final Logger logger,
+            final Conductor conductor,
+            final WindowViewModel windowModel,
+            final ProfileListener profileListener) {
+        this.logger = logger;
         this.conductor = conductor;
         this.windowModel = windowModel;
         this.profileListener = profileListener;
@@ -60,7 +64,7 @@ public class LandingViewModel implements MachineListener {
             try {
                 conductor.consumeFile(file, null, profileListener);
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error(e.getMessage(), e);
             }
         }
     }
@@ -72,7 +76,7 @@ public class LandingViewModel implements MachineListener {
         try {
             conductor.pipeFile(logFile, null, profileListener);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
     }
 

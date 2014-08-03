@@ -2,6 +2,8 @@ package com.insightfullogic.honest_profiler.delivery.console;
 
 import com.insightfullogic.honest_profiler.adapters.store.FileLogRepo;
 import com.insightfullogic.honest_profiler.core.Conductor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,6 +12,7 @@ public class ConsoleEntry {
 
     private final Conductor conductor;
     private final ConsoleUserInterface ui;
+    private final Logger logger;
 
     public static void main(String[] args) {
         if (args.length != 1) {
@@ -17,11 +20,12 @@ public class ConsoleEntry {
             System.exit(-1);
         }
 
-        ConsoleEntry entry = new ConsoleEntry(() -> System.out);
+        ConsoleEntry entry = new ConsoleEntry(LoggerFactory.getLogger(ConsoleEntry.class), () -> System.out);
         entry.loadLogFrom(new File(args[0]));
     }
 
-    public ConsoleEntry(Console console) {
+    public ConsoleEntry(final Logger logger, final Console console) {
+        this.logger = logger;
         ui = new ConsoleUserInterface(console);
         conductor = new Conductor(new FileLogRepo());
     }
@@ -30,7 +34,7 @@ public class ConsoleEntry {
         try {
             conductor.consumeFile(file, null, ui);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
     }
 

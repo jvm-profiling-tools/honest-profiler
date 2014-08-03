@@ -8,6 +8,8 @@ import com.insightfullogic.honest_profiler.core.store.LogSaver;
 import java.io.File;
 import java.io.IOException;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 // TODO: decouple saving from parsing/processing (Possibly remove this class)
 public class Conductor {
 
@@ -22,12 +24,12 @@ public class Conductor {
     }
 
     public void pipeFile(File file, VirtualMachine machine, ProfileListener listener) throws IOException {
-        final LogConsumer logConsumer = new LogConsumer(file, pipe(machine, listener, true), true);
-        new ThreadedAgent(logConsumer::run).start();
+        final LogConsumer logConsumer = new LogConsumer(getLogger(LogConsumer.class), file, pipe(machine, listener, true), true);
+        new ThreadedAgent(getLogger(ThreadedAgent.class), logConsumer::run).start();
     }
 
     public void consumeFile(File file, VirtualMachine machine, ProfileListener listener) throws IOException {
-        LogConsumer consumer = new LogConsumer(file, pipe(machine, listener, false), false);
+        LogConsumer consumer = new LogConsumer(getLogger(LogConsumer.class), file, pipe(machine, listener, false), false);
         while (consumer.run())
             ;
     }
@@ -36,13 +38,13 @@ public class Conductor {
         LogSaver saver = logRepo.onNewLog(machine);
 
         if (continuous) {
-            ProfileUpdateModerator moderator = new ProfileUpdateModerator(listener);
+            ProfileUpdateModerator moderator = new ProfileUpdateModerator(getLogger(ProfileUpdateModerator.class), listener);
             moderator.start();
             listener = moderator;
         }
 
         LogCollector collector = new LogCollector(listener, continuous);
-        return new DataConsumer(machine, saver, collector);
+        return new DataConsumer(getLogger(DataConsumer.class), machine, saver, collector);
     }
 
 }
