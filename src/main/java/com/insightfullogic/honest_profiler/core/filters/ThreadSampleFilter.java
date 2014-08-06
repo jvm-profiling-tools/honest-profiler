@@ -2,7 +2,7 @@ package com.insightfullogic.honest_profiler.core.filters;
 
 import com.insightfullogic.honest_profiler.core.collector.Profile;
 
-public class ThreadSampleFilter implements Filter {
+final class ThreadSampleFilter implements Filter {
 
     private static final double DEFAULT_MIN_PROPORTION_OF_SAMPLES = 0.01;
 
@@ -18,13 +18,13 @@ public class ThreadSampleFilter implements Filter {
 
     @Override
     public void filter(Profile profile) {
-        final int minimumNumberOfSamples = getMinimumNumberOfSamples(profile);
+        final double minimumNumberOfSamples = getMinimumNumberOfSamples(profile);
         profile.getTrees()
                .removeIf(tree -> tree.getNumberOfSamples() < minimumNumberOfSamples);
     }
 
-    private int getMinimumNumberOfSamples(Profile profile) {
-        return (int) (profile.getTraceCount() * minProportionOfSamples);
+    private double getMinimumNumberOfSamples(Profile profile) {
+        return profile.getTraceCount() * minProportionOfSamples;
     }
 
     @Override

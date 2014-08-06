@@ -15,7 +15,7 @@
 
         <div ng-show="machine.profile" ng-repeat="tree in machine.profile.trees">
             <div ng-include="'partials/profileNode.html'"
-                 onload="node = tree.rootNode; offset = 0; width = 12">
+                 onload="node = tree.rootNodes; offset = 0; width = 12">
             </div>
         </div>
 

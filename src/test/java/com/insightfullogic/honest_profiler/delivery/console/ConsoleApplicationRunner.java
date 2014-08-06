@@ -1,6 +1,6 @@
 package com.insightfullogic.honest_profiler.delivery.console;
 
-import com.insightfullogic.honest_profiler.core.Logs;
+import com.insightfullogic.honest_profiler.core.Util;
 import org.slf4j.Logger;
 
 import static org.mockito.Mockito.mock;
@@ -17,7 +17,7 @@ public class ConsoleApplicationRunner {
     }
 
     public void loadLogFrom(String file) {
-        ui.loadLogFrom(Logs.logFile(file));
+        ui.loadLogFrom(Util.logFile(file));
     }
 
     public void displayContainsMethodOrClass(String method) {

@@ -2,8 +2,9 @@ package com.insightfullogic.honest_profiler.core.collector;
 
 public final class ProfileTree {
 
-    private final ProfileNode rootNode;
     private final int numberOfSamples;
+
+    private ProfileNode rootNode;
 
     public ProfileTree(ProfileNode rootNode, int numberOfSamples) {
         this.rootNode = rootNode;

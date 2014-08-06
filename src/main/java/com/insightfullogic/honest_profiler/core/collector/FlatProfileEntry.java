@@ -25,4 +25,31 @@ public final class FlatProfileEntry {
     public double getSelfTimeShare() {
         return selfTimeShare;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        FlatProfileEntry that = (FlatProfileEntry) o;
+
+        if (Double.compare(that.selfTimeShare, selfTimeShare) != 0) return false;
+        if (Double.compare(that.totalTimeShare, totalTimeShare) != 0) return false;
+        if (method != null ? !method.equals(that.method) : that.method != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = method != null ? method.hashCode() : 0;
+        temp = Double.doubleToLongBits(totalTimeShare);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(selfTimeShare);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
+    }
+
 }

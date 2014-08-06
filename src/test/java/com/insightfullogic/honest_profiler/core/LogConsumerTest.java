@@ -23,7 +23,7 @@ public class LogConsumerTest {{
             EventListener listener = mock(EventListener.class);
             LogSaver saver = mock(LogSaver.class);
             Logger logger = mock(Logger.class);
-            LogConsumer consumer = new LogConsumer(logger, Logs.log0(), new DataConsumer(logger, null, saver, listener), false);
+            LogConsumer consumer = new LogConsumer(logger, Util.log0(), new DataConsumer(logger, null, saver, listener), false);
 
             expect.that(consumer.run()).is(true);
             verify(listener).handle(new TraceStart(2, 5));

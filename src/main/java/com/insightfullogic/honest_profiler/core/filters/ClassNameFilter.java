@@ -19,11 +19,6 @@ final class ClassNameFilter implements Filter {
     @Override
     public void filter(Profile profile) {
         filterFlatProfile(profile);
-        filterTreeProfile(profile);
-    }
-
-    private void filterTreeProfile(Profile profile) {
-        // TODO
     }
 
     private void filterFlatProfile(Profile profile) {
