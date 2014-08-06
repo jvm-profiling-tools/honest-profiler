@@ -23,6 +23,7 @@ public class Filters {
     private Filters(String description) {
         this.description = description;
         filters = new ArrayList<>();
+        filters.add(new ThreadSampleFilter());
         offset = 0;
     }
 

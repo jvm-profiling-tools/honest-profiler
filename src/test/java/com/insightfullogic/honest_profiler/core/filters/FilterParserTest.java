@@ -13,7 +13,8 @@ public class FilterParserTest {{
     describe("filter parsing", it -> {
 
         it.should("not remove anything for empty strings", expect -> {
-            expect.that(Filters.parse("")).isEmpty();
+            expect.that(Filters.parse("")).hasSize(1)
+                                          .contains(new ThreadSampleFilter());
         });
 
         it.should("parse total time filters", expect -> {
@@ -37,9 +38,10 @@ public class FilterParserTest {{
         it.should("parse multiple filters", expect -> {
             List<Filter> filters = Filters.parse("class: foo.bar.Baz;self time > 0.543;");
 
-            expect.that(filters).contains(
+            expect.that(filters).containsInAnyOrder(
                 new ClassNameFilter("foo.bar.Baz"),
-                new SelfTimeShareFilter(0.543)
+                new SelfTimeShareFilter(0.543),
+                new ThreadSampleFilter()
             );
         });
 

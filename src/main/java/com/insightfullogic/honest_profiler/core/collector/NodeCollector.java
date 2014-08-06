@@ -16,6 +16,11 @@ public final class NodeCollector {
     private final Map<Long, NodeCollector> childrenByMethodId;
 
     private long methodId;
+
+    public int getNumberOfVisits() {
+        return visits;
+    }
+
     private int visits;
 
     public NodeCollector(long methodId) {

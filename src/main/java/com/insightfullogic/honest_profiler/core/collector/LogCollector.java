@@ -123,7 +123,7 @@ public class LogCollector implements EventListener {
 
     private List<ProfileTree> buildTreeProfile() {
         return treesByThread.values()
-                            .stream().map(node -> new ProfileTree(node.normalise(methodNames::get)))
+                            .stream().map(node -> new ProfileTree(node.normalise(methodNames::get), node.getNumberOfVisits()))
                             .collect(toList());
     }
 
