@@ -1,13 +1,13 @@
 package com.insightfullogic.honest_profiler.delivery.javafx.profile;
 
 import com.insightfullogic.honest_profiler.delivery.javafx.WindowViewModel;
-import com.insightfullogic.honest_profiler.core.parser.LogParser;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 
 import static com.insightfullogic.honest_profiler.delivery.javafx.WindowViewModel.Window.Landing;
@@ -20,6 +20,9 @@ public class ProfileViewModel {
 
     @FXML
     private StackPane content;
+
+    @FXML
+    private TextField filter;
 
     public ProfileViewModel(WindowViewModel windows) {
         this.windows = windows;
@@ -50,6 +53,9 @@ public class ProfileViewModel {
 
     public void back(ActionEvent actionEvent) {
         windows.display(Landing);
+    }
+
+    public void updateFilter(ActionEvent actionEvent) {
     }
 
 }
