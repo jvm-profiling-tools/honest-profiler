@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 public class FakeConsole implements Console {
@@ -31,6 +32,10 @@ public class FakeConsole implements Console {
 
     public void outputContains(String message) {
         assertThat(getOutput(), containsString(message));
+    }
+
+    public void outputDoesntContain(String message) {
+        assertThat(getOutput(), not(containsString(message)));
     }
 
     public String getOutput() {
