@@ -11,14 +11,12 @@ import static org.junit.Assert.assertThat;
 
 public class FakeConsole implements Console {
 
-    private final ByteArrayOutputStream buffer;
-    private final PrintStream out;
-
+    private ByteArrayOutputStream buffer;
+    private PrintStream out;
     private String output;
 
     public FakeConsole() {
-        buffer = new ByteArrayOutputStream();
-        out = new PrintStream(buffer);
+        clear();
     }
 
     @Override
@@ -52,4 +50,9 @@ public class FakeConsole implements Console {
         outputContains(method.getMethodName());
     }
 
+    public void clear() {
+        buffer = new ByteArrayOutputStream();
+        out = new PrintStream(buffer);
+        output = null;
+    }
 }

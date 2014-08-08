@@ -21,10 +21,14 @@ public class Filters {
     }
 
     private Filters(String description) {
-        this.description = description;
         filters = new ArrayList<>();
         filters.add(new ThreadSampleFilter());
         offset = 0;
+
+        if (!description.isEmpty() && description.charAt(description.length() -1) != ';') {
+            description = description + ';';
+        }
+        this.description = description;
     }
 
     private List<Filter> parse() {
@@ -33,7 +37,7 @@ public class Filters {
                || parseByPrefix(SELF_TIME, withNumber(SelfTimeShareFilter::new))
                || parseByPrefix(CLASS_NAME, this::byClassName))) {
 
-                throw new ParseException("Unable to parse: " + remainingDescription());
+                throw new FilterParseException("Unable to parse: " + remainingDescription());
             }
         }
         return filters;
@@ -56,7 +60,7 @@ public class Filters {
         int endOfPrefix = offset + prefix.length();
         int valueIndex = description.indexOf(';', endOfPrefix);
         if (valueIndex == -1) {
-            throw new ParseException("Unable to parse: " + remainingDescription() + " was expecting ';'");
+            throw new FilterParseException("Unable to parse: " + remainingDescription() + " was expecting ';'");
         }
         String value = description.substring(endOfPrefix, valueIndex);
         offset = valueIndex + 1;
@@ -70,7 +74,7 @@ public class Filters {
                 filters.add(factory.apply(minShare));
                 return true;
             } catch (NumberFormatException e) {
-                throw new ParseException(e);
+                throw new FilterParseException(e);
             }
         };
     }

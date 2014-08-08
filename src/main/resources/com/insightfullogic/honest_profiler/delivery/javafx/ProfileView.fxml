@@ -12,7 +12,7 @@
                 <Button fx:id="flipView" mnemonicParsing="false" onAction="#flipView" text="Flat View"/>
                 <Button mnemonicParsing="false" onAction="#quit" text="Quit"/>
                 <fx:include source="TraceCountView.fxml"/>
-                <TextField fx:id="filter"/>
+                <TextField fx:id="filterView"/>
                 <Button fx:id="updateFilter" defaultButton="true" mnemonicParsing="false" onAction="#updateFilter" text="Update"/>
             </items>
         </ToolBar>

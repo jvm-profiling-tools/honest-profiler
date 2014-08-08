@@ -46,13 +46,13 @@ public class FilterParserTest {{
         });
 
         it.should("validate time filters", expect -> {
-            expect.exception(ParseException.class, () -> {
+            expect.exception(FilterParseException.class, () -> {
                 Filters.parse("self time > 1.543;");
             });
         });
 
         it.should("throw an exception when the input is nonsense", expect -> {
-            expect.exception(ParseException.class, () -> {
+            expect.exception(FilterParseException.class, () -> {
                 Filters.parse("self dasdasds");
             });
         });

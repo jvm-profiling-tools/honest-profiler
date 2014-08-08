@@ -4,6 +4,7 @@ import com.insightfullogic.honest_profiler.adapters.LoggerInjector;
 import com.insightfullogic.honest_profiler.adapters.sources.LocalMachineSource;
 import com.insightfullogic.honest_profiler.adapters.store.FileLogRepo;
 import com.insightfullogic.honest_profiler.core.Conductor;
+import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
 import com.insightfullogic.honest_profiler.delivery.javafx.landing.LandingViewModel;
 import com.insightfullogic.honest_profiler.delivery.javafx.profile.*;
 import javafx.application.Application;
@@ -45,19 +46,26 @@ public class JavaFXEntry extends Application {
             .withCaching()
             .build()
 
-            .addAdapter(new ProfileListenerProvider())
             .addAdapter(new LoggerInjector())
+            .addAdapter(new ProfileListenerProvider())
 
+            // Infrastructure
+            .addComponent(LocalMachineSource.class)
+
+            // Core
             .addComponent(FileLogRepo.class)
             .addComponent(Conductor.class)
+            .addComponent(ProfileFilter.class)
+
+            // Delivery
+            .addComponent(CachingProfileListener.class)
             .addComponent(FlatViewModel.class)
             .addComponent(TreeViewModel.class)
             .addComponent(TraceCountViewModel.class)
             .addComponent(ProfileViewModel.class)
             .addComponent(LandingViewModel.class)
             .addComponent(WindowViewModel.class)
-            .addComponent(PicoFXLoader.class)
-            .addComponent(LocalMachineSource.class);
+            .addComponent(PicoFXLoader.class);
 
         return pico.addComponent(pico);
     }

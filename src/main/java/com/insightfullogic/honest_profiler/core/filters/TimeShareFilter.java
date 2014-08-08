@@ -10,7 +10,7 @@ abstract class TimeShareFilter implements Filter {
 
     TimeShareFilter(final double minShare) {
         if (minShare > 1.0) {
-            throw new ParseException("Time share must be between 0.0 and 1.0, but is " + minShare);
+            throw new FilterParseException("Time share must be between 0.0 and 1.0, but is " + minShare);
         }
         this.minShare = minShare;
     }

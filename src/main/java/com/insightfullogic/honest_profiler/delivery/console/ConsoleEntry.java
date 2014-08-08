@@ -2,6 +2,8 @@ package com.insightfullogic.honest_profiler.delivery.console;
 
 import com.insightfullogic.honest_profiler.adapters.store.FileLogRepo;
 import com.insightfullogic.honest_profiler.core.Conductor;
+import com.insightfullogic.honest_profiler.core.ProfileListener;
+import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
@@ -18,7 +20,7 @@ public class ConsoleEntry {
     private final Logger logger;
 
     private File logLocation;
-    private String filter;
+    private String filterDescription;
 
     public static void main(String[] args) {
         ConsoleEntry entry = new ConsoleEntry(LoggerFactory.getLogger(ConsoleEntry.class), () -> System.out);
@@ -49,13 +51,24 @@ public class ConsoleEntry {
     }
 
     @Option(name = "-filter", usage = "set the filter to apply to commandline output")
-    public void setFilter(String filter) {
-        this.filter = filter;
+    public void setFilterDescription(String filterDescription) {
+        this.filterDescription = filterDescription;
     }
 
     public void run() {
         try {
-            conductor.consumeFile(logLocation, null, ui);
+            ProfileListener listener = ui;
+
+            if (filterDescription != null) {
+                ProfileFilter filter = new ProfileFilter();
+                filter.updateFilters(filterDescription);
+                listener = profile -> {
+                    filter.accept(profile);
+                    ui.accept(profile);
+                };
+            }
+
+            conductor.consumeFile(logLocation, null, listener);
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }

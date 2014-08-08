@@ -15,13 +15,15 @@ public class ConsoleEndToEndTest {{
 
         FakeConsole console = new FakeConsole();
         Logger logger = mock(Logger.class);
-        ConsoleEntry ui = new ConsoleEntry(logger, console);
+        ConsoleEntry profiler = new ConsoleEntry(logger, console);
+
+        it.shouldSetup(console::clear);
 
         it.should("display a profile which is loaded into it", expect -> {
 
             when:
-            ui.setLogLocation(Util.logFile("log0.hpl"));
-            ui.run();
+            profiler.setLogLocation(Util.log0());
+            profiler.run();
 
             then:
             console.outputContains("PrintStream.printf");
@@ -29,6 +31,16 @@ public class ConsoleEndToEndTest {{
 
             console.outputContains("PrintStream.append");
             console.outputContains("1.00");
+        });
+
+        it.should("not display filtered out profile entries", expect -> {
+            when:
+            profiler.setLogLocation(Util.log0());
+            profiler.setFilterDescription("class: foo;");
+            profiler.run();
+
+            then:
+            console.outputDoesntContain("Flat Profile:\n\t1.00 java.io.PrintStream.printf");
         });
 
     });

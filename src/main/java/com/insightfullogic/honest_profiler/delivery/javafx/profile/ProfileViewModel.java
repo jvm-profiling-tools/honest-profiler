@@ -1,5 +1,7 @@
 package com.insightfullogic.honest_profiler.delivery.javafx.profile;
 
+import com.insightfullogic.honest_profiler.core.filters.FilterParseException;
+import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
 import com.insightfullogic.honest_profiler.delivery.javafx.WindowViewModel;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -15,6 +17,8 @@ import static com.insightfullogic.honest_profiler.delivery.javafx.WindowViewMode
 public class ProfileViewModel {
 
     private final WindowViewModel windows;
+    private final ProfileFilter profileFilter;
+    private final CachingProfileListener profileListener;
 
     private boolean flatView;
 
@@ -22,10 +26,13 @@ public class ProfileViewModel {
     private StackPane content;
 
     @FXML
-    private TextField filter;
+    private TextField filterView;
 
-    public ProfileViewModel(WindowViewModel windows) {
+    public ProfileViewModel(WindowViewModel windows, ProfileFilter profileFilter, CachingProfileListener profileListener) {
         this.windows = windows;
+        this.profileFilter = profileFilter;
+        this.profileListener = profileListener;
+
         flatView = false;
     }
 
@@ -56,6 +63,12 @@ public class ProfileViewModel {
     }
 
     public void updateFilter(ActionEvent actionEvent) {
+        try {
+            profileFilter.updateFilters(filterView.getText());
+        } catch (FilterParseException e) {
+            e.printStackTrace();
+        }
+        profileListener.reflushLastProfile();
     }
 
 }
