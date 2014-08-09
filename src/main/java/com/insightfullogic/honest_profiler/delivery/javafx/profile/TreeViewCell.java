@@ -50,6 +50,7 @@ public class TreeViewCell extends TreeCell<ProfileNode> {
             switch (adapter.getType()) {
                 case THREAD:
                     setText("Thread " + adapter.getThreadId());
+                    setGraphic(null);
                     return;
                 case METHOD:
                     renderMethodNode(profileNode, empty);
