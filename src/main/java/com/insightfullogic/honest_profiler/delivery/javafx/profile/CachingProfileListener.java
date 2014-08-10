@@ -37,9 +37,13 @@ public class CachingProfileListener implements ProfileListener {
 
         // All UI updates must go through here.
         onFxThread(() -> {
-            flatModel.accept(profile);
-            treeModel.accept(profile);
-            countModel.accept(profile);
+            try {
+                flatModel.accept(profile);
+                treeModel.accept(profile);
+                countModel.accept(profile);
+            } catch (Throwable t) {
+                logger.error(t.getMessage(), t);
+            }
         });
     }
 
@@ -52,14 +56,10 @@ public class CachingProfileListener implements ProfileListener {
     // ViewModel instances can happily update the UI
     // without worrying about threading implications
     private void onFxThread(final Runnable block) {
-        try {
-            if (Platform.isFxApplicationThread()) {
-                block.run();
-            } else {
-                Platform.runLater(block);
-            }
-        } catch (Throwable t) {
-            logger.error(t.getMessage(), t);
+        if (Platform.isFxApplicationThread()) {
+            block.run();
+        } else {
+            Platform.runLater(block);
         }
     }
 
