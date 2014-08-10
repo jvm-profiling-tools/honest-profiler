@@ -1,7 +1,6 @@
 package com.insightfullogic.honest_profiler.delivery.javafx.profile;
 
 import com.insightfullogic.honest_profiler.core.collector.ProfileNode;
-import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.TreeCell;
@@ -38,6 +37,9 @@ public class TreeViewCell extends TreeCell<ProfileNode> {
         return i == -1;
     }
 
+    /**
+     * Not threadsafe: must be run on JavaFx thread.
+     */
     @Override
     protected void updateItem(ProfileNode profileNode, boolean empty) {
         super.updateItem(profileNode, empty);
@@ -46,18 +48,15 @@ public class TreeViewCell extends TreeCell<ProfileNode> {
         if (adapter == null)
             return;
 
-        Platform.runLater(() -> {
-            switch (adapter.getType()) {
-                case THREAD:
-                    setText("Thread " + adapter.getThreadId());
-                    setGraphic(null);
-                    return;
-                case METHOD:
-                    renderMethodNode(profileNode, empty);
-                    return;
-            }
-        });
-
+        switch (adapter.getType()) {
+            case THREAD:
+                setText("Thread " + adapter.getThreadId());
+                setGraphic(null);
+                return;
+            case METHOD:
+                renderMethodNode(profileNode, empty);
+                return;
+        }
     }
 
     private void renderMethodNode(ProfileNode profileNode, boolean empty) {

@@ -27,9 +27,12 @@ public class CachingProfileListener implements ProfileListener {
 
         profileFilter.accept(profile);
 
-        flatModel.accept(profile);
-        treeModel.accept(profile);
-        countModel.accept(profile);
+        // All UI updates must go through here.
+        onFxThread(() -> {
+            flatModel.accept(profile);
+            treeModel.accept(profile);
+            countModel.accept(profile);
+        });
     }
 
     public void reflushLastProfile() {

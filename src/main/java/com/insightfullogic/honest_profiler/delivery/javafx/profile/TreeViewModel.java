@@ -4,7 +4,6 @@ import com.insightfullogic.honest_profiler.core.ProfileListener;
 import com.insightfullogic.honest_profiler.core.collector.Profile;
 import com.insightfullogic.honest_profiler.core.collector.ProfileNode;
 import com.insightfullogic.honest_profiler.core.collector.ProfileTree;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.TreeView;
 
@@ -24,7 +23,7 @@ public class TreeViewModel implements ProfileListener {
     @Override
     public void accept(Profile profile) {
         List<ProfileTree> trees = profile.getTrees();
-        Platform.runLater(() -> treeView.setRoot(new TreeNodeAdapter(trees)));
+        treeView.setRoot(new TreeNodeAdapter(trees));
     }
 
 }
