@@ -4,10 +4,13 @@ import com.insightfullogic.honest_profiler.core.collector.ProfileNode;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.TreeCell;
+import javafx.scene.control.TreeItem;
 import javafx.scene.paint.Color;
 
 import static com.insightfullogic.honest_profiler.delivery.javafx.Rendering.renderMethod;
 import static com.insightfullogic.honest_profiler.delivery.javafx.Rendering.renderTimeShare;
+import static com.insightfullogic.honest_profiler.delivery.javafx.profile.TreeViewModel.MethodNodeAdapter;
+import static com.insightfullogic.honest_profiler.delivery.javafx.profile.TreeViewModel.ThreadNodeAdapter;
 import static javafx.scene.paint.Color.RED;
 import static javafx.scene.paint.Color.WHEAT;
 
@@ -18,25 +21,6 @@ public class TreeViewCell extends TreeCell<ProfileNode> {
 
     private static final int TEXT_HORIZONTAL_INSET = 10;
     private static final int TEXT_VERTICAL_INSET = 12;
-
-    // Hack, couldn't see a better way in Javafx
-    @Override
-    public void updateIndex(int i) {
-        if (removedFromView(i)) {
-            hide();
-        }
-        super.updateIndex(i);
-    }
-
-    private void hide() {
-        setText(null);
-        setGraphic(null);
-    }
-
-    private boolean removedFromView(int i) {
-        return i == -1;
-    }
-
     /**
      * Not threadsafe: must be run on JavaFx thread.
      */
@@ -44,18 +28,14 @@ public class TreeViewCell extends TreeCell<ProfileNode> {
     protected void updateItem(ProfileNode profileNode, boolean empty) {
         super.updateItem(profileNode, empty);
 
-        TreeNodeAdapter adapter = (TreeNodeAdapter) getTreeItem();
-        if (adapter == null)
-            return;
+        TreeItem<ProfileNode> treeItem = getTreeItem();
 
-        switch (adapter.getType()) {
-            case THREAD:
-                setText("Thread " + adapter.getThreadId());
-                setGraphic(null);
-                return;
-            case METHOD:
-                renderMethodNode(profileNode, empty);
-                return;
+        if (treeItem instanceof ThreadNodeAdapter) {
+            ThreadNodeAdapter adapter = (ThreadNodeAdapter) treeItem;
+            setText("Thread " + adapter.getThreadId());
+            setGraphic(null);
+        } else if (treeItem instanceof MethodNodeAdapter) {
+            renderMethodNode(profileNode, empty);
         }
     }
 

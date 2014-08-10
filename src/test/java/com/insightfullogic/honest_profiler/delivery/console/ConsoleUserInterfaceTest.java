@@ -29,7 +29,7 @@ public class ConsoleUserInterfaceTest {
     }
 
     private List<ProfileTree> toTrees(ProfileNode root) {
-        return asList(new ProfileTree(root, 1));
+        return asList(new ProfileTree(0L, root, 1));
     }
 
     @Test

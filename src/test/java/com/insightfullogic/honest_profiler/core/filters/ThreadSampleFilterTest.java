@@ -16,7 +16,7 @@ public class ThreadSampleFilterTest {{
         ThreadSampleFilter filter = new ThreadSampleFilter();
 
         it.should("not remove trees with as many samples as sampled in total", expect -> {
-            ProfileTree tree = new ProfileTree(null, 100);
+            ProfileTree tree = new ProfileTree(0L, null, 100);
             Profile profile = new Profile(100, null, list(tree));
             filter.filter(profile);
 
@@ -24,7 +24,7 @@ public class ThreadSampleFilterTest {{
         });
 
         it.should("remove trees with very few samples", expect -> {
-            ProfileTree tree = new ProfileTree(null, 1);
+            ProfileTree tree = new ProfileTree(0L, null, 1);
             Profile profile = new Profile(150, null, list(tree));
             filter.filter(profile);
 

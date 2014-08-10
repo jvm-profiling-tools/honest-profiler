@@ -3,10 +3,11 @@ package com.insightfullogic.honest_profiler.core.collector;
 public final class ProfileTree {
 
     private final int numberOfSamples;
+    private final long threadId;
+    private final ProfileNode rootNode;
 
-    private ProfileNode rootNode;
-
-    public ProfileTree(ProfileNode rootNode, int numberOfSamples) {
+    public ProfileTree(long threadId, ProfileNode rootNode, int numberOfSamples) {
+        this.threadId = threadId;
         this.rootNode = rootNode;
         this.numberOfSamples = numberOfSamples;
     }
@@ -19,11 +20,14 @@ public final class ProfileTree {
         return rootNode;
     }
 
+    public long getThreadId() {
+        return threadId;
+    }
+
     @Override
     public String toString() {
         return "ProfileTree{" +
                 rootNode +
                 '}';
     }
-
 }

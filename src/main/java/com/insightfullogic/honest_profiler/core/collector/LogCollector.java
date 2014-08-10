@@ -122,8 +122,12 @@ public class LogCollector implements EventListener {
     }
 
     private List<ProfileTree> buildTreeProfile() {
-        return treesByThread.values()
-                            .stream().map(node -> new ProfileTree(node.normalise(methodNames::get), node.getNumberOfVisits()))
+        return treesByThread.entrySet()
+                            .stream().map(node -> {
+                                final Long threadId = node.getKey();
+                                final NodeCollector collector = node.getValue();
+                                return new ProfileTree(threadId, collector.normalise(methodNames::get), collector.getNumberOfVisits());
+                            })
                             .collect(toList());
     }
 

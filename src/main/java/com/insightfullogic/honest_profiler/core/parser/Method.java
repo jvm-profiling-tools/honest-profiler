@@ -51,16 +51,12 @@ public final class Method implements LogEvent {
         if (o == null || getClass() != o.getClass()) return false;
 
         Method method = (Method) o;
-
-        return Objects.equals(methodId, method.methodId)
-            && Objects.equals(className, method.className)
-            && Objects.equals(fileName, method.fileName)
-            && Objects.equals(methodName, method.methodName);
+        return methodId == method.methodId;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(methodId, fileName, className, methodName);
+        return Objects.hash(methodId);
     }
 
     @Override
