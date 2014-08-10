@@ -4,6 +4,7 @@ import com.insightfullogic.honest_profiler.core.ProfileListener;
 import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
 import com.insightfullogic.honest_profiler.core.collector.Profile;
 import com.insightfullogic.honest_profiler.delivery.javafx.Rendering;
+import com.insightfullogic.honest_profiler.delivery.javafx.TimeShareTableCell;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -38,7 +39,7 @@ public class FlatViewModel implements ProfileListener {
 
     private void configureTimeShareColumn(TableColumn<FlatProfileEntry, Double> column, String propertyName) {
         column.setCellValueFactory(new PropertyValueFactory(propertyName));
-        column.setCellFactory(Rendering::getTimeShareCellFactory);
+        column.setCellFactory(col -> new TimeShareTableCell());
     }
 
     public FlatViewModel() {
