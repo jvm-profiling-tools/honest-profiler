@@ -4,9 +4,11 @@ import com.insightfullogic.honest_profiler.core.ProfileListener;
 import com.insightfullogic.honest_profiler.core.collector.Profile;
 import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
 import javafx.application.Platform;
+import org.slf4j.Logger;
 
 public class CachingProfileListener implements ProfileListener {
 
+    private final Logger logger;
     private final FlatViewModel flatModel;
     private final TreeViewModel treeModel;
     private final TraceCountViewModel countModel;
@@ -14,7 +16,13 @@ public class CachingProfileListener implements ProfileListener {
 
     private Profile lastProfile;
 
-    public CachingProfileListener(FlatViewModel flatModel, TreeViewModel treeModel, TraceCountViewModel countModel, ProfileFilter profileFilter) {
+    public CachingProfileListener(
+            final Logger logger,
+            final FlatViewModel flatModel,
+            final TreeViewModel treeModel,
+            final TraceCountViewModel countModel,
+            final ProfileFilter profileFilter) {
+        this.logger = logger;
         this.flatModel = flatModel;
         this.treeModel = treeModel;
         this.countModel = countModel;
@@ -44,10 +52,14 @@ public class CachingProfileListener implements ProfileListener {
     // ViewModel instances can happily update the UI
     // without worrying about threading implications
     private void onFxThread(final Runnable block) {
-        if (Platform.isFxApplicationThread()) {
-            block.run();
-        } else {
-            Platform.runLater(block);
+        try {
+            if (Platform.isFxApplicationThread()) {
+                block.run();
+            } else {
+                Platform.runLater(block);
+            }
+        } catch (Throwable t) {
+            logger.error(t.getMessage(), t);
         }
     }
 
