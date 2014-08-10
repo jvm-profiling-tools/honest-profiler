@@ -82,13 +82,21 @@ public class TreeViewModel implements ProfileListener {
 
         private final Map<Long, MethodNodeAdapter> childrenByMethodId;
 
+        private boolean firstUpdate;
+
         public MethodNodeAdapter() {
             childrenByMethodId = new HashMap<>();
+            firstUpdate = true;
         }
 
         public void update(ProfileNode profileNode) {
             setValue(profileNode);
-            
+            if (firstUpdate && getParent().isExpanded()) {
+                firstUpdate = false;
+                double timeShare = profileNode.getTotalTimeShare();
+                setExpanded(timeShare >= TIMESHARE_EXPAND_FACTOR);
+            }
+
             ObservableList<TreeItem<ProfileNode>> children = getChildren();
             profileNode.getChildren().forEach(child -> {
                 long methodId = child.getMethod().getMethodId();
