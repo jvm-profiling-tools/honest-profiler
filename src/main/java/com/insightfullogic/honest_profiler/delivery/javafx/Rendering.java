@@ -4,6 +4,8 @@ import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
 import com.insightfullogic.honest_profiler.core.parser.Method;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
 
 import java.text.MessageFormat;
 
@@ -11,19 +13,17 @@ import static javafx.scene.control.TableColumn.CellDataFeatures;
 
 public class Rendering {
 
-    public static SimpleObjectProperty<String> totalTimeShare(CellDataFeatures<FlatProfileEntry, String> features) {
-        double timeShare = features.getValue().getTotalTimeShare();
-        return formatTimeShare(timeShare);
-    }
-
-    public static SimpleObjectProperty<String> selfTimeShare(CellDataFeatures<FlatProfileEntry, String> features) {
-        double timeShare = features.getValue().getSelfTimeShare();
-        return formatTimeShare(timeShare);
-    }
-
-    private static SimpleObjectProperty<String> formatTimeShare(double timeShare) {
-        String formattedTimeShare = renderTimeShare(timeShare);
-        return new ReadOnlyObjectWrapper<>(formattedTimeShare);
+    public static TableCell<FlatProfileEntry, Double> getTimeShareCellFactory(TableColumn<FlatProfileEntry, Double> flatProfileEntryDoubleTableColumn) {
+        return new TableCell<FlatProfileEntry, Double>() {
+            @Override
+            protected void updateItem(Double item, boolean empty) {
+                if (item == null) {
+                    setText("");
+                } else {
+                    setText(renderTimeShare(item));
+                }
+            }
+        };
     }
 
     public static String renderTimeShare(double timeShare) {
