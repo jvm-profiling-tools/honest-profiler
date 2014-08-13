@@ -140,14 +140,8 @@ public:
 
   template <class FunctionType>
   static inline FunctionType GetJvmFunction(const char *function_name) {
-    // get handle to library
-    static void *handle = dlopen("libjvm.so", RTLD_LAZY);
-    if (handle == NULL) {
-      return NULL;
-    }
-
     // get address of function, return null if not found
-    return bit_cast<FunctionType>(dlsym(handle, function_name));
+    return bit_cast<FunctionType>(dlsym(RTLD_DEFAULT, function_name));
   }
 
 private:
