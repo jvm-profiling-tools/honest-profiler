@@ -1,16 +1,17 @@
 package com.insightfullogic.honest_profiler.delivery.console;
 
-import com.insightfullogic.honest_profiler.core.collector.Profile;
 import com.insightfullogic.honest_profiler.core.ProfileListener;
-import com.insightfullogic.honest_profiler.core.collector.ProfileNode;
-import com.insightfullogic.honest_profiler.core.parser.Method;
+import com.insightfullogic.honest_profiler.core.collector.Profile;
 
 import java.io.PrintStream;
-import java.util.stream.IntStream;
+
+import static com.insightfullogic.honest_profiler.delivery.console.ProfileFormat.BOTH;
 
 public class ConsoleUserInterface implements ProfileListener {
 
     private final Console console;
+
+    private ProfileFormat profileFormat = BOTH;
 
     public ConsoleUserInterface(Console console) {
         this.console = console;
@@ -20,10 +21,9 @@ public class ConsoleUserInterface implements ProfileListener {
     public void accept(Profile profile) {
         PrintStream out = console.stream();
         printHeader(profile, out);
-        System.out.println();
-        printFlatProfile(profile, out);
-        printTreeProfile(profile);
-        System.out.println();
+        out.println();
+        profileFormat.printProfile(profile, out);
+        out.println();
     }
 
     private void printHeader(Profile profile, PrintStream out) {
@@ -31,35 +31,8 @@ public class ConsoleUserInterface implements ProfileListener {
         out.print(Integer.toString(profile.getTraceCount()));
     }
 
-    private void printFlatProfile(Profile profile, PrintStream out) {
-        out.append("\n\nFlat Profile:");
-        profile.flatProfile().forEach(entry -> {
-            Method method = entry.getMethod();
-            double timeShare = entry.getTotalTimeShare();
-            out.print("\n\t");
-            printMethod(method, timeShare);
-        });
-    }
-
-    private void printMethod(Method method, double timeShare) {
-        if (method != null)
-            console.stream().printf("%.2f %s.%s", timeShare, method.getClassName(), method.getMethodName());
-    }
-
-    private void printTreeProfile(Profile profile) {
-        console.stream().print("\n\nTree Profile:");
-        profile.getTrees().forEach(tree -> printNode(tree.getRootNode(), 1));
-    }
-
-    private void printNode(ProfileNode node, int depth) {
-        PrintStream out = console.stream();
-        out.print('\n');
-
-        IntStream.range(0, depth).forEach(i -> out.print("  "));
-        printMethod(node.getMethod(), node.getTotalTimeShare());
-
-        int childDepth = depth + 1;
-        node.children().forEach(child -> printNode(child, childDepth));
+    public void setProfileFormat(ProfileFormat profileFormat) {
+        this.profileFormat = profileFormat;
     }
 
 }

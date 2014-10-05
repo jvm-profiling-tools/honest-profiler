@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 
+import static com.insightfullogic.honest_profiler.delivery.console.ProfileFormat.BOTH;
+
 public class ConsoleEntry {
 
     private final Conductor conductor;
@@ -55,6 +57,15 @@ public class ConsoleEntry {
     @Option(name = "-filter", usage = "set the filter to apply to commandline output")
     public void setFilterDescription(String filterDescription) {
         this.filterDescription = filterDescription;
+    }
+
+    @Option(name = "-format", usage = "set the output format, either 'flat' or 'tree'")
+    public void setProfileFormat(String profileFormat) {
+        ProfileFormat format = ProfileFormat.valueOf(profileFormat.toUpperCase());
+        if (format == null) {
+            throw new IllegalArgumentException("Invalid argument: " + profileFormat);
+        }
+        ui.setProfileFormat(format);
     }
 
     public void run() {

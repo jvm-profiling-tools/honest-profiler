@@ -17,8 +17,11 @@ public class ConsoleEndToEndTest {{
         FakeConsole error = new FakeConsole();
         ConsoleEntry profiler = new ConsoleEntry(error, output);
 
-        it.isSetupWith(output::clear);
-        it.isSetupWith(error::clear);
+        it.isSetupWith(() -> {
+            output.clear();
+            error.clear();
+            profiler.setProfileFormat("both");
+        });
 
         it.should("display a profile which is loaded into it", expect -> {
 
@@ -38,19 +41,45 @@ public class ConsoleEndToEndTest {{
         });
 
         it.should("not display filtered out profile entries", expect -> {
+
             when:
             profiler.setLogLocation(Util.log0());
             profiler.setFilterDescription("class: foo;");
             profiler.run();
 
             then:
-            output.outputDoesntContain("Flat Profile:\n\t1.00 java.io.PrintStream.printf");
+            output.outputDoesntContain("Flat Profile:\n  1.00 java.io.PrintStream.printf");
 
             output.outputContains("Printing Profile for:");
             output.outputContains("log0.hpl");
         });
 
+        it.should("only display the tree profile when tree is selected", expect -> {
+
+            when:
+            profiler.setLogLocation(Util.log0());
+            profiler.setProfileFormat("tree");
+            profiler.run();
+
+            then:
+            output.outputDoesntContain("Flat Profile");
+            output.outputContains("Tree Profile");
+        });
+
+        it.should("only display the flat profile when flat is selected", expect -> {
+
+            when:
+            profiler.setLogLocation(Util.log0());
+            profiler.setProfileFormat("flat");
+            profiler.run();
+
+            then:
+            output.outputDoesntContain("Tree Profile");
+            output.outputContains("Flat Profile");
+        });
+
         it.should("display an error when the file doesn't exist", expect -> {
+
             when:
             profiler.setLogLocation("sadsadsa");
             profiler.run();
