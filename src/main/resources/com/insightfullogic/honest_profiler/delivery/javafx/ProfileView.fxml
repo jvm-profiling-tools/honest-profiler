@@ -9,7 +9,7 @@
         <ToolBar prefWidth="200.0">
             <items>
                 <Button fx:id="open" defaultButton="true" mnemonicParsing="false" onAction="#back" text="Back"/>
-                <Button fx:id="flipView" mnemonicParsing="false" onAction="#flipView" text="Flat View"/>
+                <Button fx:id="flipView" mnemonicParsing="false" onAction="#flipView" text="Tree View"/>
                 <Button mnemonicParsing="false" onAction="#quit" text="Quit"/>
                 <fx:include source="TraceCountView.fxml"/>
                 <TextField fx:id="filterView"/>
@@ -18,8 +18,8 @@
         </ToolBar>
         <StackPane fx:id="content" prefHeight="9999" prefWidth="200.0">
             <children>
-                <fx:include source="FlatProfileView.fxml"/>
                 <fx:include source="TreeProfileView.fxml"/>
+                <fx:include source="FlatProfileView.fxml"/>
             </children>
         </StackPane>
     </children>

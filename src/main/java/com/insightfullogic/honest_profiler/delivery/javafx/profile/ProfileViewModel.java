@@ -54,7 +54,7 @@ public class ProfileViewModel {
         this.profileFilter = profileFilter;
         this.profileListener = profileListener;
 
-        flatView = false;
+        flatView = true;
     }
 
     public void quit(ActionEvent event) {
