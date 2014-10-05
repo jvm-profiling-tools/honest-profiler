@@ -7,13 +7,9 @@ import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-
-import static com.insightfullogic.honest_profiler.delivery.console.ProfileFormat.BOTH;
 
 public class ConsoleEntry {
 

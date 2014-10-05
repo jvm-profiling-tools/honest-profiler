@@ -3,10 +3,8 @@ package com.insightfullogic.honest_profiler.delivery.console;
 import com.insightfullogic.honest_profiler.core.Util;
 import com.insightfullogic.lambdabehave.JunitSuiteRunner;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
 
 import static com.insightfullogic.lambdabehave.Suite.describe;
-import static org.mockito.Mockito.mock;
 
 @RunWith(JunitSuiteRunner.class)
 public class ConsoleEndToEndTest {{

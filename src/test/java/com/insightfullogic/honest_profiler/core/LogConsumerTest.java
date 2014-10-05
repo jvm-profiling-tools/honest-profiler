@@ -10,7 +10,8 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 
 import static com.insightfullogic.lambdabehave.Suite.describe;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 @RunWith(JunitSuiteRunner.class)
 public class LogConsumerTest {{

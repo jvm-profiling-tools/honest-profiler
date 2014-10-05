@@ -1,8 +1,8 @@
 package com.insightfullogic.honest_profiler.delivery.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.insightfullogic.honest_profiler.core.collector.Profile;
 import com.insightfullogic.honest_profiler.core.ProfileListener;
+import com.insightfullogic.honest_profiler.core.collector.Profile;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import org.slf4j.Logger;
 
