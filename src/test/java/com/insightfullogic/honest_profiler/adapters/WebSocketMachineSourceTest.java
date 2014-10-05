@@ -39,7 +39,7 @@ public class WebSocketMachineSourceTest {
         ProfileListener profileListener = mock(ProfileListener.class);
         Logger logger = mock(Logger.class);
 
-        it.shouldSetup(() -> {
+        it.isSetupWith(() -> {
             reset(connection, dataConsumer, conductor, listener);
             when(conductor.pipeData(any(), any())).thenReturn(dataConsumer);
             when(dataConsumer.getMachine()).thenReturn(machine);

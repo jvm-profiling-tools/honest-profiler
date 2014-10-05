@@ -17,8 +17,8 @@ public class ConsoleEndToEndTest {{
         FakeConsole error = new FakeConsole();
         ConsoleEntry profiler = new ConsoleEntry(error, output);
 
-        it.shouldSetup(output::clear);
-        it.shouldSetup(error::clear);
+        it.isSetupWith(output::clear);
+        it.isSetupWith(error::clear);
 
         it.should("display a profile which is loaded into it", expect -> {
 

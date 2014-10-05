@@ -17,7 +17,7 @@ public class VirtualMachineAdapterTest {
 
     { describe("The Java Virtual Machine Adapter", it -> {
 
-        it.shouldSetup(() -> {
+        it.isSetupWith(() -> {
             clients = Mockito.mock(ClientConnections.class);
             adapter = new MachineAdapter(clients, new MessageEncoder());
         });
