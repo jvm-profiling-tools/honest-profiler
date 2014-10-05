@@ -22,31 +22,38 @@
 package com.insightfullogic.honest_profiler.delivery.javafx;
 
 import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
-import com.insightfullogic.honest_profiler.core.parser.Method;
-import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.TableCell;
+import javafx.scene.paint.Color;
 
-import java.text.MessageFormat;
+import static javafx.scene.paint.Color.DARKRED;
+import static javafx.scene.paint.Color.RED;
 
-import static javafx.scene.control.TableColumn.CellDataFeatures;
+public class GraphicalShareTableCell extends TableCell<FlatProfileEntry, Double> {
 
-public class Rendering {
+    private static final double height = 29;
+    private static final Color timeTakenColor = DARKRED;
 
-    public static String renderTimeShare(double timeShare) {
-        return MessageFormat.format("{0,number,0.00%}", timeShare);
+    private final double width;
+
+    public GraphicalShareTableCell(final double width) {
+        this.width = width;
     }
 
-    public static SimpleObjectProperty<String> method(CellDataFeatures<FlatProfileEntry, String> features) {
-        Method method = features.getValue().getMethod();
-        String representation = renderMethod(method);
-        return new ReadOnlyObjectWrapper<>(representation);
-    }
+    @Override
+    protected void updateItem(Double timeShare, boolean empty) {
+        if (timeShare == null) {
+            setText("");
+        } else {
+            final double scaledShare = timeShare * width;
 
-    public static String renderMethod(Method method) {
-        if (method == null)
-            return "unknown";
-
-        return method.getClassName() + "." + method.getMethodName();
+            Canvas canvas = new Canvas(width, height);
+            GraphicsContext context = canvas.getGraphicsContext2D();
+            context.setFill(timeTakenColor);
+            context.fillRect(0, 0, scaledShare, height);
+            setGraphic(canvas);
+        }
     }
 
 }

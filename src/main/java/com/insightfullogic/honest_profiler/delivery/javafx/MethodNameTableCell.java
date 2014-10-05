@@ -22,31 +22,23 @@
 package com.insightfullogic.honest_profiler.delivery.javafx;
 
 import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
-import com.insightfullogic.honest_profiler.core.parser.Method;
-import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.control.TableCell;
 
-import java.text.MessageFormat;
+import static com.insightfullogic.honest_profiler.delivery.javafx.Rendering.renderTimeShare;
 
-import static javafx.scene.control.TableColumn.CellDataFeatures;
+public class MethodNameTableCell extends TableCell<FlatProfileEntry, String> {
 
-public class Rendering {
+    private static final String methodNameStyle =
+        "-fx-font-family: Courier New;"+
+        "-fx-font-weight: bold;";
 
-    public static String renderTimeShare(double timeShare) {
-        return MessageFormat.format("{0,number,0.00%}", timeShare);
-    }
-
-    public static SimpleObjectProperty<String> method(CellDataFeatures<FlatProfileEntry, String> features) {
-        Method method = features.getValue().getMethod();
-        String representation = renderMethod(method);
-        return new ReadOnlyObjectWrapper<>(representation);
-    }
-
-    public static String renderMethod(Method method) {
-        if (method == null)
-            return "unknown";
-
-        return method.getClassName() + "." + method.getMethodName();
+    @Override
+    protected void updateItem(String value, boolean isEmpty) {
+        super.updateItem(value, isEmpty);
+        if (!isEmpty) {
+            setText(value);
+            setStyle(methodNameStyle);
+        }
     }
 
 }

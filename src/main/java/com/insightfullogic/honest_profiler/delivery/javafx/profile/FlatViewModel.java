@@ -24,11 +24,14 @@ package com.insightfullogic.honest_profiler.delivery.javafx.profile;
 import com.insightfullogic.honest_profiler.core.ProfileListener;
 import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
 import com.insightfullogic.honest_profiler.core.collector.Profile;
+import com.insightfullogic.honest_profiler.delivery.javafx.GraphicalShareTableCell;
+import com.insightfullogic.honest_profiler.delivery.javafx.MethodNameTableCell;
 import com.insightfullogic.honest_profiler.delivery.javafx.Rendering;
 import com.insightfullogic.honest_profiler.delivery.javafx.TimeShareTableCell;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -41,25 +44,33 @@ public class FlatViewModel implements ProfileListener {
     private TableView<FlatProfileEntry> flatProfileView;
 
     @FXML
-    private TableColumn<FlatProfileEntry, Double> totalTimeShare;
+    private TableColumn<FlatProfileEntry, String> methods;
+
+    @FXML
+    private TableColumn<FlatProfileEntry, Double> selfTimeGraphical;
 
     @FXML
     private TableColumn<FlatProfileEntry, Double> selfTimeShare;
 
     @FXML
-    private TableColumn<FlatProfileEntry, String> methods;
+    private TableColumn<FlatProfileEntry, Double> totalTimeShare;
 
     @FXML
     private void initialize() {
-        configureTimeShareColumn(totalTimeShare, "totalTimeShare");
-        configureTimeShareColumn(selfTimeShare, "selfTimeShare");
-
         methods.setCellValueFactory(Rendering::method);
+        methods.setCellFactory(col -> new MethodNameTableCell());
+
+        selfTimeGraphical.setCellValueFactory(new PropertyValueFactory<>("selfTimeShare"));
+        selfTimeGraphical.setCellFactory(col -> new GraphicalShareTableCell(col.getPrefWidth()));
+
+        configureTimeShareColumn(selfTimeShare, "selfTimeShare");
+        configureTimeShareColumn(totalTimeShare, "totalTimeShare");
+
         flatProfileView.setItems(flatProfile);
     }
 
     private void configureTimeShareColumn(TableColumn<FlatProfileEntry, Double> column, String propertyName) {
-        column.setCellValueFactory(new PropertyValueFactory(propertyName));
+        column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
         column.setCellFactory(col -> new TimeShareTableCell());
     }
 
@@ -71,7 +82,7 @@ public class FlatViewModel implements ProfileListener {
     public void accept(Profile profile) {
         flatProfile.clear();
         profile.flatProfile()
-                .forEach(flatProfile::add);
+               .forEach(flatProfile::add);
     }
 
 }

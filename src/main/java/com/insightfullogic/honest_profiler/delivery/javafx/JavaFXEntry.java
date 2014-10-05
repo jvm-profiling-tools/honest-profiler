@@ -34,6 +34,9 @@ import javafx.stage.Stage;
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.PicoBuilder;
 
+import java.awt.*;
+import java.awt.event.KeyEvent;
+
 public class JavaFXEntry extends Application {
 
     private MutablePicoContainer pico;
@@ -41,6 +44,9 @@ public class JavaFXEntry extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         stage.setTitle("Honest Profiler");
+        stage.setWidth(1280);
+        stage.setHeight(720);
+
         createStart(stage);
         stage.show();
     }

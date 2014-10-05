@@ -22,18 +22,28 @@
 package com.insightfullogic.honest_profiler.delivery.javafx;
 
 import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
+import javafx.geometry.Pos;
 import javafx.scene.control.TableCell;
+import javafx.scene.text.TextAlignment;
 
 import static com.insightfullogic.honest_profiler.delivery.javafx.Rendering.renderTimeShare;
+import static javafx.geometry.Pos.CENTER_RIGHT;
+import static javafx.scene.text.TextAlignment.RIGHT;
 
 public class TimeShareTableCell extends TableCell<FlatProfileEntry, Double> {
 
+    public TimeShareTableCell() {
+        setTextAlignment(RIGHT);
+        setAlignment(CENTER_RIGHT);
+    }
+
     @Override
-    protected void updateItem(Double item, boolean empty) {
-        if (item == null) {
+    protected void updateItem(Double item, boolean isEmpty) {
+        if (isEmpty) {
             setText("");
         } else {
             setText(renderTimeShare(item));
         }
     }
+
 }
