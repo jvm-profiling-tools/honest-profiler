@@ -13,11 +13,12 @@ public class ConsoleEndToEndTest {{
 
     describe("The console application", it -> {
 
-        FakeConsole console = new FakeConsole();
-        Logger logger = mock(Logger.class);
-        ConsoleEntry profiler = new ConsoleEntry(logger, console);
+        FakeConsole output = new FakeConsole();
+        FakeConsole error = new FakeConsole();
+        ConsoleEntry profiler = new ConsoleEntry(error, output);
 
-        it.shouldSetup(console::clear);
+        it.shouldSetup(output::clear);
+        it.shouldSetup(error::clear);
 
         it.should("display a profile which is loaded into it", expect -> {
 
@@ -26,11 +27,14 @@ public class ConsoleEndToEndTest {{
             profiler.run();
 
             then:
-            console.outputContains("PrintStream.printf");
-            console.outputContains("1.00");
+            output.outputContains("PrintStream.printf");
+            output.outputContains("1.00");
 
-            console.outputContains("PrintStream.append");
-            console.outputContains("1.00");
+            output.outputContains("PrintStream.append");
+            output.outputContains("1.00");
+
+            output.outputContains("Printing Profile for:");
+            output.outputContains("log0.hpl");
         });
 
         it.should("not display filtered out profile entries", expect -> {
@@ -40,7 +44,20 @@ public class ConsoleEndToEndTest {{
             profiler.run();
 
             then:
-            console.outputDoesntContain("Flat Profile:\n\t1.00 java.io.PrintStream.printf");
+            output.outputDoesntContain("Flat Profile:\n\t1.00 java.io.PrintStream.printf");
+
+            output.outputContains("Printing Profile for:");
+            output.outputContains("log0.hpl");
+        });
+
+        it.should("display an error when the file doesn't exist", expect -> {
+            when:
+            profiler.setLogLocation("sadsadsa");
+            profiler.run();
+
+            then:
+            output.outputDoesntContain("Number of stack traces");
+            error.outputContains("Unable to find log file at: sadsadsa");
         });
 
     });

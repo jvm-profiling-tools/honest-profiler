@@ -17,13 +17,14 @@ public class ConsoleEntry {
 
     private final Conductor conductor;
     private final ConsoleUserInterface ui;
-    private final Logger logger;
+    private final Console output;
+    private final Console error;
 
     private File logLocation;
     private String filterDescription;
 
     public static void main(String[] args) {
-        ConsoleEntry entry = new ConsoleEntry(LoggerFactory.getLogger(ConsoleEntry.class), () -> System.out);
+        ConsoleEntry entry = new ConsoleEntry(() -> System.err, () -> System.out);
         CmdLineParser parser = new CmdLineParser(entry);
 
         try {
@@ -35,9 +36,10 @@ public class ConsoleEntry {
         }
     }
 
-    public ConsoleEntry(final Logger logger, final Console console) {
-        this.logger = logger;
-        ui = new ConsoleUserInterface(console);
+    public ConsoleEntry(final Console error, final Console output) {
+        this.output = output;
+        this.error = error;
+        ui = new ConsoleUserInterface(output);
         conductor = new Conductor(new FileLogRepo());
     }
 
@@ -57,6 +59,11 @@ public class ConsoleEntry {
 
     public void run() {
         try {
+            if (!logLocation.exists() || !logLocation.canRead()) {
+                error.stream().println("Unable to find log file at: " + logLocation);
+                return;
+            }
+
             ProfileListener listener = ui;
 
             if (filterDescription != null) {
@@ -68,9 +75,11 @@ public class ConsoleEntry {
                 };
             }
 
+            output.stream().println("Printing Profile for: " + logLocation.getAbsolutePath());
+
             conductor.consumeFile(logLocation, null, listener);
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            e.printStackTrace(error.stream());
         }
     }
 

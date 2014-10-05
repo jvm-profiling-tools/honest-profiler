@@ -18,10 +18,12 @@ public class ConsoleUserInterface implements ProfileListener {
 
     @Override
     public void accept(Profile profile) {
-        PrintStream out = console.out();
+        PrintStream out = console.stream();
         printHeader(profile, out);
+        System.out.println();
         printFlatProfile(profile, out);
         printTreeProfile(profile);
+        System.out.println();
     }
 
     private void printHeader(Profile profile, PrintStream out) {
@@ -41,19 +43,19 @@ public class ConsoleUserInterface implements ProfileListener {
 
     private void printMethod(Method method, double timeShare) {
         if (method != null)
-            console.out().printf("%.2f %s.%s", timeShare, method.getClassName(), method.getMethodName());
+            console.stream().printf("%.2f %s.%s", timeShare, method.getClassName(), method.getMethodName());
     }
 
     private void printTreeProfile(Profile profile) {
-        console.out().print("\n\nTree Profile:");
+        console.stream().print("\n\nTree Profile:");
         profile.getTrees().forEach(tree -> printNode(tree.getRootNode(), 1));
     }
 
     private void printNode(ProfileNode node, int depth) {
-        PrintStream out = console.out();
+        PrintStream out = console.stream();
         out.print('\n');
 
-        IntStream.range(0, depth).forEach(i -> out.print('\t'));
+        IntStream.range(0, depth).forEach(i -> out.print("  "));
         printMethod(node.getMethod(), node.getTotalTimeShare());
 
         int childDepth = depth + 1;

@@ -20,7 +20,7 @@ public class FakeConsole implements Console {
     }
 
     @Override
-    public PrintStream out() {
+    public PrintStream stream() {
         return out;
     }
 

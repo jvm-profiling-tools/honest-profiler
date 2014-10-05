@@ -4,6 +4,6 @@ import java.io.PrintStream;
 
 public interface Console {
 
-    public PrintStream out();
+    public PrintStream stream();
 
 }
