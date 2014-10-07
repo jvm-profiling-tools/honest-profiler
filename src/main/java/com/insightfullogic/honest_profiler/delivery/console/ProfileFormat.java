@@ -82,7 +82,7 @@ public enum ProfileFormat {
 
     void printNode(ProfileNode node, int depth, StringBuilder out) {
         out.append("\n");
-        IntStream.range(0, depth).forEach(out::append);
+        IntStream.range(0, depth).forEach(ignore -> out.append(' '));
         printMethod(node.getMethod(), node.getTotalTimeShare(), out::append);
 
         int childDepth = depth + 1;
