@@ -26,31 +26,41 @@ import com.insightfullogic.honest_profiler.core.collector.ProfileNode;
 import com.insightfullogic.honest_profiler.core.parser.Method;
 
 import java.io.PrintStream;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 /**
- * .
+ * Formats printed output for different types of profile.
+ * <p>
+ * NB: The use of unnecessary StringBuilder instances rather than
+ * directly calling print on PrintStream is a deliberate performance
+ * optimisation to fix issue #56. If you're piping the output through
+ * head the repeated calls to print cause unnecessary buffering and
+ * context switching overhead. Using local buffers improves performance
+ * by 6x-10x.
  */
 public enum ProfileFormat {
 
     FLAT {
         @Override
         public void printProfile(Profile profile, PrintStream out) {
-            out.append("\n\nFlat Profile:");
+            StringBuilder sb = new StringBuilder("\n\nFlat Profile:");
             profile.flatProfile().forEach(entry -> {
                 Method method = entry.getMethod();
                 double timeShare = entry.getTotalTimeShare();
-                out.print("\n\t");
-                printMethod(method, timeShare, out);
+                sb.append("\n\t");
+                printMethod(method, timeShare, sb::append);
             });
+            out.print(sb);
         }
     },
 
     TREE {
         @Override
         public void printProfile(Profile profile, PrintStream out) {
-            out.print("\n\nTree Profile:");
-            profile.getTrees().forEach(tree -> printNode(tree.getRootNode(), 1, out));
+            StringBuilder sb = new StringBuilder("\n\nTree Profile:");
+            profile.getTrees().forEach(tree -> printNode(tree.getRootNode(), 1, sb));
+            out.print(sb);
         }
     },
 
@@ -64,16 +74,16 @@ public enum ProfileFormat {
 
     public abstract void printProfile(Profile profile, PrintStream out);
 
-    void printMethod(Method method, double timeShare, PrintStream out) {
-        if (method != null)
-            out.printf("%.2f %s.%s", timeShare, method.getClassName(), method.getMethodName());
+    void printMethod(Method method, double timeShare, Consumer<String> out) {
+        if (method != null) {
+            out.accept(String.format("%.2f %s.%s", timeShare, method.getClassName(), method.getMethodName()));
+        }
     }
 
-    void printNode(ProfileNode node, int depth, PrintStream out) {
-        out.print('\n');
-
-        IntStream.range(0, depth).forEach(i -> out.print("  "));
-        printMethod(node.getMethod(), node.getTotalTimeShare(), out);
+    void printNode(ProfileNode node, int depth, StringBuilder out) {
+        out.append("\n");
+        IntStream.range(0, depth).forEach(out::append);
+        printMethod(node.getMethod(), node.getTotalTimeShare(), out::append);
 
         int childDepth = depth + 1;
         node.children().forEach(child -> printNode(child, childDepth, out));
