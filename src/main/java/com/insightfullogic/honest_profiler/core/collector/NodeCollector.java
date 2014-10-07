@@ -23,16 +23,16 @@ package com.insightfullogic.honest_profiler.core.collector;
 
 import com.insightfullogic.honest_profiler.core.parser.Method;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
+import java.util.*;
+import java.util.function.LongFunction;
 import java.util.stream.Stream;
 
+import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 
 public final class NodeCollector {
+
+    public static final Comparator<ProfileNode> bySelfTimeShare = comparing(ProfileNode::getSelfTimeShare).reversed();
 
     private final Map<Long, NodeCollector> childrenByMethodId;
 
@@ -74,12 +74,14 @@ public final class NodeCollector {
         return this;
     }
 
-    // Only gets called on a root node
-    public ProfileNode normalise(Function<Long, Method> nameRegistry) {
+    /**
+     * Only gets called on a root node.
+     */
+    public ProfileNode normalise(LongFunction<Method> nameRegistry) {
         return normaliseBy(visits, nameRegistry);
     }
 
-    private ProfileNode normaliseBy(int parentVisits, Function<Long, Method> nameRegistry) {
+    private ProfileNode normaliseBy(int parentVisits, LongFunction<Method> nameRegistry) {
         Method method = nameRegistry.apply(methodId);
 
         double timeShare = (double) visits / parentVisits;
@@ -88,6 +90,7 @@ public final class NodeCollector {
             = childrenByMethodId.values()
                                 .stream()
                                 .map(child -> child.normaliseBy(parentVisits, nameRegistry))
+                                .sorted(bySelfTimeShare)
                                 .collect(toList());
 
         return new ProfileNode(method, timeShare, children);

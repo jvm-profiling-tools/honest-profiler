@@ -74,9 +74,28 @@ public class ProfileTreeTest {
         printlnCallingPrintfAndAppend(2);
         collector.endOfLog();
 
-        List<ProfileTree> trees = listener.getProfile().getTrees();
+        List<ProfileTree> trees = getTrees();
         assertEquals(2, trees.size());
         trees.forEach(tree -> assertPrintlnCallingAppendAndPrintf(tree.getRootNode()));
+    }
+
+    @Test
+    public void sortsSiblingsWithinTreeView() {
+        printlnCallingAppend(1);
+        printlnCallingPrintf(1);
+        printlnCallingPrintf(1);
+        collector.endOfLog();
+
+        ProfileNode rootNode = getTrees().get(0).getRootNode();
+        assertNode(ProfileFixtures.println, 1.0, rootNode);
+
+        List<ProfileNode> children = rootNode.getChildren();
+        assertNode(ProfileFixtures.printf, 2.0/3, children.get(0));
+        assertNode(ProfileFixtures.append, 1.0/3, children.get(1));
+    }
+
+    private List<ProfileTree> getTrees() {
+        return listener.getProfile().getTrees();
     }
 
     private void assertPrintlnCallingAppendAndPrintf(ProfileNode node) {
@@ -90,6 +109,10 @@ public class ProfileTreeTest {
 
     private void printlnCallingPrintfAndAppend(int threadId) {
         printlnCallingAppend(threadId);
+        printlnCallingPrintf(threadId);
+    }
+
+    private void printlnCallingPrintf(final int threadId) {
         collector.handle(new TraceStart(2, threadId));
         collector.handle(new StackFrame(20, ProfileFixtures.printfId));
         collector.handle(ProfileFixtures.printf);
