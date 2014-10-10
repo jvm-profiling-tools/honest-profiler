@@ -2,6 +2,7 @@
 # binaries
 build*
 target/
+CMakeFiles/
 
 # vim
 *.swp
