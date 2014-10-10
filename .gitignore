@@ -27,3 +27,4 @@ tmp
 .DS_Store
 
 src/test/resources/private_logs/
+src/main/cpp/CMakeLists.txt
