@@ -88,5 +88,4 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GLOBAL_WARNINGS} ${GLOBAL_COPTS} -std=
 # Build
 
 add_library(${OUTPUT} SHARED ${SOURCE_FILES})
-target_link_libraries(${OUTPUT} ${JNI_LIBRARIES} dl)
-
+target_link_libraries(${OUTPUT} ${JNI_LIBRARIES} ${Boost_LIBRARIES} dl)
