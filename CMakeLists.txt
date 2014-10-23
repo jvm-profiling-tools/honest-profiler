@@ -29,9 +29,6 @@ find_package(JNI REQUIRED)
 include_directories(${JAVA_INCLUDE_PATH})
 include_directories(${JAVA_INCLUDE_PATH2})
 
-find_package( Boost 1.54 COMPONENTS iostreams REQUIRED )
-include_directories( ${Boost_INCLUDE_DIR} )
-
 # include of gcc 4.8 headers specifically to work around
 # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=729933
 # equivalent in ubuntu 13.10
@@ -88,4 +85,4 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GLOBAL_WARNINGS} ${GLOBAL_COPTS} -std=
 # Build
 
 add_library(${OUTPUT} SHARED ${SOURCE_FILES})
-target_link_libraries(${OUTPUT} ${JNI_LIBRARIES} ${Boost_LIBRARIES} dl)
+target_link_libraries(${OUTPUT} ${JNI_LIBRARIES} dl)
