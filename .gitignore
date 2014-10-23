@@ -2,7 +2,6 @@
 # binaries
 build*
 target/
-CMakeFiles/
 
 # vim
 *.swp
@@ -27,4 +26,12 @@ tmp
 .DS_Store
 
 src/test/resources/private_logs/
-src/main/cpp/CMakeLists.txt
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+CTestTestfile.cmake
+cmake_install.cmake
+Makefile
+Testing
+
