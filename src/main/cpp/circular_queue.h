@@ -38,7 +38,7 @@ public:
   explicit CircularQueue(QueueListener &listener)
       : listener_(listener), input(0), output(0) {
     memset(buffer, 0, sizeof(buffer));
-    memset(frame_buffer_, 0, sizeof(frame_buffer_));
+    memset((void *) frame_buffer_, 0, sizeof(frame_buffer_));
   }
   ~CircularQueue() {}
 
