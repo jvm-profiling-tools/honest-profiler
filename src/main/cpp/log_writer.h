@@ -17,14 +17,16 @@ typedef int64_t method_id;
 
 class MethodListener {
 public:
-  virtual void recordNewMethod(method_id methodId, const char *file_name,
-                               const char *class_name,
-                               const char *method_name) = 0;
-  virtual ~MethodListener() {}
+    virtual void recordNewMethod(method_id methodId, const char *file_name,
+            const char *class_name,
+            const char *method_name) = 0;
+
+    virtual ~MethodListener() {
+    }
 };
 
 typedef bool (*GetFrameInformation)(const JVMPI_CallFrame &frame,
-                                    jvmtiEnv *jvmti, MethodListener &logWriter);
+        jvmtiEnv *jvmti, MethodListener &logWriter);
 
 const size_t FIFO_SIZE = 10;
 const byte TRACE_START = 1;
@@ -35,37 +37,39 @@ const byte NEW_METHOD = 3;
 class LogWriter : public QueueListener, public MethodListener {
 
 public:
-  explicit LogWriter(ostream &output, GetFrameInformation frameLookup,
-                     jvmtiEnv *jvmti)
-      : output_(output), frameLookup_(frameLookup), jvmti_(jvmti) {}
+    explicit LogWriter(ostream &output, GetFrameInformation frameLookup,
+            jvmtiEnv *jvmti)
+            : output_(output), frameLookup_(frameLookup), jvmti_(jvmti) {
+    }
 
-  virtual void record(const JVMPI_CallTrace &trace);
+    virtual void record(const JVMPI_CallTrace &trace);
 
-  void recordTraceStart(const jint num_frames, const int64_t threadId);
+    void recordTraceStart(const jint num_frames, const int64_t threadId);
 
-  // method are unique pointers, use a long to standardise
-  // between 32 and 64 bits
-  void recordFrame(const jint lineNumber, method_id methodId);
+    // method are unique pointers, use a long to standardise
+    // between 32 and 64 bits
+    void recordFrame(const jint lineNumber, method_id methodId);
 
-  virtual void recordNewMethod(method_id methodId, const char *file_name,
-                               const char *class_name, const char *method_name);
+    virtual void recordNewMethod(method_id methodId, const char *file_name,
+            const char *class_name, const char *method_name);
 
 private:
-  ostream &output_;
+    ostream &output_;
 
-  GetFrameInformation frameLookup_;
+    GetFrameInformation frameLookup_;
 
-  jvmtiEnv *jvmti_;
+    jvmtiEnv *jvmti_;
 
-  unordered_set<method_id> knownMethods;
+    unordered_set<method_id> knownMethods;
 
-  template <typename T> void writeValue(const T &value);
+    template<typename T>
+    void writeValue(const T &value);
 
-  void writeWithSize(const char *value);
+    void writeWithSize(const char *value);
 
-  void inspectMethod(const method_id methodId, const JVMPI_CallFrame &frame);
+    void inspectMethod(const method_id methodId, const JVMPI_CallFrame &frame);
 
-  DISALLOW_COPY_AND_ASSIGN(LogWriter);
+    DISALLOW_COPY_AND_ASSIGN(LogWriter);
 };
 
 #endif // LOG_WRITER_H

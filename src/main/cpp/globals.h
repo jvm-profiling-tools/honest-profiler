@@ -3,6 +3,7 @@
 #include <jvmti.h>
 #include <jni.h>
 #include <stdint.h>
+
 #ifdef __APPLE__
 #include <pthread.h>
 #endif
@@ -57,43 +58,51 @@
 
 // Short version: reinterpret_cast produces undefined behavior in many
 // cases where memcpy doesn't.
-template <class Dest, class Source> inline Dest bit_cast(const Source &source) {
-  // Compile time assertion: sizeof(Dest) == sizeof(Source)
-  // A compile error here means your Dest and Source have different sizes.
-  typedef char VerifySizesAreEqual[sizeof(Dest) == sizeof(Source) ? 1 : -1]
-      __attribute__((unused));
+template<class Dest, class Source>
+inline Dest bit_cast(const Source &source) {
+    // Compile time assertion: sizeof(Dest) == sizeof(Source)
+    // A compile error here means your Dest and Source have different sizes.
+    typedef char VerifySizesAreEqual[sizeof(Dest) == sizeof(Source) ? 1 : -1]
+            __attribute__((unused));
 
-  Dest dest;
-  memcpy(&dest, &source, sizeof(dest));
-  return dest;
+    Dest dest;
+    memcpy(&dest, &source, sizeof(dest));
+    return dest;
 }
 
-template <class T> class JvmtiScopedPtr {
+template<class T>
+class JvmtiScopedPtr {
 public:
-  explicit JvmtiScopedPtr(jvmtiEnv *jvmti) : jvmti_(jvmti), ref_(NULL) {}
-
-  JvmtiScopedPtr(jvmtiEnv *jvmti, T *ref) : jvmti_(jvmti), ref_(ref) {}
-
-  ~JvmtiScopedPtr() {
-    if (NULL != ref_) {
-      JVMTI_ERROR(jvmti_->Deallocate((unsigned char *)ref_));
+    explicit JvmtiScopedPtr(jvmtiEnv *jvmti) : jvmti_(jvmti), ref_(NULL) {
     }
-  }
 
-  T **GetRef() {
-    assert(ref_ == NULL);
-    return &ref_;
-  }
+    JvmtiScopedPtr(jvmtiEnv *jvmti, T *ref) : jvmti_(jvmti), ref_(ref) {
+    }
 
-  T *Get() { return ref_; }
+    ~JvmtiScopedPtr() {
+        if (NULL != ref_) {
+            JVMTI_ERROR(jvmti_->Deallocate((unsigned char *) ref_));
+        }
+    }
 
-  void AbandonBecauseOfError() { ref_ = NULL; }
+    T **GetRef() {
+        assert(ref_ == NULL);
+        return &ref_;
+    }
+
+    T *Get() {
+        return ref_;
+    }
+
+    void AbandonBecauseOfError() {
+        ref_ = NULL;
+    }
 
 private:
-  jvmtiEnv *jvmti_;
-  T *ref_;
+    jvmtiEnv *jvmti_;
+    T *ref_;
 
-  DISALLOW_IMPLICIT_CONSTRUCTORS(JvmtiScopedPtr);
+    DISALLOW_IMPLICIT_CONSTRUCTORS(JvmtiScopedPtr);
 };
 
 // Accessors for a JNIEnv for this thread.
@@ -129,32 +138,42 @@ public:
     }
   }
 #else
-  static void SetCurrentJniEnv(JNIEnv *env) { env_ = env; }
 
-  static JNIEnv *CurrentJniEnv() { return env_; }
+    static void SetCurrentJniEnv(JNIEnv *env) {
+        env_ = env;
+    }
 
-  static void Init() {}
+    static JNIEnv *CurrentJniEnv() {
+        return env_;
+    }
 
-  static void Destroy() {}
+    static void Init() {
+    }
+
+    static void Destroy() {
+    }
+
 #endif
 
-  template <class FunctionType>
-  static inline FunctionType GetJvmFunction(const char *function_name) {
-    // get address of function, return null if not found
-    return bit_cast<FunctionType>(dlsym(RTLD_DEFAULT, function_name));
-  }
+    template<class FunctionType>
+    static inline FunctionType GetJvmFunction(const char *function_name) {
+        // get address of function, return null if not found
+        return bit_cast<FunctionType>(dlsym(RTLD_DEFAULT, function_name));
+    }
 
 private:
 #ifdef __APPLE__
   static pthread_key_t key_;
 #else
-  // This is very dangerous.  __thread is not async-safe when used in
-  // a shared library, because it calls malloc the first time a given
-  // thread accesses it.  This is unlikely to cause problems in
-  // straightforward Java apps, but a real fix involves either a fix
-  // to glibc or to the Java launcher, and casual users will have a
-  // hard time with this.
-  static __thread JNIEnv *env_;
+    // This is very dangerous.  __thread is not async-safe when used in
+    // a shared library, because it calls malloc the first time a given
+    // thread accesses it.  This is unlikely to cause problems in
+    // straightforward Java apps, but a real fix involves either a fix
+    // to glibc or to the Java launcher, and casual users will have a
+    // hard time with this.
+    static __thread JNIEnv
+    *
+    env_;
 #endif
 };
 

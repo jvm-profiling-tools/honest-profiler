@@ -1,4 +1,3 @@
-
 // Somewhat originally dervied from:
 // http://www.codeproject.com/Articles/43510/Lock-Free-Single-Producer-Single-Consumer-Circular
 
@@ -29,36 +28,40 @@ void safe_reset(void *start, size_t size);
 
 class QueueListener {
 public:
-  virtual void record(const JVMPI_CallTrace &item) = 0;
-  virtual ~QueueListener() {}
+    virtual void record(const JVMPI_CallTrace &item) = 0;
+
+    virtual ~QueueListener() {
+    }
 };
 
 class CircularQueue {
 public:
-  explicit CircularQueue(QueueListener &listener)
-      : listener_(listener), input(0), output(0) {
-    memset(buffer, 0, sizeof(buffer));
-    memset((void *) frame_buffer_, 0, sizeof(frame_buffer_));
-  }
-  ~CircularQueue() {}
+    explicit CircularQueue(QueueListener &listener)
+            : listener_(listener), input(0), output(0) {
+        memset(buffer, 0, sizeof(buffer));
+        memset((void *) frame_buffer_, 0, sizeof(frame_buffer_));
+    }
 
-  bool push(const JVMPI_CallTrace &item);
+    ~CircularQueue() {
+    }
 
-  bool pop();
+    bool push(const JVMPI_CallTrace &item);
+
+    bool pop();
 
 private:
 
-  QueueListener &listener_;
+    QueueListener &listener_;
 
-  std::atomic<size_t> input;
-  std::atomic<size_t> output;
+    std::atomic<size_t> input;
+    std::atomic<size_t> output;
 
-  JVMPI_CallTrace buffer[Capacity];
-  JVMPI_CallFrame frame_buffer_[Capacity][kMaxFramesToCapture];
+    JVMPI_CallTrace buffer[Capacity];
+    JVMPI_CallFrame frame_buffer_[Capacity][kMaxFramesToCapture];
 
-  size_t advance(size_t index) const;
+    size_t advance(size_t index) const;
 
-  void write(const JVMPI_CallTrace &item, const size_t slot);
+    void write(const JVMPI_CallTrace &item, const size_t slot);
 };
 
 #endif /* CIRCULAR_QUEUE_H */

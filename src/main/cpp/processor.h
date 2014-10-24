@@ -7,29 +7,29 @@
 class Processor {
 
 public:
-  explicit Processor(jvmtiEnv *jvmti, LogWriter &logWriter,
-                     CircularQueue &buffer)
-      : jvmti_(jvmti), logWriter_(logWriter), buffer_(buffer), isRunning(true) {
-  }
+    explicit Processor(jvmtiEnv *jvmti, LogWriter &logWriter,
+            CircularQueue &buffer)
+            : jvmti_(jvmti), logWriter_(logWriter), buffer_(buffer), isRunning(true) {
+    }
 
-  void start(JNIEnv *jniEnv);
+    void start(JNIEnv *jniEnv);
 
-  void run();
+    void run();
 
-  void stop();
+    void stop();
 
 private:
-  jvmtiEnv *jvmti_;
+    jvmtiEnv *jvmti_;
 
-  LogWriter &logWriter_;
+    LogWriter &logWriter_;
 
-  CircularQueue &buffer_;
+    CircularQueue &buffer_;
 
-  std::atomic_bool isRunning;
+    std::atomic_bool isRunning;
 
-  void startCallback(jvmtiEnv *jvmti_env, JNIEnv *jni_env, void *arg);
+    void startCallback(jvmtiEnv *jvmti_env, JNIEnv *jni_env, void *arg);
 
-  DISALLOW_COPY_AND_ASSIGN(Processor);
+    DISALLOW_COPY_AND_ASSIGN(Processor);
 };
 
 #endif // PROCESSOR_H
