@@ -44,8 +44,7 @@ bool Profiler::lookupFrameInformation(const JVMPI_CallFrame &frame,
     jint error;
     JvmtiScopedPtr<char> methodName(jvmti);
 
-    error =
-            jvmti->GetMethodName(frame.method_id, methodName.GetRef(), NULL, NULL);
+    error = jvmti->GetMethodName(frame.method_id, methodName.GetRef(), NULL, NULL);
     if (error != JVMTI_ERROR_NONE) {
         methodName.AbandonBecauseOfError();
         if (error == JVMTI_ERROR_INVALID_METHODID) {

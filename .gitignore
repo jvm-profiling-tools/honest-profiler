@@ -10,7 +10,7 @@ target/
 hs_err_pid*
 
 # output files
-log.hpl
+log-*.hpl
 dump.hpl
 traces.txt
 

@@ -1,5 +1,8 @@
 #include <signal.h>
 #include <fstream>
+#include <unistd.h>
+#include <chrono>
+#include <sstream>
 
 #include "globals.h"
 #include "stacktraces.h"
@@ -9,7 +12,9 @@
 #ifndef PROFILER_H
 #define PROFILER_H
 
+using namespace std::chrono;
 using std::ofstream;
+using std::ostringstream;
 
 class SignalHandler {
 public:
@@ -24,15 +29,18 @@ private:
     DISALLOW_COPY_AND_ASSIGN(SignalHandler);
 };
 
-
 class Profiler {
 public:
     explicit Profiler(jvmtiEnv *jvmti) : jvmti_(jvmti) {
         // main object graph instantiated here
         // these objects all live for the lifecycle of the program
+        
+        long pid = (long) getpid();
+        long epochMillis = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 
-        const char *fileName = "log.hpl";
-        logFile = new ofstream(fileName, ofstream::out | ofstream::binary);
+        ostringstream fileName;
+        fileName << "log-" << pid << "-" << epochMillis << ".hpl";
+        logFile = new ofstream(fileName.str(), ofstream::out | ofstream::binary);
 
         writer = new LogWriter(*logFile, &Profiler::lookupFrameInformation, jvmti);
         buffer = new CircularQueue(*writer);
