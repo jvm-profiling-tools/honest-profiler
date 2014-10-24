@@ -18,16 +18,22 @@ include(CheckFunctionExists)
 set(SRC "src/main/cpp")
 set(SRC_TEST "src/test/cpp")
 set(BIN "build")
-set(BIN_TEST "build-test")
 set(OUTPUT "honest-profiler-agent")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${BIN})
 
 ##########################################################
 # Libraries & Code
 
+find_package(PkgConfig)
+
 find_package(JNI REQUIRED)
 include_directories(${JAVA_INCLUDE_PATH})
 include_directories(${JAVA_INCLUDE_PATH2})
+
+pkg_check_modules (unittest++ REQUIRED unittest++)
+include_directories(${unittest++_INCLUDE_DIRS})
+
+message("${unittest++_LIBRARIES}")
 
 # include of gcc 4.8 headers specifically to work around
 # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=729933
@@ -46,6 +52,14 @@ set(SOURCE_FILES
     ${SRC}/profiler.cpp
     ${SRC}/profiler.h
     ${SRC}/stacktraces.h)
+
+set(TEST_FILES
+    ${SRC_TEST}/fixtures.h
+    ${SRC_TEST}/test_circular_queue.cpp
+    ${SRC_TEST}/test.cpp
+    ${SRC_TEST}/test_log_writer.cpp
+    ${SRC_TEST}/test_agent.cpp)
+
 
 ##########################################################
 # Compiler Options
@@ -86,3 +100,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GLOBAL_WARNINGS} ${GLOBAL_COPTS} -std=
 
 add_library(${OUTPUT} SHARED ${SOURCE_FILES})
 target_link_libraries(${OUTPUT} ${JNI_LIBRARIES} dl)
+
+add_executable(unitTests ${TEST_FILES})
+
+target_link_libraries(unitTests ${OUTPUT} ${unittest++_LIBRARIES})
+
+# make test
+add_test(unitTests ${BIN}/unitTests)

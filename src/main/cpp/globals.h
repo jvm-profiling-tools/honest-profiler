@@ -13,6 +13,18 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+const int DEFAULT_SAMPLING_INTERVAL = 1;
+
+struct ConfigurationOptions {
+    int samplingInterval;
+    char* logFilePath;
+
+    void initializeDefaults() {
+        samplingInterval = DEFAULT_SAMPLING_INTERVAL;
+        logFilePath = NULL;
+    }
+};
+
 #define AGENTEXPORT __attribute__((visibility("default"))) JNIEXPORT
 
 // Gets us around -Wunused-parameter

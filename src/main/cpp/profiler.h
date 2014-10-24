@@ -34,7 +34,7 @@ public:
     explicit Profiler(jvmtiEnv *jvmti) : jvmti_(jvmti) {
         // main object graph instantiated here
         // these objects all live for the lifecycle of the program
-        
+
         long pid = (long) getpid();
         long epochMillis = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 

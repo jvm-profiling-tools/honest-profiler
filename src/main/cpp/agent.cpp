@@ -4,6 +4,7 @@
 #include <unistd.h>
 
 #include <string>
+#include <jvmti.h>
 
 #include "globals.h"
 #include "profiler.h"
@@ -159,14 +160,25 @@ static bool RegisterJvmti(jvmtiEnv *jvmti) {
     return true;
 }
 
-static void ParseArguments(char *options) {
-    char *key = options;
-    for (char *next = options; next != NULL;
-         next = strchr((key = next + 1), ',')) {
-        char *equals = strchr(key, '=');
-        if (equals == NULL) {
+static void parseArguments(char *options, ConfigurationOptions &configuration) {
+    configuration.initializeDefaults();
+    char* next = options;
+    for (char *key = options; next != NULL; key = next + 1) {
+        char *value = strchr(key, '=');
+        next = strchr(key, ',');
+
+        if (value == NULL) {
             fprintf(stderr, "No value for key %s\n", key);
             continue;
+        } else {
+            value++;
+            if (strstr(key, "interval") == key) {
+                configuration.samplingInterval = atoi(value);
+            } else if (strstr(key, "logPath") == key) {
+                size_t  size = (next == 0) ? strlen(key) : (size_t) (next - value);
+                configuration.logFilePath = (char*) malloc(size * sizeof(char));
+                strncpy(configuration.logFilePath, value, size);
+            }
         }
     }
 }
@@ -176,7 +188,8 @@ AGENTEXPORT jint JNICALL Agent_OnLoad(JavaVM *vm, char *options,
     IMPLICITLY_USE(reserved);
     int err;
     jvmtiEnv *jvmti;
-    ParseArguments(options);
+    ConfigurationOptions configuration;
+    parseArguments(options, configuration);
 
     Accessors::Init();
 
