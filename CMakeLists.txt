@@ -18,7 +18,7 @@ include(CheckFunctionExists)
 set(SRC "src/main/cpp")
 set(SRC_TEST "src/test/cpp")
 set(BIN "build")
-set(OUTPUT "honest-profiler-agent")
+set(OUTPUT "lagent")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${BIN})
 
 ##########################################################
@@ -32,8 +32,6 @@ include_directories(${JAVA_INCLUDE_PATH2})
 
 pkg_check_modules (unittest++ REQUIRED unittest++)
 include_directories(${unittest++_INCLUDE_DIRS})
-
-message("${unittest++_LIBRARIES}")
 
 # include of gcc 4.8 headers specifically to work around
 # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=729933
@@ -93,7 +91,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     set(GLOBAL_WARNINGS, "${GLOBAL_WARNINGS} -Wno-unknown-pragmas -Wno-builtin-macro-redefined -Wl,-fatal_warnings")
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GLOBAL_WARNINGS} ${GLOBAL_COPTS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GLOBAL_WARNINGS} ${GLOBAL_COPTS} -pthread -std=c++11")
 
 ##########################################################
 # Build
