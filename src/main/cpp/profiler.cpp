@@ -119,7 +119,6 @@ void Profiler::handle(int signum, siginfo_t *info, void *context) {
 
     if (trace.num_frames < 0) {
         int idx = -trace.num_frames;
-        // fprintf(stderr, "error: %d %lu\n", idx, (int64_t) trace.env_id);
         if (idx > kNumCallTraceErrors) {
             return;
         }
@@ -170,15 +169,13 @@ struct sigaction SignalHandler::SetAction(void (*action)(int, siginfo_t *,
 }
 
 bool Profiler::start(JNIEnv *jniEnv) {
-    int usec_wait = 1;
-
     memset(failures_, 0, sizeof(failures_));
 
     // reference back to Profiler::handle on the singleton
     // instance of Profiler
     handler_.SetAction(&bootstrapHandle);
     processor->start(jniEnv);
-    return handler_.SetSigprofInterval(0, usec_wait);
+    return handler_.SetSigprofInterval(0, configuration_->samplingInterval);
 }
 
 void Profiler::stop() {

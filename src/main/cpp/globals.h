@@ -16,6 +16,7 @@
 const int DEFAULT_SAMPLING_INTERVAL = 1;
 
 struct ConfigurationOptions {
+    /** Interval in microseconds */
     int samplingInterval;
     char* logFilePath;
 

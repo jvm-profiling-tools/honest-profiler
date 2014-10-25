@@ -31,16 +31,21 @@ private:
 
 class Profiler {
 public:
-    explicit Profiler(jvmtiEnv *jvmti) : jvmti_(jvmti) {
+    explicit Profiler(jvmtiEnv *jvmti, ConfigurationOptions* configuration) : jvmti_(jvmti), configuration_(configuration) {
         // main object graph instantiated here
         // these objects all live for the lifecycle of the program
 
         long pid = (long) getpid();
         long epochMillis = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 
-        ostringstream fileName;
-        fileName << "log-" << pid << "-" << epochMillis << ".hpl";
-        logFile = new ofstream(fileName.str(), ofstream::out | ofstream::binary);
+        char* fileName = configuration->logFilePath;
+        if (fileName == NULL) {
+            ostringstream fileBuilder;
+            fileBuilder << "log-" << pid << "-" << epochMillis << ".hpl";
+            fileName = (char *) fileBuilder.str().c_str();
+        }
+
+        logFile = new ofstream(fileName, ofstream::out | ofstream::binary);
 
         writer = new LogWriter(*logFile, &Profiler::lookupFrameInformation, jvmti);
         buffer = new CircularQueue(*writer);
@@ -62,6 +67,8 @@ public:
 
 private:
     jvmtiEnv *jvmti_;
+
+    ConfigurationOptions* configuration_;
 
     ostream *logFile;
 

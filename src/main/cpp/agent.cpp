@@ -1,16 +1,14 @@
 #include <stdio.h>
-#include <limits.h>
 #include <string.h>
-#include <unistd.h>
 
 #include <string>
 #include <jvmti.h>
 
 #include "globals.h"
 #include "profiler.h"
-#include "stacktraces.h"
 
-static Profiler *prof;
+static ConfigurationOptions* CONFIGURATION = new ConfigurationOptions();
+static Profiler* prof;
 
 void JNICALL OnThreadStart(jvmtiEnv *jvmti_env, JNIEnv *jni_env,
         jthread thread) {
@@ -166,7 +164,6 @@ static void parseArguments(char *options, ConfigurationOptions &configuration) {
     for (char *key = options; next != NULL; key = next + 1) {
         char *value = strchr(key, '=');
         next = strchr(key, ',');
-
         if (value == NULL) {
             fprintf(stderr, "No value for key %s\n", key);
             continue;
@@ -178,18 +175,18 @@ static void parseArguments(char *options, ConfigurationOptions &configuration) {
                 size_t  size = (next == 0) ? strlen(key) : (size_t) (next - value);
                 configuration.logFilePath = (char*) malloc(size * sizeof(char));
                 strncpy(configuration.logFilePath, value, size);
+            } else {
+                fprintf(stderr, "Unknown configuration option: %s\n", key);
             }
         }
     }
 }
 
-AGENTEXPORT jint JNICALL Agent_OnLoad(JavaVM *vm, char *options,
-        void *reserved) {
+AGENTEXPORT jint JNICALL Agent_OnLoad(JavaVM *vm, char *options, void *reserved) {
     IMPLICITLY_USE(reserved);
     int err;
     jvmtiEnv *jvmti;
-    ConfigurationOptions configuration;
-    parseArguments(options, configuration);
+    parseArguments(options, *CONFIGURATION);
 
     Accessors::Init();
 
@@ -223,7 +220,7 @@ AGENTEXPORT jint JNICALL Agent_OnLoad(JavaVM *vm, char *options,
 
     Asgct::SetAsgct(Accessors::GetJvmFunction<ASGCTType>("AsyncGetCallTrace"));
 
-    prof = new Profiler(jvmti);
+    prof = new Profiler(jvmti, CONFIGURATION);
 
     return 0;
 }
