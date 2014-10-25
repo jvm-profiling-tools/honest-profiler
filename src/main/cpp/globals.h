@@ -13,6 +13,8 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+void logError(const char *__restrict format, ...);
+
 const int DEFAULT_SAMPLING_INTERVAL = 1;
 
 struct ConfigurationOptions {
@@ -37,7 +39,7 @@ struct ConfigurationOptions {
   {                                                                            \
     int err;                                                                   \
     if ((err = (error)) != JVMTI_ERROR_NONE) {                                 \
-      fprintf(stderr, "JVMTI error %d\n", err);                                \
+      logError("JVMTI error %d\n", err);                                       \
       cleanup;                                                                 \
       return (retval);                                                         \
     }                                                                          \
@@ -55,7 +57,7 @@ struct ConfigurationOptions {
   {                                                                            \
     int err;                                                                   \
     if ((err = (error)) != JVMTI_ERROR_NONE) {                                 \
-      fprintf(stderr, "JVMTI error %d\n", err);                                \
+      logError("JVMTI error %d\n", err);                                       \
       cleanup;                                                                 \
       return;                                                                  \
     }                                                                          \

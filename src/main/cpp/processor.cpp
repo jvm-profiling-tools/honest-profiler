@@ -13,11 +13,6 @@
 
 #endif
 
-// TODO: proper error handling
-static void error(std::string message) {
-    std::cout << message;
-}
-
 static jthread newThread(JNIEnv *jniEnv) {
     jclass thrClass;
     jmethodID cid;
@@ -25,15 +20,15 @@ static jthread newThread(JNIEnv *jniEnv) {
 
     thrClass = jniEnv->FindClass("java/lang/Thread");
     if (thrClass == NULL) {
-        error("Cannot find Thread class\n");
+        logError("Cannot find Thread class\n");
     }
     cid = jniEnv->GetMethodID(thrClass, "<init>", "()V");
     if (cid == NULL) {
-        error("Cannot find Thread constructor method\n");
+        logError("Cannot find Thread constructor method\n");
     }
     res = jniEnv->NewObject(thrClass, cid);
     if (res == NULL) {
-        error("Cannot create new Thread object\n");
+        logError("Cannot create new Thread object\n");
     }
     return res;
 }

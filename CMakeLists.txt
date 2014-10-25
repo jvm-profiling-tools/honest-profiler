@@ -24,7 +24,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${BIN})
 ##########################################################
 # Libraries & Code
 
-find_package(PkgConfig)
+find_package(PkgConfig REQUIRED)
 
 find_package(JNI REQUIRED)
 include_directories(${JAVA_INCLUDE_PATH})

@@ -51,12 +51,12 @@ bool Profiler::lookupFrameInformation(const JVMPI_CallFrame &frame,
             static int once = 0;
             if (!once) {
                 once = 1;
-                fprintf(stderr, "One of your monitoring interfaces "
-                        "is having trouble resolving its stack traces.  "
-                        "GetMethodName on a jmethodID involved in a stacktrace "
-                        "resulted in an INVALID_METHODID error which usually "
-                        "indicates its declaring class has been unloaded.\n");
-                fprintf(stderr, "Unexpected JVMTI error %d in GetMethodName", error);
+                logError("One of your monitoring interfaces "
+                         "is having trouble resolving its stack traces.  "
+                         "GetMethodName on a jmethodID involved in a stacktrace "
+                         "resulted in an INVALID_METHODID error which usually "
+                         "indicates its declaring class has been unloaded.\n");
+                logError("Unexpected JVMTI error %d in GetMethodName", error);
             }
         }
         return false;
@@ -136,8 +136,7 @@ bool SignalHandler::SetSigprofInterval(int sec, int usec) {
     timer.it_interval.tv_usec = usec;
     timer.it_value = timer.it_interval;
     if (setitimer(ITIMER_PROF, &timer, 0) == -1) {
-        fprintf(stderr, "Scheduling profiler interval failed with error %d\n",
-                errno);
+        logError("Scheduling profiler interval failed with error %d\n", errno);
         return false;
     }
     return true;
@@ -161,7 +160,7 @@ struct sigaction SignalHandler::SetAction(void (*action)(int, siginfo_t *,
 
     struct sigaction old_handler;
     if (sigaction(SIGPROF, &sa, &old_handler) != 0) {
-        fprintf(stderr, "Scheduling profiler action failed with error %d\n", errno);
+        logError("Scheduling profiler action failed with error %d\n", errno);
         return old_handler;
     }
 

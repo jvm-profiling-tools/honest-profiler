@@ -4,7 +4,6 @@
 #include <vector>
 #include <iostream>
 #include "fixtures.h"
-#include "../../main/cpp/stacktraces.h"
 
 #define givenStackTrace(envId)                                                 \
   JVMPI_CallFrame frame0 = {};                                                 \
