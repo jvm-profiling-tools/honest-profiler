@@ -18,7 +18,7 @@ include(CheckFunctionExists)
 set(SRC "src/main/cpp")
 set(SRC_TEST "src/test/cpp")
 set(BIN "build")
-set(OUTPUT "honest-profiler-agent")
+set(OUTPUT "lagent")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${BIN})
 
 ##########################################################
@@ -32,8 +32,6 @@ include_directories(${JAVA_INCLUDE_PATH2})
 
 pkg_check_modules (unittest++ REQUIRED unittest++)
 include_directories(${unittest++_INCLUDE_DIRS})
-
-message("${unittest++_LIBRARIES}")
 
 # include of gcc 4.8 headers specifically to work around
 # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=729933
