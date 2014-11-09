@@ -4,10 +4,11 @@
 #include <limits>
 
 #include "fixtures.h"
+#include "ostreambuf.h"
 #include "../../main/cpp/circular_queue.h"
 #include "../../main/cpp/log_writer.h"
 
-using std::ostringstream;
+using std::ostream;
 using std::ofstream;
 
 #define copyString(from, to)                                                   \
@@ -23,10 +24,9 @@ bool stubFrameInformation(const JVMPI_CallFrame &frame, jvmtiEnv *jvmti,
 
 // Queue is too large to be stack allocated
 #define givenLogWriter()                                                       \
-  ostringstream output;                                                        \
-  char buffer[100];                                                            \
-  memset(buffer, 0, sizeof(buffer));                                           \
-  output.rdbuf()->pubsetbuf(buffer, sizeof(buffer));                           \
+  char buffer[100] = {};                                                       \
+  ostreambuf<char> outputBuffer(buffer, sizeof(buffer));                       \
+  ostream output(&outputBuffer);                                               \
   LogWriter logWriter(output, &stubFrameInformation, NULL);                    \
   CircularQueue *queue = new CircularQueue(logWriter);
 
