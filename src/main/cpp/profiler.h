@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <chrono>
 #include <sstream>
+#include <string>
 
 #include "globals.h"
 #include "stacktraces.h"
@@ -15,6 +16,7 @@
 using namespace std::chrono;
 using std::ofstream;
 using std::ostringstream;
+using std::string;
 
 class SignalHandler {
 public:
@@ -39,10 +41,12 @@ public:
         long epochMillis = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 
         char* fileName = configuration->logFilePath;
+        string fileNameStr;
         if (fileName == NULL) {
             ostringstream fileBuilder;
             fileBuilder << "log-" << pid << "-" << epochMillis << ".hpl";
-            fileName = (char *) fileBuilder.str().c_str();
+            fileNameStr = fileBuilder.str();
+            fileName = (char *) fileNameStr.c_str();
         }
 
         logFile = new ofstream(fileName, ofstream::out | ofstream::binary);
