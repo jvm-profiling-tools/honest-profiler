@@ -21,8 +21,8 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.landing;
 
-import com.insightfullogic.honest_profiler.core.Monitor;
 import com.insightfullogic.honest_profiler.core.MachineListener;
+import com.insightfullogic.honest_profiler.core.Monitor;
 import com.insightfullogic.honest_profiler.core.ProfileListener;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.insightfullogic.honest_profiler.ports.javafx.WindowViewModel;
@@ -40,6 +40,8 @@ import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.insightfullogic.honest_profiler.ports.javafx.WindowViewModel.Window.Profile;
 
@@ -56,6 +58,7 @@ public class LandingViewModel implements MachineListener {
     private final Monitor monitor;
     private final WindowViewModel windowModel;
     private final ProfileListener profileListener;
+    private final Set<VirtualMachine> machines;
 
     public LandingViewModel(
             final Logger logger,
@@ -67,17 +70,20 @@ public class LandingViewModel implements MachineListener {
         this.windowModel = windowModel;
         this.profileListener = profileListener;
         toggleMachines = new ToggleGroup();
+        machines = new HashSet<>();
     }
 
     @FXML
     private void initialize() {
+        logger.debug("Initializing LandingViewModel");
         toggleMachines.selectedToggleProperty()
                       .addListener((of, from, to) -> {
                           monitorButton.setDisable(to == null);
                       });
+        machines.forEach(this::displayMachine);
     }
 
-    public void open(ActionEvent actionEvent) {
+    public void open(final ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open a log file");
         File file = fileChooser.showOpenDialog(null);
@@ -91,7 +97,7 @@ public class LandingViewModel implements MachineListener {
         }
     }
 
-    public void monitorButton(ActionEvent actionEvent) {
+    public void monitorButton(final ActionEvent actionEvent) {
         windowModel.display(Profile);
         MachineButton selectedButton = (MachineButton) toggleMachines.getSelectedToggle();
         VirtualMachine vm = selectedButton.getJvm();
@@ -103,23 +109,26 @@ public class LandingViewModel implements MachineListener {
     }
 
     @Override
-    public void onNewMachine(VirtualMachine machine) {
-        Platform.runLater(() -> {
-            ObservableList<Node> children = landingView.getChildren();
-            MachineButton button = new MachineButton(machine);
-            button.setToggleGroup(toggleMachines);
-            children.add(button);
-        });
+    public void onNewMachine(final VirtualMachine machine) {
+        logger.debug("New machine: {}", machine.getDisplayName());
+        machines.add(machine);
+        Platform.runLater(() -> displayMachine(machine));
+    }
+
+    private void displayMachine(final VirtualMachine machine) {
+        ObservableList<Node> children = landingView.getChildren();
+        MachineButton button = new MachineButton(machine);
+        button.setToggleGroup(toggleMachines);
+        children.add(button);
     }
 
     @Override
-    public void onClosedMachine(VirtualMachine machine) {
+    public void onClosedMachine(final VirtualMachine machine) {
+        logger.debug("Closed: {}", machine.getDisplayName());
         Platform.runLater(() -> {
             String id = machine.getId();
             ObservableList<Node> children = landingView.getChildren();
-            children.removeIf(node -> {
-                return id.equals(node.getId());
-            });
+            children.removeIf(node -> id.equals(node.getId()));
         });
     }
 
