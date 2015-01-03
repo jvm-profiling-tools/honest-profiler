@@ -21,7 +21,7 @@
  **/
 package com.insightfullogic.honest_profiler.core;
 
-import com.insightfullogic.honest_profiler.core.parser.EventListener;
+import com.insightfullogic.honest_profiler.core.parser.LogEventListener;
 import com.insightfullogic.honest_profiler.core.parser.LogParser;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.insightfullogic.honest_profiler.core.store.LogSaver;
@@ -39,14 +39,14 @@ public class DataConsumer {
     private final Logger logger;
     private final VirtualMachine machine;
     private final LogSaver saver;
-    private final EventListener listener;
+    private final LogEventListener listener;
     private final LogParser parser;
 
     public DataConsumer(
             final Logger logger,
             final VirtualMachine machine,
             final LogSaver saver,
-            final EventListener listener) {
+            final LogEventListener listener) {
 
         this.logger = logger;
         this.machine = machine;

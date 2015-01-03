@@ -27,7 +27,7 @@ import com.insightfullogic.honest_profiler.core.collector.Profile;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import org.slf4j.Logger;
 
-public class ProfileAdapter implements ProfileListener {
+public class WebProfileAdapter implements ProfileListener {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -35,7 +35,7 @@ public class ProfileAdapter implements ProfileListener {
     private final VirtualMachine machine;
     private final ClientConnections clients;
 
-    public ProfileAdapter(final Logger logger, final VirtualMachine machine, final ClientConnections clients) {
+    public WebProfileAdapter(final Logger logger, final VirtualMachine machine, final ClientConnections clients) {
         this.logger = logger;
         this.machine = machine;
         this.clients = clients;

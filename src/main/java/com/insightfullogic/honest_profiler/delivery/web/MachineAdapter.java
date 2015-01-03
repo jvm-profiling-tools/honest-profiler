@@ -52,10 +52,10 @@ public class MachineAdapter implements MachineListener, Consumer<WebSocketConnec
     }
 
     @Override
-    public ProfileAdapter onNewMachine(VirtualMachine machine) {
+    public WebProfileAdapter onNewMachine(VirtualMachine machine) {
         machines.add(machine);
         clients.sendAll(messages.addJavaVirtualMachine(machine));
-        return new ProfileAdapter(LoggerFactory.getLogger(ProfileAdapter.class), machine, clients);
+        return new WebProfileAdapter(LoggerFactory.getLogger(WebProfileAdapter.class), machine, clients);
     }
 
     @Override

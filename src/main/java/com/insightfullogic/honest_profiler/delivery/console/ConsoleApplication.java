@@ -32,7 +32,7 @@ import org.kohsuke.args4j.Option;
 import java.io.File;
 import java.io.IOException;
 
-public class ConsoleEntry {
+public class ConsoleApplication {
 
     private final Conductor conductor;
     private final ConsoleUserInterface ui;
@@ -43,7 +43,7 @@ public class ConsoleEntry {
     private String filterDescription;
 
     public static void main(String[] args) {
-        ConsoleEntry entry = new ConsoleEntry(() -> System.err, () -> System.out);
+        ConsoleApplication entry = new ConsoleApplication(() -> System.err, () -> System.out);
         CmdLineParser parser = new CmdLineParser(entry);
 
         try {
@@ -55,7 +55,7 @@ public class ConsoleEntry {
         }
     }
 
-    public ConsoleEntry(final Console error, final Console output) {
+    public ConsoleApplication(final Console error, final Console output) {
         this.output = output;
         this.error = error;
         ui = new ConsoleUserInterface(output);

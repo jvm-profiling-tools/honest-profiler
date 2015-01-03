@@ -58,7 +58,7 @@ public final class StackFrame implements LogEvent {
     }
 
     @Override
-    public void accept(EventListener listener) {
+    public void accept(LogEventListener listener) {
         listener.handle(this);
     }
 

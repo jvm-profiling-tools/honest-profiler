@@ -22,7 +22,7 @@
 package com.insightfullogic.honest_profiler.core.collector;
 
 import com.insightfullogic.honest_profiler.core.ProfileListener;
-import com.insightfullogic.honest_profiler.core.parser.EventListener;
+import com.insightfullogic.honest_profiler.core.parser.LogEventListener;
 import com.insightfullogic.honest_profiler.core.parser.Method;
 import com.insightfullogic.honest_profiler.core.parser.StackFrame;
 import com.insightfullogic.honest_profiler.core.parser.TraceStart;
@@ -36,7 +36,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * NB: Stack trace elements come in the opposite way to the profile
  */
-public class LogCollector implements EventListener {
+public class LogCollector implements LogEventListener {
 
     private static final Comparator<Entry<Long,CallCounts>> sortByCount = comparing((Entry<Long, CallCounts> entry) -> entry.getValue().timeInvokingThis)
                                                                          .reversed();

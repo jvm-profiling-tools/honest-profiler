@@ -72,7 +72,7 @@ public class WebEntry {
                 .addComponent(LocalMachineSource.class)
                 .addComponent(MessageEncoder.class)
                 .addComponent(MachineAdapter.class)
-                .addComponent(ProfileAdapter.class)
+                .addComponent(WebProfileAdapter.class)
                 .addComponent(ClientConnections.class)
                 .addComponent(ClientHandler.class)
                 .addComponent(LogCollector.class)

@@ -21,7 +21,7 @@
  **/
 package com.insightfullogic.honest_profiler.core;
 
-import com.insightfullogic.honest_profiler.core.parser.EventListener;
+import com.insightfullogic.honest_profiler.core.parser.LogEventListener;
 import com.insightfullogic.honest_profiler.core.parser.Method;
 import com.insightfullogic.honest_profiler.core.parser.StackFrame;
 import com.insightfullogic.honest_profiler.core.parser.TraceStart;
@@ -42,7 +42,7 @@ public class LogConsumerTest {{
         final String PRINT_STREAM_JAVA = "PrintStream.java";
 
         it.should("parse a basic log", expect -> {
-            EventListener listener = mock(EventListener.class);
+            LogEventListener listener = mock(LogEventListener.class);
             LogSaver saver = mock(LogSaver.class);
             Logger logger = mock(Logger.class);
             LogConsumer consumer = new LogConsumer(logger, Util.log0(), new DataConsumer(logger, null, saver, listener), false);

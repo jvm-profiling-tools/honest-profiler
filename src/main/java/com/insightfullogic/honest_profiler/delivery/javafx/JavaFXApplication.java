@@ -34,10 +34,7 @@ import javafx.stage.Stage;
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.PicoBuilder;
 
-import java.awt.*;
-import java.awt.event.KeyEvent;
-
-public class JavaFXEntry extends Application {
+public class JavaFXApplication extends Application {
 
     private MutablePicoContainer pico;
 

@@ -28,13 +28,13 @@ import org.junit.runner.RunWith;
 import static com.insightfullogic.lambdabehave.Suite.describe;
 
 @RunWith(JunitSuiteRunner.class)
-public class ConsoleEndToEndTest {{
+public class ConsoleApplicationTest {{
 
     describe("The console application", it -> {
 
         FakeConsole output = new FakeConsole();
         FakeConsole error = new FakeConsole();
-        ConsoleEntry profiler = new ConsoleEntry(error, output);
+        ConsoleApplication profiler = new ConsoleApplication(error, output);
 
         it.isSetupWith(() -> {
             output.clear();

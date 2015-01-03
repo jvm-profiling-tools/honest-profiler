@@ -36,12 +36,12 @@ public class LogParser {
     private static final int STACK_FRAME = 2;
     private static final int NEW_METHOD = 3;
 
-    private final EventListener listener;
+    private final LogEventListener listener;
     private final Logger logger;
 
     public static enum LogState { READ_RECORD, NOTHING_READ, END_OF_LOG }
 
-    public LogParser(final Logger logger, final EventListener listener) {
+    public LogParser(final Logger logger, final LogEventListener listener) {
         this.listener = listener;
         this.logger = logger;
     }

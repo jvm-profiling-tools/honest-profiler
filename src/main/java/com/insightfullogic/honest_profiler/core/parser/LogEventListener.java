@@ -21,7 +21,7 @@
  **/
 package com.insightfullogic.honest_profiler.core.parser;
 
-public interface EventListener {
+public interface LogEventListener {
 
     public void handle(TraceStart traceStart);
 

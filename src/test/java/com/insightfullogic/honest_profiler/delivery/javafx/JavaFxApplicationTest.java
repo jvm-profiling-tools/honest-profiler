@@ -37,7 +37,7 @@ import static org.hamcrest.Matchers.is;
 import static org.loadui.testfx.Assertions.assertNodeExists;
 import static org.loadui.testfx.controls.TableViews.numberOfRowsIn;
 
-public class JavaFxEndToEndTest extends GuiTest {
+public class JavaFxApplicationTest extends GuiTest {
 
     @Ignore
     @Test
@@ -70,7 +70,7 @@ public class JavaFxEndToEndTest extends GuiTest {
 
     @Override
     protected Parent getRootNode() {
-        MutablePicoContainer pico = JavaFXEntry.registerComponents();
+        MutablePicoContainer pico = JavaFXApplication.registerComponents();
         PicoFXLoader loader = pico.getComponent(PicoFXLoader.class);
         return loader.load("ProfileView.fxml");
     }
