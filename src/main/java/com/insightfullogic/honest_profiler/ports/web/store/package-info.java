@@ -19,42 +19,8 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.core;
+/**
+ * Responsible for storing streaming log data and retrieving historical log data.
+ */
+package com.insightfullogic.honest_profiler.ports.web.store;
 
-import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-public class Util {
-
-    public static File log0() {
-        return logFile("log0.hpl");
-    }
-
-    public static FileLogSource log0Source() throws IOException {
-        return new FileLogSource(logFile("log0.hpl"));
-    }
-
-    public static File logFile(String file) {
-        URL url = Util.class.getResource("../../../../" + file);
-        return urlToFile(url);
-    }
-
-    private static File urlToFile(URL url) {
-        try {
-            return new File(url.toURI());
-        } catch(URISyntaxException e) {
-            return new File(url.getPath());
-        }
-    }
-
-    public static <T> List<T> list(T ... values) {
-        return new ArrayList<>(Arrays.asList(values));
-    }
-}

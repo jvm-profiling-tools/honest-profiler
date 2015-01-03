@@ -19,42 +19,30 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.core;
+package com.insightfullogic.honest_profiler.ports.web;
 
-import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
+import com.insightfullogic.honest_profiler.core.collector.Profile;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+public class NewProfileMessage {
 
-public class Util {
+    private final String id;
+    private final Profile profile;
 
-    public static File log0() {
-        return logFile("log0.hpl");
+    public NewProfileMessage(String id, Profile profile) {
+        this.id = id;
+        this.profile = profile;
     }
 
-    public static FileLogSource log0Source() throws IOException {
-        return new FileLogSource(logFile("log0.hpl"));
+    public Profile getProfile() {
+        return profile;
     }
 
-    public static File logFile(String file) {
-        URL url = Util.class.getResource("../../../../" + file);
-        return urlToFile(url);
+    public String getType() {
+        return "newProfile";
     }
 
-    private static File urlToFile(URL url) {
-        try {
-            return new File(url.toURI());
-        } catch(URISyntaxException e) {
-            return new File(url.getPath());
-        }
+    public String getId() {
+        return id;
     }
 
-    public static <T> List<T> list(T ... values) {
-        return new ArrayList<>(Arrays.asList(values));
-    }
 }

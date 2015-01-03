@@ -19,42 +19,41 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.core;
+package com.insightfullogic.honest_profiler.ports.console;
 
-import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
+import com.insightfullogic.honest_profiler.core.ProfileListener;
+import com.insightfullogic.honest_profiler.core.collector.Profile;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.io.PrintStream;
 
-public class Util {
+import static com.insightfullogic.honest_profiler.ports.console.ProfileFormat.BOTH;
 
-    public static File log0() {
-        return logFile("log0.hpl");
+public class ConsoleUserInterface implements ProfileListener {
+
+    private final Console console;
+
+    private ProfileFormat profileFormat = BOTH;
+
+    public ConsoleUserInterface(Console console) {
+        this.console = console;
     }
 
-    public static FileLogSource log0Source() throws IOException {
-        return new FileLogSource(logFile("log0.hpl"));
+    @Override
+    public void accept(Profile profile) {
+        PrintStream out = console.stream();
+        printHeader(profile, out);
+        out.println();
+        profileFormat.printProfile(profile, out);
+        out.println();
     }
 
-    public static File logFile(String file) {
-        URL url = Util.class.getResource("../../../../" + file);
-        return urlToFile(url);
+    private void printHeader(Profile profile, PrintStream out) {
+        out.print("Number of stack traces: ");
+        out.print(Integer.toString(profile.getTraceCount()));
     }
 
-    private static File urlToFile(URL url) {
-        try {
-            return new File(url.toURI());
-        } catch(URISyntaxException e) {
-            return new File(url.getPath());
-        }
+    public void setProfileFormat(ProfileFormat profileFormat) {
+        this.profileFormat = profileFormat;
     }
 
-    public static <T> List<T> list(T ... values) {
-        return new ArrayList<>(Arrays.asList(values));
-    }
 }

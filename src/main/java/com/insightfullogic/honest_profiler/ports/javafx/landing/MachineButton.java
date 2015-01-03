@@ -19,42 +19,43 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.core;
+package com.insightfullogic.honest_profiler.ports.javafx.landing;
 
-import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
+import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
+import javafx.geometry.Insets;
+import javafx.scene.control.RadioButton;
+import javafx.scene.text.Font;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import static javafx.geometry.NodeOrientation.LEFT_TO_RIGHT;
+import static javafx.scene.control.ContentDisplay.RIGHT;
+import static javafx.scene.text.TextAlignment.CENTER;
 
-public class Util {
+public class MachineButton extends RadioButton {
 
-    public static File log0() {
-        return logFile("log0.hpl");
+    private static final Font font = new Font("Bitstream Vera Sans Bold", 16);
+
+    private final VirtualMachine jvm;
+
+    public MachineButton(VirtualMachine jvm) {
+        super(jvm.getDisplayName());
+        this.jvm = jvm;
+        setDisable(!jvm.isAgentLoaded());
+        setId(jvm.getId());
+        setButtonStyling();
     }
 
-    public static FileLogSource log0Source() throws IOException {
-        return new FileLogSource(logFile("log0.hpl"));
+    public VirtualMachine getJvm() {
+        return jvm;
     }
 
-    public static File logFile(String file) {
-        URL url = Util.class.getResource("../../../../" + file);
-        return urlToFile(url);
+    private void setButtonStyling() {
+        setContentDisplay(RIGHT);
+        setNodeOrientation(LEFT_TO_RIGHT);
+        setPrefHeight(22);
+        setPrefWidth(507);
+        setTextAlignment(CENTER);
+        setFont(font);
+        setPadding(new Insets(20, 0, 0, 100));
     }
 
-    private static File urlToFile(URL url) {
-        try {
-            return new File(url.toURI());
-        } catch(URISyntaxException e) {
-            return new File(url.getPath());
-        }
-    }
-
-    public static <T> List<T> list(T ... values) {
-        return new ArrayList<>(Arrays.asList(values));
-    }
 }

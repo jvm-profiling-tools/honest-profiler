@@ -21,7 +21,7 @@
  **/
 package com.insightfullogic.honest_profiler.ports.sources;
 
-import com.insightfullogic.honest_profiler.core.Conductor;
+import com.insightfullogic.honest_profiler.core.Monitor;
 import com.insightfullogic.honest_profiler.core.MachineListener;
 import com.insightfullogic.honest_profiler.core.ThreadedAgent;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
@@ -46,15 +46,15 @@ public class LocalMachineSource {
 
     private final Logger logger;
     private final MachineListener listener;
-    private final Conductor conductor;
+    private final Monitor monitor;
     private final ThreadedAgent threadedAgent;
 
     private Set<VirtualMachineDescriptor> previous;
 
-    public LocalMachineSource(final Logger logger, final MachineListener listener, final Conductor conductor) {
+    public LocalMachineSource(final Logger logger, final MachineListener listener, final Monitor monitor) {
         this.logger = logger;
         this.listener = listener;
-        this.conductor = conductor;
+        this.monitor = monitor;
         previous = new HashSet<>();
         threadedAgent = new ThreadedAgent(LoggerFactory.getLogger(ThreadedAgent.class), this::discoverVirtualMachines);
     }
@@ -107,7 +107,6 @@ public class LocalMachineSource {
             String displayName = vmDescriptor.displayName();
             boolean agentLoaded = vmArgs.contains(AGENT_NAME);
             String userDir = getUserDir(vm);
-
             return Stream.of(new VirtualMachine(id, displayName, agentLoaded, userDir));
         } catch (AttachNotSupportedException e) {
             logger.warn(e.getMessage());

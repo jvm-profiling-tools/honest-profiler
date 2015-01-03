@@ -19,42 +19,33 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.core;
+package com.insightfullogic.honest_profiler.ports.web.store;
 
-import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
+import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.nio.ByteBuffer;
 import java.util.List;
 
-public class Util {
+public class FileLogRepository implements LogRepository {
 
-    public static File log0() {
-        return logFile("log0.hpl");
+    @Override
+    public FileLogSaver onNewLog(VirtualMachine machine) {
+        return new FileLogSaver();
     }
 
-    public static FileLogSource log0Source() throws IOException {
-        return new FileLogSource(logFile("log0.hpl"));
+    @Override
+    public List<LogMetadata> findLogs() {
+        return null;
     }
 
-    public static File logFile(String file) {
-        URL url = Util.class.getResource("../../../../" + file);
-        return urlToFile(url);
+    @Override
+    public ByteBuffer loadLog(LogMetadata log) {
+        return null;
     }
 
-    private static File urlToFile(URL url) {
-        try {
-            return new File(url.toURI());
-        } catch(URISyntaxException e) {
-            return new File(url.getPath());
-        }
+    @Override
+    public void close() {
+
     }
 
-    public static <T> List<T> list(T ... values) {
-        return new ArrayList<>(Arrays.asList(values));
-    }
 }

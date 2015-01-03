@@ -19,42 +19,40 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.core;
+package com.insightfullogic.honest_profiler.ports.javafx;
 
-import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
+import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.TableCell;
+import javafx.scene.paint.Color;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import static javafx.scene.paint.Color.DARKRED;
 
-public class Util {
+public class GraphicalShareTableCell extends TableCell<FlatProfileEntry, Double> {
 
-    public static File log0() {
-        return logFile("log0.hpl");
+    private static final double height = 29;
+    private static final Color timeTakenColor = DARKRED;
+
+    private final double width;
+
+    public GraphicalShareTableCell(final double width) {
+        this.width = width;
     }
 
-    public static FileLogSource log0Source() throws IOException {
-        return new FileLogSource(logFile("log0.hpl"));
-    }
+    @Override
+    protected void updateItem(Double timeShare, boolean empty) {
+        if (timeShare == null) {
+            setText("");
+        } else {
+            final double scaledShare = timeShare * width;
 
-    public static File logFile(String file) {
-        URL url = Util.class.getResource("../../../../" + file);
-        return urlToFile(url);
-    }
-
-    private static File urlToFile(URL url) {
-        try {
-            return new File(url.toURI());
-        } catch(URISyntaxException e) {
-            return new File(url.getPath());
+            Canvas canvas = new Canvas(width, height);
+            GraphicsContext context = canvas.getGraphicsContext2D();
+            context.setFill(timeTakenColor);
+            context.fillRect(0, 0, scaledShare, height);
+            setGraphic(canvas);
         }
     }
 
-    public static <T> List<T> list(T ... values) {
-        return new ArrayList<>(Arrays.asList(values));
-    }
 }

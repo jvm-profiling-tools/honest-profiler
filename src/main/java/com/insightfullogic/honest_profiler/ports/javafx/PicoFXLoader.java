@@ -19,42 +19,30 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.core;
+package com.insightfullogic.honest_profiler.ports.javafx;
 
-import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import org.picocontainer.MutablePicoContainer;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
-public class Util {
+public class PicoFXLoader {
 
-    public static File log0() {
-        return logFile("log0.hpl");
+    private final MutablePicoContainer pico;
+
+    public PicoFXLoader(MutablePicoContainer pico) {
+        this.pico = pico;
     }
 
-    public static FileLogSource log0Source() throws IOException {
-        return new FileLogSource(logFile("log0.hpl"));
-    }
-
-    public static File logFile(String file) {
-        URL url = Util.class.getResource("../../../../" + file);
-        return urlToFile(url);
-    }
-
-    private static File urlToFile(URL url) {
+    public Parent load(String fxml) {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
+        loader.setControllerFactory(pico::getComponent);
         try {
-            return new File(url.toURI());
-        } catch(URISyntaxException e) {
-            return new File(url.getPath());
+            return loader.load();
+        } catch (IOException e) {
+            throw new UserInterfaceConfigurationException(e);
         }
     }
 
-    public static <T> List<T> list(T ... values) {
-        return new ArrayList<>(Arrays.asList(values));
-    }
 }

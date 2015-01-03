@@ -21,7 +21,12 @@
  **/
 package com.insightfullogic.honest_profiler.core.sources;
 
-import java.io.File;
+import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 
 /**
@@ -53,8 +58,20 @@ public class VirtualMachine {
         return agentLoaded;
     }
 
-    public File getLogSource() {
-        return new File(userDir, "log.hpl");
+    public LogSource getLogSource() throws IOException {
+        System.out.println(getId());
+        Path file = Files.list(Paths.get(userDir))
+                         .filter(this::isLogFile)
+                         .sorted()
+                         .findFirst()
+                         .orElseThrow(IOException::new);
+
+        return new FileLogSource(file.toFile());
+    }
+
+    private boolean isLogFile(final Path path) {
+        String fileName = path.getFileName().toString();
+        return fileName.endsWith(".hpl") && fileName.startsWith("log-" + id);
     }
 
     @Override

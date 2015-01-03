@@ -48,7 +48,7 @@ public class LogParser {
 
     public LogState readRecord(ByteBuffer input) throws IOException {
         if (!input.hasRemaining()) {
-            listener.endOfLog();
+            endOfLog();
             return END_OF_LOG;
         }
 
@@ -73,8 +73,12 @@ public class LogParser {
             logger.error(e.getMessage(), e);
         }
 
-        listener.endOfLog();
+        endOfLog();
         return END_OF_LOG;
+    }
+
+    public void endOfLog() {
+        listener.endOfLog();
     }
 
     private void readNewMethod(ByteBuffer input) throws IOException {

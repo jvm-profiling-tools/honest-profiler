@@ -19,42 +19,42 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.core;
+package com.insightfullogic.honest_profiler.ports.web;
 
-import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
+import org.webbitserver.WebSocketConnection;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 
-public class Util {
+import static java.util.Collections.synchronizedList;
 
-    public static File log0() {
-        return logFile("log0.hpl");
+public class ClientConnections {
+
+    private final List<WebSocketConnection> connections;
+
+    private Consumer<WebSocketConnection> listener;
+
+    public ClientConnections() {
+        this.connections = synchronizedList(new ArrayList<>());
     }
 
-    public static FileLogSource log0Source() throws IOException {
-        return new FileLogSource(logFile("log0.hpl"));
+    public void add(WebSocketConnection connection) {
+        connections.add(connection);
+        listener.accept(connection);
     }
 
-    public static File logFile(String file) {
-        URL url = Util.class.getResource("../../../../" + file);
-        return urlToFile(url);
+    public void remove(WebSocketConnection connection) {
+        connections.remove(connection);
     }
 
-    private static File urlToFile(URL url) {
-        try {
-            return new File(url.toURI());
-        } catch(URISyntaxException e) {
-            return new File(url.getPath());
+    public void sendAll(String message) {
+        synchronized (connections) {
+            connections.forEach(connection -> connection.send(message));
         }
     }
 
-    public static <T> List<T> list(T ... values) {
-        return new ArrayList<>(Arrays.asList(values));
+    public void setListener(Consumer<WebSocketConnection> listener) {
+        this.listener = listener;
     }
 }

@@ -23,8 +23,8 @@ package com.insightfullogic.honest_profiler.ports.sources;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.insightfullogic.honest_profiler.core.Conductor;
-import com.insightfullogic.honest_profiler.core.DataConsumer;
 import com.insightfullogic.honest_profiler.core.MachineListener;
+import com.insightfullogic.honest_profiler.core.Monitor;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import org.slf4j.Logger;
 import org.webbitserver.BaseWebSocketHandler;
@@ -37,13 +37,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WebSocketMachineSource extends BaseWebSocketHandler {
 
     private final Logger logger;
-    private final Map<WebSocketConnection, DataConsumer> machines;
-    private final Conductor conductor;
+    private final Map<WebSocketConnection, Conductor> machines;
+    private final Monitor monitor;
     private final MachineListener listener;
 
-    public WebSocketMachineSource(final Logger logger, final Conductor conductor, final MachineListener listener) {
+    public WebSocketMachineSource(final Logger logger, final Monitor monitor, final MachineListener listener) {
         this.logger = logger;
-        this.conductor = conductor;
+        this.monitor = monitor;
         this.listener = listener;
         machines = new ConcurrentHashMap<>();
     }
@@ -55,21 +55,21 @@ public class WebSocketMachineSource extends BaseWebSocketHandler {
 
     @Override
     public void onClose(WebSocketConnection connection) {
-        DataConsumer consumer = machines.remove(connection);
+        /*DataConsumer consumer = machines.remove(connection);
         if (consumer != null) {
             VirtualMachine machine = consumer.getMachine();
             listener.onClosedMachine(machine);
-        }
+        }*/
     }
 
     @Override
     public void onMessage(WebSocketConnection connection, byte[] message) {
         if (machines.containsKey(connection)) {
             ByteBuffer buffer = ByteBuffer.wrap(message);
-            DataConsumer consumer = machines.get(connection);
+            /*DataConsumer consumer = machines.get(connection);
             if (consumer != null) {
                 consumer.accept(buffer);
-            }
+            }*/
         } else {
             newMachine(connection, message);
         }
@@ -79,6 +79,7 @@ public class WebSocketMachineSource extends BaseWebSocketHandler {
         try {
             Messages.NewMachine newMachine = Messages.NewMachine.parseFrom(message);
             VirtualMachine machine = new VirtualMachine(newMachine.getId(), newMachine.getDisplayName(), true, "");
+            listener.onNewMachine(machine);
             /*ProfileListener profileListener = listener.onNewMachine(machine);
             if (profileListener != null) {
                 DataConsumer consumer = conductor.pipeData(machine, profileListener);

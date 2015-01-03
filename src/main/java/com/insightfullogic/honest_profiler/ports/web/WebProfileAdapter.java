@@ -19,42 +19,37 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.core;
+package com.insightfullogic.honest_profiler.ports.web;
 
-import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.insightfullogic.honest_profiler.core.ProfileListener;
+import com.insightfullogic.honest_profiler.core.collector.Profile;
+import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
+import org.slf4j.Logger;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+public class WebProfileAdapter implements ProfileListener {
 
-public class Util {
+    private final ObjectMapper mapper = new ObjectMapper();
 
-    public static File log0() {
-        return logFile("log0.hpl");
+    private final Logger logger;
+    private final VirtualMachine machine;
+    private final ClientConnections clients;
+
+    public WebProfileAdapter(final Logger logger, final VirtualMachine machine, final ClientConnections clients) {
+        this.logger = logger;
+        this.machine = machine;
+        this.clients = clients;
     }
 
-    public static FileLogSource log0Source() throws IOException {
-        return new FileLogSource(logFile("log0.hpl"));
-    }
-
-    public static File logFile(String file) {
-        URL url = Util.class.getResource("../../../../" + file);
-        return urlToFile(url);
-    }
-
-    private static File urlToFile(URL url) {
+    @Override
+    public void accept(Profile profile) {
         try {
-            return new File(url.toURI());
-        } catch(URISyntaxException e) {
-            return new File(url.getPath());
+            NewProfileMessage newProfile = new NewProfileMessage(machine.getId(), profile);
+            String message = mapper.writeValueAsString(newProfile);
+            clients.sendAll(message);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
         }
     }
 
-    public static <T> List<T> list(T ... values) {
-        return new ArrayList<>(Arrays.asList(values));
-    }
 }

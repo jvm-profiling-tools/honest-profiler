@@ -19,42 +19,43 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.core;
+package com.insightfullogic.honest_profiler.ports.javafx;
 
-import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import static com.insightfullogic.honest_profiler.ports.javafx.WindowViewModel.Window.Landing;
 
-public class Util {
+public class WindowViewModel {
 
-    public static File log0() {
-        return logFile("log0.hpl");
-    }
+    public static enum Window {
+        Landing,
+        Profile;
 
-    public static FileLogSource log0Source() throws IOException {
-        return new FileLogSource(logFile("log0.hpl"));
-    }
-
-    public static File logFile(String file) {
-        URL url = Util.class.getResource("../../../../" + file);
-        return urlToFile(url);
-    }
-
-    private static File urlToFile(URL url) {
-        try {
-            return new File(url.toURI());
-        } catch(URISyntaxException e) {
-            return new File(url.getPath());
+        private String getFxmlFile() {
+            return name() + "View.fxml";
         }
     }
 
-    public static <T> List<T> list(T ... values) {
-        return new ArrayList<>(Arrays.asList(values));
+    private final PicoFXLoader loader;
+    private final Stage stage;
+
+    public WindowViewModel(PicoFXLoader loader, Stage stage) {
+        this.loader = loader;
+        this.stage = stage;
     }
+
+    public Parent display(Window window) {
+        Parent parent = loader.load(window.getFxmlFile());
+        stage.setScene(new Scene(parent));
+        stage.setMinWidth(650);
+        stage.setMinHeight(400);
+        return parent;
+    }
+
+    public Parent displayStart() {
+        return display(Landing);
+    }
+
 }
