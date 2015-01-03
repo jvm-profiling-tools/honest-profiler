@@ -19,35 +19,20 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.adapters.store;
+package com.insightfullogic.honest_profiler.ports.store;
 
-import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
-import com.insightfullogic.honest_profiler.core.store.LogMetadata;
-import com.insightfullogic.honest_profiler.core.store.LogRepository;
+import com.insightfullogic.honest_profiler.core.store.LogSaver;
 
 import java.nio.ByteBuffer;
-import java.util.List;
 
-public class FileLogRepository implements LogRepository {
-
+public class FileLogSaver implements LogSaver {
     @Override
-    public FileLogSaver onNewLog(VirtualMachine machine) {
-        return new FileLogSaver();
-    }
+    public void save(ByteBuffer data) {
 
-    @Override
-    public List<LogMetadata> findLogs() {
-        return null;
-    }
-
-    @Override
-    public ByteBuffer loadLog(LogMetadata log) {
-        return null;
     }
 
     @Override
     public void close() {
 
     }
-
 }

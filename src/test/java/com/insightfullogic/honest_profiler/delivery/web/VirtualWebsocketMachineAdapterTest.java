@@ -30,17 +30,17 @@ import static com.insightfullogic.lambdabehave.Suite.describe;
 import static org.mockito.Mockito.verify;
 
 @RunWith(JunitSuiteRunner.class)
-public class VirtualMachineAdapterTest {
+public class VirtualWebsocketMachineAdapterTest {
 
     ClientConnections clients;
     VirtualMachine jvm = new VirtualMachine("12432", "com.intellij.idea.Main", true, "");
-    MachineAdapter adapter;
+    WebsocketMachineAdapter adapter;
 
     { describe("The Java Virtual Machine Adapter", it -> {
 
         it.isSetupWith(() -> {
             clients = Mockito.mock(ClientConnections.class);
-            adapter = new MachineAdapter(clients, new MessageEncoder());
+            adapter = new WebsocketMachineAdapter(clients, new MessageEncoder());
         });
 
         it.should("Register for connections", expect -> {

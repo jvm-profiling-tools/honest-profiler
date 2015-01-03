@@ -19,11 +19,10 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.adapters.sources;
+package com.insightfullogic.honest_profiler.ports.sources;
 
 import com.insightfullogic.honest_profiler.core.Conductor;
 import com.insightfullogic.honest_profiler.core.MachineListener;
-import com.insightfullogic.honest_profiler.core.ProfileListener;
 import com.insightfullogic.honest_profiler.core.ThreadedAgent;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.sun.tools.attach.AttachNotSupportedException;
@@ -65,7 +64,7 @@ public class LocalMachineSource {
         threadedAgent.start();
     }
 
-    public boolean discoverVirtualMachines() {
+    private boolean discoverVirtualMachines() {
         poll();
 
         sleep();
@@ -81,18 +80,9 @@ public class LocalMachineSource {
         }
     }
 
-    public void poll() {
+    private void poll() {
         Set<VirtualMachineDescriptor> current = new HashSet<>(com.sun.tools.attach.VirtualMachine.list());
-        difference(current, previous, machine -> {
-            ProfileListener profileListener = listener.onNewMachine(machine);
-            if (machine.isAgentLoaded() && profileListener != null) {
-                try {
-                    conductor.pipeFile(machine.getLogFile(), machine, profileListener);
-                } catch (IOException e) {
-                    logger.error(e.getMessage(), e);
-                }
-            }
-        });
+        difference(current, previous, listener::onNewMachine);
         difference(previous, current, listener::onClosedMachine);
         previous = current;
     }

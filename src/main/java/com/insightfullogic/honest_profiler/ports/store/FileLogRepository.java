@@ -19,8 +19,35 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  * DEALINGS IN THE SOFTWARE.
  **/
-/**
- * Infrastructure for methods of discovering machines and sources of logs.
- */
-package com.insightfullogic.honest_profiler.adapters.sources;
+package com.insightfullogic.honest_profiler.ports.store;
 
+import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
+import com.insightfullogic.honest_profiler.core.store.LogMetadata;
+import com.insightfullogic.honest_profiler.core.store.LogRepository;
+
+import java.nio.ByteBuffer;
+import java.util.List;
+
+public class FileLogRepository implements LogRepository {
+
+    @Override
+    public FileLogSaver onNewLog(VirtualMachine machine) {
+        return new FileLogSaver();
+    }
+
+    @Override
+    public List<LogMetadata> findLogs() {
+        return null;
+    }
+
+    @Override
+    public ByteBuffer loadLog(LogMetadata log) {
+        return null;
+    }
+
+    @Override
+    public void close() {
+
+    }
+
+}

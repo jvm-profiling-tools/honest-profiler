@@ -93,7 +93,7 @@ public class LandingViewModel implements MachineListener {
     public void monitor(ActionEvent actionEvent) {
         windowModel.display(Profile);
         MachineButton selectedButton = (MachineButton) toggleMachines.getSelectedToggle();
-        File logFile = selectedButton.getJvm().getLogFile();
+        File logFile = selectedButton.getJvm().getLogSource();
         try {
             conductor.pipeFile(logFile, null, profileListener);
         } catch (IOException e) {
@@ -102,14 +102,13 @@ public class LandingViewModel implements MachineListener {
     }
 
     @Override
-    public ProfileListener onNewMachine(VirtualMachine machine) {
+    public void onNewMachine(VirtualMachine machine) {
         Platform.runLater(() -> {
             ObservableList<Node> children = landingView.getChildren();
             MachineButton button = new MachineButton(machine);
             button.setToggleGroup(toggleMachines);
             children.add(button);
         });
-        return null;
     }
 
     @Override

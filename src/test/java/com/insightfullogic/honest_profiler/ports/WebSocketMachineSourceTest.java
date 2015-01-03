@@ -19,10 +19,10 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.adapters;
+package com.insightfullogic.honest_profiler.ports;
 
-import com.insightfullogic.honest_profiler.adapters.sources.Messages;
-import com.insightfullogic.honest_profiler.adapters.sources.WebSocketMachineSource;
+import com.insightfullogic.honest_profiler.ports.sources.Messages;
+import com.insightfullogic.honest_profiler.ports.sources.WebSocketMachineSource;
 import com.insightfullogic.honest_profiler.core.Conductor;
 import com.insightfullogic.honest_profiler.core.DataConsumer;
 import com.insightfullogic.honest_profiler.core.MachineListener;
@@ -64,7 +64,6 @@ public class WebSocketMachineSourceTest {
             reset(connection, dataConsumer, conductor, listener);
             when(conductor.pipeData(any(), any())).thenReturn(dataConsumer);
             when(dataConsumer.getMachine()).thenReturn(machine);
-            when(listener.onNewMachine(any())).thenReturn(profileListener);
 
             finder = new WebSocketMachineSource(logger, conductor, listener);
         });

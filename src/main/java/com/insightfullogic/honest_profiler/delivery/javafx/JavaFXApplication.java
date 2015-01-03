@@ -21,9 +21,9 @@
  **/
 package com.insightfullogic.honest_profiler.delivery.javafx;
 
-import com.insightfullogic.honest_profiler.adapters.LoggerInjector;
-import com.insightfullogic.honest_profiler.adapters.sources.LocalMachineSource;
-import com.insightfullogic.honest_profiler.adapters.store.FileLogRepository;
+import com.insightfullogic.honest_profiler.ports.LoggerInjector;
+import com.insightfullogic.honest_profiler.ports.sources.LocalMachineSource;
+import com.insightfullogic.honest_profiler.ports.store.FileLogRepository;
 import com.insightfullogic.honest_profiler.core.Conductor;
 import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
 import com.insightfullogic.honest_profiler.delivery.javafx.landing.LandingViewModel;

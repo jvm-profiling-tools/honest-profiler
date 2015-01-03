@@ -19,13 +19,12 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.adapters.sources;
+package com.insightfullogic.honest_profiler.ports.sources;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.insightfullogic.honest_profiler.core.Conductor;
 import com.insightfullogic.honest_profiler.core.DataConsumer;
 import com.insightfullogic.honest_profiler.core.MachineListener;
-import com.insightfullogic.honest_profiler.core.ProfileListener;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import org.slf4j.Logger;
 import org.webbitserver.BaseWebSocketHandler;
@@ -80,11 +79,11 @@ public class WebSocketMachineSource extends BaseWebSocketHandler {
         try {
             Messages.NewMachine newMachine = Messages.NewMachine.parseFrom(message);
             VirtualMachine machine = new VirtualMachine(newMachine.getId(), newMachine.getDisplayName(), true, "");
-            ProfileListener profileListener = listener.onNewMachine(machine);
+            /*ProfileListener profileListener = listener.onNewMachine(machine);
             if (profileListener != null) {
                 DataConsumer consumer = conductor.pipeData(machine, profileListener);
                 machines.put(connection, consumer);
-            }
+            }*/
         } catch (InvalidProtocolBufferException e) {
             logger.error(e.getMessage(), e);
         }

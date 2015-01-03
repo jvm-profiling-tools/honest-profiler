@@ -22,9 +22,9 @@
 package com.insightfullogic.honest_profiler.delivery.web;
 
 import app.Root;
-import com.insightfullogic.honest_profiler.adapters.sources.LocalMachineSource;
-import com.insightfullogic.honest_profiler.adapters.sources.WebSocketMachineSource;
-import com.insightfullogic.honest_profiler.adapters.store.FileLogRepository;
+import com.insightfullogic.honest_profiler.ports.sources.LocalMachineSource;
+import com.insightfullogic.honest_profiler.ports.sources.WebSocketMachineSource;
+import com.insightfullogic.honest_profiler.ports.store.FileLogRepository;
 import com.insightfullogic.honest_profiler.core.Conductor;
 import com.insightfullogic.honest_profiler.core.collector.LogCollector;
 import com.insightfullogic.honest_profiler.core.parser.LogParser;
@@ -71,7 +71,7 @@ public class WebEntry {
                 .addComponent(WebSocketMachineSource.class)
                 .addComponent(LocalMachineSource.class)
                 .addComponent(MessageEncoder.class)
-                .addComponent(MachineAdapter.class)
+                .addComponent(WebsocketMachineAdapter.class)
                 .addComponent(WebProfileAdapter.class)
                 .addComponent(ClientConnections.class)
                 .addComponent(ClientHandler.class)

@@ -23,7 +23,6 @@ package com.insightfullogic.honest_profiler.delivery.web;
 
 import com.insightfullogic.honest_profiler.core.MachineListener;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
-import org.slf4j.LoggerFactory;
 import org.webbitserver.WebSocketConnection;
 
 import java.util.HashSet;
@@ -31,13 +30,13 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 // Not thread safe
-public class MachineAdapter implements MachineListener, Consumer<WebSocketConnection> {
+public class WebsocketMachineAdapter implements MachineListener, Consumer<WebSocketConnection> {
 
     private final Set<VirtualMachine> machines;
     private final ClientConnections clients;
     private final MessageEncoder messages;
 
-    public MachineAdapter(ClientConnections clients, MessageEncoder messages) {
+    public WebsocketMachineAdapter(ClientConnections clients, MessageEncoder messages) {
         this.clients = clients;
         this.messages = messages;
         machines = new HashSet<>();
@@ -52,10 +51,10 @@ public class MachineAdapter implements MachineListener, Consumer<WebSocketConnec
     }
 
     @Override
-    public WebProfileAdapter onNewMachine(VirtualMachine machine) {
+    public void onNewMachine(VirtualMachine machine) {
         machines.add(machine);
         clients.sendAll(messages.addJavaVirtualMachine(machine));
-        return new WebProfileAdapter(LoggerFactory.getLogger(WebProfileAdapter.class), machine, clients);
+        //return new WebProfileAdapter(LoggerFactory.getLogger(WebProfileAdapter.class), machine, clients);
     }
 
     @Override

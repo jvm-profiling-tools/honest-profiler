@@ -21,7 +21,7 @@
  **/
 package com.insightfullogic.honest_profiler.delivery.console;
 
-import com.insightfullogic.honest_profiler.adapters.store.FileLogRepository;
+import com.insightfullogic.honest_profiler.ports.store.FileLogRepository;
 import com.insightfullogic.honest_profiler.core.Conductor;
 import com.insightfullogic.honest_profiler.core.ProfileListener;
 import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;

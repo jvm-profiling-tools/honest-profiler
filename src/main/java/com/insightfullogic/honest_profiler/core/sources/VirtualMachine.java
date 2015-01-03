@@ -53,7 +53,7 @@ public class VirtualMachine {
         return agentLoaded;
     }
 
-    public File getLogFile() {
+    public File getLogSource() {
         return new File(userDir, "log.hpl");
     }
 
