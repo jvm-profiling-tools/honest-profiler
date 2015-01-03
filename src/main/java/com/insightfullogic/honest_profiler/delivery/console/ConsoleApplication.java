@@ -21,7 +21,7 @@
  **/
 package com.insightfullogic.honest_profiler.delivery.console;
 
-import com.insightfullogic.honest_profiler.adapters.store.FileLogRepo;
+import com.insightfullogic.honest_profiler.adapters.store.FileLogRepository;
 import com.insightfullogic.honest_profiler.core.Conductor;
 import com.insightfullogic.honest_profiler.core.ProfileListener;
 import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
@@ -59,7 +59,7 @@ public class ConsoleApplication {
         this.output = output;
         this.error = error;
         ui = new ConsoleUserInterface(output);
-        conductor = new Conductor(new FileLogRepo());
+        conductor = new Conductor(new FileLogRepository());
     }
 
     @Option(name = "-log", usage = "set the log that you want to parser or use", required = true)

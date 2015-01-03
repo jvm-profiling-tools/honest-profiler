@@ -19,35 +19,24 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.adapters.store;
+package com.insightfullogic.honest_profiler.core.store;
 
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
-import com.insightfullogic.honest_profiler.core.store.LogMetadata;
-import com.insightfullogic.honest_profiler.core.store.LogRepo;
 
 import java.nio.ByteBuffer;
 import java.util.List;
 
-public class FileLogRepo implements LogRepo {
+public interface LogRepository {
 
-    @Override
-    public FileLogSaver onNewLog(VirtualMachine machine) {
-        return new FileLogSaver();
-    }
+    LogSaver onNewLog(VirtualMachine machine);
 
-    @Override
-    public List<LogMetadata> findLogs() {
-        return null;
-    }
+    List<LogMetadata> findLogs();
 
-    @Override
-    public ByteBuffer loadLog(LogMetadata log) {
-        return null;
-    }
+    ByteBuffer loadLog(LogMetadata log);
 
-    @Override
-    public void close() {
-
-    }
+    /**
+     * Close all children and update log store information
+     */
+    void close();
 
 }

@@ -23,7 +23,7 @@ package com.insightfullogic.honest_profiler.core;
 
 import com.insightfullogic.honest_profiler.core.collector.LogCollector;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
-import com.insightfullogic.honest_profiler.core.store.LogRepo;
+import com.insightfullogic.honest_profiler.core.store.LogRepository;
 import com.insightfullogic.honest_profiler.core.store.LogSaver;
 
 import java.io.File;
@@ -34,10 +34,10 @@ import static org.slf4j.LoggerFactory.getLogger;
 // TODO: decouple saving from parsing/processing (Possibly remove this class)
 public class Conductor {
 
-    private final LogRepo logRepo;
+    private final LogRepository logRepository;
 
-    public Conductor(LogRepo logRepo) {
-        this.logRepo = logRepo;
+    public Conductor(LogRepository logRepository) {
+        this.logRepository = logRepository;
     }
 
     public DataConsumer pipeData(VirtualMachine machine, ProfileListener listener) {
@@ -56,7 +56,7 @@ public class Conductor {
     }
 
     private DataConsumer pipe(VirtualMachine machine, ProfileListener listener, boolean continuous) {
-        LogSaver saver = logRepo.onNewLog(machine);
+        LogSaver saver = logRepository.onNewLog(machine);
 
         if (continuous) {
             ProfileUpdateModerator moderator = new ProfileUpdateModerator(getLogger(ProfileUpdateModerator.class), listener);
