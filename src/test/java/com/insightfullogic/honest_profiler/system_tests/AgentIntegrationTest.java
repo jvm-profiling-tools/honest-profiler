@@ -33,13 +33,9 @@ public class AgentIntegrationTest {{
     describe("Agent Integration", it -> {
 
         it.should("should result in a detectable JVM", expect -> {
-            AgentRunner runner = new AgentRunner("InfiniteExample");
-            runner.start();
-            try {
+            AgentRunner.run("InfiniteExample", runner -> {
 
-            } finally {
-                runner.stop();
-            }
+            });
         });
 
     });

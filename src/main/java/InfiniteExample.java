@@ -1,3 +1,7 @@
+import java.lang.management.ManagementFactory;
+
+import static java.lang.Long.parseLong;
+
 /**
  * Copyright (c) 2014 Richard Warburton (richard.warburton@gmail.com)
  * 
@@ -22,6 +26,11 @@
 public class InfiniteExample {
 
     public static void main(String[] args) throws Exception {
+        final String jvmName = ManagementFactory.getRuntimeMXBean().getName();
+        final int index = jvmName.indexOf('@');
+
+        System.out.println(parseLong(jvmName.substring(0, index)));
+
         while (true) {
             Thread.sleep(1);
             subMethod();

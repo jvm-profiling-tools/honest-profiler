@@ -21,20 +21,71 @@
  **/
 package com.insightfullogic.honest_profiler.testing_utilities;
 
-// TODO: implement
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.function.Consumer;
+
+import static java.lang.Integer.parseInt;
+
 public class AgentRunner {
+
+    private static final Logger logger = LoggerFactory.getLogger(AgentRunner.class);
+    public static final int UNKNOWN_PROCESS_ID = -1;
+
+    public static void run(final String className, final Consumer<AgentRunner> handler) throws IOException {
+        AgentRunner runner = new AgentRunner(className);
+        runner.start();
+        try {
+            handler.accept(runner);
+        } finally {
+            runner.stop();
+        }
+    }
 
     private final String className;
 
-    public AgentRunner(final String className) {
+    private Process process;
+    private int processId;
+
+    private AgentRunner(final String className) {
         this.className = className;
     }
 
-    public void start() {
-
+    private void start() throws IOException {
+        startProcess();
+        readProcessId();
     }
 
-    public void stop() {
-
+    private void startProcess() throws IOException {
+        // Eg: java -agentpath:build/liblagent.so -cp target/classes/ InfiniteExample
+        process = new ProcessBuilder()
+                .command("/usr/bin/java", "-agentpath:build/liblagent.so", "-cp", "target/classes/", className)
+                .redirectError(new File("/tmp/error.log"))
+                .start();
     }
+
+    private void readProcessId() throws IOException {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+            processId = parseInt(reader.readLine());
+        }
+    }
+
+    private void stop() {
+        process.destroy();
+        try {
+            process.waitFor();
+        } catch (InterruptedException e) {
+            logger.info(e.getMessage(), e);
+        }
+    }
+
+    public int getProcessId() {
+        return processId;
+    }
+
 }

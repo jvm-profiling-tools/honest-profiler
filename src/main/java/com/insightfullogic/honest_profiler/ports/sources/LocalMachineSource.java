@@ -21,7 +21,6 @@
  **/
 package com.insightfullogic.honest_profiler.ports.sources;
 
-import com.insightfullogic.honest_profiler.core.Monitor;
 import com.insightfullogic.honest_profiler.core.MachineListener;
 import com.insightfullogic.honest_profiler.core.ThreadedAgent;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
@@ -43,18 +42,23 @@ public class LocalMachineSource {
     private static final String VM_ARGS = "sun.jvm.args";
     private static final String AGENT_NAME = "liblagent.so";
     private static final String USER_DIR = "user.dir";
+    private static final long DEFAULT_SLEEP_PERIOD = 500;
 
     private final Logger logger;
     private final MachineListener listener;
-    private final Monitor monitor;
+    private final long sleepPeriod;
     private final ThreadedAgent threadedAgent;
 
     private Set<VirtualMachineDescriptor> previous;
 
-    public LocalMachineSource(final Logger logger, final MachineListener listener, final Monitor monitor) {
+    public LocalMachineSource(final Logger logger, final MachineListener listener) {
+        this(logger, listener, DEFAULT_SLEEP_PERIOD);
+    }
+
+    public LocalMachineSource(final Logger logger, final MachineListener listener, final long sleepPeriod) {
         this.logger = logger;
         this.listener = listener;
-        this.monitor = monitor;
+        this.sleepPeriod = sleepPeriod;
         previous = new HashSet<>();
         threadedAgent = new ThreadedAgent(LoggerFactory.getLogger(ThreadedAgent.class), this::discoverVirtualMachines);
     }
@@ -64,7 +68,7 @@ public class LocalMachineSource {
         threadedAgent.start();
     }
 
-    private boolean discoverVirtualMachines() {
+    public boolean discoverVirtualMachines() {
         poll();
 
         sleep();
@@ -74,7 +78,7 @@ public class LocalMachineSource {
 
     private void sleep() {
         try {
-            Thread.sleep(500);
+            Thread.sleep(sleepPeriod);
         } catch (InterruptedException e) {
             // Ignore
         }
