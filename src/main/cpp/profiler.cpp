@@ -100,32 +100,24 @@ void Profiler::handle(int signum, siginfo_t *info, void *context) {
     IMPLICITLY_USE(info);
     ErrnoRaii err_storage; // stores and resets errno
 
-    JNIEnv *env = Accessors::CurrentJniEnv();
-    if (env == NULL) {
-        // native / JIT / GC thread, which isn't attached to the JVM.
-        failures_[0]++;
-        return;
-    }
-
+    // prepare sample data structure
     JVMPI_CallFrame frames[kMaxFramesToCapture];
     safe_reset(frames, sizeof(JVMPI_CallFrame) * kMaxFramesToCapture);
 
     JVMPI_CallTrace trace;
     trace.frames = frames;
-    trace.env_id = env;
+    JNIEnv *env = Accessors::CurrentJniEnv();
 
-    ASGCTType asgct = Asgct::GetAsgct();
-    (*asgct)(&trace, kMaxFramesToCapture, context);
-
-    if (trace.num_frames < 0) {
-        int idx = -trace.num_frames;
-        if (idx > kNumCallTraceErrors) {
-            return;
-        }
-        failures_[idx]++;
-    } else {
-        buffer->push(trace);
+    if (env == NULL) {
+    	trace.num_frames = -3; // ticks_unknown_not_Java
     }
+    else {
+		trace.env_id = env;
+		ASGCTType asgct = Asgct::GetAsgct();
+		(*asgct)(&trace, kMaxFramesToCapture, context);
+    }
+    // log all samples, failures included, let the post processing sift through the data
+	buffer->push(trace);
 }
 
 // This method schedules the SIGPROF timer to go off every sec
