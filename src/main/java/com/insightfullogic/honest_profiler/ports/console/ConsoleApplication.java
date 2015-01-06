@@ -34,7 +34,6 @@ import java.io.IOException;
 
 public class ConsoleApplication {
 
-    private final Monitor monitor;
     private final ConsoleUserInterface ui;
     private final Console output;
     private final Console error;
@@ -59,7 +58,6 @@ public class ConsoleApplication {
         this.output = output;
         this.error = error;
         ui = new ConsoleUserInterface(output);
-        monitor = new Monitor();
     }
 
     @Option(name = "-log", usage = "set the log that you want to parser or use", required = true)
@@ -105,7 +103,7 @@ public class ConsoleApplication {
 
             output.stream().println("Printing Profile for: " + logLocation.getAbsolutePath());
 
-            monitor.consumeFile(new FileLogSource(logLocation), listener);
+            Monitor.consumeFile(new FileLogSource(logLocation), listener);
         } catch (IOException e) {
             e.printStackTrace(error.stream());
         }
