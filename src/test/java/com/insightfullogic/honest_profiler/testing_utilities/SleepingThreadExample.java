@@ -19,18 +19,25 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler;
+package com.insightfullogic.honest_profiler.testing_utilities;
 
-import com.insightfullogic.honest_profiler.core.parser.Method;
+public class SleepingThreadExample {
 
-public class ProfileFixtures {
+    public static void main(String[] args) throws Exception {
+        while (true) {
+            long time = System.currentTimeMillis();
+            Thread.sleep(500);
+            if ((System.currentTimeMillis() - time) < 500) {
+                System.out.println("Sleep has been broken");
+            }
+            for (int i = 0; i < 1000; i++) {
+                subMethod();
+            }
+        }
+    }
 
-    public static final long printlnId = 5;
-    public static final long appendId = 6;
-    public static final long printfId = 7;
-
-    public static final Method println = new Method(printlnId, "PrintStream.java", "Ljava/io/PrintStream;", "println");
-    public static final Method append = new Method(appendId, "PrintStream.java", "Ljava/io/PrintStream;", "append");
-    public static final Method printf = new Method(printfId, "PrintStream.java", "Ljava/io/PrintStream;", "printf");
+    private static void subMethod() {
+        System.out.println("calling some code, lalala");
+    }
 
 }

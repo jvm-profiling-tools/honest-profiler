@@ -21,6 +21,7 @@
  **/
 package com.insightfullogic.honest_profiler.system_tests;
 
+import com.insightfullogic.honest_profiler.testing_utilities.AgentRunner;
 import com.insightfullogic.lambdabehave.JunitSuiteRunner;
 import org.junit.runner.RunWith;
 

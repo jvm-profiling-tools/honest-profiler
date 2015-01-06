@@ -19,42 +19,18 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.examples;
+package com.insightfullogic.honest_profiler.testing_utilities;
 
-import java.util.Calendar;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.stream.IntStream;
+import com.insightfullogic.honest_profiler.core.parser.Method;
 
-public class LargeStacktracesExample implements Runnable {
+public class ProfileFixtures {
 
-    public static void main(String[] args) throws Exception {
-        int processors = Runtime.getRuntime().availableProcessors() * 2;
+    public static final long printlnId = 5;
+    public static final long appendId = 6;
+    public static final long printfId = 7;
 
-        ExecutorService threadPool = Executors.newFixedThreadPool(processors);
-        IntStream.range(0, processors)
-                 .forEach(x -> threadPool.submit(new LargeStacktracesExample()));
-    }
-
-    @Override
-    public void run() {
-        while (true) {
-            String value = null;
-            for (int i = 0; i < 100_000; i++) {
-                value = someSillyMethod();
-                try {
-                    Thread.sleep(5);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            System.out.println(value);
-        }
-    }
-
-    private String someSillyMethod() {
-        Calendar cal = Calendar.getInstance();
-        return cal.toString();
-    }
+    public static final Method println = new Method(printlnId, "PrintStream.java", "Ljava/io/PrintStream;", "println");
+    public static final Method append = new Method(appendId, "PrintStream.java", "Ljava/io/PrintStream;", "append");
+    public static final Method printf = new Method(printfId, "PrintStream.java", "Ljava/io/PrintStream;", "printf");
 
 }

@@ -19,25 +19,42 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.examples;
+package com.insightfullogic.honest_profiler.testing_utilities;
 
-public class SleepingThreadExample {
+import java.util.Calendar;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.IntStream;
+
+public class LargeStacktracesExample implements Runnable {
 
     public static void main(String[] args) throws Exception {
+        int processors = Runtime.getRuntime().availableProcessors() * 2;
+
+        ExecutorService threadPool = Executors.newFixedThreadPool(processors);
+        IntStream.range(0, processors)
+                 .forEach(x -> threadPool.submit(new LargeStacktracesExample()));
+    }
+
+    @Override
+    public void run() {
         while (true) {
-            long time = System.currentTimeMillis();
-            Thread.sleep(500);
-            if ((System.currentTimeMillis() - time) < 500) {
-                System.out.println("Sleep has been broken");
+            String value = null;
+            for (int i = 0; i < 100_000; i++) {
+                value = someSillyMethod();
+                try {
+                    Thread.sleep(5);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
-            for (int i = 0; i < 1000; i++) {
-                subMethod();
-            }
+            System.out.println(value);
         }
     }
 
-    private static void subMethod() {
-        System.out.println("calling some code, lalala");
+    private String someSillyMethod() {
+        Calendar cal = Calendar.getInstance();
+        return cal.toString();
     }
 
 }

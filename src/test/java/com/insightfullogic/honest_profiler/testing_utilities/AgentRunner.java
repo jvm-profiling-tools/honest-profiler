@@ -19,7 +19,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.system_tests;
+package com.insightfullogic.honest_profiler.testing_utilities;
 
 // TODO: implement
 public class AgentRunner {

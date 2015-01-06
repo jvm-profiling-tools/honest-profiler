@@ -21,7 +21,7 @@
  **/
 package com.insightfullogic.honest_profiler.ports.console;
 
-import com.insightfullogic.honest_profiler.ProfileFixtures;
+import com.insightfullogic.honest_profiler.testing_utilities.ProfileFixtures;
 import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
 import com.insightfullogic.honest_profiler.core.collector.Profile;
 import com.insightfullogic.honest_profiler.core.collector.ProfileNode;
