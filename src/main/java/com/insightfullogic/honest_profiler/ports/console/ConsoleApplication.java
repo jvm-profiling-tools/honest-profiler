@@ -30,7 +30,6 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
 import java.io.File;
-import java.io.IOException;
 
 public class ConsoleApplication {
 
@@ -106,7 +105,8 @@ public class ConsoleApplication {
             output.stream().println("Printing Profile for: " + logLocation.getAbsolutePath());
 
             monitor.consumeFile(new FileLogSource(logLocation), listener);
-        } catch (IOException e) {
+        } catch (Exception e) {
+            // TODO: better error handling
             e.printStackTrace(error.stream());
         }
     }

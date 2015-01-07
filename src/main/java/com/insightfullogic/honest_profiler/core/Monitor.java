@@ -25,8 +25,6 @@ import com.insightfullogic.honest_profiler.core.collector.LogCollector;
 import com.insightfullogic.honest_profiler.core.parser.LogParser;
 import com.insightfullogic.honest_profiler.core.sources.LogSource;
 
-import java.io.IOException;
-
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -34,7 +32,7 @@ import static org.slf4j.LoggerFactory.getLogger;
  */
 public class Monitor {
 
-    public void pipeFile(final LogSource logSource, final ProfileListener listener) throws IOException {
+    public void pipeFile(final LogSource logSource, final ProfileListener listener) {
         ProfileUpdateModerator moderator = new ProfileUpdateModerator(getLogger(ProfileUpdateModerator.class), listener);
         moderator.start();
 
@@ -42,13 +40,13 @@ public class Monitor {
         new ThreadedAgent(getLogger(ThreadedAgent.class), conductor::run).start();
     }
 
-    public void consumeFile(final LogSource logSource, final ProfileListener listener) throws IOException {
+    public void consumeFile(final LogSource logSource, final ProfileListener listener) {
         Conductor consumer = pipe(logSource, listener, false);
         while (consumer.run())
             ;
     }
 
-    private Conductor pipe(final LogSource logSource, final ProfileListener listener, final boolean continuous) throws IOException {
+    private Conductor pipe(final LogSource logSource, final ProfileListener listener, final boolean continuous) {
         LogCollector collector = new LogCollector(listener, continuous);
         LogParser parser = new LogParser(getLogger(LogParser.class), collector);
         return new Conductor(getLogger(Conductor.class), logSource, parser, continuous);

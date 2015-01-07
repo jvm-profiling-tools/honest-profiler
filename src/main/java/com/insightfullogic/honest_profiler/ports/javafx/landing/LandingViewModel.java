@@ -24,6 +24,7 @@ package com.insightfullogic.honest_profiler.ports.javafx.landing;
 import com.insightfullogic.honest_profiler.core.MachineListener;
 import com.insightfullogic.honest_profiler.core.Monitor;
 import com.insightfullogic.honest_profiler.core.ProfileListener;
+import com.insightfullogic.honest_profiler.core.sources.CantReadFromSourceException;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.insightfullogic.honest_profiler.ports.javafx.WindowViewModel;
 import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
@@ -39,7 +40,6 @@ import javafx.stage.FileChooser;
 import org.slf4j.Logger;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -91,7 +91,7 @@ public class LandingViewModel implements MachineListener {
             windowModel.display(Profile);
             try {
                 monitor.consumeFile(new FileLogSource(file), profileListener);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
         }
@@ -103,7 +103,7 @@ public class LandingViewModel implements MachineListener {
         VirtualMachine vm = selectedButton.getJvm();
         try {
             monitor.pipeFile(vm.getLogSource(), profileListener);
-        } catch (IOException e) {
+        } catch (CantReadFromSourceException e) {
             logger.error(e.getMessage(), e);
         }
     }

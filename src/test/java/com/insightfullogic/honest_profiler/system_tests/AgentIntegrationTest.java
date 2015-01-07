@@ -21,23 +21,70 @@
  **/
 package com.insightfullogic.honest_profiler.system_tests;
 
+import com.insightfullogic.honest_profiler.core.MachineListener;
+import com.insightfullogic.honest_profiler.core.Monitor;
+import com.insightfullogic.honest_profiler.core.collector.Profile;
+import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
+import com.insightfullogic.honest_profiler.ports.sources.LocalMachineSource;
 import com.insightfullogic.honest_profiler.testing_utilities.AgentRunner;
 import com.insightfullogic.lambdabehave.JunitSuiteRunner;
+import com.insightfullogic.lambdabehave.expectations.Expect;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.LockSupport;
 
 import static com.insightfullogic.lambdabehave.Suite.describe;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.mockito.Mockito.mock;
 
+@Ignore
 @RunWith(JunitSuiteRunner.class)
 public class AgentIntegrationTest {{
 
     describe("Agent Integration", it -> {
 
-        it.should("should result in a detectable JVM", expect -> {
-            AgentRunner.run("InfiniteExample", runner -> {
+        Logger logger = mock(Logger.class);
 
+        it.should("should result in a monitorable JVM", expect -> {
+            AgentRunner.run("InfiniteExample", runner -> {
+                int seenTraceCount = 0;
+
+                AtomicReference<Profile> lastProfile = new AtomicReference<>();
+                LockSupport.parkNanos(SECONDS.toNanos(1));
+
+                new LocalMachineSource(logger, new MachineListener() {
+                    @Override
+                    public void onNewMachine(final VirtualMachine machine) {
+                        if (machine.isAgentLoaded()) {
+                            Monitor monitor = new Monitor();
+                            monitor.pipeFile(machine.getLogSource(), lastProfile::set);
+                        }
+                    }
+
+                    @Override
+                    public void onClosedMachine(final VirtualMachine machine) {
+
+                    }
+                }).discoverVirtualMachines();
+
+                seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
+
+                seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
+
+                seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
             });
         });
-
     });
 
-}}
+}
+
+    int expectIncreasingTraceCount(Expect expect, int seenTraceCount, AtomicReference<Profile> lastProfile) {
+        LockSupport.parkNanos(SECONDS.toNanos(1));
+        int currentTraceCount = lastProfile.get().getTraceCount();
+        expect.that(currentTraceCount).isGreaterThan(seenTraceCount);
+        return currentTraceCount;
+    }
+}

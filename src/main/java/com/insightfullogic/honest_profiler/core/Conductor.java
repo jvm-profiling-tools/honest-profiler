@@ -22,11 +22,10 @@
 package com.insightfullogic.honest_profiler.core;
 
 import com.insightfullogic.honest_profiler.core.parser.LogParser;
-import com.insightfullogic.honest_profiler.core.parser.LogParser.LogState;
 import com.insightfullogic.honest_profiler.core.sources.LogSource;
 import org.slf4j.Logger;
 
-import java.io.IOException;
+import static com.insightfullogic.honest_profiler.core.parser.LogParser.ReadResult.NOTHING_READ;
 
 public class Conductor {
 
@@ -49,29 +48,32 @@ public class Conductor {
         this.continuous = continuous;
     }
 
-    public boolean run() throws IOException {
+    public boolean run() {
         try {
-            final LogState logState = parser.readRecord(source.read());
-            switch (logState) {
-                case END_OF_LOG:
-                    source.close();
-                    return false;
+            switch (parser.readRecord(source.read())) {
+                case READ_RECORD:
+                    return true;
+
                 case NOTHING_READ:
                     if (continuous) {
                         sleep();
                     } else {
+                        logEndOfLog(NOTHING_READ);
                         parser.endOfLog();
                     }
                     return continuous;
-                case READ_RECORD:
-                    return true;
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.error(e.getMessage(), e);
+            logEndOfLog(e.getMessage());
             parser.endOfLog();
         }
 
         return false;
+    }
+
+    private void logEndOfLog(final Object cause) {
+        logger.debug("Reached end of log for {} due to {}", source, cause);
     }
 
     private void sleep() {
