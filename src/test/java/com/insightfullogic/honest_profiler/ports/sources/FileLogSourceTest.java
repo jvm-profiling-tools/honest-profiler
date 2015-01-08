@@ -59,8 +59,6 @@ public class FileLogSourceTest {{
                 buffer = source.read();
                 expect.that(buffer.limit()).isGreaterThanOrEqualTo(1)
                       .and(buffer.get()).is((byte)2);
-
-
             }
         });
     });

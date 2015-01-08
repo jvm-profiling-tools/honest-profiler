@@ -44,7 +44,7 @@ public class FileLogSource implements LogSource {
         this.file = file;
         try {
             channel = new RandomAccessFile(file, "r").getChannel();
-            remapFile(0, channel.size());
+            remapFile(channel.size());
         } catch (IOException e) {
             throw new CantReadFromSourceException(e);
         }
@@ -52,8 +52,9 @@ public class FileLogSource implements LogSource {
 
     // Shame there's no simple abstraction for reading over both files
     // and network bytebuffers
-    private void remapFile(final int position, final long size) throws IOException {
-        buffer = channel.map(READ_ONLY, position, size);
+    private void remapFile(final long size) throws IOException {
+        buffer = channel.map(READ_ONLY, 0, size);
+
     }
 
     @Override
@@ -62,7 +63,9 @@ public class FileLogSource implements LogSource {
             int limit = buffer.limit();
             long channelSize = channel.size();
             if (channelSize > limit) {
-                remapFile(limit, channelSize - limit);
+                int oldPosition = buffer.position();
+                remapFile(channelSize);
+                buffer.position(oldPosition);
             }
         } catch (IOException e) {
             throw new CantReadFromSourceException(e);

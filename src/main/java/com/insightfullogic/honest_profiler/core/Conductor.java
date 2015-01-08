@@ -22,6 +22,7 @@
 package com.insightfullogic.honest_profiler.core;
 
 import com.insightfullogic.honest_profiler.core.parser.LogParser;
+import com.insightfullogic.honest_profiler.core.parser.LogParser.AmountRead;
 import com.insightfullogic.honest_profiler.core.sources.LogSource;
 import org.slf4j.Logger;
 
@@ -50,7 +51,8 @@ public class Conductor {
 
     public boolean run() {
         try {
-            switch (parser.readRecord(source.read())) {
+            AmountRead amount = parser.readRecord(source.read());
+            switch (amount) {
                 case COMPLETE_RECORD:
                     return true;
 

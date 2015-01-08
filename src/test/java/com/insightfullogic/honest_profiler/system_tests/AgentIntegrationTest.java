@@ -34,10 +34,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.LockSupport;
 
 import static com.insightfullogic.lambdabehave.Suite.describe;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.concurrent.locks.LockSupport.parkNanos;
 
 @RunWith(JunitSuiteRunner.class)
 public class AgentIntegrationTest {{
@@ -49,7 +49,7 @@ public class AgentIntegrationTest {{
                 int seenTraceCount = 0;
 
                 AtomicReference<Profile> lastProfile = new AtomicReference<>();
-                LockSupport.parkNanos(SECONDS.toNanos(1));
+                parkNanos(SECONDS.toNanos(1));
 
                 new LocalMachineSource(logger, new MachineListener() {
                     @Override
@@ -81,7 +81,7 @@ public class AgentIntegrationTest {{
 
     int expectIncreasingTraceCount(Expect expect, int seenTraceCount, AtomicReference<Profile> lastProfile) {
         logger.debug("Last seen trace count is {}", seenTraceCount);
-        LockSupport.parkNanos(SECONDS.toNanos(1));
+        parkNanos(SECONDS.toNanos(1));
         int currentTraceCount = lastProfile.get().getTraceCount();
         expect.that(currentTraceCount).isGreaterThan(seenTraceCount);
         return currentTraceCount;
