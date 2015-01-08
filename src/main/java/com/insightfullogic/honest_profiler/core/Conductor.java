@@ -25,7 +25,7 @@ import com.insightfullogic.honest_profiler.core.parser.LogParser;
 import com.insightfullogic.honest_profiler.core.sources.LogSource;
 import org.slf4j.Logger;
 
-import static com.insightfullogic.honest_profiler.core.parser.LogParser.ReadResult.NOTHING_READ;
+import static com.insightfullogic.honest_profiler.core.parser.LogParser.AmountRead.NOTHING;
 
 public class Conductor {
 
@@ -51,14 +51,18 @@ public class Conductor {
     public boolean run() {
         try {
             switch (parser.readRecord(source.read())) {
-                case READ_RECORD:
+                case COMPLETE_RECORD:
                     return true;
 
-                case NOTHING_READ:
+                case PARTIAL_RECORD:
+                    sleep();
+                    return true;
+
+                case NOTHING:
                     if (continuous) {
                         sleep();
                     } else {
-                        logEndOfLog(NOTHING_READ);
+                        logEndOfLog(NOTHING);
                         parser.endOfLog();
                     }
                     return continuous;

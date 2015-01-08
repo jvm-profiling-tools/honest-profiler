@@ -29,24 +29,20 @@ import com.insightfullogic.honest_profiler.ports.sources.LocalMachineSource;
 import com.insightfullogic.honest_profiler.testing_utilities.AgentRunner;
 import com.insightfullogic.lambdabehave.JunitSuiteRunner;
 import com.insightfullogic.lambdabehave.expectations.Expect;
-import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.LockSupport;
 
 import static com.insightfullogic.lambdabehave.Suite.describe;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.mockito.Mockito.mock;
 
-@Ignore
 @RunWith(JunitSuiteRunner.class)
 public class AgentIntegrationTest {{
 
     describe("Agent Integration", it -> {
-
-        Logger logger = mock(Logger.class);
 
         it.should("should result in a monitorable JVM", expect -> {
             AgentRunner.run("InfiniteExample", runner -> {
@@ -81,7 +77,10 @@ public class AgentIntegrationTest {{
 
 }
 
+    private static Logger logger = LoggerFactory.getLogger(AgentIntegrationTest.class);
+
     int expectIncreasingTraceCount(Expect expect, int seenTraceCount, AtomicReference<Profile> lastProfile) {
+        logger.debug("Last seen trace count is {}", seenTraceCount);
         LockSupport.parkNanos(SECONDS.toNanos(1));
         int currentTraceCount = lastProfile.get().getTraceCount();
         expect.that(currentTraceCount).isGreaterThan(seenTraceCount);

@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
-import static com.insightfullogic.honest_profiler.core.parser.LogParser.ReadResult.*;
+import static com.insightfullogic.honest_profiler.core.parser.LogParser.AmountRead.*;
 
 public class LogParser {
 
@@ -38,16 +38,18 @@ public class LogParser {
     private final LogEventListener listener;
     private final Logger logger;
 
-    public static enum ReadResult { READ_RECORD, NOTHING_READ }
+    public static enum AmountRead {COMPLETE_RECORD, PARTIAL_RECORD, NOTHING}
 
     public LogParser(final Logger logger, final LogEventListener listener) {
         this.listener = listener;
         this.logger = logger;
     }
 
-    public ReadResult readRecord(ByteBuffer input) {
+    public AmountRead readRecord(ByteBuffer input) {
+        int initialPosition = input.position();
+
         if (!input.hasRemaining()) {
-            return NOTHING_READ;
+            return NOTHING;
         }
 
         byte type = input.get();
@@ -56,22 +58,26 @@ public class LogParser {
                 case NOT_WRITTEN:
                     // back back one byte since we've just read a 0
                     input.position(input.position() - 1);
-                    return NOTHING_READ;
+                    return NOTHING;
                 case TRACE_START:
                     readTraceStart(input);
-                    return READ_RECORD;
+                    return COMPLETE_RECORD;
                 case STACK_FRAME:
                     readStackFrame(input);
-                    return READ_RECORD;
+                    return COMPLETE_RECORD;
                 case NEW_METHOD:
                     readNewMethod(input);
-                    return READ_RECORD;
+                    return COMPLETE_RECORD;
             }
         } catch (BufferUnderflowException e) {
-            logger.error(e.getMessage(), e);
+            // If you've underflowed the buffer,
+            // then you need to wait for more data to be written.
+            input.position(initialPosition);
+            return PARTIAL_RECORD;
         }
 
-        return NOTHING_READ;
+        // Should never get here
+        return NOTHING;
     }
 
     public void endOfLog() {

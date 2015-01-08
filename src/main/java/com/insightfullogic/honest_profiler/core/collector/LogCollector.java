@@ -73,7 +73,6 @@ public class LogCollector implements LogEventListener {
         collectThreadDump();
         emitProfileIfNeeded();
         traceCount++;
-        // TODO: log traceStart.getNumberOfFrames();
         reversalStack.clear();
         currentThread = traceStart.getThreadId();
         currentTreeNode = null;
