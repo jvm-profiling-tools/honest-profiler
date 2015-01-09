@@ -10,18 +10,6 @@
 static ConfigurationOptions* CONFIGURATION = new ConfigurationOptions();
 static Profiler* prof;
 
-void JNICALL OnThreadStart(jvmtiEnv *jvmti_env, JNIEnv *jni_env,
-        jthread thread) {
-    IMPLICITLY_USE(jvmti_env);
-    IMPLICITLY_USE(thread);
-    Accessors::SetCurrentJniEnv(jni_env);
-}
-
-void JNICALL OnThreadEnd(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread thread) {
-    IMPLICITLY_USE(jvmti_env);
-    IMPLICITLY_USE(jni_env);
-    IMPLICITLY_USE(thread);
-}
 
 // This has to be here, or the VM turns off class loading events.
 // And AsyncGetCallTrace needs class loading events to be turned on!
@@ -127,8 +115,6 @@ static bool RegisterJvmti(jvmtiEnv *jvmti) {
     jvmtiEventCallbacks *callbacks = new jvmtiEventCallbacks();
     memset(callbacks, 0, sizeof(jvmtiEventCallbacks));
 
-    callbacks->ThreadStart = &OnThreadStart;
-    callbacks->ThreadEnd = &OnThreadEnd;
     callbacks->VMInit = &OnVMInit;
     callbacks->VMDeath = &OnVMDeath;
 
@@ -140,7 +126,6 @@ static bool RegisterJvmti(jvmtiEnv *jvmti) {
             false);
 
     jvmtiEvent events[] = {JVMTI_EVENT_CLASS_LOAD, JVMTI_EVENT_CLASS_PREPARE,
-            JVMTI_EVENT_THREAD_END, JVMTI_EVENT_THREAD_START,
             JVMTI_EVENT_VM_DEATH, JVMTI_EVENT_VM_INIT};
 
     size_t num_events = sizeof(events) / sizeof(jvmtiEvent);
@@ -180,15 +165,13 @@ static void parseArguments(char *options, ConfigurationOptions &configuration) {
     }
 }
 
-AGENTEXPORT jint JNICALL Agent_OnLoad(JavaVM *vm, char *options, void *reserved) {
+AGENTEXPORT jint JNICALL Agent_OnLoad(JavaVM *jvm, char *options, void *reserved) {
     IMPLICITLY_USE(reserved);
     int err;
     jvmtiEnv *jvmti;
     parseArguments(options, *CONFIGURATION);
 
-    Accessors::Init();
-
-    if ((err = (vm->GetEnv(reinterpret_cast<void **>(&jvmti), JVMTI_VERSION))) !=
+    if ((err = (jvm->GetEnv(reinterpret_cast<void **>(&jvmti), JVMTI_VERSION))) !=
             JNI_OK) {
         logError("JVMTI initialisation Error %d\n", err);
         return 1;
@@ -218,14 +201,13 @@ AGENTEXPORT jint JNICALL Agent_OnLoad(JavaVM *vm, char *options, void *reserved)
 
     Asgct::SetAsgct(Accessors::GetJvmFunction<ASGCTType>("AsyncGetCallTrace"));
 
-    prof = new Profiler(jvmti, CONFIGURATION);
+    prof = new Profiler(jvm, jvmti, CONFIGURATION);
 
     return 0;
 }
 
 AGENTEXPORT void JNICALL Agent_OnUnload(JavaVM *vm) {
     IMPLICITLY_USE(vm);
-    Accessors::Destroy();
 }
 
 void bootstrapHandle(int signum, siginfo_t *info, void *context) {

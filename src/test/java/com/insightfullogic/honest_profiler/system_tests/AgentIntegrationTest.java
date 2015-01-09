@@ -55,8 +55,7 @@ public class AgentIntegrationTest {{
                     @Override
                     public void onNewMachine(final VirtualMachine machine) {
                         if (machine.isAgentLoaded()) {
-                            Monitor monitor = new Monitor();
-                            monitor.pipeFile(machine.getLogSource(), lastProfile::set);
+                            Monitor.pipeFile(machine.getLogSource(), lastProfile::set);
                         }
                     }
 
