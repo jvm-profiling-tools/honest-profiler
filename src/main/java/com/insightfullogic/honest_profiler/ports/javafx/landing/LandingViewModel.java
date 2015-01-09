@@ -55,18 +55,15 @@ public class LandingViewModel implements MachineListener {
 
     private final ToggleGroup toggleMachines;
     private final Logger logger;
-    private final Monitor monitor;
     private final WindowViewModel windowModel;
     private final ProfileListener profileListener;
     private final Set<VirtualMachine> machines;
 
     public LandingViewModel(
             final Logger logger,
-            final Monitor monitor,
             final WindowViewModel windowModel,
             final ProfileListener profileListener) {
         this.logger = logger;
-        this.monitor = monitor;
         this.windowModel = windowModel;
         this.profileListener = profileListener;
         toggleMachines = new ToggleGroup();
@@ -90,7 +87,7 @@ public class LandingViewModel implements MachineListener {
         if (file != null) {
             windowModel.display(Profile);
             try {
-                monitor.consumeFile(new FileLogSource(file), profileListener);
+                Monitor.consumeFile(new FileLogSource(file), profileListener);
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
@@ -102,7 +99,7 @@ public class LandingViewModel implements MachineListener {
         MachineButton selectedButton = (MachineButton) toggleMachines.getSelectedToggle();
         VirtualMachine vm = selectedButton.getJvm();
         try {
-            monitor.pipeFile(vm.getLogSource(), profileListener);
+            Monitor.pipeFile(vm.getLogSource(), profileListener);
         } catch (CantReadFromSourceException e) {
             logger.error(e.getMessage(), e);
         }
