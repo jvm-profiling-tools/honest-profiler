@@ -33,7 +33,7 @@ private:
 
 class Profiler {
 public:
-    explicit Profiler(jvmtiEnv *jvmti, ConfigurationOptions* configuration) : jvmti_(jvmti), configuration_(configuration) {
+    explicit Profiler(JavaVM *jvm, jvmtiEnv *jvmti, ConfigurationOptions *configuration) : jvm_(jvm), configuration_(configuration) {
         // main object graph instantiated here
         // these objects all live for the lifecycle of the program
 
@@ -70,9 +70,9 @@ public:
     }
 
 private:
-    jvmtiEnv *jvmti_;
+    JavaVM *jvm_;
 
-    ConfigurationOptions* configuration_;
+    ConfigurationOptions *configuration_;
 
     ostream *logFile;
 
@@ -84,13 +84,13 @@ private:
 
     SignalHandler handler_;
 
-    static int failures_[kNumCallTraceErrors + 1]; // they are indexed from 1
-
     static bool lookupFrameInformation(const JVMPI_CallFrame &frame,
             jvmtiEnv *jvmti,
             MethodListener &logWriter);
 
     DISALLOW_COPY_AND_ASSIGN(Profiler);
+
+    JNIEnv *getJNIEnv();
 };
 
 #endif // PROFILER_H
