@@ -57,64 +57,62 @@ public class ConsoleLogDumpApplication {
     }
 
     public void run() {
-
         final PrintStream err = error.stream();
-
         if (!logLocation.exists() || !logLocation.canRead()) {
             err.println("Unable to find log file at: " + logLocation);
             return;
         }
 
         final PrintStream out = output.stream();
-        out.println("Printing text represantation for: " + logLocation.getAbsolutePath());
+        out.println("Printing text representation for: " + logLocation.getAbsolutePath());
 
         Monitor.consumeFile(new FileLogSource(logLocation), new LogEventListener() {
             int indent;
             long traceidx;
             long errCount;
-            Map<Long, ClassMethod> methodNames = new HashMap<>();
+            Map<Long, BoundMethod> methodNames = new HashMap<>();
 
             @Override
-            public void handle(Method m) {
-                ClassMethod cm = new ClassMethod(m.getClassName(), m.getMethodName());
-                out.printf("Method   : %d -> %s.%s\n", m.getMethodId(), m.getClassName(), m.getMethodName());
-                methodNames.put(m.getMethodId(), cm);
+            public void handle(Method method) {
+                BoundMethod boundMethod = new BoundMethod(method.getClassName(), method.getMethodName());
+                out.printf("Method   : %d -> %s.%s\n", method.getMethodId(), method.getClassName(), method.getMethodName());
+                methodNames.put(method.getMethodId(), boundMethod);
             }
 
             @Override
-            public void handle(StackFrame sf) {
+            public void handle(StackFrame stackFrame) {
                 indent--;
-                long methodId = sf.getMethodId();
-                ClassMethod cm = methodNames.get(methodId);
+                long methodId = stackFrame.getMethodId();
+                BoundMethod boundMethod = methodNames.get(methodId);
                 if (methodId == 0) { // null method
                     errCount++;
                     out.print("StackFrame: ");
                     indent(out);
-                    out.printf("%d @ %s\n", methodId, sf.getLineNumber());
-                } else if (cm == null) {
+                    out.printf("%d @ %s\n", methodId, stackFrame.getLineNumber());
+                } else if (boundMethod == null) {
                     out.print("StackFrame: ");
                     indent(out);
-                    out.printf("%d @ %s\n", methodId, sf.getLineNumber());
+                    out.printf("%d @ %s\n", methodId, stackFrame.getLineNumber());
                 } else {
                     out.print("StackFrame: ");
                     indent(out);
-                    out.printf("%s::%s @ %s\n", cm.cName, cm.mName, sf.getLineNumber());
+                    out.printf("%s::%s @ %s\n", boundMethod.className, boundMethod.methodName, stackFrame.getLineNumber());
                 }
             }
 
             private void indent(final PrintStream out) {
                 for (int i = 0; i < indent; i++)
-                    out.print(" ");
+                    out.print(' ');
             }
 
             @Override
-            public void handle(TraceStart ts) {
-                int frames = ts.getNumberOfFrames();
+            public void handle(TraceStart traceStart) {
+                int frames = traceStart.getNumberOfFrames();
                 if (frames <= 0) {
-                    out.printf("TraceStart: [%d] tid=%d,frames=%d\n", traceidx, ts.getThreadId(), frames);
+                    out.printf("TraceStart: [%d] tid=%d,frames=%d\n", traceidx, traceStart.getThreadId(), frames);
                     errCount++;
                 } else {
-                    out.printf("TraceStartL [%d] tid=%d,frames=%d\n", traceidx, ts.getThreadId(), frames);
+                    out.printf("TraceStartL [%d] tid=%d,frames=%d\n", traceidx, traceStart.getThreadId(), frames);
                 }
                 indent = frames;
                 traceidx++;
@@ -127,12 +125,12 @@ public class ConsoleLogDumpApplication {
         });
     }
 
-    static class ClassMethod {
-        final String cName, mName;
+    private static class BoundMethod {
+        private final String className, methodName;
 
-        public ClassMethod(String className, String methodName) {
-            this.cName = className;
-            this.mName = methodName;
+        public BoundMethod(String className, String methodName) {
+            this.className = className;
+            this.methodName = methodName;
         }
     }
 
