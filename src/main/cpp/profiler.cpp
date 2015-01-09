@@ -1,22 +1,7 @@
 #include "profiler.h"
-
-#include <errno.h>
-#include <stdlib.h>
-#include <string.h>
 #include <sys/time.h>
 
-#ifdef __APPLE__
-// See comment in Accessors class
-pthread_key_t Accessors::key_;
-#else
-__thread JNIEnv
-*
-Accessors::env_;
-#endif
-
 ASGCTType Asgct::asgct_;
-
-int Profiler::failures_[kNumCallTraceErrors + 1];
 
 namespace {
 
@@ -98,7 +83,6 @@ bool Profiler::lookupFrameInformation(const JVMPI_CallFrame &frame,
 void Profiler::handle(int signum, siginfo_t *info, void *context) {
     IMPLICITLY_USE(signum);
     IMPLICITLY_USE(info);
-    ErrnoRaii err_storage; // stores and resets errno
 
     // prepare sample data structure
     JVMPI_CallFrame frames[kMaxFramesToCapture];
@@ -106,18 +90,27 @@ void Profiler::handle(int signum, siginfo_t *info, void *context) {
 
     JVMPI_CallTrace trace;
     trace.frames = frames;
-    JNIEnv *env = Accessors::CurrentJniEnv();
-
-    if (env == NULL) {
+    JNIEnv *jniEnv = getJNIEnv();
+    if (jniEnv == NULL) {
     	trace.num_frames = -3; // ticks_unknown_not_Java
     }
     else {
-		trace.env_id = env;
+		trace.env_id = jniEnv;
 		ASGCTType asgct = Asgct::GetAsgct();
 		(*asgct)(&trace, kMaxFramesToCapture, context);
     }
     // log all samples, failures included, let the post processing sift through the data
 	buffer->push(trace);
+}
+
+JNIEnv *Profiler::getJNIEnv() {
+    JNIEnv *jniEnv = NULL;
+    int getEnvStat = jvm_->GetEnv((void **)&jniEnv, JNI_VERSION_1_6);
+    // check for issues
+    if (getEnvStat == JNI_EDETACHED || getEnvStat == JNI_EVERSION) {
+        jniEnv = NULL;
+    }
+    return jniEnv;
 }
 
 // This method schedules the SIGPROF timer to go off every sec
@@ -160,8 +153,6 @@ struct sigaction SignalHandler::SetAction(void (*action)(int, siginfo_t *,
 }
 
 bool Profiler::start(JNIEnv *jniEnv) {
-    memset(failures_, 0, sizeof(failures_));
-
     // reference back to Profiler::handle on the singleton
     // instance of Profiler
     handler_.SetAction(&bootstrapHandle);
