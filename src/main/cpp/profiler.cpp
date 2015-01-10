@@ -93,14 +93,13 @@ void Profiler::handle(int signum, siginfo_t *info, void *context) {
     JNIEnv *jniEnv = getJNIEnv();
     if (jniEnv == NULL) {
     	trace.num_frames = -3; // ticks_unknown_not_Java
-    }
-    else {
-		trace.env_id = jniEnv;
-		ASGCTType asgct = Asgct::GetAsgct();
-		(*asgct)(&trace, kMaxFramesToCapture, context);
+    } else {
+  		trace.env_id = jniEnv;
+	  	ASGCTType asgct = Asgct::GetAsgct();
+		  (*asgct)(&trace, kMaxFramesToCapture, context);
     }
     // log all samples, failures included, let the post processing sift through the data
-	buffer->push(trace);
+  	buffer->push(trace);
 }
 
 JNIEnv *Profiler::getJNIEnv() {
