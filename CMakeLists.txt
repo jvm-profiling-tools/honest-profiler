@@ -30,8 +30,13 @@ find_package(JNI REQUIRED)
 include_directories(${JAVA_INCLUDE_PATH})
 include_directories(${JAVA_INCLUDE_PATH2})
 
-pkg_check_modules (unittest++ REQUIRED unittest++)
-include_directories(${unittest++_INCLUDE_DIRS})
+if (DEFINED ENV{UNITTEST_INCLUDE_DIRS})
+    message("User has configured " $ENV{UNITTEST_INCLUDE_DIRS} " as the unit test include directory")
+    include_directories($ENV{UNITTEST_INCLUDE_DIRS})
+else()
+    pkg_check_modules (unittest++ REQUIRED unittest++)
+    include_directories(${unittest++_INCLUDE_DIRS})
+endif()
 
 # include of gcc 4.8 headers specifically to work around
 # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=729933
@@ -67,7 +72,7 @@ set(GLOBAL_WARNINGS "${GLOBAL_WARNINGS} -Wno-sign-compare -Wno-strict-overflow -
 set(GLOBAL_WARNINGS "${GLOBAL_WARNINGS} -Wnon-virtual-dtor -Woverloaded-virtual")
 
 set(GLOBAL_COPTS "-fdiagnostics-show-option -fno-omit-frame-pointer -fno-strict-aliasing")
-set(GLOBAL_COPTS "${GLOBAL_COPTS} -funsigned-char -fno-asynchronous-unwind-tables -msse2 -g -D__STDC_FORMAT_MACROS -O2 -fno-tree-loop-distribute-patterns")
+set(GLOBAL_COPTS "${GLOBAL_COPTS} -funsigned-char -fno-asynchronous-unwind-tables -msse2 -g -D__STDC_FORMAT_MACROS -O2")
 
 # Platform Specific
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -85,7 +90,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set(global_warNINGS, "${GLOBAL_WARNINGS} -Wno-missing-prototypes -Wno-weak-vtables -Wno-global-constructors")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     message("-- using GCC")
-    set(GLOBAL_COPTS "${GLOBAL_COPTS} -mfpmath=sse")
+    set(GLOBAL_COPTS "${GLOBAL_COPTS} -mfpmath=sse -fno-tree-loop-distribute-patterns")
     set(GLOBAL_WARNINGS, "${GLOBAL_WARNINGS} -Wframe-larger-than=16384 -Wno-unused-but-set-variable")
     set(GLOBAL_WARNINGS, "${GLOBAL_WARNINGS} -Wunused-but-set-parameter -Wvla -Wno-conversion-null")
     set(GLOBAL_WARNINGS, "${GLOBAL_WARNINGS} -Wno-unknown-pragmas -Wno-builtin-macro-redefined -Wl,-fatal_warnings")
@@ -101,7 +106,12 @@ target_link_libraries(${OUTPUT} ${JNI_LIBRARIES} dl)
 
 add_executable(unitTests ${TEST_FILES})
 
-target_link_libraries(unitTests ${OUTPUT} ${unittest++_LIBRARIES})
+if (DEFINED ENV{UNITTEST_LIBRARIES})
+    message("User has configured " $ENV{UNITTEST_LIBRARIES} " as the unit test libraries")
+    target_link_libraries(unitTests ${OUTPUT} $ENV{UNITTEST_LIBRARIES})
+else()
+    target_link_libraries(unitTests ${OUTPUT} ${unittest++_LIBRARIES})
+endif()
 
 # make test
 add_test(unitTests ${BIN}/unitTests)
