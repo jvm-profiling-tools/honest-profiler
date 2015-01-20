@@ -32,7 +32,7 @@ import java.util.Objects;
 /**
  * Represents a Java Virtual Machine
  */
-public class VirtualMachine {
+public class VirtualMachine implements Comparable<VirtualMachine> {
 
     private final String id;
     private final String displayName;
@@ -99,4 +99,10 @@ public class VirtualMachine {
                 ", id='" + id + '\'' +
                 '}';
     }
+
+    @Override
+    public int compareTo(VirtualMachine o) {
+        return id.compareTo(o.getId());
+    }
+
 }

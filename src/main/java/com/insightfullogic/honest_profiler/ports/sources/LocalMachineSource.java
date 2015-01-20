@@ -96,6 +96,7 @@ public class LocalMachineSource {
             Set<VirtualMachineDescriptor> right,
             Consumer<VirtualMachine> action) {
 
+        // TODO: only attach once per vm
         left.stream()
             .filter(vm -> !right.contains(vm))
             .flatMap(this::attach)

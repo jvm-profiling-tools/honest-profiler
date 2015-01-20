@@ -37,6 +37,7 @@ public class Monitor {
         // utility class
     }
 
+    // TODO: have a way of stopping the agent correctly
     public static void pipeFile(final LogSource logSource, final ProfileListener listener) {
         ProfileUpdateModerator moderator = new ProfileUpdateModerator(getLogger(ProfileUpdateModerator.class), listener);
         moderator.start();

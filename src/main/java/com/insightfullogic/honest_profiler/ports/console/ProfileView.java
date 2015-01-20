@@ -28,19 +28,19 @@ import java.io.PrintStream;
 
 import static com.insightfullogic.honest_profiler.ports.console.ProfileFormat.BOTH;
 
-public class ConsoleUserInterface implements ProfileListener {
+public class ProfileView implements ProfileListener {
 
-    private final Console console;
+    private final Console output;
 
     private ProfileFormat profileFormat = BOTH;
 
-    public ConsoleUserInterface(Console console) {
-        this.console = console;
+    public ProfileView(Console output) {
+        this.output = output;
     }
 
     @Override
     public void accept(Profile profile) {
-        PrintStream out = console.stream();
+        PrintStream out = output.stream();
         printHeader(profile, out);
         out.println();
         profileFormat.printProfile(profile, out);

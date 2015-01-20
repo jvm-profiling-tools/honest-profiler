@@ -37,7 +37,7 @@ public class FakeConsole implements Console {
     private String output;
 
     public FakeConsole() {
-        clear();
+        eraseScreen();
     }
 
     @Override
@@ -71,7 +71,7 @@ public class FakeConsole implements Console {
         outputContains(method.getMethodName());
     }
 
-    public void clear() {
+    public void eraseScreen() {
         buffer = new ByteArrayOutputStream();
         out = new PrintStream(buffer);
         output = null;

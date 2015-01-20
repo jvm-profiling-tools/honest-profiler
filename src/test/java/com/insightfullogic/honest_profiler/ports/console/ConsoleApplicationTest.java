@@ -37,8 +37,8 @@ public class ConsoleApplicationTest {{
         ConsoleApplication profiler = new ConsoleApplication(error, output);
 
         it.isSetupWith(() -> {
-            output.clear();
-            error.clear();
+            output.eraseScreen();
+            error.eraseScreen();
             profiler.setProfileFormat("both");
         });
 

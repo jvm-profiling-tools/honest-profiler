@@ -35,7 +35,6 @@ import static java.lang.Integer.parseInt;
 public class AgentRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(AgentRunner.class);
-    public static final int UNKNOWN_PROCESS_ID = -1;
 
     public static void run(final String className, final Consumer<AgentRunner> handler) throws IOException {
         AgentRunner runner = new AgentRunner(className);
@@ -62,16 +61,19 @@ public class AgentRunner {
     }
 
     private void startProcess() throws IOException {
+        String java = System.getProperty("java.home") + "/bin/java";
         // Eg: java -agentpath:build/liblagent.so -cp target/classes/ InfiniteExample
         process = new ProcessBuilder()
-                .command("/usr/bin/java", "-agentpath:build/liblagent.so", "-cp", "target/classes/", className)
+                .command(java, "-agentpath:build/liblagent.so", "-cp", "target/classes/", className)
                 .redirectError(new File("/tmp/error.log"))
                 .start();
     }
 
     private void readProcessId() throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-            processId = parseInt(reader.readLine());
+            String line = reader.readLine();
+            System.out.println(line);
+            processId = parseInt(line);
         }
     }
 

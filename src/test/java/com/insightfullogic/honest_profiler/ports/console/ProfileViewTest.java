@@ -32,10 +32,10 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 
-public class ConsoleUserInterfaceTest {
+public class ProfileViewTest {
 
     private final FakeConsole console = new FakeConsole();
-    private final ConsoleUserInterface ui = new ConsoleUserInterface(console);
+    private final ProfileView ui = new ProfileView(console);
 
     @Test
     public void rendersSingleMethod() {
