@@ -33,18 +33,15 @@ import java.util.List;
 import static java.lang.Character.isDigit;
 import static org.fusesource.jansi.Ansi.Color.DEFAULT;
 import static org.fusesource.jansi.Ansi.Color.GREEN;
-import static org.fusesource.jansi.Ansi.ansi;
 
 public class MachinePickerScreen implements Screen, MachineListener {
 
-    private final Console out;
-    private final Terminal processor;
+    private final Terminal terminal;
     private final LocalMachineSource machineSource;
     private final List<VirtualMachine> machines;
 
-    public MachinePickerScreen(Console out, Terminal processor) {
-        this.out = out;
-        this.processor = processor;
+    public MachinePickerScreen(Terminal terminal) {
+        this.terminal = terminal;
         machineSource = new LocalMachineSource(LoggerFactory.getLogger(LocalMachineSource.class), this);
         machines = new ArrayList<>();
     }
@@ -56,7 +53,7 @@ public class MachinePickerScreen implements Screen, MachineListener {
                 VirtualMachine machine = machines.get(input);
                 machineSource.stop();
 
-                processor.display(new ProfileScreen(machine, this, out, processor));
+                terminal.display(new ProfileScreen(machine, this, terminal));
             } catch (IndexOutOfBoundsException e) {
                 // Just ignore numbers out of the range
             }
@@ -86,27 +83,27 @@ public class MachinePickerScreen implements Screen, MachineListener {
     }
 
     private void renderAll() {
-        out.eraseScreen();
+        terminal.eraseScreen();
         renderHeader();
         machines.forEach(this::render);
     }
 
     private void renderHeader() {
-        out.write(a -> a.bold().a("Virtual Machines:\n").boldOff());
+        terminal.write(a -> a.bold().a("Virtual Machines:\n").boldOff());
     }
 
     private void render(VirtualMachine machine) {
         boolean agentLoaded = machine.isAgentLoaded();
         Color color = agentLoaded ? GREEN : DEFAULT;
         String prefix = agentLoaded ? machines.indexOf(machine) + ": " : " - ";
-        out.write(a -> a.fg(color)
-                        .a(prefix)
-                        .a(machine.getDisplayName())
-                        .reset());
+        terminal.write(a -> a.fg(color)
+                .a(prefix)
+                .a(machine.getDisplayName())
+                .reset());
     }
 
     private boolean isDisplayedScreen() {
-        return processor.isDisplayedScreen(this);
+        return terminal.isDisplayedScreen(this);
     }
 
 }

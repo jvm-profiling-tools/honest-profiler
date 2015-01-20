@@ -34,12 +34,12 @@ public class ProfileScreen implements Screen {
     private final Terminal terminal;
     private final ProfileView profileView;
 
-    public ProfileScreen(VirtualMachine machine, Screen previousScreen, Console output, Terminal terminal) {
+    public ProfileScreen(VirtualMachine machine, Screen previousScreen, Terminal terminal) {
         this.machine = machine;
         this.previousScreen = previousScreen;
         this.terminal = terminal;
 
-        profileView = new ProfileView(output);
+        profileView = new ProfileView(terminal);
         profileView.setProfileFormat(ProfileFormat.FLAT);
         Monitor.pipeFile(machine.getLogSource(), profileView);
     }

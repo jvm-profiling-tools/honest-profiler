@@ -88,9 +88,9 @@ public class ConsoleApplication {
         if (hasLogToDisplay()) {
             displayLogFile();
         } else {
-            Terminal processor = new Terminal(System.in);
-            processor.display(new MachinePickerScreen(output, processor));
-            processor.run();
+            Terminal terminal = new Terminal(System.in, System.out);
+            terminal.display(new MachinePickerScreen(terminal));
+            terminal.run();
         }
     }
 

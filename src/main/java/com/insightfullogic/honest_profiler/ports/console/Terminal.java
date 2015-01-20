@@ -23,20 +23,23 @@ package com.insightfullogic.honest_profiler.ports.console;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 
 /**
  * .
  */
-public class Terminal {
+public class Terminal implements Console {
 
     private static final int QUIT = 'q';
 
     private final InputStream input;
+    private final PrintStream output;
 
     private volatile Screen screen;
 
-    public Terminal(InputStream input) {
+    public Terminal(InputStream input, PrintStream output) {
         this.input = input;
+        this.output = output;
         this.screen = i -> {};
     }
 
@@ -65,6 +68,11 @@ public class Terminal {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public PrintStream stream() {
+        return output;
     }
 
 }
