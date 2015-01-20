@@ -21,61 +21,51 @@
  **/
 package com.insightfullogic.honest_profiler.ports.console;
 
-import java.io.IOException;
+import com.insightfullogic.lambdabehave.JunitSuiteRunner;
+import org.junit.runner.RunWith;
+
 import java.io.InputStream;
 import java.io.PrintStream;
 
-/**
- * .
- */
-public class Terminal implements Console {
+import static com.insightfullogic.lambdabehave.Suite.describe;
+import static org.mockito.Mockito.*;
 
-    public static final int QUIT = 'q';
+@RunWith(JunitSuiteRunner.class)
+public class TerminalTest {{
 
-    private final InputStream input;
-    private final PrintStream output;
-    private final Runnable quit;
+    describe("A Terminal", it -> {
 
-    private volatile Screen screen;
+        InputStream in = mock(InputStream.class);
+        PrintStream out = mock(PrintStream.class);
+        Runnable quit = mock(Runnable.class);
+        Screen screen = mock(Screen.class);
+        Terminal terminal = new Terminal(in, out, quit);
 
-    public Terminal(InputStream input, PrintStream output, Runnable quit) {
-        this.input = input;
-        this.output = output;
-        this.quit = quit;
-        this.screen = i -> {};
-    }
+        it.should("quit when q is pressed", expect -> {
+            given:
+            when(in.read()).thenReturn((int) 'q');
 
-    public void display(Screen screen) {
-        this.screen = screen;
-        screen.onDisplay();
-    }
+            when:
+            terminal.run();
 
-    public boolean isDisplayedScreen(Screen screen) {
-        return this.screen == screen;
-    }
+            then:
+            verify(quit, times(1)).run();
+        });
 
-    public void run() {
-        try {
-            int inputChar;
-            do {
-                inputChar = input.read();
-                if (inputChar == QUIT) {
-                    quit.run();
-                    return;
-                }
+        it.should("pass on input to its handler", expect -> {
+            int one = (int) '1';
 
-                screen.handleInput(inputChar);
+            given:
+            when(in.read()).thenReturn(one, (int) 'q');
+            terminal.display(screen);
 
-            } while (true);
+            when:
+            terminal.run();
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+            then:
+            verify(screen, times(1)).handleInput(one);
+        });
 
-    @Override
-    public PrintStream stream() {
-        return output;
-    }
+    });
 
-}
+}}
