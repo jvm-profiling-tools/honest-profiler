@@ -21,20 +21,42 @@
  **/
 package com.insightfullogic.honest_profiler.ports.console;
 
+import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
+import org.fusesource.jansi.Ansi;
 
-import com.insightfullogic.lambdabehave.JunitSuiteRunner;
-import com.insightfullogic.lambdabehave.Suite;
-import org.junit.runner.RunWith;
+import java.util.List;
 
-import static com.insightfullogic.lambdabehave.Suite.describe;
+import static org.fusesource.jansi.Ansi.Color.DEFAULT;
+import static org.fusesource.jansi.Ansi.Color.GREEN;
 
-@RunWith(JunitSuiteRunner.class)
-public class MachinePickerScreenTest {{
+public class MachinePickerView {
 
-    describe("The Machine Picker Screen", it -> {
+    private final Terminal terminal;
 
-        
+    public MachinePickerView(final Terminal terminal) {
+        this.terminal = terminal;
+    }
 
-    });
+    public void renderAll(final List<VirtualMachine> machines) {
+        terminal.eraseScreen();
+        renderHeader();
+        for (int i = 0; i < machines.size(); i++) {
+            render(machines.get(i), i);
+        }
+    }
 
-}}
+    public void renderHeader() {
+        terminal.write(a -> a.bold().a("Virtual Machines:\n").boldOff());
+    }
+
+    public void render(final VirtualMachine machine, final int index) {
+        boolean agentLoaded = machine.isAgentLoaded();
+        Ansi.Color color = agentLoaded ? GREEN : DEFAULT;
+        String prefix = agentLoaded ? index + ": " : " - ";
+        terminal.write(a -> a.fg(color)
+                .a(prefix)
+                .a(machine.getDisplayName())
+                .reset());
+    }
+
+}

@@ -24,25 +24,32 @@ package com.insightfullogic.honest_profiler.ports.console;
 import com.insightfullogic.honest_profiler.core.MachineListener;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.insightfullogic.honest_profiler.ports.sources.LocalMachineSource;
-import org.fusesource.jansi.Ansi.Color;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import static java.lang.Character.isDigit;
-import static org.fusesource.jansi.Ansi.Color.DEFAULT;
-import static org.fusesource.jansi.Ansi.Color.GREEN;
 
-public class MachinePickerScreen implements Screen, MachineListener {
+public class MachinePicker implements Screen, MachineListener {
 
-    private final Terminal terminal;
     private final LocalMachineSource machineSource;
     private final List<VirtualMachine> machines;
+    private final MachinePickerView view;
+    private final Terminal terminal;
 
-    public MachinePickerScreen(Terminal terminal) {
+    public MachinePicker(Terminal terminal, Function<MachineListener, LocalMachineSource> machineSourceFactory) {
+        this(new MachinePickerView(terminal), terminal, machineSourceFactory);
+    }
+
+    public MachinePicker(
+            MachinePickerView view,
+            Terminal terminal,
+            Function<MachineListener, LocalMachineSource> machineSourceFactory) {
+
+        this.view = view;
         this.terminal = terminal;
-        machineSource = new LocalMachineSource(LoggerFactory.getLogger(LocalMachineSource.class), this);
+        machineSource = machineSourceFactory.apply(this);
         machines = new ArrayList<>();
     }
 
@@ -50,8 +57,10 @@ public class MachinePickerScreen implements Screen, MachineListener {
     public void handleInput(int input) {
         if (isDigit(input)) {
             try {
-                VirtualMachine machine = machines.get(input);
-                machineSource.stop();
+                int index = Character.getNumericValue(input);
+                System.out.println(input);
+                System.out.println(index);
+                VirtualMachine machine = machines.get(index);
 
                 terminal.display(new ProfileScreen(machine, this, terminal));
             } catch (IndexOutOfBoundsException e) {
@@ -61,16 +70,21 @@ public class MachinePickerScreen implements Screen, MachineListener {
     }
 
     @Override
-    public void onDisplay() {
-        renderAll();
+    public void onShow() {
+        view.renderAll(machines);
         machineSource.start();
+    }
+
+    @Override
+    public void onHide() {
+        machineSource.stop();
     }
 
     @Override
     public void onNewMachine(VirtualMachine machine) {
         machines.add(machine);
         if (isDisplayedScreen()) {
-            render(machine);
+            view.render(machine, machines.size() - 1);
         }
     }
 
@@ -78,28 +92,8 @@ public class MachinePickerScreen implements Screen, MachineListener {
     public void onClosedMachine(VirtualMachine machine) {
         machines.remove(machine);
         if (isDisplayedScreen()) {
-            renderAll();
+            view.renderAll(machines);
         }
-    }
-
-    private void renderAll() {
-        terminal.eraseScreen();
-        renderHeader();
-        machines.forEach(this::render);
-    }
-
-    private void renderHeader() {
-        terminal.write(a -> a.bold().a("Virtual Machines:\n").boldOff());
-    }
-
-    private void render(VirtualMachine machine) {
-        boolean agentLoaded = machine.isAgentLoaded();
-        Color color = agentLoaded ? GREEN : DEFAULT;
-        String prefix = agentLoaded ? machines.indexOf(machine) + ": " : " - ";
-        terminal.write(a -> a.fg(color)
-                .a(prefix)
-                .a(machine.getDisplayName())
-                .reset());
     }
 
     private boolean isDisplayedScreen() {

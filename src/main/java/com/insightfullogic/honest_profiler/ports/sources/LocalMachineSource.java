@@ -45,7 +45,7 @@ public class LocalMachineSource {
     private static final long DEFAULT_SLEEP_PERIOD = 500;
 
     private final Logger logger;
-    private final MachineListener listener;
+    private MachineListener listener;
     private final long sleepPeriod;
     private final ThreadedAgent threadedAgent;
 

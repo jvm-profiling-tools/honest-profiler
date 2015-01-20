@@ -41,6 +41,10 @@ public class ProfileScreen implements Screen {
 
         profileView = new ProfileView(terminal);
         profileView.setProfileFormat(ProfileFormat.FLAT);
+    }
+
+    @Override
+    public void onShow() {
         Monitor.pipeFile(machine.getLogSource(), profileView);
     }
 

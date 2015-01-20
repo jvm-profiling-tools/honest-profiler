@@ -26,7 +26,9 @@ package com.insightfullogic.honest_profiler.ports.console;
  */
 public interface Screen {
 
-    default void onDisplay() {}
+    default void onShow() {}
+
+    default void onHide() {}
 
     void handleInput(int input);
 

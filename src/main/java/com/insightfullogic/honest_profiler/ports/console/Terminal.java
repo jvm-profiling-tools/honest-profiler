@@ -46,8 +46,9 @@ public class Terminal implements Console {
     }
 
     public void display(Screen screen) {
+        this.screen.onHide();
         this.screen = screen;
-        screen.onDisplay();
+        screen.onShow();
     }
 
     public boolean isDisplayedScreen(Screen screen) {

@@ -35,10 +35,11 @@ public class TerminalTest {{
 
     describe("A Terminal", it -> {
 
-        InputStream in = mock(InputStream.class);
-        PrintStream out = mock(PrintStream.class);
-        Runnable quit = mock(Runnable.class);
-        Screen screen = mock(Screen.class);
+        InputStream in = it.usesMock(InputStream.class);
+        PrintStream out = it.usesMock(PrintStream.class);
+        Runnable quit = it.usesMock(Runnable.class);
+        Screen screen = it.usesMock(Screen.class);
+        Screen oldScreen = it.usesMock(Screen.class);
         Terminal terminal = new Terminal(in, out, quit);
 
         it.should("quit when q is pressed", expect -> {
@@ -64,6 +65,23 @@ public class TerminalTest {{
 
             then:
             verify(screen, times(1)).handleInput(one);
+        });
+
+        it.should("show new screens", expect -> {
+            when:
+            terminal.display(screen);
+
+            verify(screen, times(1)).onShow();
+        });
+
+        it.should("hide old screens", expect -> {
+            given:
+            terminal.display(oldScreen);
+
+            when:
+            terminal.display(screen);
+
+            verify(oldScreen, times(1)).onHide();
         });
 
     });

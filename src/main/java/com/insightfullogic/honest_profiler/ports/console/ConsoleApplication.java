@@ -25,10 +25,12 @@ import com.insightfullogic.honest_profiler.core.Monitor;
 import com.insightfullogic.honest_profiler.core.ProfileListener;
 import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
 import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
+import com.insightfullogic.honest_profiler.ports.sources.LocalMachineSource;
 import org.fusesource.jansi.AnsiConsole;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
@@ -89,7 +91,8 @@ public class ConsoleApplication {
             displayLogFile();
         } else {
             Terminal terminal = new Terminal(System.in, System.out, () -> System.exit(0));
-            terminal.display(new MachinePickerScreen(terminal));
+            terminal.display(new MachinePicker(terminal, listener ->
+                new LocalMachineSource(LoggerFactory.getLogger(LocalMachineSource.class), listener)));
             terminal.run();
         }
     }
