@@ -1,39 +1,26 @@
+#ifndef PROFILER_H
+#define PROFILER_H
+
 #include <signal.h>
-#include <fstream>
 #include <unistd.h>
 #include <chrono>
 #include <sstream>
 #include <string>
 
 #include "globals.h"
+#include "signal_handler.h"
 #include "stacktraces.h"
 #include "processor.h"
 #include "log_writer.h"
-
-#ifndef PROFILER_H
-#define PROFILER_H
 
 using namespace std::chrono;
 using std::ofstream;
 using std::ostringstream;
 using std::string;
 
-class SignalHandler {
-public:
-    SignalHandler() {
-    }
-
-    struct sigaction SetAction(void (*sigaction)(int, siginfo_t *, void *));
-
-    bool SetSigprofInterval(int sec, int usec);
-
-private:
-    DISALLOW_COPY_AND_ASSIGN(SignalHandler);
-};
-
 class Profiler {
 public:
-    explicit Profiler(JavaVM *jvm, jvmtiEnv *jvmti, ConfigurationOptions *configuration) : jvm_(jvm), configuration_(configuration) {
+    explicit Profiler(JavaVM *jvm, jvmtiEnv *jvmti, ConfigurationOptions *configuration) : jvm_(jvm), configuration_(configuration), handler_(configuration_->samplingInterval) {
         // main object graph instantiated here
         // these objects all live for the lifecycle of the program
 
@@ -53,7 +40,7 @@ public:
 
         writer = new LogWriter(*logFile, &Profiler::lookupFrameInformation, jvmti);
         buffer = new CircularQueue(*writer);
-        processor = new Processor(jvmti, *writer, *buffer);
+        processor = new Processor(jvmti, *writer, *buffer, handler_);
     }
 
     bool start(JNIEnv *jniEnv);
@@ -88,9 +75,9 @@ private:
             jvmtiEnv *jvmti,
             MethodListener &logWriter);
 
-    DISALLOW_COPY_AND_ASSIGN(Profiler);
-
     JNIEnv *getJNIEnv();
+
+    DISALLOW_COPY_AND_ASSIGN(Profiler);
 };
 
 #endif // PROFILER_H

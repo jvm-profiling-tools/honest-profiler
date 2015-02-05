@@ -50,6 +50,8 @@ set(SOURCE_FILES
     ${SRC}/globals.h
     ${SRC}/log_writer.cpp
     ${SRC}/log_writer.h
+    ${SRC}/signal_handler.cpp
+    ${SRC}/signal_handler.h
     ${SRC}/processor.cpp
     ${SRC}/processor.h
     ${SRC}/profiler.cpp

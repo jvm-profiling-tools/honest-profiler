@@ -112,55 +112,17 @@ JNIEnv *Profiler::getJNIEnv() {
     return jniEnv;
 }
 
-// This method schedules the SIGPROF timer to go off every sec
-// seconds, usec microseconds.
-bool SignalHandler::SetSigprofInterval(int sec, int usec) {
-    static struct itimerval timer;
-    timer.it_interval.tv_sec = sec;
-    timer.it_interval.tv_usec = usec;
-    timer.it_value = timer.it_interval;
-    if (setitimer(ITIMER_PROF, &timer, 0) == -1) {
-        logError("Scheduling profiler interval failed with error %d\n", errno);
-        return false;
-    }
-    return true;
-}
-
-struct sigaction SignalHandler::SetAction(void (*action)(int, siginfo_t *,
-        void *)) {
-    struct sigaction sa;
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdisabled-macro-expansion"
-#endif
-    sa.sa_handler = NULL;
-    sa.sa_sigaction = action;
-    sa.sa_flags = SA_RESTART | SA_SIGINFO;
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
-
-    sigemptyset(&sa.sa_mask);
-
-    struct sigaction old_handler;
-    if (sigaction(SIGPROF, &sa, &old_handler) != 0) {
-        logError("Scheduling profiler action failed with error %d\n", errno);
-        return old_handler;
-    }
-
-    return old_handler;
-}
-
 bool Profiler::start(JNIEnv *jniEnv) {
     // reference back to Profiler::handle on the singleton
     // instance of Profiler
     handler_.SetAction(&bootstrapHandle);
     processor->start(jniEnv);
-    return handler_.SetSigprofInterval(0, configuration_->samplingInterval);
+    return handler_.updateSigprofInterval();
 }
 
 void Profiler::stop() {
-    handler_.SetSigprofInterval(0, 0);
+    handler_.updateSigprofInterval(0);
     processor->stop();
     signal(SIGPROF, SIG_IGN);
 }
+

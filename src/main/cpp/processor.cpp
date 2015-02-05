@@ -47,6 +47,10 @@ void Processor::run() {
     while (true) {
         while (buffer_.pop());
 
+        if (!handler_.updateSigprofInterval()) {
+            return;
+        }
+
         if (!isRunning.load()) {
             return;
         }
