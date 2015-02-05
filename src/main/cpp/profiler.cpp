@@ -3,25 +3,6 @@
 
 ASGCTType Asgct::asgct_;
 
-namespace {
-
-// Helper class to store and reset errno when in a signal handler.
-    class ErrnoRaii {
-    public:
-        ErrnoRaii() {
-            stored_errno_ = errno;
-        }
-
-        ~ErrnoRaii() {
-            errno = stored_errno_;
-        }
-
-    private:
-        int stored_errno_;
-
-        DISALLOW_COPY_AND_ASSIGN(ErrnoRaii);
-    };
-} // namespace
 
 bool Profiler::lookupFrameInformation(const JVMPI_CallFrame &frame,
         jvmtiEnv *jvmti,
@@ -117,7 +98,7 @@ bool Profiler::start(JNIEnv *jniEnv) {
     // instance of Profiler
     handler_.SetAction(&bootstrapHandle);
     processor->start(jniEnv);
-    return handler_.updateSigprofInterval();
+    return handler_.updateSigprofInterval(1);
 }
 
 void Profiler::stop() {

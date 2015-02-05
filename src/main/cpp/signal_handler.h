@@ -20,7 +20,7 @@ public:
         timingIntervals = new int[NUMBER_OF_INTERVALS];
         srand (time(NULL));
         for (int i = 0; i < NUMBER_OF_INTERVALS; i++) {
-            timingIntervals[i] = rand() % samplingInterval + (samplingInterval / 2);
+            timingIntervals[i] = rand() % (samplingInterval * 2) + 1;
         }
     }
 
