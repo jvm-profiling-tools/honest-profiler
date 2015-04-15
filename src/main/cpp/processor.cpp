@@ -29,6 +29,9 @@ static jthread newThread(JNIEnv *jniEnv) {
     res = jniEnv->NewObject(thrClass, cid);
     if (res == NULL) {
         logError("Cannot create new Thread object\n");
+    } else {
+       jmethodID mid = jniEnv->GetMethodID(thrClass, "setName","(Ljava/lang/String;)V");
+       jniEnv->CallObjectMethod(res, mid, jniEnv->NewStringUTF("Honest Profiler Daemon Thread"));  
     }
     return res;
 }
