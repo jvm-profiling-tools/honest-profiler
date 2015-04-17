@@ -24,6 +24,7 @@ typedef struct {
     jint num_frames;
     // The frames, callee first.
     JVMPI_CallFrame *frames;
+    long nid;  //native thread id
 } JVMPI_CallTrace;
 
 typedef void (*ASGCTType)(JVMPI_CallTrace *, jint, void *);
