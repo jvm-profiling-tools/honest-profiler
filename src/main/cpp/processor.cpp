@@ -54,7 +54,7 @@ void Processor::run() {
             return;
         }
 
-        if (!isRunning.load()) {
+        if (!isRunning_.load()) {
             return;
         }
 
@@ -77,6 +77,10 @@ void Processor::start(JNIEnv *jniEnv) {
 }
 
 void Processor::stop() {
-    isRunning.store(false);
+    isRunning_.store(false);
     std::cout << "Stop\n";
+}
+
+bool Processor::isRunning() const {
+    return isRunning_.load();
 }

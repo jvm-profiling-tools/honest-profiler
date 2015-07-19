@@ -107,3 +107,6 @@ void Profiler::stop() {
     signal(SIGPROF, SIG_IGN);
 }
 
+bool Profiler::isRunning() const {
+    return processor->isRunning();
+}

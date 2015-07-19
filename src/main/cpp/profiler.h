@@ -49,6 +49,8 @@ public:
 
     void handle(int signum, siginfo_t *info, void *context);
 
+    bool isRunning() const;
+
     ~Profiler() {
         delete buffer;
         delete logFile;
