@@ -22,6 +22,7 @@ public:
         for (int i = 0; i < NUMBER_OF_INTERVALS; i++) {
             timingIntervals[i] = rand() % (samplingInterval * 2) + 1;
         }
+        currentInterval = -1;
     }
 
     struct sigaction SetAction(void (*sigaction)(int, siginfo_t *, void *));
@@ -32,8 +33,8 @@ public:
 
 private:
     int intervalIndex;
-
     int *timingIntervals;
+    int currentInterval;
 
     DISALLOW_COPY_AND_ASSIGN(SignalHandler);
 };
