@@ -8,7 +8,10 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+class Profiler;
+
 void logError(const char *__restrict format, ...);
+Profiler *getProfiler();
 
 const int DEFAULT_SAMPLING_INTERVAL = 1;
 
@@ -16,11 +19,13 @@ struct ConfigurationOptions {
     /** Interval in microseconds */
     int samplingIntervalMin, samplingIntervalMax;
     char* logFilePath;
+    bool start;
 
     void initializeDefaults() {
         samplingIntervalMin = DEFAULT_SAMPLING_INTERVAL;
         samplingIntervalMax = DEFAULT_SAMPLING_INTERVAL;
         logFilePath = NULL;
+        start = true;
     }
 };
 

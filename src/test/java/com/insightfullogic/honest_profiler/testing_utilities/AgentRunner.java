@@ -97,4 +97,15 @@ public class AgentRunner {
         return processId;
     }
 
+    public void startProfiler() throws IOException {
+        process.getOutputStream().write('S');
+        process.getOutputStream().write('\n');
+        process.getOutputStream().flush();
+    }
+
+    public void stopProfiler() throws IOException {
+        process.getOutputStream().write('s');
+        process.getOutputStream().write('\n');
+        process.getOutputStream().flush();
+    }
 }
