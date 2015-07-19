@@ -98,11 +98,11 @@ bool Profiler::start(JNIEnv *jniEnv) {
     // instance of Profiler
     handler_.SetAction(&bootstrapHandle);
     processor->start(jniEnv);
-    return handler_.updateSigprofInterval(1);
+    return handler_.updateSigprofInterval();
 }
 
 void Profiler::stop() {
-    handler_.updateSigprofInterval(0);
+    handler_.stopSigprof();
     processor->stop();
     signal(SIGPROF, SIG_IGN);
 }

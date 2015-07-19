@@ -152,8 +152,12 @@ static void parseArguments(char *options, ConfigurationOptions &configuration) {
             continue;
         } else {
             value++;
-            if (strstr(key, "interval") == key) {
-                configuration.samplingInterval = atoi(value);
+            if (strstr(key, "intervalMin") == key) {
+                configuration.samplingIntervalMin = atoi(value);
+            } else if (strstr(key, "intervalMax") == key) {
+                configuration.samplingIntervalMax = atoi(value);
+            } else if (strstr(key, "interval") == key) {
+                configuration.samplingIntervalMin = configuration.samplingIntervalMax = atoi(value);
             } else if (strstr(key, "logPath") == key) {
                 size_t  size = (next == 0) ? strlen(key) : (size_t) (next - value);
                 configuration.logFilePath = (char*) malloc(size * sizeof(char));

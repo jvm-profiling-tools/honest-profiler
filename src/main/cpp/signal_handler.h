@@ -15,12 +15,13 @@ const int NUMBER_OF_INTERVALS = 1024;
 
 class SignalHandler {
 public:
-    SignalHandler(const int samplingInterval) {
+    SignalHandler(const int samplingIntervalMin, const int samplingIntervalMax) {
         intervalIndex = 0;
         timingIntervals = new int[NUMBER_OF_INTERVALS];
         srand (time(NULL));
+        int range = samplingIntervalMax - samplingIntervalMin + 1;
         for (int i = 0; i < NUMBER_OF_INTERVALS; i++) {
-            timingIntervals[i] = rand() % (samplingInterval * 2) + 1;
+            timingIntervals[i] = samplingIntervalMin + rand() % range;
         }
         currentInterval = -1;
     }
@@ -30,6 +31,8 @@ public:
     bool updateSigprofInterval();
 
     bool updateSigprofInterval(int);
+
+    bool stopSigprof() { return updateSigprofInterval(0); }
 
 private:
     int intervalIndex;

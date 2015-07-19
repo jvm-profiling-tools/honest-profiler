@@ -9,8 +9,8 @@ class Processor {
 
 public:
     explicit Processor(jvmtiEnv* jvmti, LogWriter& logWriter,
-            CircularQueue& buffer, SignalHandler& handler)
-            : jvmti_(jvmti), logWriter_(logWriter), buffer_(buffer), isRunning_(true), handler_(handler) {
+            CircularQueue& buffer, SignalHandler& handler, int interval)
+            : jvmti_(jvmti), logWriter_(logWriter), buffer_(buffer), isRunning_(true), handler_(handler), interval_(interval) {
     }
 
     void start(JNIEnv *jniEnv);
@@ -31,6 +31,8 @@ private:
     std::atomic_bool isRunning_;
 
     SignalHandler& handler_;
+
+    int interval_;
 
     void startCallback(jvmtiEnv *jvmti_env, JNIEnv *jni_env, void *arg);
 

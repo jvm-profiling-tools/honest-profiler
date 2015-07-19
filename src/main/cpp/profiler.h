@@ -20,7 +20,7 @@ using std::string;
 
 class Profiler {
 public:
-    explicit Profiler(JavaVM *jvm, jvmtiEnv *jvmti, ConfigurationOptions *configuration) : jvm_(jvm), configuration_(configuration), handler_(configuration_->samplingInterval) {
+    explicit Profiler(JavaVM *jvm, jvmtiEnv *jvmti, ConfigurationOptions *configuration) : jvm_(jvm), configuration_(configuration), handler_(configuration_->samplingIntervalMin, configuration->samplingIntervalMax) {
         // main object graph instantiated here
         // these objects all live for the lifecycle of the program
 
@@ -40,7 +40,10 @@ public:
 
         writer = new LogWriter(*logFile, &Profiler::lookupFrameInformation, jvmti);
         buffer = new CircularQueue(*writer);
-        processor = new Processor(jvmti, *writer, *buffer, handler_);
+
+        // flush the queue about twice as fast as it fills up
+        int processor_interval = Size * configuration->samplingIntervalMin / 1000 / 2;
+        processor = new Processor(jvmti, *writer, *buffer, handler_, processor_interval > 0 ? processor_interval : 1);
     }
 
     bool start(JNIEnv *jniEnv);

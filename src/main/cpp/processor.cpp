@@ -47,20 +47,28 @@ void sleep_for_millis(uint period) {
 }
 
 void Processor::run() {
-    while (true) {
-        while (buffer_.pop());
+    int popped = 0;
 
-        if (!handler_.updateSigprofInterval()) {
-            return;
+    while (true) {
+        while (buffer_.pop()) {
+            ++popped;
+        }
+
+        if (popped > 200) {
+            if (!handler_.updateSigprofInterval()) {
+                break;
+            }
+            popped = 0;
         }
 
         if (!isRunning_.load()) {
-            return;
+            break;
         }
 
-        // TODO: make this configurable
-        sleep_for_millis(1);
+        sleep_for_millis(interval_);
     }
+
+    handler_.stopSigprof();
 }
 
 void Processor::start(JNIEnv *jniEnv) {
