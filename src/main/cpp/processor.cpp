@@ -47,20 +47,28 @@ void sleep_for_millis(uint period) {
 }
 
 void Processor::run() {
+    int popped = 0;
+
     while (true) {
-        while (buffer_.pop());
-
-        if (!handler_.updateSigprofInterval()) {
-            return;
+        while (buffer_.pop()) {
+            ++popped;
         }
 
-        if (!isRunning.load()) {
-            return;
+        if (popped > 200) {
+            if (!handler_.updateSigprofInterval()) {
+                break;
+            }
+            popped = 0;
         }
 
-        // TODO: make this configurable
-        sleep_for_millis(1);
+        if (!isRunning_.load()) {
+            break;
+        }
+
+        sleep_for_millis(interval_);
     }
+
+    handler_.stopSigprof();
 }
 
 void Processor::start(JNIEnv *jniEnv) {
@@ -77,6 +85,10 @@ void Processor::start(JNIEnv *jniEnv) {
 }
 
 void Processor::stop() {
-    isRunning.store(false);
+    isRunning_.store(false);
     std::cout << "Stop\n";
+}
+
+bool Processor::isRunning() const {
+    return isRunning_.load();
 }

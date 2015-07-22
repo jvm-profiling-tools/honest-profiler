@@ -21,13 +21,14 @@ namespace {
 } // namespace
 
 bool SignalHandler::updateSigprofInterval() {
-    //bool res = updateSigprofInterval(timingIntervals[intervalIndex]);
-    //intervalIndex = (intervalIndex + 1) % NUMBER_OF_INTERVALS;
-    //return res;
-    return updateSigprofInterval(1);
+    bool res = updateSigprofInterval(timingIntervals[intervalIndex]);
+    intervalIndex = (intervalIndex + 1) % NUMBER_OF_INTERVALS;
+    return res;
 }
 
 bool SignalHandler::updateSigprofInterval(const int timingInterval) {
+    if (timingInterval == currentInterval)
+        return true;
     static struct itimerval timer;
     timer.it_interval.tv_sec = 0;
     timer.it_interval.tv_usec = timingInterval;
@@ -36,6 +37,7 @@ bool SignalHandler::updateSigprofInterval(const int timingInterval) {
         logError("Scheduling profiler interval failed with error %d\n", errno);
         return false;
     }
+    currentInterval = timingInterval;
     return true;
 }
 
