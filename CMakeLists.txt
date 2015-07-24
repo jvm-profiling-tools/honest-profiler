@@ -47,6 +47,7 @@ set(SOURCE_FILES
     ${SRC}/agent.cpp
     ${SRC}/circular_queue.cpp
     ${SRC}/circular_queue.h
+    ${SRC}/control.cpp
     ${SRC}/globals.h
     ${SRC}/log_writer.cpp
     ${SRC}/log_writer.h

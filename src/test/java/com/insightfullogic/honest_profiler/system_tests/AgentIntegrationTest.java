@@ -33,6 +33,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.insightfullogic.lambdabehave.Suite.describe;
@@ -74,6 +75,50 @@ public class AgentIntegrationTest {{
         });
     });
 
+    describe("Agent start/stop", it -> {
+
+        it.should("should result in a monitorable JVM", expect -> {
+            AgentRunner.run("InfiniteExample", "start=0", runner -> {
+                int seenTraceCount = 0;
+
+                AtomicReference<Profile> lastProfile = new AtomicReference<>();
+                parkNanos(SECONDS.toNanos(1));
+
+                new LocalMachineSource(logger, new MachineListener() {
+                    @Override
+                    public void onNewMachine(final VirtualMachine machine) {
+                        if (machine.isAgentLoaded()) {
+                            Monitor.pipeFile(machine.getLogSource(), lastProfile::set);
+                        }
+                    }
+
+                    @Override
+                    public void onClosedMachine(final VirtualMachine machine) {
+
+                    }
+                }).discoverVirtualMachines();
+
+                seenTraceCount = expectNonIncreasingTraceCount(expect, seenTraceCount, lastProfile);
+                try {
+                    runner.startProfiler();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+                seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
+                try {
+                    runner.stopProfiler();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+                seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
+                seenTraceCount = expectNonIncreasingTraceCount(expect, seenTraceCount, lastProfile);
+
+            });
+        });
+    });
+
 }
 
     private static Logger logger = LoggerFactory.getLogger(AgentIntegrationTest.class);
@@ -81,8 +126,18 @@ public class AgentIntegrationTest {{
     int expectIncreasingTraceCount(Expect expect, int seenTraceCount, AtomicReference<Profile> lastProfile) {
         logger.debug("Last seen trace count is {}", seenTraceCount);
         parkNanos(SECONDS.toNanos(1));
-        int currentTraceCount = lastProfile.get().getTraceCount();
+        Profile profile = lastProfile.get();
+        int currentTraceCount = profile == null ? 0 : profile.getTraceCount();
         expect.that(currentTraceCount).isGreaterThan(seenTraceCount);
+        return currentTraceCount;
+    }
+
+    int expectNonIncreasingTraceCount(Expect expect, int seenTraceCount, AtomicReference<Profile> lastProfile) {
+        logger.debug("Last seen trace count is {}", seenTraceCount);
+        parkNanos(SECONDS.toNanos(1));
+        Profile profile = lastProfile.get();
+        int currentTraceCount = profile == null ? 0 : profile.getTraceCount();
+        expect.that(currentTraceCount).isEqualTo(seenTraceCount);
         return currentTraceCount;
     }
 }

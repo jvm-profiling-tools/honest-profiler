@@ -37,7 +37,11 @@ public class AgentRunner {
     private static final Logger logger = LoggerFactory.getLogger(AgentRunner.class);
 
     public static void run(final String className, final Consumer<AgentRunner> handler) throws IOException {
-        AgentRunner runner = new AgentRunner(className);
+        run(className, null, handler);
+    }
+
+    public static void run(final String className, final String args, final Consumer<AgentRunner> handler) throws IOException {
+        AgentRunner runner = new AgentRunner(className, args);
         runner.start();
         try {
             handler.accept(runner);
@@ -47,12 +51,14 @@ public class AgentRunner {
     }
 
     private final String className;
+    private final String args;
 
     private Process process;
     private int processId;
 
-    private AgentRunner(final String className) {
+    private AgentRunner(final String className, final String args) {
         this.className = className;
+        this.args = args;
     }
 
     private void start() throws IOException {
@@ -62,9 +68,10 @@ public class AgentRunner {
 
     private void startProcess() throws IOException {
         String java = System.getProperty("java.home") + "/bin/java";
+        String agentArg = "-agentpath:build/liblagent.so" + (args != null ? "=" + args : "");
         // Eg: java -agentpath:build/liblagent.so -cp target/classes/ InfiniteExample
         process = new ProcessBuilder()
-                .command(java, "-agentpath:build/liblagent.so", "-cp", "target/classes/", className)
+                .command(java, agentArg, "-cp", "target/classes/", className)
                 .redirectError(new File("/tmp/error.log"))
                 .start();
     }
@@ -90,4 +97,15 @@ public class AgentRunner {
         return processId;
     }
 
+    public void startProfiler() throws IOException {
+        process.getOutputStream().write('S');
+        process.getOutputStream().write('\n');
+        process.getOutputStream().flush();
+    }
+
+    public void stopProfiler() throws IOException {
+        process.getOutputStream().write('s');
+        process.getOutputStream().write('\n');
+        process.getOutputStream().flush();
+    }
 }
