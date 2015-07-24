@@ -69,6 +69,8 @@ private:
 
     void inspectMethod(const method_id methodId, const JVMPI_CallFrame &frame);
 
+    jint getLineNo(jint bci, jmethodID methodId);
+
     DISALLOW_COPY_AND_ASSIGN(LogWriter);
 };
 

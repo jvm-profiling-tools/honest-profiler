@@ -1,5 +1,5 @@
 #include "log_writer.h"
-
+#include <cstdlib>
 using std::copy;
 
 bool isLittleEndian() {
@@ -27,6 +27,38 @@ static int64_t getThreadId(JNIEnv *env_id) {
     return (int64_t) env_id;
 }
 
+jint LogWriter::getLineNo(jint bci, jmethodID methodId) {
+	if(bci <= 0) {
+		return bci;
+	}
+	// TODO: cache line number tables?
+	// Caching is risky as the growth is not capped. An alternative is to serialize the line table once per method
+	// but might bloat log? current approach is brute..
+	jvmtiLineNumberEntry* jvmti_table;
+	jint entry_count;
+	jvmtiError err = jvmti_->GetLineNumberTable(methodId, &entry_count, &jvmti_table);
+	if (err != JVMTI_ERROR_NONE) {
+		return -100;
+	}
+	jint min_d = 64*1024;
+	jint lineno = -101;
+	for(int i=0;i<entry_count-1;i++) {
+		if (jvmti_table[i].start_location == bci) {
+			delete(jvmti_table);
+			return jvmti_table[i].line_number;
+		}
+		else {
+			jint d = abs(jvmti_table[i].start_location - bci);
+			if (min_d > d) {
+				lineno =  jvmti_table[i].line_number;
+				min_d = d;
+			}
+		}
+	}
+	delete(jvmti_table);
+	return lineno;
+}
+
 void LogWriter::record(const JVMPI_CallTrace &trace) {
     int64_t threadId = getThreadId(trace.env_id);
     recordTraceStart(trace.num_frames, threadId);
@@ -34,7 +66,9 @@ void LogWriter::record(const JVMPI_CallTrace &trace) {
     for (int i = 0; i < trace.num_frames; i++) {
         JVMPI_CallFrame frame = trace.frames[i];
         method_id methodId = (method_id) frame.method_id;
-        recordFrame(frame.lineno, methodId);
+	   // lineno is in fact BCI, needs converting to lineno
+	    jint lineno = getLineNo(frame.lineno, frame.method_id);
+        recordFrame(lineno, methodId);
         inspectMethod(methodId, frame);
     }
 }
