@@ -24,6 +24,7 @@ package com.insightfullogic.honest_profiler.ports.javafx.landing;
 import com.insightfullogic.honest_profiler.core.MachineListener;
 import com.insightfullogic.honest_profiler.core.Monitor;
 import com.insightfullogic.honest_profiler.core.ProfileListener;
+import com.insightfullogic.honest_profiler.core.sources.CantReadFromSourceException;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.insightfullogic.honest_profiler.ports.javafx.WindowViewModel;
 import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
@@ -39,7 +40,6 @@ import javafx.stage.FileChooser;
 import org.slf4j.Logger;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -55,18 +55,15 @@ public class LandingViewModel implements MachineListener {
 
     private final ToggleGroup toggleMachines;
     private final Logger logger;
-    private final Monitor monitor;
     private final WindowViewModel windowModel;
     private final ProfileListener profileListener;
     private final Set<VirtualMachine> machines;
 
     public LandingViewModel(
             final Logger logger,
-            final Monitor monitor,
             final WindowViewModel windowModel,
             final ProfileListener profileListener) {
         this.logger = logger;
-        this.monitor = monitor;
         this.windowModel = windowModel;
         this.profileListener = profileListener;
         toggleMachines = new ToggleGroup();
@@ -90,8 +87,8 @@ public class LandingViewModel implements MachineListener {
         if (file != null) {
             windowModel.display(Profile);
             try {
-                monitor.consumeFile(new FileLogSource(file), profileListener);
-            } catch (IOException e) {
+                Monitor.consumeFile(new FileLogSource(file), profileListener);
+            } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
         }
@@ -102,8 +99,8 @@ public class LandingViewModel implements MachineListener {
         MachineButton selectedButton = (MachineButton) toggleMachines.getSelectedToggle();
         VirtualMachine vm = selectedButton.getJvm();
         try {
-            monitor.pipeFile(vm.getLogSource(), profileListener);
-        } catch (IOException e) {
+            Monitor.pipeFile(vm.getLogSource(), profileListener);
+        } catch (CantReadFromSourceException e) {
             logger.error(e.getMessage(), e);
         }
     }

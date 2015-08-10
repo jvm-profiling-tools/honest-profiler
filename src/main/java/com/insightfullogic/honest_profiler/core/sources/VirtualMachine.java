@@ -32,7 +32,7 @@ import java.util.Objects;
 /**
  * Represents a Java Virtual Machine
  */
-public class VirtualMachine {
+public class VirtualMachine implements Comparable<VirtualMachine> {
 
     private final String id;
     private final String displayName;
@@ -58,15 +58,18 @@ public class VirtualMachine {
         return agentLoaded;
     }
 
-    public LogSource getLogSource() throws IOException {
-        System.out.println(getId());
-        Path file = Files.list(Paths.get(userDir))
-                         .filter(this::isLogFile)
-                         .sorted()
-                         .findFirst()
-                         .orElseThrow(IOException::new);
+    public LogSource getLogSource() throws CantReadFromSourceException {
+        try {
+            Path file = Files.list(Paths.get(userDir))
+                    .filter(this::isLogFile)
+                    .sorted()
+                    .findFirst()
+                    .orElseThrow(IOException::new);
 
-        return new FileLogSource(file.toFile());
+            return new FileLogSource(file.toFile());
+        } catch (IOException e) {
+            throw new CantReadFromSourceException(e);
+        }
     }
 
     private boolean isLogFile(final Path path) {
@@ -85,6 +88,21 @@ public class VirtualMachine {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
+    }
+
+    @Override
+    public String toString() {
+        return "VirtualMachine{" +
+                "userDir='" + userDir + '\'' +
+                ", agentLoaded=" + agentLoaded +
+                ", displayName='" + displayName + '\'' +
+                ", id='" + id + '\'' +
+                '}';
+    }
+
+    @Override
+    public int compareTo(VirtualMachine o) {
+        return id.compareTo(o.getId());
     }
 
 }

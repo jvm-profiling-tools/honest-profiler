@@ -29,6 +29,9 @@ static jthread newThread(JNIEnv *jniEnv) {
     res = jniEnv->NewObject(thrClass, cid);
     if (res == NULL) {
         logError("Cannot create new Thread object\n");
+    } else {
+       jmethodID mid = jniEnv->GetMethodID(thrClass, "setName","(Ljava/lang/String;)V");
+       jniEnv->CallObjectMethod(res, mid, jniEnv->NewStringUTF("Honest Profiler Daemon Thread"));  
     }
     return res;
 }
@@ -44,16 +47,28 @@ void sleep_for_millis(uint period) {
 }
 
 void Processor::run() {
-    while (true) {
-        while (buffer_.pop());
+    int popped = 0;
 
-        if (!isRunning.load()) {
-            return;
+    while (true) {
+        while (buffer_.pop()) {
+            ++popped;
         }
 
-        // TODO: make this configurable
-        sleep_for_millis(1);
+        if (popped > 200) {
+            if (!handler_.updateSigprofInterval()) {
+                break;
+            }
+            popped = 0;
+        }
+
+        if (!isRunning_.load()) {
+            break;
+        }
+
+        sleep_for_millis(interval_);
     }
+
+    handler_.stopSigprof();
 }
 
 void Processor::start(JNIEnv *jniEnv) {
@@ -70,6 +85,10 @@ void Processor::start(JNIEnv *jniEnv) {
 }
 
 void Processor::stop() {
-    isRunning.store(false);
+    isRunning_.store(false);
     std::cout << "Stop\n";
+}
+
+bool Processor::isRunning() const {
+    return isRunning_.load();
 }

@@ -26,6 +26,11 @@ import org.slf4j.Logger;
 public class ThreadedAgent implements Runnable {
 
     public static interface Block {
+        /**
+         * @return false iff you're ready to stop, true otherwise
+         *
+         * @throws Exception
+         */
         public boolean run() throws Exception;
     }
 

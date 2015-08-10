@@ -22,11 +22,11 @@
 package com.insightfullogic.honest_profiler.core;
 
 import com.insightfullogic.honest_profiler.core.parser.LogParser;
-import com.insightfullogic.honest_profiler.core.parser.LogParser.LogState;
+import com.insightfullogic.honest_profiler.core.parser.LogParser.AmountRead;
 import com.insightfullogic.honest_profiler.core.sources.LogSource;
 import org.slf4j.Logger;
 
-import java.io.IOException;
+import static com.insightfullogic.honest_profiler.core.parser.LogParser.AmountRead.NOTHING;
 
 public class Conductor {
 
@@ -49,29 +49,37 @@ public class Conductor {
         this.continuous = continuous;
     }
 
-    public boolean run() throws IOException {
+    public boolean run() {
         try {
-            final LogState logState = parser.readRecord(source.read());
-            switch (logState) {
-                case END_OF_LOG:
-                    source.close();
-                    return false;
-                case NOTHING_READ:
+            AmountRead amount = parser.readRecord(source.read());
+            switch (amount) {
+                case COMPLETE_RECORD:
+                    return true;
+
+                case PARTIAL_RECORD:
+                    sleep();
+                    return true;
+
+                case NOTHING:
                     if (continuous) {
                         sleep();
                     } else {
+                        logEndOfLog(NOTHING);
                         parser.endOfLog();
                     }
                     return continuous;
-                case READ_RECORD:
-                    return true;
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.error(e.getMessage(), e);
+            logEndOfLog(e.getMessage());
             parser.endOfLog();
         }
 
         return false;
+    }
+
+    private void logEndOfLog(final Object cause) {
+        logger.debug("Reached end of log for {} due to {}", source, cause);
     }
 
     private void sleep() {

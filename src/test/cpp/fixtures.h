@@ -7,9 +7,16 @@ class ItemHolder : public QueueListener {
 public:
   explicit ItemHolder() {}
 
-  virtual void record(const JVMPI_CallTrace &item) { lastSeenTrace = &item; }
+  virtual void record(const JVMPI_CallTrace &trace) {
+    CHECK_EQUAL(2, trace.num_frames);
+    CHECK_EQUAL((JNIEnv *)envId, trace.env_id);
 
-  const JVMPI_CallTrace *lastSeenTrace;
+    JVMPI_CallFrame frame0 = trace.frames[0];
+    CHECK_EQUAL(52, frame0.lineno);
+    CHECK_EQUAL((jmethodID)1, frame0.method_id);
+  }
+
+  long envId;
 };
 
 // Queue too big to stack allocate,
@@ -30,10 +37,9 @@ struct GivenQueue {
   CircularQueue *queue;
 
   // wrap an easy to test api around the queue
-  bool pop(JVMPI_CallTrace &item) {
-    bool result = queue->pop();
-    item = *(holder->lastSeenTrace);
-    return result;
+  bool pop(const long envId) {
+    holder->envId = envId;
+    return queue->pop();
   }
 };
 

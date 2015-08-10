@@ -23,11 +23,10 @@ package com.insightfullogic.honest_profiler.core.parser;
 
 import org.slf4j.Logger;
 
-import java.io.IOException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
-import static com.insightfullogic.honest_profiler.core.parser.LogParser.LogState.*;
+import static com.insightfullogic.honest_profiler.core.parser.LogParser.AmountRead.*;
 
 public class LogParser {
 
@@ -39,17 +38,18 @@ public class LogParser {
     private final LogEventListener listener;
     private final Logger logger;
 
-    public static enum LogState { READ_RECORD, NOTHING_READ, END_OF_LOG }
+    public static enum AmountRead {COMPLETE_RECORD, PARTIAL_RECORD, NOTHING}
 
     public LogParser(final Logger logger, final LogEventListener listener) {
         this.listener = listener;
         this.logger = logger;
     }
 
-    public LogState readRecord(ByteBuffer input) throws IOException {
+    public AmountRead readRecord(ByteBuffer input) {
+        int initialPosition = input.position();
+
         if (!input.hasRemaining()) {
-            endOfLog();
-            return END_OF_LOG;
+            return NOTHING;
         }
 
         byte type = input.get();
@@ -58,35 +58,38 @@ public class LogParser {
                 case NOT_WRITTEN:
                     // back back one byte since we've just read a 0
                     input.position(input.position() - 1);
-                    return NOTHING_READ;
+                    return NOTHING;
                 case TRACE_START:
                     readTraceStart(input);
-                    return READ_RECORD;
+                    return COMPLETE_RECORD;
                 case STACK_FRAME:
                     readStackFrame(input);
-                    return READ_RECORD;
+                    return COMPLETE_RECORD;
                 case NEW_METHOD:
                     readNewMethod(input);
-                    return READ_RECORD;
+                    return COMPLETE_RECORD;
             }
         } catch (BufferUnderflowException e) {
-            logger.error(e.getMessage(), e);
+            // If you've underflowed the buffer,
+            // then you need to wait for more data to be written.
+            input.position(initialPosition);
+            return PARTIAL_RECORD;
         }
 
-        endOfLog();
-        return END_OF_LOG;
+        // Should never get here
+        return NOTHING;
     }
 
     public void endOfLog() {
         listener.endOfLog();
     }
 
-    private void readNewMethod(ByteBuffer input) throws IOException {
+    private void readNewMethod(ByteBuffer input) {
         Method newMethod = new Method(input.getLong(), readString(input), readString(input), readString(input));
         newMethod.accept(listener);
     }
 
-    private String readString(ByteBuffer input) throws IOException {
+    private String readString(ByteBuffer input) {
         int size = input.getInt();
         char[] buffer = new char[size];
         // conversion from c style characters to Java.
@@ -96,14 +99,14 @@ public class LogParser {
         return new String(buffer);
     }
 
-    private void readStackFrame(ByteBuffer input) throws IOException {
+    private void readStackFrame(ByteBuffer input) {
         int lineNumber = input.getInt();
         long methodId = input.getLong();
         StackFrame stackFrame = new StackFrame(lineNumber, methodId);
         stackFrame.accept(listener);
     }
 
-    private void readTraceStart(ByteBuffer input) throws IOException {
+    private void readTraceStart(ByteBuffer input) {
         int numberOfFrames = input.getInt();
         long threadId = input.getLong();
         TraceStart traceStart = new TraceStart(numberOfFrames, threadId);

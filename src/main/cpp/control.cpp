@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2014 Richard Warburton (richard.warburton@gmail.com)
+/*
+ * Copyright (c) 2015 Richard Warburton (richard.warburton@gmail.com)
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a 
  * copy of this software and associated documentation files (the "Software"), 
@@ -18,26 +18,29 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  * DEALINGS IN THE SOFTWARE.
- **/
-package com.insightfullogic.examples;
+ */
 
-public class SleepingThreadExample {
+#include <jvmti.h>
 
-    public static void main(String[] args) throws Exception {
-        while (true) {
-            long time = System.currentTimeMillis();
-            Thread.sleep(500);
-            if ((System.currentTimeMillis() - time) < 500) {
-                System.out.println("Sleep has been broken");
-            }
-            for (int i = 0; i < 1000; i++) {
-                subMethod();
-            }
-        }
-    }
+#include "profiler.h"
 
-    private static void subMethod() {
-        System.out.println("calling some code, lalala");
-    }
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_insightfullogic_honest_1profiler_core_control_Agent_start(JNIEnv *env, jclass klass) {
+    Profiler *prof = getProfiler();
 
+    return prof->start(env);
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_insightfullogic_honest_1profiler_core_control_Agent_stop(JNIEnv *env, jclass klass) {
+    Profiler *prof = getProfiler();
+
+    prof->stop();
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_insightfullogic_honest_1profiler_core_control_Agent_isRunning(JNIEnv *env, jclass klass) {
+    Profiler *prof = getProfiler();
+
+    return prof->isRunning();
 }

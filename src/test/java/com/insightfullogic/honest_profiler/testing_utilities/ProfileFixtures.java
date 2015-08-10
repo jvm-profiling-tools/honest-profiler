@@ -19,26 +19,18 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.ports.console;
+package com.insightfullogic.honest_profiler.testing_utilities;
 
-import org.fusesource.jansi.Ansi;
+import com.insightfullogic.honest_profiler.core.parser.Method;
 
-import java.io.PrintStream;
-import java.util.function.Consumer;
-import java.util.function.Function;
+public class ProfileFixtures {
 
-import static org.fusesource.jansi.Ansi.ansi;
+    public static final long printlnId = 5;
+    public static final long appendId = 6;
+    public static final long printfId = 7;
 
-public interface Console {
-
-    PrintStream stream();
-
-    default void eraseScreen() {
-        write(a -> a.eraseScreen().reset());
-    }
-
-    default void write(Function<Ansi, Ansi> func) {
-        stream().println(func.apply(ansi()));
-    }
+    public static final Method println = new Method(printlnId, "PrintStream.java", "Ljava/io/PrintStream;", "println");
+    public static final Method append = new Method(appendId, "PrintStream.java", "Ljava/io/PrintStream;", "append");
+    public static final Method printf = new Method(printfId, "PrintStream.java", "Ljava/io/PrintStream;", "printf");
 
 }

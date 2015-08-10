@@ -34,6 +34,14 @@ public:
     }
 };
 
+const int COMMITTED = 1;
+const int UNCOMMITTED = 0;
+
+struct TraceHolder {
+    std::atomic<int> is_committed;
+    JVMPI_CallTrace trace;
+};
+
 class CircularQueue {
 public:
     explicit CircularQueue(QueueListener &listener)
@@ -56,7 +64,7 @@ private:
     std::atomic<size_t> input;
     std::atomic<size_t> output;
 
-    JVMPI_CallTrace buffer[Capacity];
+    TraceHolder buffer[Capacity];
     JVMPI_CallFrame frame_buffer_[Capacity][kMaxFramesToCapture];
 
     size_t advance(size_t index) const;

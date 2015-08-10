@@ -1,39 +1,26 @@
+#ifndef PROFILER_H
+#define PROFILER_H
+
 #include <signal.h>
-#include <fstream>
 #include <unistd.h>
 #include <chrono>
 #include <sstream>
 #include <string>
 
 #include "globals.h"
+#include "signal_handler.h"
 #include "stacktraces.h"
 #include "processor.h"
 #include "log_writer.h"
-
-#ifndef PROFILER_H
-#define PROFILER_H
 
 using namespace std::chrono;
 using std::ofstream;
 using std::ostringstream;
 using std::string;
 
-class SignalHandler {
-public:
-    SignalHandler() {
-    }
-
-    struct sigaction SetAction(void (*sigaction)(int, siginfo_t *, void *));
-
-    bool SetSigprofInterval(int sec, int usec);
-
-private:
-    DISALLOW_COPY_AND_ASSIGN(SignalHandler);
-};
-
 class Profiler {
 public:
-    explicit Profiler(JavaVM *jvm, jvmtiEnv *jvmti, ConfigurationOptions *configuration) : jvm_(jvm), configuration_(configuration) {
+    explicit Profiler(JavaVM *jvm, jvmtiEnv *jvmti, ConfigurationOptions *configuration) : jvm_(jvm), configuration_(configuration), handler_(configuration_->samplingIntervalMin, configuration->samplingIntervalMax) {
         // main object graph instantiated here
         // these objects all live for the lifecycle of the program
 
@@ -53,7 +40,10 @@ public:
 
         writer = new LogWriter(*logFile, &Profiler::lookupFrameInformation, jvmti);
         buffer = new CircularQueue(*writer);
-        processor = new Processor(jvmti, *writer, *buffer);
+
+        // flush the queue about twice as fast as it fills up
+        int processor_interval = Size * configuration->samplingIntervalMin / 1000 / 2;
+        processor = new Processor(jvmti, *writer, *buffer, handler_, processor_interval > 0 ? processor_interval : 1);
     }
 
     bool start(JNIEnv *jniEnv);
@@ -61,6 +51,8 @@ public:
     void stop();
 
     void handle(int signum, siginfo_t *info, void *context);
+
+    bool isRunning() const;
 
     ~Profiler() {
         delete buffer;
@@ -88,9 +80,9 @@ private:
             jvmtiEnv *jvmti,
             MethodListener &logWriter);
 
-    DISALLOW_COPY_AND_ASSIGN(Profiler);
-
     JNIEnv *getJNIEnv();
+
+    DISALLOW_COPY_AND_ASSIGN(Profiler);
 };
 
 #endif // PROFILER_H

@@ -25,16 +25,18 @@ import com.insightfullogic.honest_profiler.core.Monitor;
 import com.insightfullogic.honest_profiler.core.ProfileListener;
 import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
 import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
+import com.insightfullogic.honest_profiler.ports.sources.LocalMachineSource;
+import org.fusesource.jansi.AnsiConsole;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 
 public class ConsoleApplication {
 
-    private final ConsoleUserInterface ui;
+    private final ProfileView ui;
     private final Console output;
     private final Console error;
 
@@ -42,6 +44,7 @@ public class ConsoleApplication {
     private String filterDescription;
 
     public static void main(String[] args) {
+        AnsiConsole.systemInstall();
         ConsoleApplication entry = new ConsoleApplication(() -> System.err, () -> System.out);
         CmdLineParser parser = new CmdLineParser(entry);
 
@@ -57,10 +60,10 @@ public class ConsoleApplication {
     public ConsoleApplication(final Console error, final Console output) {
         this.output = output;
         this.error = error;
-        ui = new ConsoleUserInterface(output);
+        ui = new ProfileView(output);
     }
 
-    @Option(name = "-log", usage = "set the log that you want to parser or use", required = true)
+    @Option(name = "-log", usage = "set the log that you want to parser or use")
     public void setLogLocation(String logLocation) {
         setLogLocation(new File(logLocation));
     }
@@ -84,6 +87,21 @@ public class ConsoleApplication {
     }
 
     public void run() {
+        if (hasLogToDisplay()) {
+            displayLogFile();
+        } else {
+            Terminal terminal = new Terminal(System.in, System.out, () -> System.exit(0));
+            terminal.display(new MachinePicker(terminal, listener ->
+                new LocalMachineSource(LoggerFactory.getLogger(LocalMachineSource.class), listener)));
+            terminal.run();
+        }
+    }
+
+    private boolean hasLogToDisplay() {
+        return logLocation != null;
+    }
+
+    private void displayLogFile() {
         try {
             if (!logLocation.exists() || !logLocation.canRead()) {
                 error.stream().println("Unable to find log file at: " + logLocation);
@@ -104,7 +122,8 @@ public class ConsoleApplication {
             output.stream().println("Printing Profile for: " + logLocation.getAbsolutePath());
 
             Monitor.consumeFile(new FileLogSource(logLocation), listener);
-        } catch (IOException e) {
+        } catch (Exception e) {
+            // TODO: better error handling
             e.printStackTrace(error.stream());
         }
     }

@@ -50,7 +50,8 @@ void JNICALL OnVMInit(jvmtiEnv *jvmti, JNIEnv *jniEnv, jthread thread) {
         jclass klass = classList[i];
         CreateJMethodIDsForClass(jvmti, klass);
     }
-    prof->start(jniEnv);
+    if (CONFIGURATION->start)
+        prof->start(jniEnv);
 }
 
 void JNICALL OnClassPrepare(jvmtiEnv *jvmti_env, JNIEnv *jni_env,
@@ -152,12 +153,18 @@ static void parseArguments(char *options, ConfigurationOptions &configuration) {
             continue;
         } else {
             value++;
-            if (strstr(key, "interval") == key) {
-                configuration.samplingInterval = atoi(value);
+            if (strstr(key, "intervalMin") == key) {
+                configuration.samplingIntervalMin = atoi(value);
+            } else if (strstr(key, "intervalMax") == key) {
+                configuration.samplingIntervalMax = atoi(value);
+            } else if (strstr(key, "interval") == key) {
+                configuration.samplingIntervalMin = configuration.samplingIntervalMax = atoi(value);
             } else if (strstr(key, "logPath") == key) {
                 size_t  size = (next == 0) ? strlen(key) : (size_t) (next - value);
                 configuration.logFilePath = (char*) malloc(size * sizeof(char));
                 strncpy(configuration.logFilePath, value, size);
+            } else if (strstr(key, "start") == key) {
+                configuration.start = atoi(value);
             } else {
                 logError("Unknown configuration option: %s\n", key);
             }
@@ -220,4 +227,8 @@ void logError(const char *__restrict format, ...) {
     va_start(arg, format);
     fprintf(stderr, format, arg);
     va_end(arg);
+}
+
+Profiler *getProfiler() {
+    return prof;
 }

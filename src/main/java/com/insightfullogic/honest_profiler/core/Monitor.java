@@ -21,14 +21,12 @@
  **/
 package com.insightfullogic.honest_profiler.core;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
-import java.io.IOException;
-
 import com.insightfullogic.honest_profiler.core.collector.LogCollector;
 import com.insightfullogic.honest_profiler.core.parser.LogEventListener;
 import com.insightfullogic.honest_profiler.core.parser.LogParser;
 import com.insightfullogic.honest_profiler.core.sources.LogSource;
+
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Application Service for monitoring logs
@@ -38,7 +36,9 @@ public class Monitor {
     private Monitor() {
         // utility class
     }
-    public static void pipeFile(final LogSource logSource, final ProfileListener listener) throws IOException {
+
+    // TODO: have a way of stopping the agent correctly
+    public static void pipeFile(final LogSource logSource, final ProfileListener listener) {
         ProfileUpdateModerator moderator = new ProfileUpdateModerator(getLogger(ProfileUpdateModerator.class), listener);
         moderator.start();
 
@@ -46,17 +46,18 @@ public class Monitor {
         new ThreadedAgent(getLogger(ThreadedAgent.class), conductor::run).start();
     }
 
-    public static void consumeFile(final LogSource logSource, final ProfileListener listener) throws IOException {
+    public static void consumeFile(final LogSource logSource, final ProfileListener listener) {
         Conductor consumer = pipe(logSource, listener, false);
         while (consumer.run())
             ;
     }
-    public static void consumeFile(final LogSource logSource, final LogEventListener listener) throws IOException {
+    public static void consumeFile(final LogSource logSource, final LogEventListener listener) {
         Conductor consumer = pipe(logSource, listener, false);
         while (consumer.run())
             ;
     }
-    private static Conductor pipe(final LogSource logSource, final ProfileListener listener, final boolean continuous) throws IOException {
+
+    private static Conductor pipe(final LogSource logSource, final ProfileListener listener, final boolean continuous) {
         LogEventListener collector = new LogCollector(listener, continuous);
         return pipe(logSource, collector, continuous);
     }

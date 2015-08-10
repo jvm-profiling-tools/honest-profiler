@@ -19,41 +19,42 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.ports.console;
+package com.insightfullogic.honest_profiler.testing_utilities;
 
-import com.insightfullogic.honest_profiler.core.ProfileListener;
-import com.insightfullogic.honest_profiler.core.collector.Profile;
+import java.util.Calendar;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.IntStream;
 
-import java.io.PrintStream;
+public class LargeStacktracesExample implements Runnable {
 
-import static com.insightfullogic.honest_profiler.ports.console.ProfileFormat.BOTH;
+    public static void main(String[] args) throws Exception {
+        int processors = Runtime.getRuntime().availableProcessors() * 2;
 
-public class ConsoleUserInterface implements ProfileListener {
-
-    private final Console console;
-
-    private ProfileFormat profileFormat = BOTH;
-
-    public ConsoleUserInterface(Console console) {
-        this.console = console;
+        ExecutorService threadPool = Executors.newFixedThreadPool(processors);
+        IntStream.range(0, processors)
+                 .forEach(x -> threadPool.submit(new LargeStacktracesExample()));
     }
 
     @Override
-    public void accept(Profile profile) {
-        PrintStream out = console.stream();
-        printHeader(profile, out);
-        out.println();
-        profileFormat.printProfile(profile, out);
-        out.println();
+    public void run() {
+        while (true) {
+            String value = null;
+            for (int i = 0; i < 100_000; i++) {
+                value = someSillyMethod();
+                try {
+                    Thread.sleep(5);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            System.out.println(value);
+        }
     }
 
-    private void printHeader(Profile profile, PrintStream out) {
-        out.print("Number of stack traces: ");
-        out.print(Integer.toString(profile.getTraceCount()));
-    }
-
-    public void setProfileFormat(ProfileFormat profileFormat) {
-        this.profileFormat = profileFormat;
+    private String someSillyMethod() {
+        Calendar cal = Calendar.getInstance();
+        return cal.toString();
     }
 
 }

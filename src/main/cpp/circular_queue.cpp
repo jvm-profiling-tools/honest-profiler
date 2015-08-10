@@ -1,5 +1,6 @@
 #include "circular_queue.h"
 #include <iostream>
+#include <unistd.h>
 
 void safe_reset(void *start, size_t size) {
     char *base = reinterpret_cast<char *>(start);
@@ -31,16 +32,16 @@ bool CircularQueue::push(const JVMPI_CallTrace &item) {
 void CircularQueue::write(const JVMPI_CallTrace &trace, const size_t slot) {
     JVMPI_CallFrame *fb = frame_buffer_[slot];
     for (int frame_num = 0; frame_num < trace.num_frames; ++frame_num) {
-        // Make sure the padding is all set to 0.
-        safe_reset(&(fb[frame_num]), sizeof(JVMPI_CallFrame));
+        // Padding already set to 0 by the consumer.
 
         fb[frame_num].lineno = trace.frames[frame_num].lineno;
         fb[frame_num].method_id = trace.frames[frame_num].method_id;
     }
 
-    buffer[slot].frames = fb;
-    buffer[slot].num_frames = trace.num_frames;
-    buffer[slot].env_id = trace.env_id;
+    buffer[slot].trace.frames = fb;
+    buffer[slot].trace.num_frames = trace.num_frames;
+    buffer[slot].trace.env_id = trace.env_id;
+    buffer[slot].is_committed.store(COMMITTED);
 }
 
 bool CircularQueue::pop() {
@@ -51,11 +52,29 @@ bool CircularQueue::pop() {
         return false;
     }
 
-    listener_.record(buffer[current_output]);
+    // wait until we've finished writing to the buffer
+    while(buffer[current_output].is_committed.load() != COMMITTED) {
+        usleep(1);
+    }
+
+    listener_.record(buffer[current_output].trace);
+    
+    // 0 out all frames so the next write is clean
+    JVMPI_CallFrame *fb = frame_buffer_[current_output];
+    auto num_frames = buffer[current_output].trace.num_frames;
+    for (int frame_num = 0; frame_num < num_frames; ++frame_num) {
+        memset(&(fb[frame_num]), 0, sizeof(JVMPI_CallFrame));
+    }
+
+    // ensure that the record is ready to be written to
+    buffer[current_output].is_committed.store(UNCOMMITTED);
+    // Signal that you've finished reading the record
     output.store(advance(current_output));
+
     return true;
 }
 
 size_t CircularQueue::advance(size_t index) const {
     return (index + 1) % Capacity;
 }
+

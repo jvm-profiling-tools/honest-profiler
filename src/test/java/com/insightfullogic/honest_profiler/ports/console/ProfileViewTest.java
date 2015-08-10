@@ -21,7 +21,7 @@
  **/
 package com.insightfullogic.honest_profiler.ports.console;
 
-import com.insightfullogic.honest_profiler.ProfileFixtures;
+import com.insightfullogic.honest_profiler.testing_utilities.ProfileFixtures;
 import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
 import com.insightfullogic.honest_profiler.core.collector.Profile;
 import com.insightfullogic.honest_profiler.core.collector.ProfileNode;
@@ -32,10 +32,10 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 
-public class ConsoleUserInterfaceTest {
+public class ProfileViewTest {
 
     private final FakeConsole console = new FakeConsole();
-    private final ConsoleUserInterface ui = new ConsoleUserInterface(console);
+    private final ProfileView ui = new ProfileView(console);
 
     @Test
     public void rendersSingleMethod() {

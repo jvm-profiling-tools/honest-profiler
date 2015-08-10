@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Richard Warburton (richard.warburton@gmail.com)
+ * Copyright (c) 2014-2015 Richard Warburton (richard.warburton@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -19,22 +19,40 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.system_tests;
+package com.insightfullogic.honest_profiler.ports.console;
 
-// TODO: implement
-public class AgentRunner {
+import com.insightfullogic.honest_profiler.core.Monitor;
+import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 
-    private final String className;
+/**
+ * .
+ */
+public class ProfileScreen implements Screen {
 
-    public AgentRunner(final String className) {
-        this.className = className;
+    private final VirtualMachine machine;
+    private final Screen previousScreen;
+    private final Terminal terminal;
+    private final ProfileView profileView;
+
+    public ProfileScreen(VirtualMachine machine, Screen previousScreen, Terminal terminal) {
+        this.machine = machine;
+        this.previousScreen = previousScreen;
+        this.terminal = terminal;
+
+        profileView = new ProfileView(terminal);
+        profileView.setProfileFormat(ProfileFormat.FLAT);
     }
 
-    public void start() {
-
+    @Override
+    public void onShow() {
+        Monitor.pipeFile(machine.getLogSource(), profileView);
     }
 
-    public void stop() {
-
+    @Override
+    public void handleInput(int input) {
+        if (input == '<') {
+            terminal.display(previousScreen);
+        }
     }
+
 }

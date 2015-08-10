@@ -19,26 +19,10 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.ports.console;
+package com.insightfullogic.honest_profiler.core.control;
 
-import org.fusesource.jansi.Ansi;
-
-import java.io.PrintStream;
-import java.util.function.Consumer;
-import java.util.function.Function;
-
-import static org.fusesource.jansi.Ansi.ansi;
-
-public interface Console {
-
-    PrintStream stream();
-
-    default void eraseScreen() {
-        write(a -> a.eraseScreen().reset());
-    }
-
-    default void write(Function<Ansi, Ansi> func) {
-        stream().println(func.apply(ansi()));
-    }
-
+public class Agent {
+    public static synchronized native boolean start();
+    public static synchronized native void stop();
+    public static synchronized native boolean isRunning();
 }

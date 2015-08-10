@@ -1,3 +1,9 @@
+import java.lang.management.ManagementFactory;
+
+import com.insightfullogic.honest_profiler.core.control.Agent;
+import java.io.IOException;
+import static java.lang.Long.parseLong;
+
 /**
  * Copyright (c) 2014 Richard Warburton (richard.warburton@gmail.com)
  * 
@@ -22,6 +28,13 @@
 public class InfiniteExample {
 
     public static void main(String[] args) throws Exception {
+        final String jvmName = ManagementFactory.getRuntimeMXBean().getName();
+        final int index = jvmName.indexOf('@');
+        final Thread control = new Thread(InfiniteExample::startOrStop);
+
+        control.start();
+        System.out.println(parseLong(jvmName.substring(0, index)));
+
         while (true) {
             Thread.sleep(1);
             subMethod();
@@ -32,4 +45,18 @@ public class InfiniteExample {
         System.out.println("calling some code, lalala");
     }
 
+    private static void startOrStop() {
+        try {
+            while (true) {
+                int ch = System.in.read();
+
+                if (ch == 'S')
+                    Agent.start();
+                else if (ch == 's')
+                    Agent.stop();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

@@ -21,6 +21,7 @@
  **/
 package com.insightfullogic.honest_profiler.ports.sources;
 
+import com.insightfullogic.honest_profiler.core.sources.CantReadFromSourceException;
 import com.insightfullogic.honest_profiler.core.sources.LogSource;
 
 import java.io.File;
@@ -28,28 +29,61 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 
 import static java.nio.channels.FileChannel.MapMode.READ_ONLY;
 
 public class FileLogSource implements LogSource {
 
-    private final RandomAccessFile input;
-    private final MappedByteBuffer buffer;
+    private final FileChannel channel;
+    private final File file;
 
-    public FileLogSource(final File file) throws IOException {
-        input = new RandomAccessFile(file, "r");
-        buffer = input.getChannel()
-                      .map(READ_ONLY, 0, file.length());
+    private MappedByteBuffer buffer;
+
+    public FileLogSource(final File file) {
+        this.file = file;
+        try {
+            channel = new RandomAccessFile(file, "r").getChannel();
+            remapFile(channel.size());
+        } catch (IOException e) {
+            throw new CantReadFromSourceException(e);
+        }
+    }
+
+    // Shame there's no simple abstraction for reading over both files
+    // and network bytebuffers
+    private void remapFile(final long size) throws IOException {
+        buffer = channel.map(READ_ONLY, 0, size);
+
     }
 
     @Override
     public ByteBuffer read() {
+        try {
+            int limit = buffer.limit();
+            long channelSize = channel.size();
+            if (channelSize > limit) {
+                int oldPosition = buffer.position();
+                remapFile(channelSize);
+                buffer.position(oldPosition);
+            }
+        } catch (IOException e) {
+            throw new CantReadFromSourceException(e);
+        }
+
         return buffer;
     }
 
     @Override
     public void close() throws IOException {
-        input.close();
+        channel.close();
+    }
+
+    @Override
+    public String toString() {
+        return "FileLogSource{" +
+                "file=" + file +
+                '}';
     }
 
 }
