@@ -25,13 +25,24 @@ package com.insightfullogic.honest_profiler.core.parser;
 import java.util.Objects;
 
 public final class StackFrame implements LogEvent {
-
-    private final int lineNumber;
+	public static final int ERR_NO_LINE_INFO = -100;
+	public static final int ERR_NO_LINE_FOUND= -101;
+	private final int bci;
+	private final int lineNumber;
     private final long methodId;
 
-    public StackFrame(int lineNumber, long methodId) {
-        this.lineNumber = lineNumber;
+    public StackFrame(int bci, long methodId) {
+        this(bci, ERR_NO_LINE_INFO, methodId);
+    }
+    
+    public StackFrame(int bci, int lineNumber, long methodId) {
+        this.bci = bci;
+    	this.lineNumber = lineNumber;
         this.methodId = methodId;
+    }
+
+    public int getBci() {
+        return bci;
     }
 
     public int getLineNumber() {
@@ -48,13 +59,14 @@ public final class StackFrame implements LogEvent {
         if (o == null || getClass() != o.getClass()) return false;
 
         StackFrame that = (StackFrame) o;
-        return Objects.equals(lineNumber, that.lineNumber)
+        return Objects.equals(bci, that.bci)
+            && Objects.equals(lineNumber, that.lineNumber)
             && Objects.equals(methodId, that.methodId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(lineNumber, methodId);
+        return Objects.hash(bci, lineNumber, methodId);
     }
 
     @Override
@@ -65,6 +77,7 @@ public final class StackFrame implements LogEvent {
     @Override
     public String toString() {
         return "StackFrame{" +
+                "bci=" + bci +
                 "lineNumber=" + lineNumber +
                 ", methodId=" + methodId +
                 '}';

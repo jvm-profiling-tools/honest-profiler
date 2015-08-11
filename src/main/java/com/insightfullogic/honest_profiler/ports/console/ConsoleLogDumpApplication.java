@@ -107,15 +107,15 @@ public class ConsoleLogDumpApplication {
                     errCount++;
                     out.print("StackFrame: ");
                     indent(out);
-                    out.printf("%d @ %s\n", methodId, stackFrame.getLineNumber());
+                    out.printf("%d @ %s (bci=%s)\n", methodId, stackFrame.getLineNumber(), stackFrame.getBci());
                 } else if (boundMethod == null) {
                     out.print("StackFrame: ");
                     indent(out);
-                    out.printf("%d @ %s\n", methodId, stackFrame.getLineNumber());
+                    out.printf("%d @ %s (bci=%s)\n", methodId, stackFrame.getLineNumber(), stackFrame.getBci());
                 } else {
                     out.print("StackFrame: ");
                     indent(out);
-                    out.printf("%s::%s @ %s\n", boundMethod.className, boundMethod.methodName, stackFrame.getLineNumber());
+                    out.printf("%s::%s @ %s (bci=%s)\n", boundMethod.className, boundMethod.methodName, stackFrame.getLineNumber(), stackFrame.getBci());
                 }
             }
 

@@ -32,7 +32,8 @@ public class LogParser {
 
     private static final int NOT_WRITTEN = 0;
     private static final int TRACE_START = 1;
-    private static final int STACK_FRAME = 2;
+    private static final int STACK_FRAME_BCI_ONLY = 2;
+    private static final int STACK_FRAME_FULL = 21;
     private static final int NEW_METHOD = 3;
 
     private final LogEventListener listener;
@@ -56,14 +57,17 @@ public class LogParser {
         try {
             switch (type) {
                 case NOT_WRITTEN:
-                    // back back one byte since we've just read a 0
+                    // go back one byte since we've just read a 0
                     input.position(input.position() - 1);
                     return NOTHING;
                 case TRACE_START:
                     readTraceStart(input);
                     return COMPLETE_RECORD;
-                case STACK_FRAME:
-                    readStackFrame(input);
+                case STACK_FRAME_BCI_ONLY:
+                    readStackFrameBciOnly(input);
+                    return COMPLETE_RECORD;
+                case STACK_FRAME_FULL:
+                    readStackFrameFull(input);
                     return COMPLETE_RECORD;
                 case NEW_METHOD:
                     readNewMethod(input);
@@ -99,10 +103,18 @@ public class LogParser {
         return new String(buffer);
     }
 
-    private void readStackFrame(ByteBuffer input) {
-        int lineNumber = input.getInt();
+    private void readStackFrameBciOnly(ByteBuffer input) {
+    	int bci = input.getInt();
         long methodId = input.getLong();
-        StackFrame stackFrame = new StackFrame(lineNumber, methodId);
+        StackFrame stackFrame = new StackFrame(bci, methodId);
+        stackFrame.accept(listener);
+    }
+    
+    private void readStackFrameFull(ByteBuffer input) {
+    	int bci = input.getInt();
+    	int lineNumber = input.getInt();
+        long methodId = input.getLong();
+        StackFrame stackFrame = new StackFrame(bci, lineNumber, methodId);
         stackFrame.accept(listener);
     }
 
