@@ -30,8 +30,14 @@ typedef bool (*GetFrameInformation)(const JVMPI_CallFrame &frame,
 
 const size_t FIFO_SIZE = 10;
 const byte TRACE_START = 1;
-const byte FRAME = 2;
+const byte FRAME_BCI_ONLY = 2;// maintain backward compatibility
+const byte FRAME_FULL = 21;
 const byte NEW_METHOD = 3;
+// Error values for line number. If BCI is an error value we report the BCI error value.
+const jint ERR_NO_LINE_INFO = -100;
+const jint ERR_NO_LINE_FOUND= -101;
+// For the record, known BCI error values
+
 
 // LogWriter should be independently testable without spinning up a JVM
 class LogWriter : public QueueListener, public MethodListener {
@@ -48,7 +54,9 @@ public:
 
     // method are unique pointers, use a long to standardise
     // between 32 and 64 bits
-    void recordFrame(const jint lineNumber, method_id methodId);
+    void recordFrame(const jint bci, const jint lineNumber, method_id methodId);
+
+    void recordFrame(const jint bci, method_id methodId);
 
     virtual void recordNewMethod(method_id methodId, const char *file_name,
             const char *class_name, const char *method_name);

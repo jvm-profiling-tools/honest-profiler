@@ -67,8 +67,9 @@ void LogWriter::record(const JVMPI_CallTrace &trace) {
         JVMPI_CallFrame frame = trace.frames[i];
         method_id methodId = (method_id) frame.method_id;
 	   // lineno is in fact BCI, needs converting to lineno
-	    jint lineno = getLineNo(frame.lineno, frame.method_id);
-        recordFrame(lineno, methodId);
+        jint bci = frame.lineno;
+	    jint lineno = getLineNo(bci, frame.method_id);
+        recordFrame(bci, lineno, methodId);
         inspectMethod(methodId, frame);
     }
 }
@@ -90,9 +91,18 @@ void LogWriter::recordTraceStart(const jint numFrames, const int64_t threadId) {
     output_.flush();
 }
 
-void LogWriter::recordFrame(const jint lineNumber, const method_id methodId) {
-    output_.put(FRAME);
+void LogWriter::recordFrame(const jint bci, const jint lineNumber, const method_id methodId) {
+    output_.put(FRAME_FULL);
+    writeValue(bci);
     writeValue(lineNumber);
+    writeValue(methodId);
+    output_.flush();
+}
+
+// kept for old format tests
+void LogWriter::recordFrame(const jint bci, const method_id methodId) {
+    output_.put(FRAME_BCI_ONLY);
+    writeValue(bci);
     writeValue(methodId);
     output_.flush();
 }

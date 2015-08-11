@@ -59,7 +59,7 @@ TEST(RecordsStackFrames) {
   givenLogWriter();
 
   logWriter.recordFrame(5, 6);
-  CHECK_EQUAL(FRAME, buffer[0]);
+  CHECK_EQUAL(FRAME_BCI_ONLY, buffer[0]);
   CHECK_EQUAL(5, buffer[4]);
   CHECK_EQUAL(0, buffer[3]);
   CHECK_EQUAL(6, buffer[12]);
@@ -97,7 +97,7 @@ void thenACompleteLogIsOutput(char buffer[]) {
   CHECK_EQUAL(2, buffer[intThen]);
   CHECK_EQUAL(5, buffer[longThen]);
 
-  CHECK_EQUAL(FRAME, buffer[index++]);
+  CHECK_EQUAL(FRAME_BCI_ONLY, buffer[index++]);
   CHECK_EQUAL(52, buffer[intThen]);
   CHECK_EQUAL(1, buffer[longThen]);
 
@@ -110,7 +110,7 @@ void thenACompleteLogIsOutput(char buffer[]) {
   CHECK_EQUAL(1, buffer[intThen]);
   CHECK_EQUAL('a', buffer[index++]);
 
-  CHECK_EQUAL(FRAME, buffer[index++]);
+  CHECK_EQUAL(FRAME_BCI_ONLY, buffer[index++]);
   CHECK_EQUAL(42, buffer[intThen]);
   CHECK_EQUAL(2, buffer[longThen]);
 }
