@@ -22,22 +22,21 @@
 package com.insightfullogic.honest_profiler.core.collector;
 
 import com.insightfullogic.honest_profiler.core.parser.Method;
+
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class FlamegraphData {
+/**
+ * Represents the stored data model for a flamegraph
+ */
+public class FlameGraph
+{
     private Map<List<Method>, Long> flameGraph;
 
-    public FlamegraphData(Map<List<Method>, Long> flameGraph) {
+    public FlameGraph(Map<List<Method>, Long> flameGraph) {
         this.flameGraph = flameGraph;
-    }
-
-    public Map<List<Method>, Long> getFlameGraph() {
-        return flameGraph;
     }
 
     public void writeTo(Writer out) throws IOException {
