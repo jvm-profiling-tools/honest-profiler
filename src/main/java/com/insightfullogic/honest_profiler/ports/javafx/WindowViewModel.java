@@ -29,7 +29,7 @@ import static com.insightfullogic.honest_profiler.ports.javafx.WindowViewModel.W
 
 public class WindowViewModel {
 
-    public static enum Window {
+    public enum Window {
         Landing,
         Profile;
 

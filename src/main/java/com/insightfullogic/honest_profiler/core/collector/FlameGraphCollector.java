@@ -67,7 +67,7 @@ public class FlameGraphCollector implements LogEventListener
 
     public FlameGraph toData() throws Exception
     {
-        Map<List<Method>, Long> converted = new HashMap<List<Method>, Long>(flameGraph.size());
+        Map<List<Method>, Long> converted = new HashMap<>(flameGraph.size());
 
         for (Map.Entry<List<Long>, Long> entry : flameGraph.entrySet())
         {

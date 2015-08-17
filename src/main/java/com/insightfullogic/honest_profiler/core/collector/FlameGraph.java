@@ -45,6 +45,11 @@ public class FlameGraph
         }
     }
 
+    public Map<List<Method>, Long> getFlameGraph()
+    {
+        return flameGraph;
+    }
+
     private void writeTrace(Writer out, List<Method> trace, long weight) throws IOException {
         if (trace.size() == 0)
             return;
@@ -65,5 +70,11 @@ public class FlameGraph
         out.write(" ");
         out.write(Long.toString(weight));
         out.write("\n");
+    }
+
+    @Override
+    public String toString()
+    {
+        return flameGraph.toString();
     }
 }
