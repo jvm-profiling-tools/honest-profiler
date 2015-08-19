@@ -22,113 +22,46 @@
 package com.insightfullogic.honest_profiler.ports.javafx.flame_graph;
 
 import com.insightfullogic.honest_profiler.core.collector.FlameGraph;
-import com.insightfullogic.honest_profiler.core.collector.FlameTrace;
-import com.insightfullogic.honest_profiler.core.parser.Method;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Tooltip;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
-import javafx.stage.Window;
+import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
+import javafx.application.Application;
+import javafx.scene.Group;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
-import java.util.List;
+import java.io.File;
 
-import static com.insightfullogic.honest_profiler.ports.javafx.Rendering.renderMethod;
-import static com.insightfullogic.honest_profiler.ports.javafx.Rendering.renderShortMethod;
+import static com.insightfullogic.honest_profiler.core.collector.FlameGraphCollector.readFlamegraph;
 
-/**
- * .
- */
-public class FlameGraphView extends Canvas
+public class FlameGraphView extends Application
 {
 
-    private final Tooltip tooltip = new Tooltip();
-    private final Window window;
-
-    private double initialY;
-    private double columnWidth;
-    private double rowHeight;
-    private List<FlameTrace> traces;
-
-    public FlameGraphView(final Window window)
+    @Override
+    public void start(Stage stage) throws Exception
     {
-        this.window = window;
-        setOnMouseClicked(this::displayMethodName);
+        stage.setTitle("Flame Graph View");
+        stage.setWidth(1920);
+        stage.setHeight(1000);
+
+        FlameGraph data = readFlamegraph(new FileLogSource(new File("log-10401-1439827661223.hpl")));
+        Group root = new Group();
+        FlameGraphCanvas canvas = new FlameGraphCanvas(stage);
+        canvas.setWidth(1920);
+        canvas.setHeight(1000);
+        root.getChildren().add(canvas);
+        stage.setScene(new Scene(root));
+        stage.show();
+
+        canvas.display(data);
     }
 
-    private void displayMethodName(final MouseEvent mouseEvent)
+    @Override
+    public void stop() throws Exception
     {
-        final double x = mouseEvent.getX();
-        final double y = mouseEvent.getY();
-
-        int column = (int) (x / columnWidth);
-        int row = -1 * (int) ((y - initialY) / rowHeight);
-
-        for (FlameTrace flameTrace : traces)
-        {
-            column -= flameTrace.getWeight();
-            if (column < 0)
-            {
-                List<Method> stackTrace = flameTrace.getMethods();
-                if (row >= stackTrace.size() || row < 0)
-                {
-                    tooltip.hide();
-                }
-                else
-                {
-                    Method method = stackTrace.get(row);
-                    tooltip.setText(renderMethod(method));
-                    tooltip.show(window, x, y);
-                }
-                return;
-            }
-        }
-        tooltip.hide();
     }
 
-    public void display(FlameGraph graph)
+    public static void main(String[] args)
     {
-        final GraphicsContext graphics = getGraphicsContext2D();
-        graphics.setStroke(Color.WHITE);
-
-        traces = graph.getTraces();
-
-        final long totalWeight = graph.totalWeight();
-        final int maxHeight = graph.maxTraceHeight();
-
-        columnWidth = getWidth() / totalWeight;
-        rowHeight = getHeight() / maxHeight;
-        double x = 0;
-
-        for (FlameTrace stack : traces)
-        {
-            double stackWidth = stack.getWeight() * columnWidth;
-            initialY = getHeight() - rowHeight;
-            double y = initialY;
-            Color colour = Color.BISQUE;
-
-            for (Method method : stack.getMethods())
-            {
-                y -= rowHeight;
-
-                colour = colour.deriveColor(0, 1.05, 1.0, 1.0);
-                graphics.setFill(colour);
-                graphics.fillRect(x, y, stackWidth, rowHeight);
-
-                final String title = renderShortMethod(method);
-                if (title.length() * 7 < stackWidth)
-                {
-                    graphics.setFill(Color.ROYALBLUE);
-                    graphics.fillText(title, x, y + 0.75 * rowHeight);
-                }
-            }
-
-            x += stackWidth;
-        };
+        launch(args);
     }
 
-    public Tooltip getTooltip()
-    {
-        return tooltip;
-    }
 }
