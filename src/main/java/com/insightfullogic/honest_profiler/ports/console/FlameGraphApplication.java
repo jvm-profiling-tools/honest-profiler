@@ -21,12 +21,17 @@
  **/
 package com.insightfullogic.honest_profiler.ports.console;
 
-import com.insightfullogic.honest_profiler.core.collector.FlameGraphCollector;
 import com.insightfullogic.honest_profiler.core.collector.FlameGraph;
+import com.insightfullogic.honest_profiler.core.collector.FlameGraphCollector;
+import com.insightfullogic.honest_profiler.core.collector.FlameTrace;
+import com.insightfullogic.honest_profiler.core.parser.Method;
 import com.insightfullogic.honest_profiler.core.sources.LogSource;
+import com.insightfullogic.honest_profiler.ports.javafx.Rendering;
 import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
 
 import java.io.*;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class FlameGraphApplication
 {
@@ -48,7 +53,28 @@ public class FlameGraphApplication
         {
             FlameGraph data = FlameGraphCollector.readFlamegraph(source);
 
-            data.writeTo(output);
+            for (FlameTrace trace : data.getTraces())
+            {
+                writeTrace(output, trace);
+            }
         }
     }
+
+    private static void writeTrace(Writer out, FlameTrace flameTrace) throws IOException
+    {
+        List<Method> methods = flameTrace.getMethods();
+
+        if (methods.size() == 0)
+            return;
+
+        out.write(
+            methods.stream()
+                .map(Rendering::renderMethod)
+                .collect(Collectors.joining(";")));
+
+        out.write(" ");
+        out.write(Long.toString(flameTrace.getWeight()));
+        out.write("\n");
+    }
+
 }

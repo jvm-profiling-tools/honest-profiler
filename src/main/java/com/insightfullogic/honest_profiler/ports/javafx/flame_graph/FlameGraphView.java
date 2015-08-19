@@ -22,6 +22,7 @@
 package com.insightfullogic.honest_profiler.ports.javafx.flame_graph;
 
 import com.insightfullogic.honest_profiler.core.collector.FlameGraph;
+import com.insightfullogic.honest_profiler.core.collector.FlameTrace;
 import com.insightfullogic.honest_profiler.core.parser.Method;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -34,7 +35,6 @@ import java.util.List;
 
 import static com.insightfullogic.honest_profiler.ports.javafx.Rendering.renderMethod;
 import static com.insightfullogic.honest_profiler.ports.javafx.Rendering.renderShortMethod;
-import static java.util.stream.Collectors.toList;
 
 /**
  * .
@@ -48,7 +48,7 @@ public class FlameGraphView extends Canvas
     private double initialY;
     private double columnWidth;
     private double rowHeight;
-    private List<FlameStack> stacks;
+    private List<FlameTrace> traces;
 
     public FlameGraphView(final Window window)
     {
@@ -64,12 +64,12 @@ public class FlameGraphView extends Canvas
         int column = (int) (x / columnWidth);
         int row = -1 * (int) ((y - initialY) / rowHeight);
 
-        for (FlameStack flameStack : stacks)
+        for (FlameTrace flameTrace : traces)
         {
-            column -= flameStack.getWeight();
+            column -= flameTrace.getWeight();
             if (column < 0)
             {
-                List<Method> stackTrace = flameStack.getStackTrace();
+                List<Method> stackTrace = flameTrace.getMethods();
                 if (row >= stackTrace.size() || row < 0)
                 {
                     tooltip.hide();
@@ -91,28 +91,23 @@ public class FlameGraphView extends Canvas
         final GraphicsContext graphics = getGraphicsContext2D();
         graphics.setStroke(Color.WHITE);
 
-        stacks = graph
-            .getFlameGraph()
-            .entrySet()
-            .stream()
-            .map(entry -> new FlameStack(entry.getKey(), entry.getValue()))
-            .collect(toList());
+        traces = graph.getTraces();
 
-        final long totalWeight = stacks.stream().mapToLong(FlameStack::getWeight).sum();
-        final int maxHeight = stacks.stream().mapToInt(stack -> stack.getStackTrace().size()).max().getAsInt();
+        final long totalWeight = graph.totalWeight();
+        final int maxHeight = graph.maxTraceHeight();
 
         columnWidth = getWidth() / totalWeight;
         rowHeight = getHeight() / maxHeight;
         double x = 0;
 
-        for (FlameStack stack : stacks)
+        for (FlameTrace stack : traces)
         {
             double stackWidth = stack.getWeight() * columnWidth;
             initialY = getHeight() - rowHeight;
             double y = initialY;
             Color colour = Color.BISQUE;
 
-            for (Method method : stack.getStackTrace())
+            for (Method method : stack.getMethods())
             {
                 y -= rowHeight;
 

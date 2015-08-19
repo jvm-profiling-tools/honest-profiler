@@ -33,24 +33,31 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.stream.Collectors.toList;
+
 public class FlameGraphCollector implements LogEventListener
 {
     private Map<Long, Method> methods = new HashMap<>();
-    private Map<List<Long>, Long> flameGraph = new HashMap<>();
-    private List<Long> currentTrace;
+
+    private FlameGraph flameGraph = new FlameGraph();
+    private FlameTrace trace;
+    private List<Long> lastMethodIds = new ArrayList<>();
+    private List<Long> currentMethodIds;
+
     private static Method unknownMethod = new Method(-1, "<unknown>", "unknown.Unknown", "unknown");
 
     @Override
     public void handle(TraceStart traceStart)
     {
         addCurrentTrace();
-        currentTrace = new ArrayList<>();
+        lastMethodIds = currentMethodIds;
+        currentMethodIds = new ArrayList<>();
     }
 
     @Override
     public void handle(StackFrame stackFrame)
     {
-        currentTrace.add(stackFrame.getMethodId());
+        currentMethodIds.add(stackFrame.getMethodId());
     }
 
     @Override
@@ -65,29 +72,9 @@ public class FlameGraphCollector implements LogEventListener
         addCurrentTrace();
     }
 
-    public FlameGraph toData() throws Exception
+    public FlameGraph collect() throws Exception
     {
-        Map<List<Method>, Long> converted = new HashMap<>(flameGraph.size());
-
-        for (Map.Entry<List<Long>, Long> entry : flameGraph.entrySet())
-        {
-            List<Long> methodIds = entry.getKey();
-            List<Method> trace = new ArrayList<Method>(methodIds.size());
-
-            for (Long methodId : methodIds)
-            {
-                Method method = methods.get(methodId);
-
-                if (method == null)
-                    method = unknownMethod;
-
-                trace.add(method);
-            }
-
-            converted.put(trace, entry.getValue());
-        }
-
-        return new FlameGraph(converted);
+        return flameGraph;
     }
 
     public static FlameGraph readFlamegraph(LogSource source) throws Exception
@@ -96,16 +83,26 @@ public class FlameGraphCollector implements LogEventListener
 
         Monitor.consumeFile(source, collector);
 
-        return collector.toData();
+        return collector.collect();
     }
 
     private void addCurrentTrace()
     {
-        if (currentTrace == null || currentTrace.size() == 0)
+        if (currentMethodIds == null || currentMethodIds.size() == 0)
             return;
 
-        Long entry = flameGraph.get(currentTrace);
+        if (lastMethodIds.equals(currentMethodIds))
+        {
+            trace.incrementWeight();
+            return;
+        }
 
-        flameGraph.put(currentTrace, entry == null ? 1 : entry + 1);
+        List<Method> methods = currentMethodIds
+            .stream()
+            .map(method -> this.methods.getOrDefault(method, unknownMethod))
+            .collect(toList());
+
+        trace = new FlameTrace(methods, 1);
+        flameGraph.onNewTrace(trace);
     }
 }

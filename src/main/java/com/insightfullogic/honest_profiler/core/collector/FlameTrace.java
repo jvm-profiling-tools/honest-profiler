@@ -19,23 +19,24 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.ports.javafx.flame_graph;
+package com.insightfullogic.honest_profiler.core.collector;
 
 import com.insightfullogic.honest_profiler.core.parser.Method;
 
 import java.util.Collections;
 import java.util.List;
 
-public class FlameStack
+public class FlameTrace
 {
-    private List<Method> stackTrace;
+    private final List<Method> methods;
+
     private long weight;
 
-    public FlameStack(List<Method> stackTrace, long weight)
+    public FlameTrace(final List<Method> methods, final long weight)
     {
-        Collections.reverse(stackTrace);
+        Collections.reverse(methods);
 
-        this.stackTrace = stackTrace;
+        this.methods = methods;
         this.weight = weight;
     }
 
@@ -44,8 +45,13 @@ public class FlameStack
         return weight;
     }
 
-    public List<Method> getStackTrace()
+    public List<Method> getMethods()
     {
-        return stackTrace;
+        return methods;
+    }
+
+    public void incrementWeight()
+    {
+        weight++;
     }
 }
