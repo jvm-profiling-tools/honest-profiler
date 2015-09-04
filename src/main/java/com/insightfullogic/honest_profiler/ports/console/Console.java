@@ -21,13 +21,12 @@
  **/
 package com.insightfullogic.honest_profiler.ports.console;
 
-import org.fusesource.jansi.Ansi;
+import static org.fusesource.jansi.Ansi.ansi;
 
 import java.io.PrintStream;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static org.fusesource.jansi.Ansi.ansi;
+import org.fusesource.jansi.Ansi;
 
 public interface Console {
 

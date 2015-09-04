@@ -21,13 +21,14 @@
  **/
 package com.insightfullogic.honest_profiler.ports.console;
 
-import com.insightfullogic.honest_profiler.core.collector.Profile;
-import com.insightfullogic.honest_profiler.core.collector.ProfileNode;
-import com.insightfullogic.honest_profiler.core.parser.Method;
-
 import java.io.PrintStream;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
+
+import com.insightfullogic.honest_profiler.core.collector.Profile;
+import com.insightfullogic.honest_profiler.core.collector.ProfileNode;
+import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
+import com.insightfullogic.honest_profiler.core.collector.Frame;
 
 /**
  * Formats printed output for different types of profile.
@@ -41,15 +42,24 @@ import java.util.stream.IntStream;
  */
 public enum ProfileFormat {
 
-    FLAT {
+	FLAT_BY_METHOD {
         @Override
         public void printProfile(Profile profile, PrintStream out) {
-            StringBuilder sb = new StringBuilder("\n\nFlat Profile:");
-            profile.flatProfile().forEach(entry -> {
-                Method method = entry.getMethod();
-                double timeShare = entry.getTotalTimeShare();
-                sb.append("\n\t");
-                printMethod(method, timeShare, sb::append);
+            StringBuilder sb = new StringBuilder("\n\nFlat Profile (by method):");
+            profile.flatByMethodProfile().forEach(entry -> {
+                appendFlatProfileEntry(sb, entry);
+            });
+            out.print(sb);
+        }
+    },
+	
+	
+	FLAT_BY_LINE {
+        @Override
+        public void printProfile(Profile profile, PrintStream out) {
+            StringBuilder sb = new StringBuilder("\n\nFlat Profile (by line):");
+            profile.flatByFrameProfile().forEach(entry -> {
+                appendFlatProfileEntry(sb, entry);
             });
             out.print(sb);
         }
@@ -64,26 +74,46 @@ public enum ProfileFormat {
         }
     },
 
-    BOTH {
+    ALL {
         @Override
         public void printProfile(Profile profile, PrintStream out) {
-            FLAT.printProfile(profile, out);
+        	FLAT_BY_METHOD.printProfile(profile, out);
+        	FLAT_BY_LINE.printProfile(profile, out);
             TREE.printProfile(profile, out);
         }
     };
 
     public abstract void printProfile(Profile profile, PrintStream out);
 
-    void printMethod(Method method, double timeShare, Consumer<String> out) {
-        if (method != null) {
-            out.accept(String.format("%.2f %s.%s", timeShare, method.getClassName(), method.getMethodName()));
+    static void appendFlatProfileEntry(StringBuilder sb, FlatProfileEntry entry) {
+        Frame method = entry.getFrameInfo();
+        double totalShare = entry.getTotalTimeShare();
+        double selfShare = entry.getSelfTimeShare();
+        sb.append("\n\t");
+        printFrameInfo(method, totalShare, selfShare, sb::append);
+    }
+    
+    static void printFrameInfo(Frame frameInfo, double totalShare, double selfShare, Consumer<String> out) {
+    	if (frameInfo == null) {
+            out.accept("NULL FRAME ERR");
+    	}
+    	else if (frameInfo.getBci() == Frame.BCI_ERR_IGNORE) {
+            out.accept(String.format("(t %4.1f,s %4.1f) %s.%s",
+                    totalShare*100, selfShare*100, 
+                    frameInfo.getClassName(), frameInfo.getMethodName()));
+        }
+        else {
+            out.accept(String.format("(t %4.1f,s %4.1f) %s.%s @ (bci=%d,line=%d)",
+                    totalShare*100, selfShare*100, 
+                    frameInfo.getClassName(), frameInfo.getMethodName(), 
+                    frameInfo.getBci(), frameInfo.getLine()));
         }
     }
 
     void printNode(ProfileNode node, int depth, StringBuilder out) {
         out.append("\n");
         IntStream.range(0, depth).forEach(ignore -> out.append(' '));
-        printMethod(node.getMethod(), node.getTotalTimeShare(), out::append);
+        printFrameInfo(node.getFrameInfo(), node.getTotalTimeShare(), node.getSelfTimeShare(), out::append);
 
         int childDepth = depth + 1;
         node.children().forEach(child -> printNode(child, childDepth, out));

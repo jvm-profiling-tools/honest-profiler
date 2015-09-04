@@ -30,12 +30,14 @@ import java.util.stream.Stream;
 public final class Profile {
 
     private final int traceCount;
-    private List<ProfileTree> trees;
-    private List<FlatProfileEntry> flatProfile;
+    private final List<ProfileTree> trees;
+    private final List<FlatProfileEntry> flatByMethodProfile;
+    private final List<FlatProfileEntry> flatByFrameProfile;
 
-    public Profile(int traceCount, List<FlatProfileEntry> flatProfile, List<ProfileTree> trees) {
+    public Profile(int traceCount, List<FlatProfileEntry> flatByMethodProfile, List<FlatProfileEntry> flatByFrameProfile, List<ProfileTree> trees) {
         this.traceCount = traceCount;
-        this.flatProfile = flatProfile;
+        this.flatByMethodProfile = flatByMethodProfile;
+        this.flatByFrameProfile = flatByFrameProfile;
         this.trees = trees;
     }
 
@@ -43,12 +45,19 @@ public final class Profile {
         return traceCount;
     }
 
-    public List<FlatProfileEntry> getFlatProfile() {
-        return flatProfile;
+    public List<FlatProfileEntry> getFlatByMethodProfile() {
+        return flatByMethodProfile;
     }
 
-    public Stream<FlatProfileEntry> flatProfile() {
-        return flatProfile.stream();
+    public Stream<FlatProfileEntry> flatByMethodProfile() {
+        return flatByMethodProfile.stream();
+    }
+    public List<FlatProfileEntry> getFlatByFrameProfile() {
+        return flatByFrameProfile;
+    }
+
+    public Stream<FlatProfileEntry> flatByFrameProfile() {
+        return flatByFrameProfile.stream();
     }
 
     public List<ProfileTree> getTrees() {

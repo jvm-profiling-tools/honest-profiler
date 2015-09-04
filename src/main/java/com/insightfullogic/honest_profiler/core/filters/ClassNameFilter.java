@@ -21,8 +21,8 @@
  **/
 package com.insightfullogic.honest_profiler.core.filters;
 
+import com.insightfullogic.honest_profiler.core.collector.Frame;
 import com.insightfullogic.honest_profiler.core.collector.Profile;
-import com.insightfullogic.honest_profiler.core.parser.Method;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,14 +43,14 @@ final class ClassNameFilter implements Filter {
     }
 
     private void filterFlatProfile(Profile profile) {
-        profile.getFlatProfile()
-               .removeIf(entry -> !classNameMatches(entry.getMethod()));
+        profile.getFlatByMethodProfile()
+               .removeIf(entry -> !classNameMatches(entry.getFrameInfo()));
     }
 
-    private boolean classNameMatches(Method method) {
+    private boolean classNameMatches(Frame sampleFrameInfo) {
         return methods.computeIfAbsent(
-            method.getMethodId(),
-            id -> method.getClassName().contains(className));
+            sampleFrameInfo.getMethodId(),
+            id -> sampleFrameInfo.getClassName().contains(className));
     }
 
     @Override

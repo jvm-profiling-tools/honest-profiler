@@ -26,13 +26,13 @@ import com.insightfullogic.honest_profiler.core.collector.Profile;
 
 import java.io.PrintStream;
 
-import static com.insightfullogic.honest_profiler.ports.console.ProfileFormat.BOTH;
+import static com.insightfullogic.honest_profiler.ports.console.ProfileFormat.ALL;
 
 public class ProfileView implements ProfileListener {
 
     private final Console output;
 
-    private ProfileFormat profileFormat = BOTH;
+    private ProfileFormat profileFormat = ALL;
 
     public ProfileView(Console output) {
         this.output = output;

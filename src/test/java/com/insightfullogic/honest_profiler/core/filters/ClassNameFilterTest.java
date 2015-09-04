@@ -45,10 +45,10 @@ public class ClassNameFilterTest {{
         ClassNameFilter filter = new ClassNameFilter("foo.B");
 
         it.should("remove methods covered by the filter from the flat profile", expect -> {
-            Profile profile = new Profile(100, list(new FlatProfileEntry(foo, 1.0, 1.0)), list());
+            Profile profile = new Profile(100, list(new FlatProfileEntry(foo, 1.0, 1.0)), list(), list());
             filter.filter(profile);
 
-            expect.that(profile.getFlatProfile()).isEmpty();
+            expect.that(profile.getFlatByMethodProfile()).isEmpty();
         });
 
         it.should("not remove methods retained by the filter from the flat profile", expect -> {
@@ -56,10 +56,10 @@ public class ClassNameFilterTest {{
                     new FlatProfileEntry(foo, 1.0, 1.0),
                     new FlatProfileEntry(bar, 1.0, 1.0),
                     new FlatProfileEntry(baz, 1.0, 1.0)
-            ), list());
+            ), list(), list());
             filter.filter(profile);
 
-            expect.that(profile.getFlatProfile()).containsInAnyOrder(
+            expect.that(profile.getFlatByMethodProfile()).containsInAnyOrder(
                     new FlatProfileEntry(bar, 1.0, 1.0),
                     new FlatProfileEntry(baz, 1.0, 1.0)
             );

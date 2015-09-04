@@ -38,15 +38,18 @@ import static java.util.stream.Collectors.toList;
  */
 public class LogCollector implements LogEventListener {
 
-    private static final Comparator<Entry<Long,CallCounts>> sortByCount = comparing((Entry<Long, CallCounts> entry) -> entry.getValue().timeInvokingThis)
+    private static final Comparator<Entry<?,CallCounts>> sortBySelfCount = comparing((Entry<?, CallCounts> entry) -> entry.getValue().timeInvokingThis)
                                                                          .reversed();
+    private static final Comparator<ProfileTree> sortBySampleCount = comparing(ProfileTree::getNumberOfSamples).reversed();
+
     public static final int NOT_AWAITING = -1;
 
     private final ProfileListener listener;
 
-    private final Map<Long, Method> methodNames;
-    private final Map<Long, CallCounts> callCounts;
-    private final Map<Long, NodeCollector> treesByThread;
+    private final Map<Long, Method> methodByMethodId;
+    private final Map<Long, CallCounts> callCountsByMethodId;
+    private final Map<StackFrame, CallCounts> callCountsByFrame;
+    private final Map<Long, NodeCollector> treesByThreadId;
     private final Stack<StackFrame> reversalStack;
 
     private long currentThread;
@@ -58,9 +61,10 @@ public class LogCollector implements LogEventListener {
     public LogCollector(ProfileListener listener, boolean immediatelyEmitProfile) {
         this.listener = listener;
 
-        methodNames = new HashMap<>();
-        callCounts = new HashMap<>();
-        treesByThread = new HashMap<>();
+        methodByMethodId = new HashMap<>();
+        callCountsByMethodId = new HashMap<>();
+        callCountsByFrame = new HashMap<>();
+        treesByThreadId = new HashMap<>();
         reversalStack = new Stack<>();
 
         this.immediatelyEmitProfile = immediatelyEmitProfile;
@@ -91,7 +95,18 @@ public class LogCollector implements LogEventListener {
 
     private void collectStackFrame(boolean endOfTrace, StackFrame stackFrame) {
         long methodId = stackFrame.getMethodId();
-        callCounts.compute(methodId, (key, callCounts) -> {
+        callCountsByMethodId.compute(methodId, (key, callCounts) -> {
+            if (callCounts == null) {
+                callCounts = new CallCounts(0, 0);
+            }
+
+            callCounts.timeAppeared++;
+            if (endOfTrace)
+                callCounts.timeInvokingThis++;
+            return callCounts;
+        });
+        
+        callCountsByFrame.compute(stackFrame, (key, callCounts) -> {
             if (callCounts == null) {
                 callCounts = new CallCounts(0, 0);
             }
@@ -105,7 +120,7 @@ public class LogCollector implements LogEventListener {
         if (currentTreeNode == null) {
             // might be null if the method hasn't been seen before
             // if this is the case then the handle(Method) will patch it
-            currentTreeNode = treesByThread.compute(currentThread, (id, previous) -> {
+            currentTreeNode = treesByThreadId.compute(currentThread, (id, previous) -> {
                 if (previous != null)
                     return previous.callAgain();
 
@@ -118,7 +133,7 @@ public class LogCollector implements LogEventListener {
 
     @Override
     public void handle(Method newMethod) {
-        methodNames.put(newMethod.getMethodId(), newMethod);
+        methodByMethodId.put(newMethod.getMethodId(), newMethod);
         emitProfileIfNeeded();
     }
 
@@ -135,37 +150,59 @@ public class LogCollector implements LogEventListener {
     }
 
     private void emitProfile() {
-        List<FlatProfileEntry> flatProfile = buildFlatProfile();
+        List<FlatProfileEntry> flatProfileByMethod = buildFlatProfileByMethod();
+        List<FlatProfileEntry> flatProfileByFrame = buildFlatProfileByFrame();
         List<ProfileTree> trees = buildTreeProfile();
-        Profile profile = new Profile(traceCount, flatProfile, trees);
+        Profile profile = new Profile(traceCount, flatProfileByMethod, flatProfileByFrame, trees);
         listener.accept(profile);
     }
 
     private List<ProfileTree> buildTreeProfile() {
-        return treesByThread.entrySet()
+        return treesByThreadId.entrySet()
                             .stream()
                             .map(node -> {
                                 final Long threadId = node.getKey();
                                 final NodeCollector collector = node.getValue();
-                                return new ProfileTree(threadId, collector.normalise(methodNames::get), collector.getNumberOfVisits());
+                                return new ProfileTree(threadId, collector.normalise(methodByMethodId::get), collector.getNumberOfVisits());
                             })
+                            .sorted(sortBySampleCount)
                             .collect(toList());
     }
 
-    private List<FlatProfileEntry> buildFlatProfile() {
-        return callCounts.entrySet()
+    private List<FlatProfileEntry> buildFlatProfileByMethod() {
+        return callCountsByMethodId.entrySet()
                          .stream()
-                         .sorted(sortByCount)
+                         .sorted(sortBySelfCount)
                          .map(this::toFlatProfileEntry)
                          .collect(toList());
     }
 
     private FlatProfileEntry toFlatProfileEntry(Entry<Long, CallCounts> entry) {
-        Method method = methodNames.get(entry.getKey());
+        Method method = methodByMethodId.get(entry.getKey());
         final CallCounts callCounts = entry.getValue();
         double totalTimeShare = (double) callCounts.timeAppeared / traceCount;
         double selfTimeShare = (double) callCounts.timeInvokingThis / traceCount;
         return new FlatProfileEntry(method, totalTimeShare, selfTimeShare);
+    }
+    
+    private List<FlatProfileEntry> buildFlatProfileByFrame() {
+        return callCountsByFrame.entrySet()
+                         .stream()
+                         .sorted(sortBySelfCount)
+                         .map(this::toFlatByFrameProfileEntry)
+                         .collect(toList());
+    }
+
+    private FlatProfileEntry toFlatByFrameProfileEntry(Entry<StackFrame, CallCounts> entry) {
+        final long methodId = entry.getKey().getMethodId();
+        Method method = methodByMethodId.get(methodId);
+        if (method == null) {
+            method = new Method(methodId,"UNKOWN","UNKOWN",String.valueOf(methodId));
+        }
+        final CallCounts callCounts = entry.getValue();
+        double totalTimeShare = (double) callCounts.timeAppeared / traceCount;
+        double selfTimeShare = (double) callCounts.timeInvokingThis / traceCount;
+        return new FlatProfileEntry(new FullFrameInfo(method, entry.getKey()), totalTimeShare, selfTimeShare);
     }
 
 }

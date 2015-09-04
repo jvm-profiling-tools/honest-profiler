@@ -32,7 +32,7 @@ import static java.util.stream.Collectors.toList;
 
 public final class NodeCollector {
 
-    public static final Comparator<ProfileNode> bySelfTimeShare = comparing(ProfileNode::getSelfTimeShare).reversed();
+    public static final Comparator<ProfileNode> bySelfTimeShare = comparing(ProfileNode::getTotalTimeShare).reversed();
 
     private final Map<Long, NodeCollector> childrenByMethodId;
 

@@ -137,7 +137,7 @@ public class ProfileTreeTest {
 
     private void assertNode(Method method, double ratio, ProfileNode node) {
         assertEquals(ratio, node.getTotalTimeShare(), 0.00001);
-        assertEquals(method, node.getMethod());
+        assertEquals(method, node.getFrameInfo());
     }
 
 }

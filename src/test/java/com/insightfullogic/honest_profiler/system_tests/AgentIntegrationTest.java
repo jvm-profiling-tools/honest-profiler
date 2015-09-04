@@ -50,7 +50,7 @@ public class AgentIntegrationTest {{
                 int seenTraceCount = 0;
 
                 AtomicReference<Profile> lastProfile = new AtomicReference<>();
-                parkNanos(SECONDS.toNanos(1));
+                parkNanos(SECONDS.toNanos(10));
 
                 new LocalMachineSource(logger, new MachineListener() {
                     @Override

@@ -21,21 +21,18 @@
  **/
 package com.insightfullogic.honest_profiler.core.collector;
 
-import com.insightfullogic.honest_profiler.core.parser.Method;
-
 public final class FlatProfileEntry {
-
-    private final Method method;
+    private final Frame method;
     private final double totalTimeShare;
     private final double selfTimeShare;
 
-    public FlatProfileEntry(Method method, double totalTimeShare, double selfTimeShare) {
+    public FlatProfileEntry(Frame method, double totalTimeShare, double selfTimeShare) {
         this.method = method;
         this.totalTimeShare = totalTimeShare;
         this.selfTimeShare = selfTimeShare;
     }
 
-    public Method getMethod() {
+    public Frame getFrameInfo() {
         return method;
     }
 

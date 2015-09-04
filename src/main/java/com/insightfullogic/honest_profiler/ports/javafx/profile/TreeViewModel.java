@@ -120,7 +120,7 @@ public class TreeViewModel implements ProfileListener {
 
             ObservableList<TreeItem<ProfileNode>> children = getChildren();
             profileNode.getChildren().forEach(child -> {
-                long methodId = child.getMethod().getMethodId();
+                long methodId = child.getFrameInfo().getMethodId();
                 MethodNodeAdapter childAdapter = childrenByMethodId.computeIfAbsent(methodId, id -> {
                     MethodNodeAdapter adapter = new MethodNodeAdapter();
                     children.add(adapter);

@@ -22,6 +22,7 @@
 package com.insightfullogic.honest_profiler.ports.javafx;
 
 import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
+import com.insightfullogic.honest_profiler.core.collector.Frame;
 import com.insightfullogic.honest_profiler.core.parser.Method;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleObjectProperty;
@@ -37,12 +38,12 @@ public class Rendering {
     }
 
     public static SimpleObjectProperty<String> method(CellDataFeatures<FlatProfileEntry, String> features) {
-        Method method = features.getValue().getMethod();
+        Frame method = features.getValue().getFrameInfo();
         String representation = renderMethod(method);
         return new ReadOnlyObjectWrapper<>(representation);
     }
 
-    public static String renderMethod(Method method) {
+    public static String renderMethod(Frame method) {
         if (method == null)
             return "unknown";
 

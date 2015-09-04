@@ -68,6 +68,6 @@ public class LogCollectorTest {
     }
 
     private long[] idOfLastMethodInEachThread(Profile profile) {
-        return profile.getTrees().stream().mapToLong(x -> x.getRootNode().getMethod().getMethodId()).toArray();
+        return profile.getTrees().stream().mapToLong(x -> x.getRootNode().getFrameInfo().getMethodId()).toArray();
     }
 }

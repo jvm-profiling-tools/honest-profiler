@@ -46,9 +46,9 @@ public class FlatProfileTest {
 
         Profile profile = listener.getProfile();
         assertEquals(1, profile.getTraceCount());
-        assertEquals(1L, profile.flatProfile().count());
+        assertEquals(1L, profile.flatByMethodProfile().count());
 
-        assertEntry(ProfileFixtures.println, 1.0, profile.flatProfile().findFirst());
+        assertEntry(ProfileFixtures.println, 1.0, profile.flatByMethodProfile().findFirst());
     }
 
     private void assertEntry(Method method, double ratio, Optional<FlatProfileEntry> mbEntry) {
@@ -56,7 +56,7 @@ public class FlatProfileTest {
         FlatProfileEntry entry = mbEntry.get();
         assertEquals(ratio, entry.getTotalTimeShare(), 0.00001);
         assertEquals(ratio, entry.getSelfTimeShare(), 0.00001);
-        assertEquals(method, entry.getMethod());
+        assertEquals(method, entry.getFrameInfo());
     }
 
     @Test
@@ -74,12 +74,12 @@ public class FlatProfileTest {
 
         Profile profile = listener.getProfile();
         assertEquals(3, profile.getTraceCount());
-        assertEquals(2L, profile.flatProfile().count());
+        assertEquals(2L, profile.flatByMethodProfile().count());
 
-        assertEntry(ProfileFixtures.println, 2.0 / 3, profile.flatProfile()
+        assertEntry(ProfileFixtures.println, 2.0 / 3, profile.flatByMethodProfile()
                                              .findFirst());
 
-        assertEntry(ProfileFixtures.append, 1.0 / 3, profile.flatProfile()
+        assertEntry(ProfileFixtures.append, 1.0 / 3, profile.flatByMethodProfile()
                 .filter(e -> e.getTotalTimeShare() < 0.5)
                 .findFirst());
     }

@@ -59,7 +59,7 @@ abstract class TimeShareFilter implements Filter {
     }
 
     private void filterFlatProfile(Profile profile) {
-        profile.getFlatProfile()
+        profile.getFlatByMethodProfile()
                .removeIf(entry -> minShare > flatField(entry));
     }
 
