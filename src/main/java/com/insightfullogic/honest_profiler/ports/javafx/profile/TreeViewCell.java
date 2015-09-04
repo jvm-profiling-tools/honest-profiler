@@ -1,22 +1,22 @@
 /**
  * Copyright (c) 2014 Richard Warburton (richard.warburton@gmail.com)
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a 
- * copy of this software and associated documentation files (the "Software"), 
+ * <p/>
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense, 
- * and/or sell copies of the Software, and to permit persons to whom the 
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following conditions:
- * 
+ * <p/>
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS 
+ * <p/>
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.profile;
@@ -35,33 +35,41 @@ import static com.insightfullogic.honest_profiler.ports.javafx.profile.TreeViewM
 import static javafx.scene.paint.Color.RED;
 import static javafx.scene.paint.Color.WHEAT;
 
-public class TreeViewCell extends TreeCell<ProfileNode> {
+public class TreeViewCell extends TreeCell<ProfileNode>
+{
 
     private static final int IMAGE_WIDTH = 50;
     private static final int IMAGE_HEIGHT = 15;
 
     private static final int TEXT_HORIZONTAL_INSET = 10;
     private static final int TEXT_VERTICAL_INSET = 12;
+
     /**
      * Not threadsafe: must be run on JavaFx thread.
      */
     @Override
-    protected void updateItem(ProfileNode profileNode, boolean empty) {
+    protected void updateItem(ProfileNode profileNode, boolean empty)
+    {
         super.updateItem(profileNode, empty);
 
         TreeItem<ProfileNode> treeItem = getTreeItem();
 
-        if (treeItem instanceof ThreadNodeAdapter) {
+        if (treeItem instanceof ThreadNodeAdapter)
+        {
             ThreadNodeAdapter adapter = (ThreadNodeAdapter) treeItem;
             setText("Thread " + adapter.getThreadId());
             setGraphic(null);
-        } else if (treeItem instanceof MethodNodeAdapter) {
+        }
+        else if (treeItem instanceof MethodNodeAdapter)
+        {
             renderMethodNode(profileNode, empty);
         }
     }
 
-    private void renderMethodNode(ProfileNode profileNode, boolean empty) {
-        if (!empty && isVisible()) {
+    private void renderMethodNode(ProfileNode profileNode, boolean empty)
+    {
+        if (!empty && isVisible())
+        {
             setText(renderMethod(profileNode.getFrameInfo()));
             Canvas canvas = new Canvas(IMAGE_WIDTH, IMAGE_HEIGHT);
             GraphicsContext context = canvas.getGraphicsContext2D();

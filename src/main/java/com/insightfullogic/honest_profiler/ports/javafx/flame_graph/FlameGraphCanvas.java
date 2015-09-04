@@ -125,7 +125,8 @@ public class FlameGraphCanvas extends Canvas
             }
 
             x += stackWidth;
-        };
+        }
+        ;
     }
 
     public Tooltip getTooltip()
