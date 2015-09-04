@@ -62,7 +62,7 @@ public class TreeViewCell extends TreeCell<ProfileNode> {
 
     private void renderMethodNode(ProfileNode profileNode, boolean empty) {
         if (!empty && isVisible()) {
-            setText(renderMethod(profileNode.getMethod()));
+            setText(renderMethod(profileNode.getFrameInfo()));
             Canvas canvas = new Canvas(IMAGE_WIDTH, IMAGE_HEIGHT);
             GraphicsContext context = canvas.getGraphicsContext2D();
             context.setFill(Color.BLACK);

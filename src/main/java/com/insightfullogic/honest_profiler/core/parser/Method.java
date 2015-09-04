@@ -23,7 +23,9 @@ package com.insightfullogic.honest_profiler.core.parser;
 
 import java.util.Objects;
 
-public final class Method implements LogEvent {
+import com.insightfullogic.honest_profiler.core.collector.Frame;
+
+public final class Method implements LogEvent, Frame {
 
     private final long methodId;
     private final String fileName;
@@ -89,5 +91,15 @@ public final class Method implements LogEvent {
                 ", methodName='" + methodName + '\'' +
                 '}';
     }
+
+	@Override
+	public int getBci() {
+		return Frame.BCI_ERR_IGNORE;
+	}
+
+	@Override
+	public int getLine() {
+		return 0;
+	}
 
 }

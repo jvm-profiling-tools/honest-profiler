@@ -80,7 +80,7 @@ public class FlatViewModel implements ProfileListener {
     @Override
     public void accept(Profile profile) {
         flatProfile.clear();
-        profile.flatProfile()
+        profile.flatByMethodProfile()
                .forEach(flatProfile::add);
     }
 

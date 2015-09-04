@@ -21,24 +21,22 @@
  **/
 package com.insightfullogic.honest_profiler.core.collector;
 
-import com.insightfullogic.honest_profiler.core.parser.Method;
+import static java.util.Collections.emptyList;
 
 import java.util.List;
 import java.util.stream.Stream;
 
-import static java.util.Collections.emptyList;
-
 public final class ProfileNode {
 
     private final List<ProfileNode> children;
-    private final Method method;
+    private final Frame method;
     private final double totalTimeShare;
     private final double selfTimeShare;
 
-    public ProfileNode(Method method, double totalTimeShare) {
+    public ProfileNode(Frame method, double totalTimeShare) {
         this(method, totalTimeShare, emptyList());
     }
-    public ProfileNode(Method method, double totalTimeShare, List<ProfileNode> children) {
+    public ProfileNode(Frame method, double totalTimeShare, List<ProfileNode> children) {
         this.method = method;
         this.children = children;
         this.totalTimeShare = totalTimeShare;
@@ -59,7 +57,7 @@ public final class ProfileNode {
         return totalTimeShare;
     }
 
-    public Method getMethod() {
+    public Frame getFrameInfo() {
         return method;
     }
 

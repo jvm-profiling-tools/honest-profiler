@@ -66,7 +66,7 @@ public class ConsoleLogDumpApplication {
         this.error = error;
     }
 
-    @Option(name = "-log", usage = "set the log that you want to parser or use", required = true)
+    @Option(name = "-log", usage = "set the log that you want to parse or use", required = true)
     public void setLogLocation(String logLocation) {
         setLogLocation(new File(logLocation));
     }

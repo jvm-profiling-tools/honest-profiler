@@ -40,7 +40,7 @@ public class ProfileScreen implements Screen {
         this.terminal = terminal;
 
         profileView = new ProfileView(terminal);
-        profileView.setProfileFormat(ProfileFormat.FLAT);
+        profileView.setProfileFormat(ProfileFormat.FLAT_BY_METHOD);
     }
 
     @Override

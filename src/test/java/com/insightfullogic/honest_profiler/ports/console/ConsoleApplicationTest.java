@@ -23,6 +23,7 @@ package com.insightfullogic.honest_profiler.ports.console;
 
 import com.insightfullogic.honest_profiler.core.Util;
 import com.insightfullogic.lambdabehave.JunitSuiteRunner;
+
 import org.junit.runner.RunWith;
 
 import static com.insightfullogic.lambdabehave.Suite.describe;
@@ -39,7 +40,7 @@ public class ConsoleApplicationTest {{
         it.isSetupWith(() -> {
             output.eraseScreen();
             error.eraseScreen();
-            profiler.setProfileFormat("both");
+            profiler.setProfileFormat("all");
         });
 
         it.should("display a profile which is loaded into it", expect -> {
@@ -50,10 +51,10 @@ public class ConsoleApplicationTest {{
 
             then:
             output.outputContains("PrintStream.printf");
-            output.outputContains("1.00");
+            output.outputContains("100.0");
 
             output.outputContains("PrintStream.append");
-            output.outputContains("1.00");
+            output.outputContains("100.0");
 
             output.outputContains("Printing Profile for:");
             output.outputContains("log0.hpl");
@@ -89,7 +90,19 @@ public class ConsoleApplicationTest {{
 
             when:
             profiler.setLogLocation(Util.log0());
-            profiler.setProfileFormat("flat");
+            profiler.setProfileFormat("flat_by_method");
+            profiler.run();
+
+            then:
+            output.outputDoesntContain("Tree Profile");
+            output.outputContains("Flat Profile");
+        });
+
+        it.should("only display the flat line profile when flat is selected", expect -> {
+
+            when:
+            profiler.setLogLocation(Util.log0());
+            profiler.setProfileFormat("flat_by_line");
             profiler.run();
 
             then:

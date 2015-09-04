@@ -38,7 +38,7 @@ public class ThreadSampleFilterTest {{
 
         it.should("not remove trees with as many samples as sampled in total", expect -> {
             ProfileTree tree = new ProfileTree(0L, null, 100);
-            Profile profile = new Profile(100, null, list(tree));
+            Profile profile = new Profile(100, null, null, list(tree));
             filter.filter(profile);
 
             expect.that(profile.getTrees()).contains(tree);
@@ -46,7 +46,7 @@ public class ThreadSampleFilterTest {{
 
         it.should("remove trees with very few samples", expect -> {
             ProfileTree tree = new ProfileTree(0L, null, 1);
-            Profile profile = new Profile(150, null, list(tree));
+            Profile profile = new Profile(150, null,null, list(tree));
             filter.filter(profile);
 
             expect.that(profile.getTrees()).isEmpty();
