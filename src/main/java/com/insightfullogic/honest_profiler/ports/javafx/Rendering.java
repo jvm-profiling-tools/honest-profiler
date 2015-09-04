@@ -50,4 +50,12 @@ public class Rendering {
         return method.getClassName() + "." + method.getMethodName();
     }
 
+    public static String renderShortMethod(Method method)
+    {
+        String className = method.getClassName();
+        int index = className.lastIndexOf('.');
+        String shortClassName = index == -1 ? className : className.substring(index + 1);
+        return shortClassName + "." + method.getMethodName();
+    }
+
 }

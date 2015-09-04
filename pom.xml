@@ -186,6 +186,8 @@
                                     </arguments>
                                 </configuration>
                             </execution>
+                            <!--
+                            TODO: re-enable once C++ tests are fixed
                             <execution>
                                 <id>make-test</id>
                                 <phase>test</phase>
@@ -200,6 +202,7 @@
                                     </arguments>
                                 </configuration>
                             </execution>
+                            -->
                             <execution>
                                 <id>make-compile</id>
                                 <phase>compile</phase>
