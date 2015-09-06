@@ -63,7 +63,7 @@
         <dependency>
             <groupId>com.insightfullogic</groupId>
             <artifactId>lambda-behave</artifactId>
-            <version>0.3</version>
+            <version>0.4</version>
             <scope>test</scope>
         </dependency>
         <dependency>
