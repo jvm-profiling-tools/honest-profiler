@@ -49,13 +49,10 @@ public enum ProfileFormat
             public void printProfile(Profile profile, PrintStream out)
             {
                 StringBuilder sb = new StringBuilder("\n\nFlat Profile (by method):");
-                profile.flatByMethodProfile().forEach(entry -> {
-                    appendFlatProfileEntry(sb, entry);
-                });
+                profile.flatByMethodProfile().forEach(entry -> appendFlatProfileEntry(sb, entry));
                 out.print(sb);
             }
         },
-
 
     FLAT_BY_LINE
         {
@@ -63,9 +60,7 @@ public enum ProfileFormat
             public void printProfile(Profile profile, PrintStream out)
             {
                 StringBuilder sb = new StringBuilder("\n\nFlat Profile (by line):");
-                profile.flatByFrameProfile().forEach(entry -> {
-                    appendFlatProfileEntry(sb, entry);
-                });
+                profile.flatByFrameProfile().forEach(entry -> appendFlatProfileEntry(sb, entry));
                 out.print(sb);
             }
         },
