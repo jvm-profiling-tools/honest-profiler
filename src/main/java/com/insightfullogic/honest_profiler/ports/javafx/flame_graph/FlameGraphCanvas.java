@@ -39,10 +39,12 @@ import static com.insightfullogic.honest_profiler.ports.javafx.Rendering.renderS
 /**
  * .
  */
-// TODO: compress together method squares if they are the same.
 public class FlameGraphCanvas extends Canvas
 {
+    private static final Color START_COLOR = Color.BISQUE.deriveColor(0, 1.2, 1.0, 1.0);
 
+    public static final int TEXT_WIDTH = 7;
+    public static final int ROW_WRAP = 4;
     private final Tooltip tooltip = new Tooltip();
     private final Window window;
 
@@ -99,34 +101,70 @@ public class FlameGraphCanvas extends Canvas
 
         columnWidth = getWidth() / totalWeight;
         rowHeight = getHeight() / maxHeight;
-        double x = 0;
+        initialY = getHeight() - rowHeight;
 
-        for (FlameTrace stack : traces)
+        for (int row = 0; row < maxHeight; row++)
         {
-            double stackWidth = stack.getWeight() * columnWidth;
-            initialY = getHeight() - rowHeight;
-            double y = initialY;
-            Color colour = Color.BISQUE;
+            double y = initialY - (row * rowHeight);
+            final Color colour = colorAt(row);
 
-            for (Method method : stack.getMethods())
+            for (int col = 0; col < traces.size();)
             {
-                y -= rowHeight;
+                FlameTrace stack = traces.get(col);
+                final double stackWidth = stack.getWeight() * columnWidth;
 
-                colour = colour.deriveColor(0, 1.05, 1.0, 1.0);
-                graphics.setFill(colour);
-                graphics.fillRect(x, y, stackWidth, rowHeight);
+                Method method = stack.at(row);
+                final int numberOfConsecutiveTraces = numberOfConsecutiveTracesWith(method, col, row);
+                double methodWidth = stackWidth * numberOfConsecutiveTraces;
 
-                final String title = renderShortMethod(method);
-                if (title.length() * 7 < stackWidth)
+                if (method != null)
                 {
-                    graphics.setFill(Color.ROYALBLUE);
-                    graphics.fillText(title, x, y + 0.75 * rowHeight);
-                }
-            }
+                    final double x = col * stackWidth;
+                    graphics.setFill(colour);
+                    graphics.fillRect(x, y, methodWidth, rowHeight);
 
-            x += stackWidth;
+                    final String title = renderShortMethod(method);
+                    if (!renderText(graphics, x, y, methodWidth, title))
+                    {
+                        renderText(graphics, x, y, methodWidth, method.getMethodName());
+                    }
+                }
+
+                col += numberOfConsecutiveTraces;
+            }
         }
-        ;
+    }
+
+    private Color colorAt(final int row)
+    {
+        return START_COLOR.deriveColor(0, 1.15 * (1 + row % ROW_WRAP), 1.0, 1.0);
+    }
+
+    private boolean renderText(final GraphicsContext graphics,
+                               final double x, final double y,
+                               final double methodWidth,
+                               final String title)
+    {
+        if (title.length() * TEXT_WIDTH < methodWidth)
+        {
+            graphics.setFill(Color.ROYALBLUE);
+            graphics.fillText(title, x, y + 0.75 * rowHeight);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private int numberOfConsecutiveTracesWith(
+        final Method method, final int initialCol, final int row)
+    {
+        int col = initialCol;
+        while (col < traces.size() && traces.get(col).at(row) == method)
+        {
+            col++;
+        }
+        return col - initialCol;
     }
 
     public Tooltip getTooltip()
