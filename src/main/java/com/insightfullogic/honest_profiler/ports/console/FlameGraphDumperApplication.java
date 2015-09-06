@@ -33,7 +33,11 @@ import java.io.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class FlameGraphApplication
+/**
+ * Dump's out a flame graph which can be processed with
+ * <a href="https://github.com/brendangregg/FlameGraph">Brendan Gregg's flame graph tools</a>.
+ */
+public class FlameGraphDumperApplication
 {
     public static void main(String[] args) throws Exception
     {
