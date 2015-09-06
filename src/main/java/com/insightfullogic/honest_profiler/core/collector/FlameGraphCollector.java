@@ -37,9 +37,9 @@ import static java.util.stream.Collectors.toList;
 
 public class FlameGraphCollector implements LogEventListener
 {
-    private Map<Long, Method> methods = new HashMap<>();
+    private final Map<Long, Method> methods = new HashMap<>();
+    private final FlameGraph flameGraph = new FlameGraph();
 
-    private FlameGraph flameGraph = new FlameGraph();
     private FlameTrace trace;
     private List<Long> lastMethodIds = new ArrayList<>();
     private List<Long> currentMethodIds;

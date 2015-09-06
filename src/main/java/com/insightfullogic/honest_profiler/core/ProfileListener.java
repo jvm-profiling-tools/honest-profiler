@@ -25,7 +25,5 @@ import com.insightfullogic.honest_profiler.core.collector.Profile;
 
 public interface ProfileListener
 {
-
-    public void accept(Profile profile);
-
+    void accept(Profile profile);
 }

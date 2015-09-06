@@ -27,7 +27,8 @@ public final class FlatProfileEntry
     private final double totalTimeShare;
     private final double selfTimeShare;
 
-    public FlatProfileEntry(Frame method, double totalTimeShare, double selfTimeShare)
+    public FlatProfileEntry(
+        final Frame method, final double totalTimeShare, final double selfTimeShare)
     {
         this.method = method;
         this.totalTimeShare = totalTimeShare;
