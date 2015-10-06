@@ -140,7 +140,7 @@ public class ConsoleLogDumpApplication
             public void handle(Method method)
             {
                 BoundMethod boundMethod = new BoundMethod(method.getClassName(), method.getMethodName());
-                out.printf("Method   : %d -> %s.%s\n", method.getMethodId(), method.getClassName(), method.getMethodName());
+                out.printf("Method    : %d -> %s.%s\n", method.getMethodId(), method.getClassName(), method.getMethodName());
                 methodNames.put(method.getMethodId(), boundMethod);
             }
 
@@ -183,14 +183,14 @@ public class ConsoleLogDumpApplication
                 int frames = traceStart.getNumberOfFrames();
                 if (frames <= 0)
                 {
-                    out.printf("TraceStart: [%d] tid=%d,frames=%d\n", traceidx, traceStart.getThreadId(), frames);
+                    out.printf("TraceStart: [%d] tid=%d,err=%d\n", traceidx, traceStart.getThreadId(), frames);
                     errCount++;
                     Counter counter = errHistogram.computeIfAbsent(-frames, k -> new Counter());
                     counter.inc();
                 }
                 else
                 {
-                    out.printf("TraceStartL [%d] tid=%d,frames=%d\n", traceidx, traceStart.getThreadId(), frames);
+                    out.printf("TraceStart: [%d] tid=%d,frames=%d\n", traceidx, traceStart.getThreadId(), frames);
                 }
                 indent = frames;
                 traceidx++;
