@@ -22,6 +22,7 @@
 package com.insightfullogic.honest_profiler.core.collector;
 
 import com.insightfullogic.honest_profiler.core.parser.Method;
+import com.insightfullogic.honest_profiler.core.parser.StackFrame;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -69,14 +70,22 @@ public class CallCountAggregator<T>
     private FlatProfileEntry toFlatProfileEntry(
         final T key, final CallCounts callCounts, final double traceCount)
     {
+        double totalTimeShare = (double) callCounts.timeAppeared / traceCount;
+        double selfTimeShare = (double) callCounts.timeInvokingThis / traceCount;
+        Method method;
         final Long methodId = getMethodId.apply(key);
-        Method method = methodByMethodId.get(methodId);
+        method = methodByMethodId.get(methodId);
         if (method == null)
         {
             method = new Method(methodId, "UNKNOWN", "UNKNOWN", String.valueOf(methodId));
         }
-        double totalTimeShare = (double) callCounts.timeAppeared / traceCount;
-        double selfTimeShare = (double) callCounts.timeInvokingThis / traceCount;
-        return new FlatProfileEntry(method, totalTimeShare, selfTimeShare);
+        Frame frame;
+        if (key instanceof StackFrame) {
+            frame = new FullFrame(method, (StackFrame) key);
+        }
+        else {
+            frame = method;
+        }
+        return new FlatProfileEntry(frame, totalTimeShare, selfTimeShare);
     }
 }
