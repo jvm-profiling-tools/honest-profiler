@@ -41,8 +41,40 @@ import java.util.Map;
  * Converts an hpl log to text, line by line. Only extra convenience offered is the translation on method
  * names where they have already been spelled out in the log.
  */
+class Counter {
+    int i;
+    void inc(){
+        i++;
+    }
+}
 public class ConsoleLogDumpApplication
 {
+// These name match the names reported by the forte quality kit
+//    enum {
+//      ticks_no_Java_frame         =  0,
+//      ticks_no_class_load         = -1,
+//      ticks_GC_active             = -2,
+//      ticks_unknown_not_Java      = -3,
+//      ticks_not_walkable_not_Java = -4,
+//      ticks_unknown_Java          = -5,
+//      ticks_not_walkable_Java     = -6,
+//      ticks_unknown_state         = -7,
+//      ticks_thread_exit           = -8,
+//      ticks_deopt                 = -9,
+//      ticks_safepoint             = -10
+//    };
+
+    public static String[] AGCT_ERRORS = {"No Java Frames",
+                                          "No class load",
+                                          "GC Active",
+                                          "Unknown not Java",
+                                          "Not walkable not Java",
+                                          "Unknown Java",
+                                          "Not walkable Java",
+                                          "Unknown state",
+                                          "Thread exit",
+                                          "Deopt",
+                                          "Safepoint"};
 
     private final Console output;
     private final Console error;
@@ -100,6 +132,8 @@ public class ConsoleLogDumpApplication
             int indent;
             long traceidx;
             long errCount;
+            
+            Map<Integer, Counter> errHistogram = new HashMap<>();
             Map<Long, BoundMethod> methodNames = new HashMap<>();
 
             @Override
@@ -151,6 +185,8 @@ public class ConsoleLogDumpApplication
                 {
                     out.printf("TraceStart: [%d] tid=%d,frames=%d\n", traceidx, traceStart.getThreadId(), frames);
                     errCount++;
+                    Counter counter = errHistogram.computeIfAbsent(-frames, k -> new Counter());
+                    counter.inc();
                 }
                 else
                 {
@@ -164,6 +200,18 @@ public class ConsoleLogDumpApplication
             public void endOfLog()
             {
                 out.printf("Processed %d traces, %d faulty\n", traceidx, errCount);
+                for (Map.Entry<Integer, Counter> e: errHistogram.entrySet()) {
+                    final Integer errCode = e.getKey();
+                    final int errCodeCount = e.getValue().i;
+                    String errName;
+                    if(errCode < AGCT_ERRORS.length) {
+                        errName = AGCT_ERRORS[errCode];
+                    }
+                    else {
+                        errName = "Unknown err code";
+                    }
+                    out.printf("%-20s (-%d): %d \n", errName, errCode, errCodeCount);
+                }
             }
         });
     }
