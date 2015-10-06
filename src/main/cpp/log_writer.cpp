@@ -26,7 +26,56 @@ void LogWriter::writeValue(const T &value) {
 static int64_t getThreadId(JNIEnv *env_id) {
     return (int64_t) env_id;
 }
+/** following the same algorithm as HPROF */
+static jint map_loc2line(jint bci, jvmtiLineNumberEntry *table, jint count) {
+    jint line_number;
+    int i;
+    int start;
+    int half;
 
+    line_number = -101;
+    if ( count == 0 ) {
+        return line_number;
+    }
+
+    /* Do a binary search */
+    half = count >> 1;
+    start = 0;
+    while ( half > 0 ) {
+        jint start_location;
+
+        start_location = table[start + half].start_location;
+        if ( bci > start_location ) {
+            start = start + half;
+        } else if ( bci == start_location ) {
+            start = start + half;
+            break;
+        }
+        half = half >> 1;
+    }
+
+
+    /* Now start the table search */
+    for ( i = start ; i < count ; i++ ) {
+        if ( bci < table[i].start_location ) {
+            break;
+        }
+        line_number = table[i].line_number;
+    }
+    return line_number;
+}
+
+static void jvmtiDeallocate(jvmtiEnv *jvmti, void *ptr)
+{
+    if ( ptr != NULL ) {
+        jvmtiError error;
+
+        error = jvmti->Deallocate ((unsigned char*)ptr);
+        if ( error != JVMTI_ERROR_NONE ) {
+            // TODO: HPROF_JVMTI_ERROR(error, "Cannot deallocate jvmti memory");
+        }
+    }
+}
 jint LogWriter::getLineNo(jint bci, jmethodID methodId) {
 	if(bci <= 0) {
 		return bci;
@@ -40,22 +89,8 @@ jint LogWriter::getLineNo(jint bci, jmethodID methodId) {
 	if (err != JVMTI_ERROR_NONE) {
 		return -100;
 	}
-	jint min_d = 64*1024;
-	jint lineno = -101;
-	for(int i=0;i<entry_count-1;i++) {
-		if (jvmti_table[i].start_location == bci) {
-			delete(jvmti_table);
-			return jvmti_table[i].line_number;
-		}
-		else {
-			jint d = abs(jvmti_table[i].start_location - bci);
-			if (min_d > d) {
-				lineno =  jvmti_table[i].line_number;
-				min_d = d;
-			}
-		}
-	}
-	delete(jvmti_table);
+	jint lineno = map_loc2line(bci, jvmti_table, entry_count);
+	jvmtiDeallocate(jvmti_, jvmti_table);
 	return lineno;
 }
 
