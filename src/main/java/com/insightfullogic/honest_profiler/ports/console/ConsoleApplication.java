@@ -86,7 +86,7 @@ public class ConsoleApplication
         this.filterDescription = filterDescription;
     }
 
-    @Option(name = "-format", usage = "set the output format, either 'flat' or 'tree'")
+    @Option(name = "-format", usage = "set the output format, either 'flat_by_line', 'flat_by_method' or 'tree'")
     public void setProfileFormat(String profileFormat)
     {
         ProfileFormat format = ProfileFormat.valueOf(profileFormat.toUpperCase());
