@@ -50,6 +50,14 @@ public class FlameTrace
         return methods;
     }
 
+    public Method getMethod(final int index)
+    {
+        if (methods.size() <= index)
+            return null;
+
+        return methods.get(index);
+    }
+
     public void incrementWeight()
     {
         weight++;
