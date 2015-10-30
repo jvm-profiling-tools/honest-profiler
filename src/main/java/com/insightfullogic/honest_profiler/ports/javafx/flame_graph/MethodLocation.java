@@ -21,47 +21,31 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.flame_graph;
 
-import com.insightfullogic.honest_profiler.core.collector.FlameGraph;
-import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
-import javafx.application.Application;
-import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
+import com.insightfullogic.honest_profiler.core.parser.Method;
+import javafx.scene.shape.Rectangle;
 
-import java.io.File;
+import java.util.Objects;
 
-import static com.insightfullogic.honest_profiler.core.collector.FlameGraphCollector.readFlamegraph;
-
-public class FlameGraphView extends Application
+public class MethodLocation
 {
+    private final Rectangle rectangle;
+    private final Method method;
 
-    @Override
-    public void start(Stage stage) throws Exception
+    public MethodLocation(final Rectangle rectangle, final Method method)
     {
-        stage.setTitle("Flame Graph View");
-        stage.setWidth(1920);
-        stage.setHeight(1000);
-
-        FlameGraph data = readFlamegraph(new FileLogSource(new File("log-31325-1446202732716.hpl")));
-        Group root = new Group();
-        FlameGraphCanvas canvas = new FlameGraphCanvas(stage);
-        canvas.setWidth(1920);
-        canvas.setHeight(1000);
-        root.getChildren().add(canvas);
-        stage.setScene(new Scene(root));
-        stage.show();
-
-        canvas.display(data);
+        Objects.requireNonNull(rectangle);
+        Objects.requireNonNull(method);
+        this.rectangle = rectangle;
+        this.method = method;
     }
 
-    @Override
-    public void stop() throws Exception
+    public boolean contains(final double x, final double y)
     {
+        return rectangle.contains(x, y);
     }
 
-    public static void main(String[] args)
+    public Method getMethod()
     {
-        launch(args);
+        return method;
     }
-
 }

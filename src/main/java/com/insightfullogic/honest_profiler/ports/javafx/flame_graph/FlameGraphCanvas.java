@@ -24,15 +24,17 @@ package com.insightfullogic.honest_profiler.ports.javafx.flame_graph;
 import com.insightfullogic.honest_profiler.core.collector.FlameGraph;
 import com.insightfullogic.honest_profiler.core.collector.FlameTrace;
 import com.insightfullogic.honest_profiler.core.parser.Method;
-import com.insightfullogic.honest_profiler.ports.javafx.Rendering;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Window;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.insightfullogic.honest_profiler.ports.javafx.Rendering.renderMethod;
 import static com.insightfullogic.honest_profiler.ports.javafx.Rendering.renderShortMethod;
@@ -46,15 +48,14 @@ public class FlameGraphCanvas extends Canvas
     private final Tooltip tooltip = new Tooltip();
     private final Window window;
 
-    private double initialY;
-    private double columnWidth;
     private double rowHeight;
     private List<FlameTrace> traces;
+    private List<MethodLocation> methodLocations;
 
     public FlameGraphCanvas(final Window window)
     {
         this.window = window;
-        setOnMouseClicked(this::displayMethodName);
+        setOnMouseMoved(this::displayMethodName);
     }
 
     private void displayMethodName(final MouseEvent mouseEvent)
@@ -62,33 +63,27 @@ public class FlameGraphCanvas extends Canvas
         final double x = mouseEvent.getX();
         final double y = mouseEvent.getY();
 
-        int column = (int) (x / columnWidth);
-        int row = -1 * (int) ((y - initialY) / rowHeight);
+        final Optional<MethodLocation> methodLocation =
+            methodLocations
+                .stream()
+                .filter(location -> location.contains(x, y))
+                .findFirst();
 
-        for (FlameTrace flameTrace : traces)
+        if (methodLocation.isPresent())
         {
-            column -= flameTrace.getWeight();
-            if (column < 0)
-            {
-                List<Method> stackTrace = flameTrace.getMethods();
-                if (row >= stackTrace.size() || row < 0)
-                {
-                    tooltip.hide();
-                }
-                else
-                {
-                    Method method = stackTrace.get(row);
-                    tooltip.setText(renderMethod(method));
-                    tooltip.show(window, x, y);
-                }
-                return;
-            }
+            tooltip.setText(renderMethod(methodLocation.get().getMethod()));
+            tooltip.show(window, x, y);
         }
-        tooltip.hide();
+        else
+        {
+            tooltip.hide();
+        }
     }
 
     public void display(FlameGraph graph)
     {
+        methodLocations = new ArrayList<>();
+
         final GraphicsContext graphics = getGraphicsContext2D();
         graphics.setStroke(Color.WHITE);
 
@@ -97,9 +92,9 @@ public class FlameGraphCanvas extends Canvas
         final long totalWeight = graph.totalWeight();
         final int maxHeight = graph.maxTraceHeight();
 
-        columnWidth = getWidth() / totalWeight;
+        final double columnWidth = getWidth() / totalWeight;
         rowHeight = getHeight() / maxHeight;
-        initialY = getHeight() - rowHeight;
+        final double initialY = getHeight() - rowHeight;
 
         for (int row = 0; row < maxHeight; row++)
         {
@@ -120,6 +115,7 @@ public class FlameGraphCanvas extends Canvas
                     final double x = col * stackWidth;
                     graphics.setFill(colour);
                     graphics.fillRect(x, y, methodWidth, rowHeight);
+                    methodLocations.add(new MethodLocation(new Rectangle(x, y, methodWidth, rowHeight), method));
 
                     final String title = renderShortMethod(method);
                     if (!renderText(graphics, x, y, methodWidth, title))
