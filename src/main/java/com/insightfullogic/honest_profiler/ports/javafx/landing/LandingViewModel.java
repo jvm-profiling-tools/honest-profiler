@@ -1,22 +1,22 @@
 /**
  * Copyright (c) 2014 Richard Warburton (richard.warburton@gmail.com)
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a 
- * copy of this software and associated documentation files (the "Software"), 
+ * <p/>
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense, 
- * and/or sell copies of the Software, and to permit persons to whom the 
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following conditions:
- * 
+ * <p/>
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS 
+ * <p/>
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.landing;
@@ -45,7 +45,8 @@ import java.util.Set;
 
 import static com.insightfullogic.honest_profiler.ports.javafx.WindowViewModel.Window.Profile;
 
-public class LandingViewModel implements MachineListener {
+public class LandingViewModel implements MachineListener
+{
 
     @FXML
     private VBox landingView;
@@ -60,9 +61,10 @@ public class LandingViewModel implements MachineListener {
     private final Set<VirtualMachine> machines;
 
     public LandingViewModel(
-            final Logger logger,
-            final WindowViewModel windowModel,
-            final ProfileListener profileListener) {
+        final Logger logger,
+        final WindowViewModel windowModel,
+        final ProfileListener profileListener)
+    {
         this.logger = logger;
         this.windowModel = windowModel;
         this.profileListener = profileListener;
@@ -71,48 +73,60 @@ public class LandingViewModel implements MachineListener {
     }
 
     @FXML
-    private void initialize() {
+    private void initialize()
+    {
         logger.debug("Initializing LandingViewModel");
         toggleMachines.selectedToggleProperty()
-                      .addListener((of, from, to) -> {
-                          monitorButton.setDisable(to == null);
-                      });
+            .addListener((of, from, to) -> {
+                monitorButton.setDisable(to == null);
+            });
         machines.forEach(this::displayMachine);
     }
 
-    public void open(final ActionEvent actionEvent) {
+    public void open(final ActionEvent actionEvent)
+    {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open a log file");
         File file = fileChooser.showOpenDialog(null);
-        if (file != null) {
+        if (file != null)
+        {
             windowModel.display(Profile);
-            try {
+            try
+            {
                 Monitor.consumeFile(new FileLogSource(file), profileListener);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 logger.error(e.getMessage(), e);
             }
         }
     }
 
-    public void monitorButton(final ActionEvent actionEvent) {
+    public void monitorButton(final ActionEvent actionEvent)
+    {
         windowModel.display(Profile);
         MachineButton selectedButton = (MachineButton) toggleMachines.getSelectedToggle();
         VirtualMachine vm = selectedButton.getJvm();
-        try {
+        try
+        {
             Monitor.pipeFile(vm.getLogSource(), profileListener);
-        } catch (CantReadFromSourceException e) {
+        }
+        catch (CantReadFromSourceException e)
+        {
             logger.error(e.getMessage(), e);
         }
     }
 
     @Override
-    public void onNewMachine(final VirtualMachine machine) {
+    public void onNewMachine(final VirtualMachine machine)
+    {
         logger.debug("New machine: {}", machine.getDisplayName());
         machines.add(machine);
         Platform.runLater(() -> displayMachine(machine));
     }
 
-    private void displayMachine(final VirtualMachine machine) {
+    private void displayMachine(final VirtualMachine machine)
+    {
         ObservableList<Node> children = landingView.getChildren();
         MachineButton button = new MachineButton(machine);
         button.setToggleGroup(toggleMachines);
@@ -120,7 +134,8 @@ public class LandingViewModel implements MachineListener {
     }
 
     @Override
-    public void onClosedMachine(final VirtualMachine machine) {
+    public void onClosedMachine(final VirtualMachine machine)
+    {
         logger.debug("Closed: {}", machine.getDisplayName());
         Platform.runLater(() -> {
             String id = machine.getId();

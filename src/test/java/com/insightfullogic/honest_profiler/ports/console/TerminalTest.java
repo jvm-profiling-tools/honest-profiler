@@ -35,11 +35,12 @@ public class TerminalTest {{
 
     describe("A Terminal", it -> {
 
-        InputStream in = it.usesMock(InputStream.class);
-        PrintStream out = it.usesMock(PrintStream.class);
-        Runnable quit = it.usesMock(Runnable.class);
-        Screen screen = it.usesMock(Screen.class);
-        Screen oldScreen = it.usesMock(Screen.class);
+        InputStream in = mock(InputStream.class);
+        PrintStream out = mock(PrintStream.class);
+        Runnable quit = mock(Runnable.class);
+        Screen screen = mock(Screen.class);
+        Screen oldScreen = mock(Screen.class);
+
         Terminal terminal = new Terminal(in, out, quit);
 
         it.should("quit when q is pressed", expect -> {

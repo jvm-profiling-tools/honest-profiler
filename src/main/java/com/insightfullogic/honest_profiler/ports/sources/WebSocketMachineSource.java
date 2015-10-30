@@ -1,22 +1,22 @@
 /**
  * Copyright (c) 2014 Richard Warburton (richard.warburton@gmail.com)
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a 
- * copy of this software and associated documentation files (the "Software"), 
+ * <p/>
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense, 
- * and/or sell copies of the Software, and to permit persons to whom the 
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following conditions:
- * 
+ * <p/>
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS 
+ * <p/>
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  **/
 package com.insightfullogic.honest_profiler.ports.sources;
@@ -34,14 +34,16 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class WebSocketMachineSource extends BaseWebSocketHandler {
+public class WebSocketMachineSource extends BaseWebSocketHandler
+{
 
     private final Logger logger;
     private final Map<WebSocketConnection, Conductor> machines;
     private final Monitor monitor;
     private final MachineListener listener;
 
-    public WebSocketMachineSource(final Logger logger, final Monitor monitor, final MachineListener listener) {
+    public WebSocketMachineSource(final Logger logger, final Monitor monitor, final MachineListener listener)
+    {
         this.logger = logger;
         this.monitor = monitor;
         this.listener = listener;
@@ -49,12 +51,14 @@ public class WebSocketMachineSource extends BaseWebSocketHandler {
     }
 
     @Override
-    public void onOpen(WebSocketConnection connection) {
+    public void onOpen(WebSocketConnection connection)
+    {
 
     }
 
     @Override
-    public void onClose(WebSocketConnection connection) {
+    public void onClose(WebSocketConnection connection)
+    {
         /*DataConsumer consumer = machines.remove(connection);
         if (consumer != null) {
             VirtualMachine machine = consumer.getMachine();
@@ -63,20 +67,26 @@ public class WebSocketMachineSource extends BaseWebSocketHandler {
     }
 
     @Override
-    public void onMessage(WebSocketConnection connection, byte[] message) {
-        if (machines.containsKey(connection)) {
+    public void onMessage(WebSocketConnection connection, byte[] message)
+    {
+        if (machines.containsKey(connection))
+        {
             ByteBuffer buffer = ByteBuffer.wrap(message);
             /*DataConsumer consumer = machines.get(connection);
             if (consumer != null) {
                 consumer.accept(buffer);
             }*/
-        } else {
+        }
+        else
+        {
             newMachine(connection, message);
         }
     }
 
-    private void newMachine(WebSocketConnection connection, byte[] message) {
-        try {
+    private void newMachine(WebSocketConnection connection, byte[] message)
+    {
+        try
+        {
             Messages.NewMachine newMachine = Messages.NewMachine.parseFrom(message);
             VirtualMachine machine = new VirtualMachine(newMachine.getId(), newMachine.getDisplayName(), true, "");
             listener.onNewMachine(machine);
@@ -85,7 +95,9 @@ public class WebSocketMachineSource extends BaseWebSocketHandler {
                 DataConsumer consumer = conductor.pipeData(machine, profileListener);
                 machines.put(connection, consumer);
             }*/
-        } catch (InvalidProtocolBufferException e) {
+        }
+        catch (InvalidProtocolBufferException e)
+        {
             logger.error(e.getMessage(), e);
         }
     }

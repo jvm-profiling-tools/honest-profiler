@@ -1,22 +1,22 @@
 /**
  * Copyright (c) 2014 Richard Warburton (richard.warburton@gmail.com)
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a 
- * copy of this software and associated documentation files (the "Software"), 
+ * <p/>
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense, 
- * and/or sell copies of the Software, and to permit persons to whom the 
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following conditions:
- * 
+ * <p/>
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS 
+ * <p/>
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  **/
 package com.insightfullogic.honest_profiler.ports.sources;
@@ -37,7 +37,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-public class LocalMachineSource {
+public class LocalMachineSource
+{
 
     private static final String VM_ARGS = "sun.jvm.args";
     private static final String AGENT_NAME = "liblagent.so";
@@ -51,11 +52,13 @@ public class LocalMachineSource {
 
     private Set<VirtualMachineDescriptor> previous;
 
-    public LocalMachineSource(final Logger logger, final MachineListener listener) {
+    public LocalMachineSource(final Logger logger, final MachineListener listener)
+    {
         this(logger, listener, DEFAULT_SLEEP_PERIOD);
     }
 
-    public LocalMachineSource(final Logger logger, final MachineListener listener, final long sleepPeriod) {
+    public LocalMachineSource(final Logger logger, final MachineListener listener, final long sleepPeriod)
+    {
         this.logger = logger;
         this.listener = listener;
         this.sleepPeriod = sleepPeriod;
@@ -64,11 +67,13 @@ public class LocalMachineSource {
     }
 
     @PostConstruct
-    public void start() {
+    public void start()
+    {
         threadedAgent.start();
     }
 
-    public boolean discoverVirtualMachines() {
+    public boolean discoverVirtualMachines()
+    {
         poll();
 
         sleep();
@@ -76,15 +81,20 @@ public class LocalMachineSource {
         return true;
     }
 
-    private void sleep() {
-        try {
+    private void sleep()
+    {
+        try
+        {
             Thread.sleep(sleepPeriod);
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e)
+        {
             // Ignore
         }
     }
 
-    private void poll() {
+    private void poll()
+    {
         Set<VirtualMachineDescriptor> current = new HashSet<>(com.sun.tools.attach.VirtualMachine.list());
         difference(current, previous, listener::onNewMachine);
         difference(previous, current, listener::onClosedMachine);
@@ -92,9 +102,10 @@ public class LocalMachineSource {
     }
 
     private void difference(
-            Set<VirtualMachineDescriptor> left,
-            Set<VirtualMachineDescriptor> right,
-            Consumer<VirtualMachine> action) {
+        Set<VirtualMachineDescriptor> left,
+        Set<VirtualMachineDescriptor> right,
+        Consumer<VirtualMachine> action)
+    {
 
         // TODO: only attach once per vm
         left.stream()
@@ -103,8 +114,10 @@ public class LocalMachineSource {
             .forEach(action);
     }
 
-    private Stream<VirtualMachine> attach(VirtualMachineDescriptor vmDescriptor) {
-        try {
+    private Stream<VirtualMachine> attach(VirtualMachineDescriptor vmDescriptor)
+    {
+        try
+        {
             com.sun.tools.attach.VirtualMachine vm = com.sun.tools.attach.VirtualMachine.attach(vmDescriptor);
             String vmArgs = vm.getAgentProperties().getProperty(VM_ARGS);
 
@@ -113,17 +126,23 @@ public class LocalMachineSource {
             boolean agentLoaded = vmArgs.contains(AGENT_NAME);
             String userDir = getUserDir(vm);
             return Stream.of(new VirtualMachine(id, displayName, agentLoaded, userDir));
-        } catch (AttachNotSupportedException e) {
+        }
+        catch (AttachNotSupportedException e)
+        {
             logger.warn(e.getMessage());
-        } catch (IOException e) {
-            if (!noSuchProcess(e)) {
+        }
+        catch (IOException e)
+        {
+            if (!noSuchProcess(e))
+            {
                 logger.warn(e.getMessage(), e);
             }
         }
         return Stream.empty();
     }
 
-    private String getUserDir(com.sun.tools.attach.VirtualMachine vm) throws IOException {
+    private String getUserDir(com.sun.tools.attach.VirtualMachine vm) throws IOException
+    {
         final String userDir = vm.getAgentProperties().getProperty(USER_DIR);
         if (userDir != null)
             return userDir;
@@ -131,12 +150,14 @@ public class LocalMachineSource {
         return vm.getSystemProperties().getProperty(USER_DIR);
     }
 
-    private boolean noSuchProcess(IOException e) {
+    private boolean noSuchProcess(IOException e)
+    {
         return e.getMessage().contains("No such process");
     }
 
     @PreDestroy
-    public void stop() {
+    public void stop()
+    {
         threadedAgent.stop();
     }
 

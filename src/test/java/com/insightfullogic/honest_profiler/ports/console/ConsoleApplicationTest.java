@@ -1,22 +1,22 @@
 /**
  * Copyright (c) 2014 Richard Warburton (richard.warburton@gmail.com)
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a 
- * copy of this software and associated documentation files (the "Software"), 
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense, 
- * and/or sell copies of the Software, and to permit persons to whom the 
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS 
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  **/
 package com.insightfullogic.honest_profiler.ports.console;
@@ -39,7 +39,7 @@ public class ConsoleApplicationTest {{
         it.isSetupWith(() -> {
             output.eraseScreen();
             error.eraseScreen();
-            profiler.setProfileFormat("both");
+            profiler.setProfileFormat("all");
         });
 
         it.should("display a profile which is loaded into it", expect -> {
@@ -50,10 +50,10 @@ public class ConsoleApplicationTest {{
 
             then:
             output.outputContains("PrintStream.printf");
-            output.outputContains("1.00");
+            output.outputContains("100.0");
 
             output.outputContains("PrintStream.append");
-            output.outputContains("1.00");
+            output.outputContains("100.0");
 
             output.outputContains("Printing Profile for:");
             output.outputContains("log0.hpl");
@@ -89,7 +89,19 @@ public class ConsoleApplicationTest {{
 
             when:
             profiler.setLogLocation(Util.log0());
-            profiler.setProfileFormat("flat");
+            profiler.setProfileFormat("flat_by_method");
+            profiler.run();
+
+            then:
+            output.outputDoesntContain("Tree Profile");
+            output.outputContains("Flat Profile");
+        });
+
+        it.should("only display the flat line profile when flat is selected", expect -> {
+
+            when:
+            profiler.setLogLocation(Util.log0());
+            profiler.setProfileFormat("flat_by_line");
             profiler.run();
 
             then:

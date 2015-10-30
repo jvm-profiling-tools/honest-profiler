@@ -27,35 +27,63 @@ static int64_t getThreadId(JNIEnv *env_id) {
     return (int64_t) env_id;
 }
 
+static jint bci2line(jint bci, jvmtiLineNumberEntry *table, jint entry_count) {
+	jint line_number = -101;
+	if ( entry_count == 0 ) {
+		return line_number;
+	}
+	line_number = -102;
+    // We're looking for a line whose 'start_location' is nearest AND >= BCI
+	// We assume the table is sorted by 'start_location'
+    // Do a binary search to quickly approximate 'start_index" in table
+	int half = entry_count >> 1;
+    int start_index = 0;
+    while ( half > 0 ) {
+        jint start_location = table[start_index + half].start_location;
+        if ( bci > start_location ) {
+            start_index = start_index + half;
+        } else if ( bci == start_location ) {
+        	// gotcha
+            return table[start_index + half].line_number;
+        }
+        half = half >> 1;
+    }
+
+
+    /* Now start the table search from approximated start_index */
+    for (int i = start_index ; i < entry_count ; i++ ) {
+    	// start_location > BCI: means line starts after the BCI, we'll take the previous match
+        if ( bci < table[i].start_location ) {
+            break;
+        }
+        else if (bci == table[i].start_location) {
+        	// gotcha
+        	return table[i].line_number;
+        }
+        line_number = table[i].line_number;
+    }
+    return line_number;
+}
+
 jint LogWriter::getLineNo(jint bci, jmethodID methodId) {
 	if(bci <= 0) {
 		return bci;
 	}
-	// TODO: cache line number tables?
-	// Caching is risky as the growth is not capped. An alternative is to serialize the line table once per method
-	// but might bloat log? current approach is brute..
+
 	jvmtiLineNumberEntry* jvmti_table;
 	jint entry_count;
 	jvmtiError err = jvmti_->GetLineNumberTable(methodId, &entry_count, &jvmti_table);
 	if (err != JVMTI_ERROR_NONE) {
 		return -100;
 	}
-	jint min_d = 64*1024;
-	jint lineno = -101;
-	for(int i=0;i<entry_count-1;i++) {
-		if (jvmti_table[i].start_location == bci) {
-			delete(jvmti_table);
-			return jvmti_table[i].line_number;
-		}
-		else {
-			jint d = abs(jvmti_table[i].start_location - bci);
-			if (min_d > d) {
-				lineno =  jvmti_table[i].line_number;
-				min_d = d;
-			}
-		}
+
+	jint lineno = bci2line(bci, jvmti_table, entry_count);
+
+	// cleanup
+	err = jvmti_->Deallocate ((unsigned char*)jvmti_table);
+	if ( err != JVMTI_ERROR_NONE ) {
+		// TODO: Log err?
 	}
-	delete(jvmti_table);
 	return lineno;
 }
 
