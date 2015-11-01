@@ -42,7 +42,7 @@ public class FlameGraphCollector implements LogEventListener
 
     private FlameTrace trace;
     private List<Long> lastMethodIds = new ArrayList<>();
-    private List<Long> currentMethodIds;
+    private List<Long> currentMethodIds = new ArrayList<>();
 
     private static Method unknownMethod = new Method(-1, "<unknown>", "unknown.Unknown", "unknown");
 
