@@ -42,6 +42,8 @@ public class LogCollector implements LogEventListener
 
     private final ProfileListener listener;
 
+    private final FlameGraphCollector flameGraphCollector = new FlameGraphCollector();
+
     private final Map<Long, Method> methodByMethodId;
     private final CallCountAggregator<Long> callCountsByMethodId;
     private final CallCountAggregator<StackFrame> callCountsByFrame;
@@ -72,6 +74,7 @@ public class LogCollector implements LogEventListener
     @Override
     public void handle(TraceStart traceStart)
     {
+        flameGraphCollector.handle(traceStart);
         collectThreadDump();
         emitProfileIfNeeded();
         traceCount++;
@@ -83,6 +86,7 @@ public class LogCollector implements LogEventListener
     @Override
     public void handle(StackFrame stackFrame)
     {
+        flameGraphCollector.handle(stackFrame);
         reversalStack.push(stackFrame);
     }
 
@@ -121,6 +125,7 @@ public class LogCollector implements LogEventListener
     @Override
     public void handle(Method newMethod)
     {
+        flameGraphCollector.handle(newMethod);
         methodByMethodId.put(newMethod.getMethodId(), newMethod);
         emitProfileIfNeeded();
     }
@@ -147,7 +152,8 @@ public class LogCollector implements LogEventListener
                 traceCount,
                 callCountsByMethodId.aggregate(traceCount),
                 callCountsByFrame.aggregate(traceCount),
-                buildTreeProfile()));
+                buildTreeProfile(),
+                flameGraphCollector.collect()));
     }
 
     private List<ProfileTree> buildTreeProfile()

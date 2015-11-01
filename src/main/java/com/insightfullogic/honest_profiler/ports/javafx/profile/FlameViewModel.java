@@ -19,17 +19,24 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.core.parser;
+package com.insightfullogic.honest_profiler.ports.javafx.profile;
 
-public interface LogEventListener
+import com.insightfullogic.honest_profiler.core.ProfileListener;
+import com.insightfullogic.honest_profiler.core.collector.Profile;
+import com.insightfullogic.honest_profiler.ports.javafx.flame_graph.FlameGraphCanvas;
+import javafx.fxml.FXML;
+
+/**
+ * .
+ */
+public class FlameViewModel implements ProfileListener
 {
+    @FXML
+    private FlameGraphCanvas flameView;
 
-    void handle(TraceStart traceStart);
-
-    void handle(StackFrame stackFrame);
-
-    void handle(Method newMethod);
-
-    void endOfLog();
-
+    @Override
+    public void accept(final Profile profile)
+    {
+        flameView.display(profile.getFlameGraph());
+    }
 }

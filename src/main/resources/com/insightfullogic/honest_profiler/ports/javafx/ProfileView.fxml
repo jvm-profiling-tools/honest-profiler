@@ -18,8 +18,9 @@
         </ToolBar>
         <StackPane fx:id="content" prefHeight="9999" prefWidth="200.0">
             <children>
-                <fx:include source="TreeProfileView.fxml"/>
                 <fx:include source="FlatProfileView.fxml"/>
+                <fx:include source="TreeProfileView.fxml"/>
+                <fx:include source="FlameGraphView.fxml"/>
             </children>
         </StackPane>
     </children>

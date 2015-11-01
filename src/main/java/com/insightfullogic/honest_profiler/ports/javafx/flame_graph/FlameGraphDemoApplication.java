@@ -32,7 +32,7 @@ import java.io.File;
 
 import static com.insightfullogic.honest_profiler.core.collector.FlameGraphCollector.readFlamegraph;
 
-public class FlameGraphView extends Application
+public class FlameGraphDemoApplication extends Application
 {
 
     @Override
@@ -44,7 +44,7 @@ public class FlameGraphView extends Application
 
         FlameGraph data = readFlamegraph(new FileLogSource(new File("log-31325-1446202732716.hpl")));
         Group root = new Group();
-        FlameGraphCanvas canvas = new FlameGraphCanvas(stage);
+        FlameGraphCanvas canvas = new FlameGraphCanvas();
         canvas.setWidth(1920);
         canvas.setHeight(1000);
         root.getChildren().add(canvas);

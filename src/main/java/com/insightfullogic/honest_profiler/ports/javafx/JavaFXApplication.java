@@ -91,6 +91,7 @@ public class JavaFXApplication extends Application
             .addComponent(CachingProfileListener.class)
             .addComponent(FlatViewModel.class)
             .addComponent(TreeViewModel.class)
+            .addComponent(FlameViewModel.class)
             .addComponent(TraceCountViewModel.class)
             .addComponent(ProfileViewModel.class)
             .addComponent(LandingViewModel.class)

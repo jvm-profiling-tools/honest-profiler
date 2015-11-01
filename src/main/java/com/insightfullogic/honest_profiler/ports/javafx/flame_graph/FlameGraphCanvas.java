@@ -24,6 +24,7 @@ package com.insightfullogic.honest_profiler.ports.javafx.flame_graph;
 import com.insightfullogic.honest_profiler.core.collector.FlameGraph;
 import com.insightfullogic.honest_profiler.core.collector.FlameTrace;
 import com.insightfullogic.honest_profiler.core.parser.Method;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Tooltip;
@@ -39,6 +40,7 @@ import java.util.Optional;
 import static com.insightfullogic.honest_profiler.ports.javafx.Rendering.renderMethod;
 import static com.insightfullogic.honest_profiler.ports.javafx.Rendering.renderShortMethod;
 
+// TODO: remove any flame graph calculation logic from the canvas.
 public class FlameGraphCanvas extends Canvas
 {
     private static final Color START_COLOR = Color.BISQUE.deriveColor(0, 1.2, 1.0, 1.0);
@@ -46,15 +48,15 @@ public class FlameGraphCanvas extends Canvas
     public static final int TEXT_WIDTH = 7;
     public static final int ROW_WRAP = 4;
     private final Tooltip tooltip = new Tooltip();
-    private final Window window;
+    private Window window;
 
     private double rowHeight;
     private List<FlameTrace> traces;
     private List<MethodLocation> methodLocations;
+    private FlameGraph graph;
 
-    public FlameGraphCanvas(final Window window)
+    public FlameGraphCanvas()
     {
-        this.window = window;
         setOnMouseMoved(this::displayMethodName);
     }
 
@@ -80,51 +82,76 @@ public class FlameGraphCanvas extends Canvas
         }
     }
 
-    public void display(FlameGraph graph)
+    public void reRender()
     {
-        methodLocations = new ArrayList<>();
-
-        final GraphicsContext graphics = getGraphicsContext2D();
-        graphics.setStroke(Color.WHITE);
-
-        traces = graph.getTraces();
-
-        final long totalWeight = graph.totalWeight();
-        final int maxHeight = graph.maxTraceHeight();
-
-        final double columnWidth = getWidth() / totalWeight;
-        rowHeight = getHeight() / maxHeight;
-        final double initialY = getHeight() - rowHeight;
-
-        for (int row = 0; row < maxHeight; row++)
+        if (graph != null)
         {
-            double y = initialY - (row * rowHeight);
-            final Color colour = colorAt(row);
+            display(graph);
+        }
+    }
 
-            for (int col = 0; col < traces.size();)
+    public void display(final FlameGraph graph)
+    {
+        this.graph = graph;
+
+        final Scene scene = getScene();
+        if (scene != null)
+        {
+            setOpacity(1.0);
+
+            if (window == null)
             {
-                FlameTrace stack = traces.get(col);
-                final double stackWidth = stack.getWeight() * columnWidth;
+                window = scene.getWindow();
+            }
 
-                Method method = stack.at(row);
-                final int numberOfConsecutiveTraces = numberOfConsecutiveTracesWith(method, col, row);
-                double methodWidth = stackWidth * numberOfConsecutiveTraces;
+            methodLocations = new ArrayList<>();
 
-                if (method != null)
+            final GraphicsContext graphics = getGraphicsContext2D();
+            //graphics.clearRect();
+            //graphics.setFill(Color.GRAY);
+            graphics.clearRect(0, 0, getWidth(), getHeight());
+
+            graphics.setStroke(Color.WHITE);
+
+            traces = graph.getTraces();
+
+            final long totalWeight = graph.totalWeight();
+            final int maxHeight = graph.maxTraceHeight();
+
+            final double columnWidth = getWidth() / totalWeight;
+            rowHeight = getHeight() / maxHeight;
+            final double initialY = getHeight() - rowHeight;
+
+            for (int row = 0; row < maxHeight; row++)
+            {
+                double y = initialY - (row * rowHeight);
+                final Color colour = colorAt(row);
+
+                for (int col = 0; col < traces.size();)
                 {
-                    final double x = col * stackWidth;
-                    graphics.setFill(colour);
-                    graphics.fillRect(x, y, methodWidth, rowHeight);
-                    methodLocations.add(new MethodLocation(new Rectangle(x, y, methodWidth, rowHeight), method));
+                    FlameTrace stack = traces.get(col);
+                    final double stackWidth = stack.getWeight() * columnWidth;
 
-                    final String title = renderShortMethod(method);
-                    if (!renderText(graphics, x, y, methodWidth, title))
+                    Method method = stack.at(row);
+                    final int numberOfConsecutiveTraces = numberOfConsecutiveTracesWith(method, col, row);
+                    double methodWidth = stackWidth * numberOfConsecutiveTraces;
+
+                    if (method != null)
                     {
-                        renderText(graphics, x, y, methodWidth, method.getMethodName());
-                    }
-                }
+                        final double x = col * stackWidth;
+                        graphics.setFill(colour);
+                        graphics.fillRect(x, y, methodWidth, rowHeight);
+                        methodLocations.add(new MethodLocation(new Rectangle(x, y, methodWidth, rowHeight), method));
 
-                col += numberOfConsecutiveTraces;
+                        final String title = renderShortMethod(method);
+                        if (!renderText(graphics, x, y, methodWidth, title))
+                        {
+                            renderText(graphics, x, y, methodWidth, method.getMethodName());
+                        }
+                    }
+
+                    col += numberOfConsecutiveTraces;
+                }
             }
         }
     }
@@ -165,4 +192,5 @@ public class FlameGraphCanvas extends Canvas
     {
         return tooltip;
     }
+
 }

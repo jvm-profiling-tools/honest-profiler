@@ -24,31 +24,48 @@ package com.insightfullogic.honest_profiler.ports.javafx.profile;
 import com.insightfullogic.honest_profiler.core.filters.FilterParseException;
 import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
 import com.insightfullogic.honest_profiler.ports.javafx.WindowViewModel;
+import com.insightfullogic.honest_profiler.ports.javafx.flame_graph.FlameGraphCanvas;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
+
 import static com.insightfullogic.honest_profiler.ports.javafx.WindowViewModel.Window.Landing;
 
-public class ProfileViewModel
+public class ProfileViewModel implements Initializable
 {
 
     private final WindowViewModel windows;
     private final ProfileFilter profileFilter;
     private final CachingProfileListener profileListener;
 
-    private boolean flatView;
+    private static final String[] VIEW_NAMES = {
+        "Tree View",
+        "Flame View",
+        "Flat View"
+    };
 
     @FXML
     private StackPane content;
 
     @FXML
     private TextField filterView;
+
+    // Workaround for canvasses not rendering correctly in stack panes.
+    private final List<Node> views = new ArrayList<>();
+
+    private int currentViewIndex = 0;
 
     public ProfileViewModel(WindowViewModel windows,
                             ProfileFilter profileFilter,
@@ -57,8 +74,6 @@ public class ProfileViewModel
         this.windows = windows;
         this.profileFilter = profileFilter;
         this.profileListener = profileListener;
-
-        flatView = true;
     }
 
     public void quit(ActionEvent event)
@@ -68,23 +83,38 @@ public class ProfileViewModel
 
     public void flipView(ActionEvent event)
     {
-        Button button = (Button) event.getSource();
-        flipButtonText(button);
+        flipView();
+        flipButtonText(event);
         flipContent();
+    }
+
+    private void flipView()
+    {
+        currentViewIndex = (currentViewIndex + 1) % VIEW_NAMES.length ;
     }
 
     private void flipContent()
     {
-        // StackPane only displays the head of its children list
-        ObservableList<Node> children = content.getChildren();
-        Node previouslyVisible = children.remove(0);
-        children.add(previouslyVisible);
+        final ObservableList<Node> children = content.getChildren();
+        children.clear();
+
+        final Node currentView = views.get(currentViewIndex);
+        children.add(currentView);
+
+        if (currentView instanceof FlameGraphCanvas)
+        {
+            final FlameGraphCanvas flameGraphCanvas = (FlameGraphCanvas) currentView;
+            final Scene scene = flameGraphCanvas.getScene();
+            flameGraphCanvas.setHeight(scene.getHeight());
+            flameGraphCanvas.setWidth(scene.getHeight());
+            flameGraphCanvas.reRender();
+        }
     }
 
-    private void flipButtonText(Button button)
+    private void flipButtonText(final ActionEvent event)
     {
-        flatView = !flatView;
-        button.setText(flatView ? "Tree View" : "Flat View");
+        Button button = (Button) event.getSource();
+        button.setText(VIEW_NAMES[currentViewIndex]);
     }
 
     public void back(ActionEvent actionEvent)
@@ -105,4 +135,12 @@ public class ProfileViewModel
         profileListener.reflushLastProfile();
     }
 
+    @Override
+    public void initialize(final URL url, final ResourceBundle resourceBundle)
+    {
+        final ObservableList<Node> children = content.getChildren();
+        views.addAll(children);
+        children.removeAll(views);
+        children.add(views.get(0));
+    }
 }

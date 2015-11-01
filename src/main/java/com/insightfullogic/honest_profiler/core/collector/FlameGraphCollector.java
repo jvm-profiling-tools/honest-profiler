@@ -72,7 +72,7 @@ public class FlameGraphCollector implements LogEventListener
         addCurrentTrace();
     }
 
-    public FlameGraph collect() throws Exception
+    public FlameGraph collect()
     {
         return flameGraph;
     }
