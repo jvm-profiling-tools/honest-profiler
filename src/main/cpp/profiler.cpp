@@ -1,6 +1,6 @@
 #include "profiler.h"
 #include <sys/time.h>
-
+#include <sys/syscall.h>
 ASGCTType Asgct::asgct_;
 
 
@@ -71,6 +71,7 @@ void Profiler::handle(int signum, siginfo_t *info, void *context) {
 
     JVMPI_CallTrace trace;
     trace.frames = frames;
+    trace.nid = syscall(SYS_gettid);
     JNIEnv *jniEnv = getJNIEnv();
     if (jniEnv == NULL) {
     	trace.num_frames = -3; // ticks_unknown_not_Java

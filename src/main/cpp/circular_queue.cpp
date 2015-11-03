@@ -41,6 +41,7 @@ void CircularQueue::write(const JVMPI_CallTrace &trace, const size_t slot) {
     buffer[slot].trace.frames = fb;
     buffer[slot].trace.num_frames = trace.num_frames;
     buffer[slot].trace.env_id = trace.env_id;
+    buffer[slot].trace.nid = trace.nid;
     buffer[slot].is_committed.store(COMMITTED);
 }
 
