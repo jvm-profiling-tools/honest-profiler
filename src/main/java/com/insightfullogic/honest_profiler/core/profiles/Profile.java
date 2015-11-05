@@ -31,34 +31,22 @@ import java.util.stream.Stream;
  */
 public final class Profile
 {
-
     private final int traceCount;
     private final List<ProfileTree> trees;
-    private final FlameGraph flameGraph;
     private final List<FlatProfileEntry> flatByMethodProfile;
     private final List<FlatProfileEntry> flatByFrameProfile;
 
-    // TODO: refactor everything and kill this constructor
     public Profile(int traceCount,
                    List<FlatProfileEntry> flatByMethodProfile,
                    List<FlatProfileEntry> flatByFrameProfile,
                    List<ProfileTree> trees)
     {
-        this(traceCount, flatByMethodProfile, flatByFrameProfile, trees, new FlameGraph());
-    }
-
-    public Profile(final int traceCount,
-                   final List<FlatProfileEntry> flatByMethodProfile,
-                   final List<FlatProfileEntry> flatByFrameProfile,
-                   final List<ProfileTree> trees,
-                   final FlameGraph flameGraph)
-    {
         this.traceCount = traceCount;
         this.flatByMethodProfile = flatByMethodProfile;
         this.flatByFrameProfile = flatByFrameProfile;
         this.trees = trees;
-        this.flameGraph = flameGraph;
     }
+
 
     public int getTraceCount()
     {
@@ -97,10 +85,5 @@ public final class Profile
             "traceCount: " + traceCount +
             ", count(trees): " + trees +
             '}';
-    }
-
-    public FlameGraph getFlameGraph()
-    {
-        return flameGraph;
     }
 }
