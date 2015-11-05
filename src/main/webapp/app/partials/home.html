@@ -1,4 +1,3 @@
-
 <h1>Virtual Machines</h1>
 
 <accordion close-others="oneAtATime">
@@ -6,12 +5,15 @@
         <accordion-heading>
             {{ machine.name }}
             <span ng-show="machine.profile">{{ machine.profile.traceCount }} Samples</span>
-            <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': status.open, 'glyphicon-chevron-right': !status.open}"></i>
+            <i class="pull-right glyphicon"
+               ng-class="{'glyphicon-chevron-down': status.open, 'glyphicon-chevron-right': !status.open}"></i>
         </accordion-heading>
 
-        <alert ng-show="!machine.profile && machine.agent" type="warning" >We have no profile data about {{ machine.name }}.</alert>
+        <alert ng-show="!machine.profile && machine.agent" type="warning">We have no profile data about {{ machine.name
+            }}.
+        </alert>
 
-        <alert ng-show="!machine.agent" type="info" >{{ machine.name }} does not have an agent loaded.</alert>
+        <alert ng-show="!machine.agent" type="info">{{ machine.name }} does not have an agent loaded.</alert>
 
         <div ng-show="machine.profile" ng-repeat="tree in machine.profile.trees">
             <div ng-include="'partials/profileNode.html'"

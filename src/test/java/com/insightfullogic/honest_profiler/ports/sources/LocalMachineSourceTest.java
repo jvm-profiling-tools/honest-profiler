@@ -11,45 +11,53 @@ import static com.insightfullogic.lambdabehave.Suite.describe;
 import static org.mockito.Mockito.mock;
 
 @RunWith(JunitSuiteRunner.class)
-public class LocalMachineSourceTest {{
+public class LocalMachineSourceTest
+{
+    {
 
-    describe("Local Machine Sources", it -> {
+        describe("Local Machine Sources", it -> {
 
-        Logger logger = mock(Logger.class);
+            Logger logger = mock(Logger.class);
 
 
-        it.should("detect local machines", expect -> {
-            AgentRunner.run("InfiniteExample", runner -> {
-                final int expectedProcessId = runner.getProcessId();
-                new LocalMachineSource(logger, new MachineListener() {
+            it.should("detect local machines", expect -> {
+                AgentRunner.run("InfiniteExample", runner -> {
+                    final int expectedProcessId = runner.getProcessId();
+                    new LocalMachineSource(logger, new MachineListener()
+                    {
+                        @Override
+                        public void onNewMachine(final VirtualMachine machine)
+                        {
+                            int machineProcessId = Integer.parseInt(machine.getId());
+                            expect.that(machine.isAgentLoaded()).is(machineProcessId == expectedProcessId);
+                        }
+
+                        @Override
+                        public void onClosedMachine(final VirtualMachine machine)
+                        {
+                            expect.failure("Should never close VM " + machine);
+                        }
+                    }).discoverVirtualMachines();
+                });
+            });
+
+            it.should("detect no local machines if none are running", expect -> {
+                new LocalMachineSource(logger, new MachineListener()
+                {
                     @Override
-                    public void onNewMachine(final VirtualMachine machine) {
-                        int machineProcessId = Integer.parseInt(machine.getId());
-                        expect.that(machine.isAgentLoaded()).is(machineProcessId == expectedProcessId);
+                    public void onNewMachine(final VirtualMachine machine)
+                    {
+                        expect.that(machine.isAgentLoaded()).is(false);
                     }
 
                     @Override
-                    public void onClosedMachine(final VirtualMachine machine) {
+                    public void onClosedMachine(final VirtualMachine machine)
+                    {
                         expect.failure("Should never close VM " + machine);
                     }
                 }).discoverVirtualMachines();
             });
+
         });
 
-        it.should("detect no local machines if none are running", expect -> {
-            new LocalMachineSource(logger, new MachineListener() {
-                @Override
-                public void onNewMachine(final VirtualMachine machine) {
-                    expect.that(machine.isAgentLoaded()).is(false);
-                }
-
-                @Override
-                public void onClosedMachine(final VirtualMachine machine) {
-                    expect.failure("Should never close VM " + machine);
-                }
-            }).discoverVirtualMachines();
-        });
-
-    });
-
-}}
+    }}

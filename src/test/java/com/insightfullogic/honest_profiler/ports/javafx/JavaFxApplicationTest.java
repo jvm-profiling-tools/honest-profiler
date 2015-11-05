@@ -1,16 +1,16 @@
 /**
  * Copyright (c) 2014 Richard Warburton (richard.warburton@gmail.com)
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
  * and/or sell copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -37,11 +37,13 @@ import static org.hamcrest.Matchers.is;
 import static org.loadui.testfx.Assertions.assertNodeExists;
 import static org.loadui.testfx.controls.TableViews.numberOfRowsIn;
 
-public class JavaFxApplicationTest extends GuiTest {
+public class JavaFxApplicationTest extends GuiTest
+{
 
     @Ignore
     @Test
-    public void loadsLog() throws InterruptedException {
+    public void loadsLog() throws InterruptedException
+    {
         // autocompletes
         click("Open").type("exa").type(ENTER);
 
@@ -49,14 +51,19 @@ public class JavaFxApplicationTest extends GuiTest {
         await(() -> assertNodeExists("Example.subMethod"), 500);
     }
 
-    private void await(Runnable assertion, long timeoutInMS) {
+    private void await(Runnable assertion, long timeoutInMS)
+    {
         long deadline = currentTimeMillis() + timeoutInMS;
 
-        while (deadline > currentTimeMillis()) {
-            try {
+        while (deadline > currentTimeMillis())
+        {
+            try
+            {
                 assertion.run();
                 return;
-            } catch (NodeQueryException e) {
+            }
+            catch (NodeQueryException e)
+            {
                 // deliberately blank
             }
             sleep(25);
@@ -64,12 +71,14 @@ public class JavaFxApplicationTest extends GuiTest {
         assertion.run();
     }
 
-    private <T> void verifyFuture(Callable<T> callable, Matcher<T> condition) {
+    private <T> void verifyFuture(Callable<T> callable, Matcher<T> condition)
+    {
         waitUntil(callable, condition);
     }
 
     @Override
-    protected Parent getRootNode() {
+    protected Parent getRootNode()
+    {
         MutablePicoContainer pico = JavaFXApplication.registerComponents();
         PicoFXLoader loader = pico.getComponent(PicoFXLoader.class);
         return loader.load("ProfileView.fxml");

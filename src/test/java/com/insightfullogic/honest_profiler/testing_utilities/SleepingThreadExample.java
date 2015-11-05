@@ -1,16 +1,16 @@
 /**
  * Copyright (c) 2014 Richard Warburton (richard.warburton@gmail.com)
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
  * and/or sell copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,22 +21,28 @@
  **/
 package com.insightfullogic.honest_profiler.testing_utilities;
 
-public class SleepingThreadExample {
+public class SleepingThreadExample
+{
 
-    public static void main(String[] args) throws Exception {
-        while (true) {
+    public static void main(String[] args) throws Exception
+    {
+        while (true)
+        {
             long time = System.currentTimeMillis();
             Thread.sleep(500);
-            if ((System.currentTimeMillis() - time) < 500) {
+            if ((System.currentTimeMillis() - time) < 500)
+            {
                 System.out.println("Sleep has been broken");
             }
-            for (int i = 0; i < 1000; i++) {
+            for (int i = 0; i < 1000; i++)
+            {
                 subMethod();
             }
         }
     }
 
-    private static void subMethod() {
+    private static void subMethod()
+    {
         System.out.println("calling some code, lalala");
     }
 

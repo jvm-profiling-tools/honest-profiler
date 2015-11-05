@@ -1,16 +1,16 @@
 /**
  * Copyright (c) 2014 Richard Warburton (richard.warburton@gmail.com)
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
  * and/or sell copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -33,7 +33,6 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.insightfullogic.lambdabehave.Suite.describe;
@@ -41,89 +40,92 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.concurrent.locks.LockSupport.parkNanos;
 
 @RunWith(JunitSuiteRunner.class)
-public class AgentIntegrationTest {{
+public class AgentIntegrationTest
+{
+    {
 
-    describe("Agent Integration", it -> {
+        describe("Agent Integration", it -> {
 
-        it.should("should result in a monitorable JVM", expect -> {
-            AgentRunner.run("InfiniteExample", runner -> {
-                int seenTraceCount = 0;
+            it.should("should result in a monitorable JVM", expect -> {
+                AgentRunner.run("InfiniteExample", runner -> {
+                    int seenTraceCount = 0;
 
-                AtomicReference<Profile> lastProfile = new AtomicReference<>();
-                parkNanos(SECONDS.toNanos(10));
+                    AtomicReference<Profile> lastProfile = new AtomicReference<>();
+                    parkNanos(SECONDS.toNanos(10));
 
-                new LocalMachineSource(logger, new MachineListener() {
-                    @Override
-                    public void onNewMachine(final VirtualMachine machine) {
-                        if (machine.isAgentLoaded()) {
-                            Monitor.pipeFile(machine.getLogSource(), lastProfile::set);
+                    new LocalMachineSource(logger, new MachineListener()
+                    {
+                        @Override
+                        public void onNewMachine(final VirtualMachine machine)
+                        {
+                            if (machine.isAgentLoaded())
+                            {
+                                Monitor.pipeFile(machine.getLogSource(), lastProfile::set);
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onClosedMachine(final VirtualMachine machine) {
+                        @Override
+                        public void onClosedMachine(final VirtualMachine machine)
+                        {
 
-                    }
-                }).discoverVirtualMachines();
+                        }
+                    }).discoverVirtualMachines();
 
-                seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
+                    seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
 
-                seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
+                    seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
 
-                seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
+                    seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
+                });
             });
         });
-    });
 
-    describe("Agent start/stop", it -> {
+        describe("Agent start/stop", it -> {
 
-        it.should("should result in a monitorable JVM", expect -> {
-            AgentRunner.run("InfiniteExample", "start=0", runner -> {
-                int seenTraceCount = 0;
+            it.should("should result in a monitorable JVM", expect -> {
+                AgentRunner.run("InfiniteExample", "start=0", runner -> {
+                    int seenTraceCount = 0;
 
-                AtomicReference<Profile> lastProfile = new AtomicReference<>();
-                parkNanos(SECONDS.toNanos(1));
+                    AtomicReference<Profile> lastProfile = new AtomicReference<>();
+                    parkNanos(SECONDS.toNanos(1));
 
-                new LocalMachineSource(logger, new MachineListener() {
-                    @Override
-                    public void onNewMachine(final VirtualMachine machine) {
-                        if (machine.isAgentLoaded()) {
-                            Monitor.pipeFile(machine.getLogSource(), lastProfile::set);
+                    new LocalMachineSource(logger, new MachineListener()
+                    {
+                        @Override
+                        public void onNewMachine(final VirtualMachine machine)
+                        {
+                            if (machine.isAgentLoaded())
+                            {
+                                Monitor.pipeFile(machine.getLogSource(), lastProfile::set);
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onClosedMachine(final VirtualMachine machine) {
+                        @Override
+                        public void onClosedMachine(final VirtualMachine machine)
+                        {
 
-                    }
-                }).discoverVirtualMachines();
+                        }
+                    }).discoverVirtualMachines();
 
-                seenTraceCount = expectNonIncreasingTraceCount(expect, seenTraceCount, lastProfile);
-                try {
+                    seenTraceCount = expectNonIncreasingTraceCount(expect, seenTraceCount, lastProfile);
                     runner.startProfiler();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
 
-                seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
-                try {
+                    seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
                     runner.stopProfiler();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
 
-                seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
-                seenTraceCount = expectNonIncreasingTraceCount(expect, seenTraceCount, lastProfile);
+                    seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
+                    seenTraceCount = expectNonIncreasingTraceCount(expect, seenTraceCount, lastProfile);
 
+                });
             });
         });
-    });
 
-}
+    }
 
     private static Logger logger = LoggerFactory.getLogger(AgentIntegrationTest.class);
 
-    int expectIncreasingTraceCount(Expect expect, int seenTraceCount, AtomicReference<Profile> lastProfile) {
+    int expectIncreasingTraceCount(Expect expect, int seenTraceCount, AtomicReference<Profile> lastProfile)
+    {
         logger.debug("Last seen trace count is {}", seenTraceCount);
         parkNanos(SECONDS.toNanos(1));
         Profile profile = lastProfile.get();
@@ -132,7 +134,8 @@ public class AgentIntegrationTest {{
         return currentTraceCount;
     }
 
-    int expectNonIncreasingTraceCount(Expect expect, int seenTraceCount, AtomicReference<Profile> lastProfile) {
+    int expectNonIncreasingTraceCount(Expect expect, int seenTraceCount, AtomicReference<Profile> lastProfile)
+    {
         logger.debug("Last seen trace count is {}", seenTraceCount);
         parkNanos(SECONDS.toNanos(1));
         Profile profile = lastProfile.get();

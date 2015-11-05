@@ -1,16 +1,16 @@
 /**
  * Copyright (c) 2014 Richard Warburton (richard.warburton@gmail.com)
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
  * and/or sell copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
  * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -32,13 +32,15 @@ import java.util.Optional;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class FlatProfileTest {
+public class FlatProfileTest
+{
 
     private final FakeProfileListener listener = new FakeProfileListener();
     private final LogCollector collector = new LogCollector(listener, false);
 
     @Test
-    public void looksUpMethodNames() {
+    public void looksUpMethodNames()
+    {
         collector.handle(new TraceStart(1, 1));
         collector.handle(new StackFrame(20, 5));
         collector.handle(ProfileFixtures.println);
@@ -51,7 +53,8 @@ public class FlatProfileTest {
         assertEntry(ProfileFixtures.println, 1.0, profile.flatByMethodProfile().findFirst());
     }
 
-    private void assertEntry(Method method, double ratio, Optional<FlatProfileEntry> mbEntry) {
+    private void assertEntry(Method method, double ratio, Optional<FlatProfileEntry> mbEntry)
+    {
         assertTrue(mbEntry.isPresent());
         FlatProfileEntry entry = mbEntry.get();
         assertEquals(ratio, entry.getTotalTimeShare(), 0.00001);
@@ -60,7 +63,8 @@ public class FlatProfileTest {
     }
 
     @Test
-    public void calculateMajorityFlatProfiles() {
+    public void calculateMajorityFlatProfiles()
+    {
         TraceStart startTrace = new TraceStart(1, 1);
         collector.handle(startTrace);
         collector.handle(new StackFrame(20, 5));
@@ -77,11 +81,11 @@ public class FlatProfileTest {
         assertEquals(2L, profile.flatByMethodProfile().count());
 
         assertEntry(ProfileFixtures.println, 2.0 / 3, profile.flatByMethodProfile()
-                                             .findFirst());
+            .findFirst());
 
         assertEntry(ProfileFixtures.append, 1.0 / 3, profile.flatByMethodProfile()
-                .filter(e -> e.getTotalTimeShare() < 0.5)
-                .findFirst());
+            .filter(e -> e.getTotalTimeShare() < 0.5)
+            .findFirst());
     }
 
 }
