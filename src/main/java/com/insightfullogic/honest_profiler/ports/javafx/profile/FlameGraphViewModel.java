@@ -37,6 +37,6 @@ public class FlameGraphViewModel implements ProfileListener
     @Override
     public void accept(final Profile profile)
     {
-        flameView.display(profile.getFlameGraph());
+        flameView.accept(profile.getFlameGraph());
     }
 }

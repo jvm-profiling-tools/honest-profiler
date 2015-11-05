@@ -51,7 +51,7 @@ public class FlameGraphDemoApplication extends Application
         stage.setScene(new Scene(root));
         stage.show();
 
-        canvas.display(data);
+        canvas.accept(data);
     }
 
     @Override

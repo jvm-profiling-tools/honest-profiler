@@ -23,6 +23,7 @@ package com.insightfullogic.honest_profiler.ports.javafx.flame_graph;
 
 import com.insightfullogic.honest_profiler.core.parser.Method;
 import com.insightfullogic.honest_profiler.core.profiles.FlameGraph;
+import com.insightfullogic.honest_profiler.core.profiles.FlameGraphListener;
 import com.insightfullogic.honest_profiler.core.profiles.FlameTrace;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -41,7 +42,7 @@ import static com.insightfullogic.honest_profiler.ports.javafx.Rendering.renderM
 import static com.insightfullogic.honest_profiler.ports.javafx.Rendering.renderShortMethod;
 
 // TODO: remove any flame graph calculation logic from the canvas.
-public class FlameGraphCanvas extends Canvas
+public class FlameGraphCanvas extends Canvas implements FlameGraphListener
 {
     private static final Color START_COLOR = Color.BISQUE.deriveColor(0, 1.2, 1.0, 1.0);
 
@@ -82,15 +83,16 @@ public class FlameGraphCanvas extends Canvas
         }
     }
 
-    public void reRender()
+    public void refresh()
     {
         if (graph != null)
         {
-            display(graph);
+            accept(graph);
         }
     }
 
-    public void display(final FlameGraph graph)
+    @Override
+    public void accept(final FlameGraph graph)
     {
         this.graph = graph;
 

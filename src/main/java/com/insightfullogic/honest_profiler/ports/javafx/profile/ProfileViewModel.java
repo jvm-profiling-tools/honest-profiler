@@ -107,7 +107,7 @@ public class ProfileViewModel implements Initializable
             final Scene scene = flameGraphCanvas.getScene();
             flameGraphCanvas.setHeight(scene.getHeight());
             flameGraphCanvas.setWidth(scene.getHeight());
-            flameGraphCanvas.reRender();
+            flameGraphCanvas.refresh();
         }
     }
 
