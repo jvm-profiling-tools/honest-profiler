@@ -32,7 +32,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 /**
  * Application Service for monitoring logs
  */
-public class Monitor
+public final class Monitor
 {
 
     private Monitor()
@@ -47,21 +47,17 @@ public class Monitor
         moderator.start();
 
         final Conductor conductor = pipe(logSource, moderator, true);
-        new ThreadedAgent(getLogger(ThreadedAgent.class), conductor::run).start();
+        new ThreadedAgent(getLogger(ThreadedAgent.class), conductor::poll).start();
     }
 
     public static void consumeFile(final LogSource logSource, final ProfileListener listener)
     {
-        Conductor consumer = pipe(logSource, listener, false);
-        while (consumer.run())
-            ;
+        pipe(logSource, listener, false).run();
     }
 
     public static void consumeFile(final LogSource logSource, final LogEventListener listener)
     {
-        Conductor consumer = pipe(logSource, listener, false);
-        while (consumer.run())
-            ;
+        pipe(logSource, listener, false).run();
     }
 
     private static Conductor pipe(final LogSource logSource, final ProfileListener listener, final boolean continuous)
@@ -70,7 +66,7 @@ public class Monitor
         return pipe(logSource, collector, continuous);
     }
 
-    private static Conductor pipe(final LogSource logSource, LogEventListener listener, final boolean continuous)
+    public static Conductor pipe(final LogSource logSource, LogEventListener listener, final boolean continuous)
     {
         LogParser parser = new LogParser(getLogger(LogParser.class), listener);
         return new Conductor(getLogger(Conductor.class), logSource, parser, continuous);

@@ -51,7 +51,7 @@ public class Conductor
         this.continuous = continuous;
     }
 
-    public boolean run()
+    public boolean poll()
     {
         try
         {
@@ -86,6 +86,13 @@ public class Conductor
         }
 
         return false;
+    }
+
+    public void run()
+    {
+        while (poll())
+        {
+        }
     }
 
     private void logEndOfLog(final Object cause)

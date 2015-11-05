@@ -34,7 +34,6 @@ public class CachingProfileListener implements ProfileListener
     private final FlatViewModel flatModel;
     private final TreeViewModel treeModel;
     private final TraceCountViewModel countModel;
-    private final FlameGraphViewModel flameModel;
     private final ProfileFilter profileFilter;
 
     private Profile lastProfile;
@@ -44,14 +43,12 @@ public class CachingProfileListener implements ProfileListener
         final FlatViewModel flatModel,
         final TreeViewModel treeModel,
         final TraceCountViewModel countModel,
-        final FlameGraphViewModel flameModel,
         final ProfileFilter profileFilter)
     {
         this.logger = logger;
         this.flatModel = flatModel;
         this.treeModel = treeModel;
         this.countModel = countModel;
-        this.flameModel = flameModel;
         this.profileFilter = profileFilter;
     }
 
@@ -69,7 +66,6 @@ public class CachingProfileListener implements ProfileListener
                 flatModel.accept(profile);
                 treeModel.accept(profile);
                 countModel.accept(profile);
-                flameModel.accept(profile);
             }
             catch (Throwable t)
             {

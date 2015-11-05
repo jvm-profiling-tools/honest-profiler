@@ -19,61 +19,50 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.core;
+package com.insightfullogic.honest_profiler.core.parser;
 
-import org.slf4j.Logger;
+import java.util.ArrayList;
+import java.util.List;
 
-public class ThreadedAgent implements Runnable
+public class LogEventPublisher implements LogEventListener
 {
+    private final List<LogEventListener> listeners = new ArrayList<>();
 
-    public interface Block
+    public LogEventPublisher publishTo(final LogEventListener listener)
     {
-        /**
-         * @return false iff you're ready to stop, true otherwise
-         * @throws Exception
-         */
-        boolean run() throws Exception;
+        listeners.add(listener);
+        return this;
     }
 
-    private final Logger logger;
-    private final Block block;
-
-    private Thread thread;
-
-    public ThreadedAgent(final Logger logger, Block block)
+    public void handle(final TraceStart traceStart)
     {
-        this.logger = logger;
-        this.block = block;
-    }
-
-    public void start()
-    {
-        thread = new Thread(this);
-        thread.setDaemon(true);
-        thread.start();
-    }
-
-    public void stop()
-    {
-        thread.interrupt();
-    }
-
-    @Override
-    public void run()
-    {
-        logger.debug("Started");
-        try
+        for (LogEventListener listener : listeners)
         {
-            while (!Thread.currentThread().isInterrupted() && block.run())
-                ;
-
-            logger.debug(Thread.currentThread().getName() + " Stopped");
-        }
-        catch (Throwable throwable)
-        {
-            // Deliberately catching throwable since we're at the top of a thread
-            logger.error(throwable.getMessage(), throwable);
+            listener.handle(traceStart);
         }
     }
 
+    public void handle(final StackFrame stackFrame)
+    {
+        for (LogEventListener listener : listeners)
+        {
+            listener.handle(stackFrame);
+        }
+    }
+
+    public void handle(final Method newMethod)
+    {
+        for (LogEventListener listener : listeners)
+        {
+            listener.handle(newMethod);
+        }
+    }
+
+    public void endOfLog()
+    {
+        for (LogEventListener listener : listeners)
+        {
+            listener.endOfLog();
+        }
+    }
 }

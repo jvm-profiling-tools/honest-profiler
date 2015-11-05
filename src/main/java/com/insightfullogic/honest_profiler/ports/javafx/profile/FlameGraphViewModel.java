@@ -21,22 +21,22 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.profile;
 
-import com.insightfullogic.honest_profiler.core.profiles.Profile;
-import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
+import com.insightfullogic.honest_profiler.core.profiles.FlameGraph;
+import com.insightfullogic.honest_profiler.core.profiles.FlameGraphListener;
 import com.insightfullogic.honest_profiler.ports.javafx.flame_graph.FlameGraphCanvas;
 import javafx.fxml.FXML;
 
 /**
  * .
  */
-public class FlameGraphViewModel implements ProfileListener
+public class FlameGraphViewModel implements FlameGraphListener
 {
     @FXML
     private FlameGraphCanvas flameView;
 
     @Override
-    public void accept(final Profile profile)
+    public void accept(final FlameGraph flameGraph)
     {
-        flameView.accept(profile.getFlameGraph());
+        flameView.accept(flameGraph);
     }
 }

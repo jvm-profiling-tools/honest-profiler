@@ -47,26 +47,26 @@ public class ConductorTest
                 LogParser parser = new LogParser(logger, listener);
                 Conductor consumer = new Conductor(logger, Util.log0Source(), parser, false);
 
-                expect.that(consumer.run()).is(true);
+                expect.that(consumer.poll()).is(true);
                 verify(listener).handle(new TraceStart(2, 5));
 
-                expect.that(consumer.run()).is(true);
+                expect.that(consumer.poll()).is(true);
                 verify(listener).handle(new StackFrame(52, 1));
 
-                expect.that(consumer.run()).is(true);
+                expect.that(consumer.poll()).is(true);
                 verify(listener).handle(new Method(1, PRINT_STREAM_JAVA, PRINTSTREAM, "printf"));
 
-                expect.that(consumer.run()).is(true);
+                expect.that(consumer.poll()).is(true);
                 verify(listener).handle(new StackFrame(42, 2));
 
-                expect.that(consumer.run()).is(true);
+                expect.that(consumer.poll()).is(true);
                 verify(listener).handle(new Method(2, PRINT_STREAM_JAVA, PRINTSTREAM, "append"));
 
                 // Next record
-                expect.that(consumer.run()).is(true);
-                expect.that(consumer.run()).is(true);
-                expect.that(consumer.run()).is(true);
-                expect.that(consumer.run()).is(false);
+                expect.that(consumer.poll()).is(true);
+                expect.that(consumer.poll()).is(true);
+                expect.that(consumer.poll()).is(true);
+                expect.that(consumer.poll()).is(false);
 
                 verify(listener).endOfLog();
             });

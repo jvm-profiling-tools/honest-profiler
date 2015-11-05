@@ -23,6 +23,11 @@ package com.insightfullogic.honest_profiler.ports.javafx.landing;
 
 import com.insightfullogic.honest_profiler.core.MachineListener;
 import com.insightfullogic.honest_profiler.core.Monitor;
+import com.insightfullogic.honest_profiler.core.collector.FlameGraphCollector;
+import com.insightfullogic.honest_profiler.core.collector.LogCollector;
+import com.insightfullogic.honest_profiler.core.parser.LogEventListener;
+import com.insightfullogic.honest_profiler.core.parser.LogEventPublisher;
+import com.insightfullogic.honest_profiler.core.profiles.FlameGraphListener;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
 import com.insightfullogic.honest_profiler.core.sources.CantReadFromSourceException;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
@@ -58,16 +63,19 @@ public class LandingViewModel implements MachineListener
     private final Logger logger;
     private final WindowViewModel windowModel;
     private final ProfileListener profileListener;
+    private final FlameGraphListener flameGraphListener;
     private final Set<VirtualMachine> machines;
 
     public LandingViewModel(
         final Logger logger,
         final WindowViewModel windowModel,
-        final ProfileListener profileListener)
+        final ProfileListener profileListener,
+        final FlameGraphListener flameGraphListener)
     {
         this.logger = logger;
         this.windowModel = windowModel;
         this.profileListener = profileListener;
+        this.flameGraphListener = flameGraphListener;
         toggleMachines = new ToggleGroup();
         machines = new HashSet<>();
     }
@@ -93,7 +101,10 @@ public class LandingViewModel implements MachineListener
             windowModel.display(Profile);
             try
             {
-                Monitor.consumeFile(new FileLogSource(file), profileListener);
+                final LogEventListener collector = new LogEventPublisher()
+                    .publishTo(new LogCollector(profileListener, false))
+                    .publishTo(new FlameGraphCollector(flameGraphListener));
+                Monitor.pipe(new FileLogSource(file), collector, false).run();
             }
             catch (Exception e)
             {

@@ -21,12 +21,14 @@
  **/
 package com.insightfullogic.honest_profiler.core.collector;
 
+import com.insightfullogic.honest_profiler.core.Box;
 import com.insightfullogic.honest_profiler.core.Monitor;
 import com.insightfullogic.honest_profiler.core.parser.LogEventListener;
 import com.insightfullogic.honest_profiler.core.parser.Method;
 import com.insightfullogic.honest_profiler.core.parser.StackFrame;
 import com.insightfullogic.honest_profiler.core.parser.TraceStart;
 import com.insightfullogic.honest_profiler.core.profiles.FlameGraph;
+import com.insightfullogic.honest_profiler.core.profiles.FlameGraphListener;
 import com.insightfullogic.honest_profiler.core.profiles.FlameTrace;
 import com.insightfullogic.honest_profiler.core.sources.LogSource;
 
@@ -41,12 +43,18 @@ public class FlameGraphCollector implements LogEventListener
 {
     private final Map<Long, Method> methods = new HashMap<>();
     private final FlameGraph flameGraph = new FlameGraph();
+    private final FlameGraphListener listener;
 
     private FlameTrace trace;
     private List<Long> lastMethodIds = new ArrayList<>();
     private List<Long> currentMethodIds = new ArrayList<>();
 
     private static Method unknownMethod = new Method(-1, "<unknown>", "unknown.Unknown", "unknown");
+
+    public FlameGraphCollector(final FlameGraphListener listener)
+    {
+        this.listener = listener;
+    }
 
     @Override
     public void handle(TraceStart traceStart)
@@ -72,20 +80,18 @@ public class FlameGraphCollector implements LogEventListener
     public void endOfLog()
     {
         addCurrentTrace();
-    }
-
-    public FlameGraph collect()
-    {
-        return flameGraph;
+        listener.accept(flameGraph);
     }
 
     public static FlameGraph readFlamegraph(LogSource source) throws Exception
     {
-        FlameGraphCollector collector = new FlameGraphCollector();
+        Box<FlameGraph> box = new Box<>();
+
+        FlameGraphCollector collector = new FlameGraphCollector(box::accept);
 
         Monitor.consumeFile(source, collector);
 
-        return collector.collect();
+        return box.get();
     }
 
     private void addCurrentTrace()

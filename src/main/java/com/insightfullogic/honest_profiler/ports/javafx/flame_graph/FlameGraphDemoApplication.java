@@ -42,7 +42,7 @@ public class FlameGraphDemoApplication extends Application
         stage.setWidth(1920);
         stage.setHeight(1000);
 
-        FlameGraph data = readFlamegraph(new FileLogSource(new File("log-31325-1446202732716.hpl")));
+        FlameGraph data = readFlamegraph(new FileLogSource(new File("log-29423-1446747507580.hpl")));
         Group root = new Group();
         FlameGraphCanvas canvas = new FlameGraphCanvas();
         canvas.setWidth(1920);
