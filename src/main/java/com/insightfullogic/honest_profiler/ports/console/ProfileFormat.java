@@ -23,8 +23,8 @@ package com.insightfullogic.honest_profiler.ports.console;
 
 import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
 import com.insightfullogic.honest_profiler.core.collector.Frame;
-import com.insightfullogic.honest_profiler.core.collector.Profile;
-import com.insightfullogic.honest_profiler.core.collector.ProfileNode;
+import com.insightfullogic.honest_profiler.core.profiles.Profile;
+import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
 
 import java.io.PrintStream;
 import java.util.function.Consumer;

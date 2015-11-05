@@ -19,24 +19,42 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.ports.javafx.profile;
+package com.insightfullogic.honest_profiler.core.profiles;
 
-import com.insightfullogic.honest_profiler.core.ProfileListener;
-import com.insightfullogic.honest_profiler.core.collector.Profile;
-import com.insightfullogic.honest_profiler.ports.javafx.flame_graph.FlameGraphCanvas;
-import javafx.fxml.FXML;
-
-/**
- * .
- */
-public class FlameViewModel implements ProfileListener
+public final class ProfileTree
 {
-    @FXML
-    private FlameGraphCanvas flameView;
+
+    private final int numberOfSamples;
+    private final long threadId;
+    private final ProfileNode rootNode;
+
+    public ProfileTree(long threadId, ProfileNode rootNode, int numberOfSamples)
+    {
+        this.threadId = threadId;
+        this.rootNode = rootNode;
+        this.numberOfSamples = numberOfSamples;
+    }
+
+    public int getNumberOfSamples()
+    {
+        return numberOfSamples;
+    }
+
+    public ProfileNode getRootNode()
+    {
+        return rootNode;
+    }
+
+    public long getThreadId()
+    {
+        return threadId;
+    }
 
     @Override
-    public void accept(final Profile profile)
+    public String toString()
     {
-        flameView.display(profile.getFlameGraph());
+        return "ProfileTree{" +
+            rootNode +
+            '}';
     }
 }

@@ -22,6 +22,8 @@
  * Conducts the flow of information about logs themselves, currently streaming, historical, etc.
  * <p>
  * Conducts the flow of information about logs themselves, currently streaming, historical, etc.
+ * <p>
+ * Conducts the flow of information about logs themselves, currently streaming, historical, etc.
  */
 /**
  * Conducts the flow of information about logs themselves, currently streaming, historical, etc.

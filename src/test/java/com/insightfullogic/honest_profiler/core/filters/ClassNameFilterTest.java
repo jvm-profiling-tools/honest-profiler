@@ -22,7 +22,7 @@
 package com.insightfullogic.honest_profiler.core.filters;
 
 import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
-import com.insightfullogic.honest_profiler.core.collector.Profile;
+import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.core.parser.Method;
 import com.insightfullogic.lambdabehave.JunitSuiteRunner;
 import org.junit.runner.RunWith;

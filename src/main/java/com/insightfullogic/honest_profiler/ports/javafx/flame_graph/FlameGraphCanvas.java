@@ -21,9 +21,9 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.flame_graph;
 
-import com.insightfullogic.honest_profiler.core.collector.FlameGraph;
-import com.insightfullogic.honest_profiler.core.collector.FlameTrace;
 import com.insightfullogic.honest_profiler.core.parser.Method;
+import com.insightfullogic.honest_profiler.core.profiles.FlameGraph;
+import com.insightfullogic.honest_profiler.core.profiles.FlameTrace;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;

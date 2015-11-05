@@ -23,7 +23,7 @@ package com.insightfullogic.honest_profiler.system_tests;
 
 import com.insightfullogic.honest_profiler.core.MachineListener;
 import com.insightfullogic.honest_profiler.core.Monitor;
-import com.insightfullogic.honest_profiler.core.collector.Profile;
+import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
 import com.insightfullogic.honest_profiler.ports.sources.LocalMachineSource;

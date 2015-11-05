@@ -21,8 +21,8 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.profile;
 
-import com.insightfullogic.honest_profiler.core.ProfileListener;
-import com.insightfullogic.honest_profiler.core.collector.Profile;
+import com.insightfullogic.honest_profiler.core.profiles.Profile;
+import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 

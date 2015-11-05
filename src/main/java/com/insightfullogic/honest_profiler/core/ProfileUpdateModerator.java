@@ -21,7 +21,8 @@
  **/
 package com.insightfullogic.honest_profiler.core;
 
-import com.insightfullogic.honest_profiler.core.collector.Profile;
+import com.insightfullogic.honest_profiler.core.profiles.Profile;
+import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
 import org.slf4j.Logger;
 
 import java.util.concurrent.atomic.AtomicReference;

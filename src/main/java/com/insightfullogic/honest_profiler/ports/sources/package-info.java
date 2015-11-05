@@ -22,6 +22,8 @@
  * Infrastructure for methods of discovering machines and sources of logs.
  * <p>
  * Infrastructure for methods of discovering machines and sources of logs.
+ * <p>
+ * Infrastructure for methods of discovering machines and sources of logs.
  */
 /**
  * Infrastructure for methods of discovering machines and sources of logs.

@@ -26,6 +26,8 @@ import com.insightfullogic.honest_profiler.core.parser.LogEventListener;
 import com.insightfullogic.honest_profiler.core.parser.Method;
 import com.insightfullogic.honest_profiler.core.parser.StackFrame;
 import com.insightfullogic.honest_profiler.core.parser.TraceStart;
+import com.insightfullogic.honest_profiler.core.profiles.FlameGraph;
+import com.insightfullogic.honest_profiler.core.profiles.FlameTrace;
 import com.insightfullogic.honest_profiler.core.sources.LogSource;
 
 import java.util.ArrayList;

@@ -24,6 +24,7 @@ package com.insightfullogic.honest_profiler.core;
 import com.insightfullogic.honest_profiler.core.collector.LogCollector;
 import com.insightfullogic.honest_profiler.core.parser.LogEventListener;
 import com.insightfullogic.honest_profiler.core.parser.LogParser;
+import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
 import com.insightfullogic.honest_profiler.core.sources.LogSource;
 
 import static org.slf4j.LoggerFactory.getLogger;

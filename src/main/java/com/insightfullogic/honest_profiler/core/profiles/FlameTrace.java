@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Richard Warburton (richard.warburton@gmail.com)
+ * Copyright (c) 2014 Richard Warburton (richard.warburton@gmail.com)
  * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -19,39 +19,44 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.core.collector;
+package com.insightfullogic.honest_profiler.core.profiles;
 
-import java.util.ArrayList;
+import com.insightfullogic.honest_profiler.core.parser.Method;
+
+import java.util.Collections;
 import java.util.List;
 
-/**
- * Represents the stored data model for a flamegraph
- */
-public class FlameGraph
+public class FlameTrace
 {
-    private List<FlameTrace> traces = new ArrayList<>();
+    private final List<Method> methods;
 
-    public FlameGraph()
+    private long weight;
+
+    public FlameTrace(final List<Method> methods, final long weight)
     {
+        Collections.reverse(methods);
+
+        this.methods = methods;
+        this.weight = weight;
     }
 
-    public void onNewTrace(FlameTrace trace)
+    public long getWeight()
     {
-        traces.add(trace);
+        return weight;
     }
 
-    public List<FlameTrace> getTraces()
+    public List<Method> getMethods()
     {
-        return traces;
+        return methods;
     }
 
-    public long totalWeight()
+    public Method at(final int row)
     {
-        return traces.stream().mapToLong(FlameTrace::getWeight).sum();
+        return methods.size() > row ? methods.get(row) : null;
     }
 
-    public int maxTraceHeight()
+    public void incrementWeight()
     {
-        return traces.stream().mapToInt(trace -> trace.getMethods().size()).max().getAsInt();
+        weight++;
     }
 }

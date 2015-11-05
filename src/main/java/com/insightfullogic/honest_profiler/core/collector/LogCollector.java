@@ -21,11 +21,13 @@
  **/
 package com.insightfullogic.honest_profiler.core.collector;
 
-import com.insightfullogic.honest_profiler.core.ProfileListener;
 import com.insightfullogic.honest_profiler.core.parser.LogEventListener;
 import com.insightfullogic.honest_profiler.core.parser.Method;
 import com.insightfullogic.honest_profiler.core.parser.StackFrame;
 import com.insightfullogic.honest_profiler.core.parser.TraceStart;
+import com.insightfullogic.honest_profiler.core.profiles.Profile;
+import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
+import com.insightfullogic.honest_profiler.core.profiles.ProfileTree;
 
 import java.util.*;
 

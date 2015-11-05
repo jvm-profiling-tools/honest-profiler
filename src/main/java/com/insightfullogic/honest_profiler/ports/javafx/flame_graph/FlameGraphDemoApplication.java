@@ -21,7 +21,7 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.flame_graph;
 
-import com.insightfullogic.honest_profiler.core.collector.FlameGraph;
+import com.insightfullogic.honest_profiler.core.profiles.FlameGraph;
 import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
 import javafx.application.Application;
 import javafx.scene.Group;

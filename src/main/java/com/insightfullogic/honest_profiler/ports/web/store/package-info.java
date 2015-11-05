@@ -22,6 +22,8 @@
  * Responsible for storing streaming log data and retrieving historical log data.
  * <p>
  * Responsible for storing streaming log data and retrieving historical log data.
+ * <p>
+ * Responsible for storing streaming log data and retrieving historical log data.
  */
 /**
  * Responsible for storing streaming log data and retrieving historical log data.

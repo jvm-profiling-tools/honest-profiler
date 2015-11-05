@@ -19,35 +19,24 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.ports.web;
+package com.insightfullogic.honest_profiler.ports.javafx.profile;
 
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
+import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
+import com.insightfullogic.honest_profiler.ports.javafx.flame_graph.FlameGraphCanvas;
+import javafx.fxml.FXML;
 
-public class NewProfileMessage
+/**
+ * .
+ */
+public class FlameGraphViewModel implements ProfileListener
 {
+    @FXML
+    private FlameGraphCanvas flameView;
 
-    private final String id;
-    private final Profile profile;
-
-    public NewProfileMessage(String id, Profile profile)
+    @Override
+    public void accept(final Profile profile)
     {
-        this.id = id;
-        this.profile = profile;
+        flameView.display(profile.getFlameGraph());
     }
-
-    public Profile getProfile()
-    {
-        return profile;
-    }
-
-    public String getType()
-    {
-        return "newProfile";
-    }
-
-    public String getId()
-    {
-        return id;
-    }
-
 }

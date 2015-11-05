@@ -22,6 +22,8 @@
  * Core implementation for methods of discovering machines and sources of logs.
  * <p>
  * Core implementation for methods of discovering machines and sources of logs.
+ * <p>
+ * Core implementation for methods of discovering machines and sources of logs.
  */
 
 /**

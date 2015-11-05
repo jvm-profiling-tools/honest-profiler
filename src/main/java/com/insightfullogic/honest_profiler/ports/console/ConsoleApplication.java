@@ -22,8 +22,8 @@
 package com.insightfullogic.honest_profiler.ports.console;
 
 import com.insightfullogic.honest_profiler.core.Monitor;
-import com.insightfullogic.honest_profiler.core.ProfileListener;
 import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
+import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
 import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
 import com.insightfullogic.honest_profiler.ports.sources.LocalMachineSource;
 import org.fusesource.jansi.AnsiConsole;

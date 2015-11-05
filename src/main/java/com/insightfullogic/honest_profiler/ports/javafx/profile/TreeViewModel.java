@@ -21,10 +21,10 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.profile;
 
-import com.insightfullogic.honest_profiler.core.ProfileListener;
-import com.insightfullogic.honest_profiler.core.collector.Profile;
-import com.insightfullogic.honest_profiler.core.collector.ProfileNode;
-import com.insightfullogic.honest_profiler.core.collector.ProfileTree;
+import com.insightfullogic.honest_profiler.core.profiles.Profile;
+import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
+import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
+import com.insightfullogic.honest_profiler.core.profiles.ProfileTree;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TreeItem;

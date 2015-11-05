@@ -22,8 +22,8 @@
 package com.insightfullogic.honest_profiler.core.filters;
 
 import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
-import com.insightfullogic.honest_profiler.core.collector.Profile;
-import com.insightfullogic.honest_profiler.core.collector.ProfileNode;
+import com.insightfullogic.honest_profiler.core.profiles.Profile;
+import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
 
 abstract class TimeShareFilter implements Filter
 {

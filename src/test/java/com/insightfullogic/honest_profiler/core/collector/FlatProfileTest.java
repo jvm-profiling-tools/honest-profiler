@@ -24,6 +24,7 @@ package com.insightfullogic.honest_profiler.core.collector;
 import com.insightfullogic.honest_profiler.core.parser.Method;
 import com.insightfullogic.honest_profiler.core.parser.StackFrame;
 import com.insightfullogic.honest_profiler.core.parser.TraceStart;
+import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.testing_utilities.ProfileFixtures;
 import org.junit.Test;
 

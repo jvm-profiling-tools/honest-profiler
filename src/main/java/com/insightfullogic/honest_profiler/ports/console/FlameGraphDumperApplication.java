@@ -21,10 +21,10 @@
  **/
 package com.insightfullogic.honest_profiler.ports.console;
 
-import com.insightfullogic.honest_profiler.core.collector.FlameGraph;
 import com.insightfullogic.honest_profiler.core.collector.FlameGraphCollector;
-import com.insightfullogic.honest_profiler.core.collector.FlameTrace;
 import com.insightfullogic.honest_profiler.core.parser.Method;
+import com.insightfullogic.honest_profiler.core.profiles.FlameGraph;
+import com.insightfullogic.honest_profiler.core.profiles.FlameTrace;
 import com.insightfullogic.honest_profiler.core.sources.LogSource;
 import com.insightfullogic.honest_profiler.ports.javafx.Rendering;
 import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;

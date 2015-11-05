@@ -21,7 +21,7 @@
  **/
 package com.insightfullogic.honest_profiler.core.filters;
 
-import com.insightfullogic.honest_profiler.core.collector.Profile;
+import com.insightfullogic.honest_profiler.core.profiles.Profile;
 
 final class ThreadSampleFilter implements Filter
 {

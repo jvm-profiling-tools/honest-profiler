@@ -21,9 +21,9 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.profile;
 
-import com.insightfullogic.honest_profiler.core.ProfileListener;
-import com.insightfullogic.honest_profiler.core.collector.Profile;
 import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
+import com.insightfullogic.honest_profiler.core.profiles.Profile;
+import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
 import javafx.application.Platform;
 import org.slf4j.Logger;
 
@@ -34,7 +34,7 @@ public class CachingProfileListener implements ProfileListener
     private final FlatViewModel flatModel;
     private final TreeViewModel treeModel;
     private final TraceCountViewModel countModel;
-    private final FlameViewModel flameModel;
+    private final FlameGraphViewModel flameModel;
     private final ProfileFilter profileFilter;
 
     private Profile lastProfile;
@@ -44,7 +44,7 @@ public class CachingProfileListener implements ProfileListener
         final FlatViewModel flatModel,
         final TreeViewModel treeModel,
         final TraceCountViewModel countModel,
-        final FlameViewModel flameModel,
+        final FlameGraphViewModel flameModel,
         final ProfileFilter profileFilter)
     {
         this.logger = logger;

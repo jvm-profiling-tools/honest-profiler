@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Richard Warburton (richard.warburton@gmail.com)
+ * Copyright (c) 2015 Richard Warburton (richard.warburton@gmail.com)
  * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -19,11 +19,39 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.core;
+package com.insightfullogic.honest_profiler.core.profiles;
 
-import com.insightfullogic.honest_profiler.core.collector.Profile;
+import java.util.ArrayList;
+import java.util.List;
 
-public interface ProfileListener
+/**
+ * Represents the stored data model for a flamegraph
+ */
+public class FlameGraph
 {
-    void accept(Profile profile);
+    private List<FlameTrace> traces = new ArrayList<>();
+
+    public FlameGraph()
+    {
+    }
+
+    public void onNewTrace(FlameTrace trace)
+    {
+        traces.add(trace);
+    }
+
+    public List<FlameTrace> getTraces()
+    {
+        return traces;
+    }
+
+    public long totalWeight()
+    {
+        return traces.stream().mapToLong(FlameTrace::getWeight).sum();
+    }
+
+    public int maxTraceHeight()
+    {
+        return traces.stream().mapToInt(trace -> trace.getMethods().size()).max().getAsInt();
+    }
 }

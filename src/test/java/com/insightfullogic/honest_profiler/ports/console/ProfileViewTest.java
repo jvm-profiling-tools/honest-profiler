@@ -22,9 +22,9 @@
 package com.insightfullogic.honest_profiler.ports.console;
 
 import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
-import com.insightfullogic.honest_profiler.core.collector.Profile;
-import com.insightfullogic.honest_profiler.core.collector.ProfileNode;
-import com.insightfullogic.honest_profiler.core.collector.ProfileTree;
+import com.insightfullogic.honest_profiler.core.profiles.Profile;
+import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
+import com.insightfullogic.honest_profiler.core.profiles.ProfileTree;
 import com.insightfullogic.honest_profiler.testing_utilities.ProfileFixtures;
 import org.junit.Test;
 

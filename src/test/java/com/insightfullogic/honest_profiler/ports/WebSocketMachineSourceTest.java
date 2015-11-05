@@ -23,7 +23,7 @@ package com.insightfullogic.honest_profiler.ports;
 
 import com.insightfullogic.honest_profiler.core.MachineListener;
 import com.insightfullogic.honest_profiler.core.Monitor;
-import com.insightfullogic.honest_profiler.core.ProfileListener;
+import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.insightfullogic.honest_profiler.ports.sources.Messages;
 import com.insightfullogic.honest_profiler.ports.sources.WebSocketMachineSource;

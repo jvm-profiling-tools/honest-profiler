@@ -21,7 +21,7 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.profile;
 
-import com.insightfullogic.honest_profiler.core.ProfileListener;
+import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
 import org.picocontainer.injectors.ProviderAdapter;
 
 public class ProfileListenerProvider extends ProviderAdapter

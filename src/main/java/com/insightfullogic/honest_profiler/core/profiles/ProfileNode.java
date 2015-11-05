@@ -19,7 +19,9 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.core.collector;
+package com.insightfullogic.honest_profiler.core.profiles;
+
+import com.insightfullogic.honest_profiler.core.collector.Frame;
 
 import java.util.List;
 import java.util.stream.Stream;

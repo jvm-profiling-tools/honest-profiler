@@ -19,42 +19,10 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.core.collector;
+package com.insightfullogic.honest_profiler.core.profiles;
 
-public final class ProfileTree
+import java.util.function.Consumer;
+
+public interface FlameGraphListener extends Consumer<FlameGraph>
 {
-
-    private final int numberOfSamples;
-    private final long threadId;
-    private final ProfileNode rootNode;
-
-    public ProfileTree(long threadId, ProfileNode rootNode, int numberOfSamples)
-    {
-        this.threadId = threadId;
-        this.rootNode = rootNode;
-        this.numberOfSamples = numberOfSamples;
-    }
-
-    public int getNumberOfSamples()
-    {
-        return numberOfSamples;
-    }
-
-    public ProfileNode getRootNode()
-    {
-        return rootNode;
-    }
-
-    public long getThreadId()
-    {
-        return threadId;
-    }
-
-    @Override
-    public String toString()
-    {
-        return "ProfileTree{" +
-            rootNode +
-            '}';
-    }
 }

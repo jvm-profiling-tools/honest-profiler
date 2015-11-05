@@ -19,44 +19,10 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.core.collector;
+package com.insightfullogic.honest_profiler.core.profiles;
 
-import com.insightfullogic.honest_profiler.core.parser.Method;
+import java.util.function.Consumer;
 
-import java.util.Collections;
-import java.util.List;
-
-public class FlameTrace
+public interface ProfileListener extends Consumer<Profile>
 {
-    private final List<Method> methods;
-
-    private long weight;
-
-    public FlameTrace(final List<Method> methods, final long weight)
-    {
-        Collections.reverse(methods);
-
-        this.methods = methods;
-        this.weight = weight;
-    }
-
-    public long getWeight()
-    {
-        return weight;
-    }
-
-    public List<Method> getMethods()
-    {
-        return methods;
-    }
-
-    public Method at(final int row)
-    {
-        return methods.size() > row ? methods.get(row) : null;
-    }
-
-    public void incrementWeight()
-    {
-        weight++;
-    }
 }
