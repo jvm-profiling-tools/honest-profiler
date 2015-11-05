@@ -29,6 +29,7 @@ import com.insightfullogic.honest_profiler.ports.sources.LocalMachineSource;
 import com.insightfullogic.honest_profiler.testing_utilities.AgentRunner;
 import com.insightfullogic.lambdabehave.JunitSuiteRunner;
 import com.insightfullogic.lambdabehave.expectations.Expect;
+import org.hamcrest.Matcher;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import static com.insightfullogic.lambdabehave.Suite.describe;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.concurrent.locks.LockSupport.parkNanos;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
 
 @RunWith(JunitSuiteRunner.class)
 public class AgentIntegrationTest
@@ -50,26 +53,7 @@ public class AgentIntegrationTest
                 AgentRunner.run("InfiniteExample", runner -> {
                     int seenTraceCount = 0;
 
-                    AtomicReference<Profile> lastProfile = new AtomicReference<>();
-                    parkNanos(SECONDS.toNanos(10));
-
-                    new LocalMachineSource(logger, new MachineListener()
-                    {
-                        @Override
-                        public void onNewMachine(final VirtualMachine machine)
-                        {
-                            if (machine.isAgentLoaded())
-                            {
-                                Monitor.pipeFile(machine.getLogSource(), lastProfile::set);
-                            }
-                        }
-
-                        @Override
-                        public void onClosedMachine(final VirtualMachine machine)
-                        {
-
-                        }
-                    }).discoverVirtualMachines();
+                    AtomicReference<Profile> lastProfile = discoverVirtualMachines();
 
                     seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
 
@@ -78,34 +62,12 @@ public class AgentIntegrationTest
                     seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
                 });
             });
-        });
 
-        describe("Agent start/stop", it -> {
-
-            it.should("should result in a monitorable JVM", expect -> {
+            it.should("should be able to start/stop the JVM", expect -> {
                 AgentRunner.run("InfiniteExample", "start=0", runner -> {
                     int seenTraceCount = 0;
 
-                    AtomicReference<Profile> lastProfile = new AtomicReference<>();
-                    parkNanos(SECONDS.toNanos(1));
-
-                    new LocalMachineSource(logger, new MachineListener()
-                    {
-                        @Override
-                        public void onNewMachine(final VirtualMachine machine)
-                        {
-                            if (machine.isAgentLoaded())
-                            {
-                                Monitor.pipeFile(machine.getLogSource(), lastProfile::set);
-                            }
-                        }
-
-                        @Override
-                        public void onClosedMachine(final VirtualMachine machine)
-                        {
-
-                        }
-                    }).discoverVirtualMachines();
+                    AtomicReference<Profile> lastProfile = discoverVirtualMachines();
 
                     seenTraceCount = expectNonIncreasingTraceCount(expect, seenTraceCount, lastProfile);
                     runner.startProfiler();
@@ -115,32 +77,60 @@ public class AgentIntegrationTest
 
                     seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
                     seenTraceCount = expectNonIncreasingTraceCount(expect, seenTraceCount, lastProfile);
-
                 });
             });
         });
 
     }
 
+    private AtomicReference<Profile> discoverVirtualMachines()
+    {
+        AtomicReference<Profile> lastProfile = new AtomicReference<>();
+        parkNanos(SECONDS.toNanos(1));
+
+        new LocalMachineSource(logger, new MachineListener()
+        {
+            @Override
+            public void onNewMachine(final VirtualMachine machine)
+            {
+                if (machine.isAgentLoaded())
+                {
+                    Monitor.pipeFile(machine.getLogSource(), lastProfile::set);
+                }
+            }
+
+            @Override
+            public void onClosedMachine(final VirtualMachine machine)
+            {
+
+            }
+        }).discoverVirtualMachines();
+
+        return lastProfile;
+    }
+
     private static Logger logger = LoggerFactory.getLogger(AgentIntegrationTest.class);
 
     int expectIncreasingTraceCount(Expect expect, int seenTraceCount, AtomicReference<Profile> lastProfile)
     {
-        logger.debug("Last seen trace count is {}", seenTraceCount);
-        parkNanos(SECONDS.toNanos(1));
-        Profile profile = lastProfile.get();
-        int currentTraceCount = profile == null ? 0 : profile.getTraceCount();
-        expect.that(currentTraceCount).isGreaterThan(seenTraceCount);
-        return currentTraceCount;
+        return expectTraceCount(expect, seenTraceCount, greaterThan(seenTraceCount), lastProfile);
     }
 
     int expectNonIncreasingTraceCount(Expect expect, int seenTraceCount, AtomicReference<Profile> lastProfile)
+    {
+        return expectTraceCount(expect, seenTraceCount, equalTo(seenTraceCount), lastProfile);
+    }
+
+    private int expectTraceCount(final Expect expect,
+                                 final int seenTraceCount,
+                                 final Matcher<Integer> matcher,
+                                 final AtomicReference<Profile> lastProfile)
     {
         logger.debug("Last seen trace count is {}", seenTraceCount);
         parkNanos(SECONDS.toNanos(1));
         Profile profile = lastProfile.get();
         int currentTraceCount = profile == null ? 0 : profile.getTraceCount();
-        expect.that(currentTraceCount).isEqualTo(seenTraceCount);
+        expect.that(currentTraceCount).is(matcher);
         return currentTraceCount;
     }
 }
