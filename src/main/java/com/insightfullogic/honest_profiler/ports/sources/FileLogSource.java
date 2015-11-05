@@ -85,6 +85,11 @@ public class FileLogSource implements LogSource
         return buffer;
     }
 
+    public File getFile()
+    {
+        return file;
+    }
+
     @Override
     public void close() throws IOException
     {
@@ -98,5 +103,4 @@ public class FileLogSource implements LogSource
             "file=" + file +
             '}';
     }
-
 }

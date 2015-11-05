@@ -25,6 +25,7 @@ import com.insightfullogic.honest_profiler.core.MachineListener;
 import com.insightfullogic.honest_profiler.core.Monitor;
 import com.insightfullogic.honest_profiler.core.collector.Profile;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
+import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
 import com.insightfullogic.honest_profiler.ports.sources.LocalMachineSource;
 import com.insightfullogic.honest_profiler.testing_utilities.AgentRunner;
 import com.insightfullogic.lambdabehave.JunitSuiteRunner;
@@ -45,12 +46,25 @@ import static org.hamcrest.Matchers.greaterThan;
 @RunWith(JunitSuiteRunner.class)
 public class AgentIntegrationTest
 {
+    private AtomicReference<FileLogSource> file = new AtomicReference<>();
+
     {
 
         describe("Agent Integration", it -> {
 
-            it.should("should result in a monitorable JVM", expect -> {
-                AgentRunner.run("InfiniteExample", runner -> {
+            it.isConcludedWith(() ->
+            {
+                final FileLogSource source = file.get();
+                if (source != null)
+                {
+                    source.getFile().delete();
+                }
+            });
+
+            it.should("should result in a monitorable JVM", expect ->
+            {
+                AgentRunner.run("InfiniteExample", runner ->
+                {
                     int seenTraceCount = 0;
 
                     AtomicReference<Profile> lastProfile = discoverVirtualMachines();
@@ -63,8 +77,10 @@ public class AgentIntegrationTest
                 });
             });
 
-            it.should("should be able to start/stop the JVM", expect -> {
-                AgentRunner.run("InfiniteExample", "start=0", runner -> {
+            it.should("should be able to start/stop the JVM", expect ->
+            {
+                AgentRunner.run("InfiniteExample", "start=0", runner ->
+                {
                     int seenTraceCount = 0;
 
                     AtomicReference<Profile> lastProfile = discoverVirtualMachines();
@@ -83,6 +99,7 @@ public class AgentIntegrationTest
 
     }
 
+
     private AtomicReference<Profile> discoverVirtualMachines()
     {
         AtomicReference<Profile> lastProfile = new AtomicReference<>();
@@ -95,7 +112,9 @@ public class AgentIntegrationTest
             {
                 if (machine.isAgentLoaded())
                 {
-                    Monitor.pipeFile(machine.getLogSource(), lastProfile::set);
+                    final FileLogSource logSource = (FileLogSource) machine.getLogSource();
+                    file.set(logSource);
+                    Monitor.pipeFile(logSource, lastProfile::set);
                 }
             }
 
@@ -111,12 +130,12 @@ public class AgentIntegrationTest
 
     private static Logger logger = LoggerFactory.getLogger(AgentIntegrationTest.class);
 
-    int expectIncreasingTraceCount(Expect expect, int seenTraceCount, AtomicReference<Profile> lastProfile)
+    private int expectIncreasingTraceCount(Expect expect, int seenTraceCount, AtomicReference<Profile> lastProfile)
     {
         return expectTraceCount(expect, seenTraceCount, greaterThan(seenTraceCount), lastProfile);
     }
 
-    int expectNonIncreasingTraceCount(Expect expect, int seenTraceCount, AtomicReference<Profile> lastProfile)
+    private int expectNonIncreasingTraceCount(Expect expect, int seenTraceCount, AtomicReference<Profile> lastProfile)
     {
         return expectTraceCount(expect, seenTraceCount, equalTo(seenTraceCount), lastProfile);
     }
