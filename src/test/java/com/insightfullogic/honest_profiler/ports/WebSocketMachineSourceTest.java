@@ -25,7 +25,6 @@ import com.insightfullogic.honest_profiler.core.MachineListener;
 import com.insightfullogic.honest_profiler.core.Monitor;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
-import com.insightfullogic.honest_profiler.ports.sources.Messages;
 import com.insightfullogic.honest_profiler.ports.sources.WebSocketMachineSource;
 import com.insightfullogic.lambdabehave.JunitSuiteRunner;
 import org.junit.Ignore;
@@ -46,11 +45,7 @@ public class WebSocketMachineSourceTest
     {
         describe("Web Socket Machine Finder", it -> {
 
-            byte[] newMachine = Messages.NewMachine.newBuilder()
-                .setDisplayName("com.intellij.idea.Main")
-                .setId("123@erdos")
-                .build()
-                .toByteArray();
+            byte[] newMachine = null;
 
             VirtualMachine machine = new VirtualMachine("123@erdos", "com.intellij.idea.Main", true, "");
             WebSocketConnection connection = mock(WebSocketConnection.class);

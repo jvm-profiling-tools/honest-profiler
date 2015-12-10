@@ -21,7 +21,6 @@
  **/
 package com.insightfullogic.honest_profiler.ports.sources;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import com.insightfullogic.honest_profiler.core.Conductor;
 import com.insightfullogic.honest_profiler.core.MachineListener;
 import com.insightfullogic.honest_profiler.core.Monitor;
@@ -85,21 +84,15 @@ public class WebSocketMachineSource extends BaseWebSocketHandler
 
     private void newMachine(WebSocketConnection connection, byte[] message)
     {
-        try
-        {
-            Messages.NewMachine newMachine = Messages.NewMachine.parseFrom(message);
+            /*Messages.NewMachine newMachine = Messages.NewMachine.parseFrom(message);
             VirtualMachine machine = new VirtualMachine(newMachine.getId(), newMachine.getDisplayName(), true, "");
             listener.onNewMachine(machine);
+            */
             /*ProfileListener profileListener = listener.onNewMachine(machine);
             if (profileListener != null) {
                 DataConsumer consumer = conductor.pipeData(machine, profileListener);
                 machines.put(connection, consumer);
             }*/
-        }
-        catch (InvalidProtocolBufferException e)
-        {
-            logger.error(e.getMessage(), e);
-        }
     }
 
 }
