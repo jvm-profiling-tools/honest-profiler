@@ -9,7 +9,7 @@
 #include "stacktraces.h"
 #include <string.h>
 
-#if __GNUC__ == 4 && __GNUC_MINOR < 6
+#if __GNUC__ == 4 && __GNUC_MINOR__ < 6
   #include <cstdatomic>
 #else
   #include <atomic>
