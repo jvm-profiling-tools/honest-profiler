@@ -1,8 +1,5 @@
 #include <thread>
-#include <atomic>
-
 #include <iostream>
-
 #include "processor.h"
 
 #ifdef WINDOWS
@@ -71,16 +68,17 @@ void Processor::run() {
     handler_.stopSigprof();
 }
 
+void callbackToRunProcessor(jvmtiEnv *jvmti_env, JNIEnv *jni_env, void *arg) {
+    IMPLICITLY_USE(jvmti_env);
+    IMPLICITLY_USE(jni_env);
+    Processor *processor = (Processor *) arg;
+    processor->run();
+}
+
 void Processor::start(JNIEnv *jniEnv) {
     std::cout << "Start\n";
     jthread thread = newThread(jniEnv);
-    jvmtiStartFunction callback =
-            [](jvmtiEnv *jvmti_env, JNIEnv *jni_env, void *arg) {
-                IMPLICITLY_USE(jvmti_env);
-                IMPLICITLY_USE(jni_env);
-                Processor *processor = (Processor *) arg;
-                processor->run();
-            };
+    jvmtiStartFunction callback = callbackToRunProcessor;
     jvmti_->RunAgentThread(thread, callback, this, JVMTI_THREAD_NORM_PRIORITY);
 }
 

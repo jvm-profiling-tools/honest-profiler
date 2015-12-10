@@ -9,7 +9,12 @@
 #include "stacktraces.h"
 #include <string.h>
 
-#include <atomic>
+#if __GNUC__ == 4 && __GNUC_MINOR < 6
+  #include <cstdatomic>
+#else
+  #include <atomic>
+#endif
+
 #include <cstddef>
 
 const size_t Size = 1024;
