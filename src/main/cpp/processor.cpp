@@ -71,6 +71,13 @@ void Processor::run() {
 void callbackToRunProcessor(jvmtiEnv *jvmti_env, JNIEnv *jni_env, void *arg) {
     IMPLICITLY_USE(jvmti_env);
     IMPLICITLY_USE(jni_env);
+    //Avoid having the processor thread also receive the PROF signals
+    sigset_t mask;
+    sigemptyset(&mask);
+    sigaddset(&mask, SIGPROF);
+    if (pthread_sigmask(SIG_BLOCK, &mask, NULL) < 0) {
+        logError("Error setting processor thread signal mask\n");
+    }
     Processor *processor = (Processor *) arg;
     processor->run();
 }
