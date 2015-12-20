@@ -106,7 +106,12 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GLOBAL_WARNINGS} ${GLOBAL_COPTS} -pthr
 # Build
 
 add_library(${OUTPUT} SHARED ${SOURCE_FILES})
-target_link_libraries(${OUTPUT} ${JNI_LIBRARIES} dl)
+
+if ("${CMAKE_SYSTEM_NAME}" STREQUAL "FreeBSD") 
+    target_link_libraries(${OUTPUT} ${JNI_LIBRARIES})
+else()
+    target_link_libraries(${OUTPUT} ${JNI_LIBRARIES} dl)
+endif()
 
 add_executable(unitTests ${TEST_FILES})
 
