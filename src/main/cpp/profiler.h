@@ -76,6 +76,8 @@ private:
 
     SignalHandler handler_;
 
+    static std::atomic<int> handling_signal;
+
     static bool lookupFrameInformation(const JVMPI_CallFrame &frame,
             jvmtiEnv *jvmti,
             MethodListener &logWriter);
