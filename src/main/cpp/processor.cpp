@@ -34,12 +34,21 @@ static jthread newThread(JNIEnv *jniEnv) {
 }
 
 const uint MILLIS_IN_MICRO = 1000;
+pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t c = PTHREAD_COND_INITIALIZER;
 
 void sleep_for_millis(uint period) {
 #ifdef WINDOWS
     Sleep(period);
 #else
-    usleep(period * MILLIS_IN_MICRO);
+    pthread_mutex_lock(&mtx);
+    struct timeval curr_time;
+    struct timespec wakeup_time;
+    gettimeofday(&curr_time, NULL);
+    wakeup_time.tv_sec = curr_time.tv_sec;
+    wakeup_time.tv_nsec = (curr_time.tv_usec + period * MILLIS_IN_MICRO) * 1000;
+    pthread_cond_timedwait(&c, &mtx, &wakeup_time);
+    pthread_mutex_unlock(&mtx);
 #endif
 }
 
@@ -90,7 +99,11 @@ void Processor::start(JNIEnv *jniEnv) {
 }
 
 void Processor::stop() {
+    handler_.stopSigprof();
     isRunning_.store(false);
+    pthread_mutex_lock(&mtx);
+    pthread_cond_signal(&c);
+    pthread_mutex_unlock(&mtx);
     std::cout << "Stop\n";
 }
 
