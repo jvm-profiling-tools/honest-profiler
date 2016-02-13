@@ -61,9 +61,16 @@ bool Profiler::lookupFrameInformation(const JVMPI_CallFrame &frame,
     }*/
 }
 
+std::atomic<int> Profiler::handling_signal{0}; //Declared as static
+static int off = 0, on = 1;
+
 void Profiler::handle(int signum, siginfo_t *info, void *context) {
     IMPLICITLY_USE(signum);
     IMPLICITLY_USE(info);
+
+    if (!handling_signal.compare_exchange_weak(off, on)) {
+       return;
+    }
 
     // prepare sample data structure
     JVMPI_CallFrame frames[kMaxFramesToCapture];
@@ -77,10 +84,11 @@ void Profiler::handle(int signum, siginfo_t *info, void *context) {
     } else {
   		trace.env_id = jniEnv;
 	  	ASGCTType asgct = Asgct::GetAsgct();
-		  (*asgct)(&trace, kMaxFramesToCapture, context);
+		(*asgct)(&trace, kMaxFramesToCapture, context);
     }
     // log all samples, failures included, let the post processing sift through the data
-  	buffer->push(trace);
+    buffer->push(trace);
+    handling_signal.store(off);
 }
 
 JNIEnv *Profiler::getJNIEnv() {
