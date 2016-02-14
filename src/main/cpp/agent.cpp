@@ -50,8 +50,10 @@ void JNICALL OnVMInit(jvmtiEnv *jvmti, JNIEnv *jniEnv, jthread thread) {
         jclass klass = classList[i];
         CreateJMethodIDsForClass(jvmti, klass);
     }
+#if !defined(__APPLE__) && !defined(__FreeBSD__)
     if (CONFIGURATION->start)
         prof->start(jniEnv);
+#endif
 }
 
 void JNICALL OnClassPrepare(jvmtiEnv *jvmti_env, JNIEnv *jni_env,
@@ -84,6 +86,9 @@ static bool PrepareJvmti(jvmtiEnv *jvmti) {
     caps.can_get_line_numbers = 1;
     caps.can_get_bytecodes = 1;
     caps.can_get_constant_pool = 1;
+#if defined(__APPLE__) || defined(__FreeBSD__)
+    caps.can_generate_native_method_bind_events = 1;
+#endif
 
     jvmtiCapabilities all_caps;
     int error;
@@ -111,7 +116,77 @@ static bool PrepareJvmti(jvmtiEnv *jvmti) {
     return true;
 }
 
+sigset_t prof_signal_mask;
+
+void (*actual_JVM_StartThread)(JNIEnv *, jthread) = NULL;
+
+void JVM_StartThread_Interposer(JNIEnv *jni_env, jobject jthread) {
+    pthread_sigmask(SIG_BLOCK, &prof_signal_mask, NULL);
+    actual_JVM_StartThread(jni_env, jthread);
+    pthread_sigmask(SIG_UNBLOCK, &prof_signal_mask, NULL);
+}
+
+//Set up interposition of calls to Thread::run0
+void JNICALL
+OnNativeMethodBind(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread thread,
+                 jmethodID method, void *address, void **new_address_ptr) {
+    if (actual_JVM_StartThread != NULL) {
+        return;
+    }
+
+    char *name_ptr, *signature_ptr;
+
+    int err = jvmti_env->GetMethodName(method, &name_ptr, &signature_ptr, NULL);
+    if (err != JNI_OK) {
+        logError("Error %i retrieving method name", err);
+        return;
+    }
+    if (strcmp(name_ptr, "start0") == 0 && strcmp(signature_ptr, "()V") == 0) {
+        jclass declaringClass;
+        int err = jvmti_env->GetMethodDeclaringClass(method, &declaringClass);
+        if (err != JNI_OK) {
+            logError("Error %i retrieving class", err);
+            goto end;
+        }
+        jclass clazz = jni_env->GetObjectClass(declaringClass);
+        jmethodID getSimpleNameMethod = jni_env->GetMethodID(clazz,
+            "getSimpleName", "()Ljava/lang/String;");
+        jstring jClassName = (jstring) jni_env->CallObjectMethod(declaringClass,
+            getSimpleNameMethod);
+
+        const char *className = jni_env->GetStringUTFChars(jClassName, 0);
+        if (strcmp(className, "Thread") == 0) {
+            *new_address_ptr = (void*) &JVM_StartThread_Interposer;
+            actual_JVM_StartThread = (void (*)(JNIEnv *, jthread)) address;
+        }
+        jni_env->ReleaseStringUTFChars(jClassName, className);
+    }
+end:
+    jvmti_env->Deallocate((unsigned char *) name_ptr);
+    jvmti_env->Deallocate((unsigned char *) signature_ptr);
+}
+
+volatile bool main_started = false;
+
+void JNICALL
+OnThreadStart(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread thread) {
+    if (!main_started) {
+        jvmtiThreadInfo thread_info;
+        int error = jvmti_env->GetThreadInfo(thread, &thread_info);
+        if (error == JNI_OK) {
+            if (strcmp(thread_info.name, "main") == 0) {
+                main_started = true;
+                if (CONFIGURATION->start)
+                    prof->start(jni_env);
+            }
+        }
+    }
+    pthread_sigmask(SIG_UNBLOCK, &prof_signal_mask, NULL);
+}
+
 static bool RegisterJvmti(jvmtiEnv *jvmti) {
+    sigemptyset(&prof_signal_mask);
+    sigaddset(&prof_signal_mask, SIGPROF);
     // Create the list of callbacks to be called on given events.
     jvmtiEventCallbacks *callbacks = new jvmtiEventCallbacks();
     memset(callbacks, 0, sizeof(jvmtiEventCallbacks));
@@ -122,12 +197,20 @@ static bool RegisterJvmti(jvmtiEnv *jvmti) {
     callbacks->ClassLoad = &OnClassLoad;
     callbacks->ClassPrepare = &OnClassPrepare;
 
+    callbacks->NativeMethodBind = &OnNativeMethodBind;
+    callbacks->ThreadStart = &OnThreadStart;
+
     JVMTI_ERROR_1(
             (jvmti->SetEventCallbacks(callbacks, sizeof(jvmtiEventCallbacks))),
             false);
 
     jvmtiEvent events[] = {JVMTI_EVENT_CLASS_LOAD, JVMTI_EVENT_CLASS_PREPARE,
-            JVMTI_EVENT_VM_DEATH, JVMTI_EVENT_VM_INIT};
+        JVMTI_EVENT_VM_DEATH, JVMTI_EVENT_VM_INIT
+#if defined(__APPLE__) || defined(__FreeBSD__)
+        ,JVMTI_EVENT_THREAD_START,
+        JVMTI_EVENT_NATIVE_METHOD_BIND
+#endif
+    };
 
     size_t num_events = sizeof(events) / sizeof(jvmtiEvent);
 
