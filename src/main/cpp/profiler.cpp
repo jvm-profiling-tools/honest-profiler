@@ -65,9 +65,8 @@ void Profiler::handle(int signum, siginfo_t *info, void *context) {
     IMPLICITLY_USE(signum);
     IMPLICITLY_USE(info);
 
-    // prepare sample data structure
+    // sample data structure
     JVMPI_CallFrame frames[kMaxFramesToCapture];
-    safe_reset(frames, sizeof(JVMPI_CallFrame) * kMaxFramesToCapture);
 
     JVMPI_CallTrace trace;
     trace.frames = frames;
