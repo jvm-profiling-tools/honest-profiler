@@ -2,14 +2,6 @@
 #include <iostream>
 #include <unistd.h>
 
-void safe_reset(void *start, size_t size) {
-    char *base = reinterpret_cast<char *>(start);
-    char *end = base + size;
-    for (char *p = base; p < end; p++) {
-        *p = 0;
-    }
-}
-
 bool CircularQueue::push(const JVMPI_CallTrace &item) {
     size_t currentInput;
     size_t nextInput;

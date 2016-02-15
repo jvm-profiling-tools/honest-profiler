@@ -25,12 +25,6 @@ const size_t Size = 1024;
 // effective the gap acts as a sentinel
 const size_t Capacity = Size + 1;
 
-// We have to set every byte to 0 instead of just initializing the
-// individual fields, because the structs might be padded, and we
-// use memcmp on it later.  We can't use memset, because it isn't
-// async-safe.
-void safe_reset(void *start, size_t size);
-
 class QueueListener {
 public:
     virtual void record(const JVMPI_CallTrace &item) = 0;
