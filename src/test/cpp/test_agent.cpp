@@ -51,3 +51,22 @@ TEST(ParsesMultipleArguments) {
     CHECK_EQUAL(10, options.samplingIntervalMax);
     CHECK_EQUAL("/home/richard/log.hpl", options.logFilePath);
 }
+
+TEST(SafelyTerminatesStrings) {
+    char* string = (char *) "/home/richard/log.hpl";
+    char* result = safe_copy_string(string, NULL);
+
+    CHECK_EQUAL(std::string("/home/richard/log.hpl"), result);
+    CHECK_EQUAL('\0', result[21]);
+
+    free(result);
+
+    string = (char *) "/home/richard/log.hpl,interval=10";
+    char* next = string + 21;
+    result = safe_copy_string(string, next);
+
+    CHECK_EQUAL(std::string("/home/richard/log.hpl"), result);
+    CHECK_EQUAL('\0', result[21]);
+
+    free(result);
+}

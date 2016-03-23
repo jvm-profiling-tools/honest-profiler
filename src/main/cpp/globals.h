@@ -21,11 +21,11 @@ struct ConfigurationOptions {
     char* logFilePath;
     bool start;
 
-    void initializeDefaults() {
-        samplingIntervalMin = DEFAULT_SAMPLING_INTERVAL;
-        samplingIntervalMax = DEFAULT_SAMPLING_INTERVAL;
-        logFilePath = NULL;
-        start = true;
+    ConfigurationOptions() :
+            samplingIntervalMin(DEFAULT_SAMPLING_INTERVAL),
+            samplingIntervalMax(DEFAULT_SAMPLING_INTERVAL),
+            logFilePath(NULL),
+            start(true) {
     }
 };
 
