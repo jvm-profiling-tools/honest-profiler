@@ -1,4 +1,8 @@
+#ifdef __APPLE__
+#include <UnitTest++/UnitTest++/UnitTest++.h>
+#else
 #include <UnitTest++.h>
+#endif
 
 #include <thread>
 #include <vector>
