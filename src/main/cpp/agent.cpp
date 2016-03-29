@@ -142,8 +142,17 @@ static bool RegisterJvmti(jvmtiEnv *jvmti) {
     return true;
 }
 
+static char *safe_copy_string(const char *value, const char *next) {
+    size_t size = (next == 0) ? strlen(value) : (size_t) (next - value);
+    char *dest = (char *) malloc((size + 1) * sizeof(char));
+
+    strncpy(dest, value, size);
+    dest[size] = '\0';
+
+    return dest;
+}
+
 static void parseArguments(char *options, ConfigurationOptions &configuration) {
-    configuration.initializeDefaults();
     char* next = options;
     for (char *key = options; next != NULL; key = next + 1) {
         char *value = strchr(key, '=');
@@ -160,9 +169,7 @@ static void parseArguments(char *options, ConfigurationOptions &configuration) {
             } else if (strstr(key, "interval") == key) {
                 configuration.samplingIntervalMin = configuration.samplingIntervalMax = atoi(value);
             } else if (strstr(key, "logPath") == key) {
-                size_t  size = (next == 0) ? strlen(key) : (size_t) (next - value);
-                configuration.logFilePath = (char*) malloc(size * sizeof(char));
-                strncpy(configuration.logFilePath, value, size);
+                configuration.logFilePath = safe_copy_string(value, next);
             } else if (strstr(key, "start") == key) {
                 configuration.start = atoi(value);
             } else {
