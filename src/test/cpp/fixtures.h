@@ -1,3 +1,4 @@
+#include "test.h"
 #include "../../main/cpp/circular_queue.h"
 
 #ifndef FIXTURES_H

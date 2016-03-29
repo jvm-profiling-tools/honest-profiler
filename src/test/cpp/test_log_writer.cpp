@@ -1,15 +1,9 @@
-#ifdef __APPLE__
-#include <UnitTest++/UnitTest++/UnitTest++.h>
-#else
-#include <UnitTest++.h>
-#endif
 #include <iostream>
 #include <fstream>
 #include <limits>
-
 #include "fixtures.h"
 #include "ostreambuf.h"
-#include "../../main/cpp/circular_queue.h"
+#include "test.h"
 #include "../../main/cpp/log_writer.h"
 
 using std::ostream;
