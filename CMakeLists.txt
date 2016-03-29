@@ -68,7 +68,8 @@ set(TEST_FILES
     ${SRC_TEST}/test_circular_queue.cpp
     ${SRC_TEST}/test.cpp
     ${SRC_TEST}/test_log_writer.cpp
-    ${SRC_TEST}/test_agent.cpp)
+    ${SRC_TEST}/test_agent.cpp
+    ${SRC_TEST}/test.h)
 
 
 ##########################################################

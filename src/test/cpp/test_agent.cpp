@@ -1,13 +1,8 @@
-#ifdef __APPLE__
-#include <UnitTest++/UnitTest++/UnitTest++.h>
-#else
-#include <UnitTest++.h>
-#endif
-
 #include <thread>
 #include <vector>
 #include <iostream>
 #include "fixtures.h"
+#include "test.h"
 #include "../../main/cpp/agent.cpp"
 
 TEST(ParseSetsDefaultOptions) {
