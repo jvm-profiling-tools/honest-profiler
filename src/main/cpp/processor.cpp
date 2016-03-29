@@ -76,22 +76,28 @@ void callbackToRunProcessor(jvmtiEnv *jvmti_env, JNIEnv *jni_env, void *arg) {
     sigemptyset(&mask);
     sigaddset(&mask, SIGPROF);
     if (pthread_sigmask(SIG_BLOCK, &mask, NULL) < 0) {
-        logError("Error setting processor thread signal mask\n");
+        logError("ERROR: failed to set processor thread signal mask\n");
     }
     Processor *processor = (Processor *) arg;
     processor->run();
 }
 
 void Processor::start(JNIEnv *jniEnv) {
-    std::cout << "Start\n";
+    jvmtiError result;
+
+    std::cout << "Starting sampling\n";
     jthread thread = newThread(jniEnv);
     jvmtiStartFunction callback = callbackToRunProcessor;
-    jvmti_->RunAgentThread(thread, callback, this, JVMTI_THREAD_NORM_PRIORITY);
+    result = jvmti_->RunAgentThread(thread, callback, this, JVMTI_THREAD_NORM_PRIORITY);
+
+    if (result != JVMTI_ERROR_NONE) {
+        logError("ERROR: Running agent thread failed with: %d\n", result);
+    }
 }
 
 void Processor::stop() {
     isRunning_.store(false);
-    std::cout << "Stop\n";
+    std::cout << "Stopping sampling\n";
 }
 
 bool Processor::isRunning() const {

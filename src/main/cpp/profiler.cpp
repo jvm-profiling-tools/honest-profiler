@@ -22,7 +22,7 @@ bool Profiler::lookupFrameInformation(const JVMPI_CallFrame &frame,
                          "GetMethodName on a jmethodID involved in a stacktrace "
                          "resulted in an INVALID_METHODID error which usually "
                          "indicates its declaring class has been unloaded.\n");
-                logError("Unexpected JVMTI error %d in GetMethodName", error);
+                logError("Unexpected JVMTI error %d in GetMethodName\n", error);
             }
         }
         return false;
@@ -93,6 +93,11 @@ JNIEnv *Profiler::getJNIEnv() {
 }
 
 bool Profiler::start(JNIEnv *jniEnv) {
+    if (isRunning()) {
+        logError("WARN: Start called but sampling is already running\n");
+        return true;
+    }
+
     // reference back to Profiler::handle on the singleton
     // instance of Profiler
     handler_.SetAction(&bootstrapHandle);
