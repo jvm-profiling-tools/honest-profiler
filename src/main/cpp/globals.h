@@ -11,6 +11,7 @@
 class Profiler;
 
 void logError(const char *__restrict format, ...);
+
 Profiler *getProfiler();
 
 const int DEFAULT_SAMPLING_INTERVAL = 1;
@@ -19,12 +20,16 @@ struct ConfigurationOptions {
     /** Interval in microseconds */
     int samplingIntervalMin, samplingIntervalMax;
     char* logFilePath;
+    char* host;
+    char* port;
     bool start;
 
     ConfigurationOptions() :
             samplingIntervalMin(DEFAULT_SAMPLING_INTERVAL),
             samplingIntervalMax(DEFAULT_SAMPLING_INTERVAL),
             logFilePath(NULL),
+            host(NULL),
+            port(NULL),
             start(true) {
     }
 };
