@@ -17,15 +17,15 @@ static jthread newThread(JNIEnv *jniEnv) {
 
     thrClass = jniEnv->FindClass("java/lang/Thread");
     if (thrClass == NULL) {
-        logError("Cannot find Thread class\n");
+        logError("WARN: Cannot find Thread class\n");
     }
     cid = jniEnv->GetMethodID(thrClass, "<init>", "()V");
     if (cid == NULL) {
-        logError("Cannot find Thread constructor method\n");
+        logError("WARN: Cannot find Thread constructor method\n");
     }
     res = jniEnv->NewObject(thrClass, cid);
     if (res == NULL) {
-        logError("Cannot create new Thread object\n");
+        logError("WARN: Cannot create new Thread object\n");
     } else {
        jmethodID mid = jniEnv->GetMethodID(thrClass, "setName","(Ljava/lang/String;)V");
        jniEnv->CallObjectMethod(res, mid, jniEnv->NewStringUTF("Honest Profiler Daemon Thread"));  

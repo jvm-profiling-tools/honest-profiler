@@ -32,7 +32,7 @@ void CreateJMethodIDsForClass(jvmtiEnv *jvmti, jclass klass) {
         // be loaded but not prepared at this point.
         JvmtiScopedPtr<char> ksig(jvmti);
         JVMTI_ERROR((jvmti->GetClassSignature(klass, ksig.GetRef(), NULL)));
-        logError("Failed to create method IDs for methods in class %s with error %d ",
+        logError("ERROR: Failed to create method IDs for methods in class %s with error %d\n",
                  ksig.Get(), e);
     }
 }
@@ -104,7 +104,7 @@ static bool PrepareJvmti(jvmtiEnv *jvmti) {
 
         // This adds the capabilities.
         if ((error = jvmti->AddCapabilities(&caps)) != JVMTI_ERROR_NONE) {
-            logError("Failed to add capabilities with error %d\n", error);
+            logError("ERROR: Failed to add capabilities with error %d\n", error);
             return false;
         }
     }
@@ -158,7 +158,7 @@ static void parseArguments(char *options, ConfigurationOptions &configuration) {
         char *value = strchr(key, '=');
         next = strchr(key, ',');
         if (value == NULL) {
-            logError("No value for key %s\n", key);
+            logError("WARN: No value for key %s\n", key);
             continue;
         } else {
             value++;
@@ -173,7 +173,7 @@ static void parseArguments(char *options, ConfigurationOptions &configuration) {
             } else if (strstr(key, "start") == key) {
                 configuration.start = atoi(value);
             } else {
-                logError("Unknown configuration option: %s\n", key);
+                logError("WARN: Unknown configuration option: %s\n", key);
             }
         }
     }
@@ -187,7 +187,7 @@ AGENTEXPORT jint JNICALL Agent_OnLoad(JavaVM *jvm, char *options, void *reserved
 
     if ((err = (jvm->GetEnv(reinterpret_cast<void **>(&jvmti), JVMTI_VERSION))) !=
             JNI_OK) {
-        logError("JVMTI initialisation Error %d\n", err);
+        logError("ERROR: JVMTI initialisation error %d\n", err);
         return 1;
     }
 
@@ -201,12 +201,12 @@ AGENTEXPORT jint JNICALL Agent_OnLoad(JavaVM *jvm, char *options, void *reserved
       */
 
     if (!PrepareJvmti(jvmti)) {
-        logError("Failed to initialize JVMTI.  Continuing...\n");
+        logError("ERROR: Failed to initialize JVMTI. Continuing...\n");
         return 0;
     }
 
     if (!RegisterJvmti(jvmti)) {
-        logError("Failed to enable JVMTI events.  Continuing...\n");
+        logError("ERROR: Failed to enable JVMTI events. Continuing...\n");
         // We fail hard here because we may have failed in the middle of
         // registering callbacks, which will leave the system in an
         // inconsistent state.
