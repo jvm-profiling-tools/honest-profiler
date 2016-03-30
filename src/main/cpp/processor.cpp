@@ -17,15 +17,15 @@ static jthread newThread(JNIEnv *jniEnv) {
 
     thrClass = jniEnv->FindClass("java/lang/Thread");
     if (thrClass == NULL) {
-        logError("Cannot find Thread class\n");
+        logError("WARN: Cannot find Thread class\n");
     }
     cid = jniEnv->GetMethodID(thrClass, "<init>", "()V");
     if (cid == NULL) {
-        logError("Cannot find Thread constructor method\n");
+        logError("WARN: Cannot find Thread constructor method\n");
     }
     res = jniEnv->NewObject(thrClass, cid);
     if (res == NULL) {
-        logError("Cannot create new Thread object\n");
+        logError("WARN: Cannot create new Thread object\n");
     } else {
        jmethodID mid = jniEnv->GetMethodID(thrClass, "setName","(Ljava/lang/String;)V");
        jniEnv->CallObjectMethod(res, mid, jniEnv->NewStringUTF("Honest Profiler Daemon Thread"));  
@@ -76,22 +76,28 @@ void callbackToRunProcessor(jvmtiEnv *jvmti_env, JNIEnv *jni_env, void *arg) {
     sigemptyset(&mask);
     sigaddset(&mask, SIGPROF);
     if (pthread_sigmask(SIG_BLOCK, &mask, NULL) < 0) {
-        logError("Error setting processor thread signal mask\n");
+        logError("ERROR: failed to set processor thread signal mask\n");
     }
     Processor *processor = (Processor *) arg;
     processor->run();
 }
 
 void Processor::start(JNIEnv *jniEnv) {
-    std::cout << "Start\n";
+    jvmtiError result;
+
+    std::cout << "Starting sampling\n";
     jthread thread = newThread(jniEnv);
     jvmtiStartFunction callback = callbackToRunProcessor;
-    jvmti_->RunAgentThread(thread, callback, this, JVMTI_THREAD_NORM_PRIORITY);
+    result = jvmti_->RunAgentThread(thread, callback, this, JVMTI_THREAD_NORM_PRIORITY);
+
+    if (result != JVMTI_ERROR_NONE) {
+        logError("ERROR: Running agent thread failed with: %d\n", result);
+    }
 }
 
 void Processor::stop() {
     isRunning_.store(false);
-    std::cout << "Stop\n";
+    std::cout << "Stopping sampling\n";
 }
 
 bool Processor::isRunning() const {
