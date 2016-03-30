@@ -70,7 +70,7 @@ void Profiler::handle(int signum, siginfo_t *info, void *context) {
 
     JVMPI_CallTrace trace;
     trace.frames = frames;
-    JNIEnv *jniEnv = getJNIEnv();
+    JNIEnv *jniEnv = getJNIEnv(jvm_);
     if (jniEnv == NULL) {
     	trace.num_frames = -3; // ticks_unknown_not_Java
     } else {
@@ -80,16 +80,6 @@ void Profiler::handle(int signum, siginfo_t *info, void *context) {
     }
     // log all samples, failures included, let the post processing sift through the data
   	buffer->push(trace);
-}
-
-JNIEnv *Profiler::getJNIEnv() {
-    JNIEnv *jniEnv = NULL;
-    int getEnvStat = jvm_->GetEnv((void **)&jniEnv, JNI_VERSION_1_6);
-    // check for issues
-    if (getEnvStat == JNI_EDETACHED || getEnvStat == JNI_EVERSION) {
-        jniEnv = NULL;
-    }
-    return jniEnv;
 }
 
 bool Profiler::start(JNIEnv *jniEnv) {

@@ -10,29 +10,6 @@
 
 #endif
 
-static jthread newThread(JNIEnv *jniEnv) {
-    jclass thrClass;
-    jmethodID cid;
-    jthread res;
-
-    thrClass = jniEnv->FindClass("java/lang/Thread");
-    if (thrClass == NULL) {
-        logError("WARN: Cannot find Thread class\n");
-    }
-    cid = jniEnv->GetMethodID(thrClass, "<init>", "()V");
-    if (cid == NULL) {
-        logError("WARN: Cannot find Thread constructor method\n");
-    }
-    res = jniEnv->NewObject(thrClass, cid);
-    if (res == NULL) {
-        logError("WARN: Cannot create new Thread object\n");
-    } else {
-       jmethodID mid = jniEnv->GetMethodID(thrClass, "setName","(Ljava/lang/String;)V");
-       jniEnv->CallObjectMethod(res, mid, jniEnv->NewStringUTF("Honest Profiler Daemon Thread"));  
-    }
-    return res;
-}
-
 const uint MILLIS_IN_MICRO = 1000;
 
 void sleep_for_millis(uint period) {
@@ -86,7 +63,7 @@ void Processor::start(JNIEnv *jniEnv) {
     jvmtiError result;
 
     std::cout << "Starting sampling\n";
-    jthread thread = newThread(jniEnv);
+    jthread thread = newThread(jniEnv, "Honest Profiler Processing Thread");
     jvmtiStartFunction callback = callbackToRunProcessor;
     result = jvmti_->RunAgentThread(thread, callback, this, JVMTI_THREAD_NORM_PRIORITY);
 

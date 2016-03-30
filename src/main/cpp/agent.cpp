@@ -6,9 +6,11 @@
 
 #include "globals.h"
 #include "profiler.h"
+#include "controller.h"
 
 static ConfigurationOptions* CONFIGURATION = new ConfigurationOptions();
 static Profiler* prof;
+static Controller* controller;
 
 
 // This has to be here, or the VM turns off class loading events.
@@ -50,6 +52,11 @@ void JNICALL OnVMInit(jvmtiEnv *jvmti, JNIEnv *jniEnv, jthread thread) {
         jclass klass = classList[i];
         CreateJMethodIDsForClass(jvmti, klass);
     }
+
+    if (CONFIGURATION->host != NULL && CONFIGURATION->port != NULL) {
+        controller->start();
+    }
+
     if (CONFIGURATION->start)
         prof->start(jniEnv);
 }
@@ -172,6 +179,10 @@ static void parseArguments(char *options, ConfigurationOptions &configuration) {
                 configuration.logFilePath = safe_copy_string(value, next);
             } else if (strstr(key, "start") == key) {
                 configuration.start = atoi(value);
+            } else if (strstr(key, "host") == key) {
+                configuration.host = safe_copy_string(value, next);
+            } else if (strstr(key, "port") == key) {
+                configuration.port = safe_copy_string(value, next);
             } else {
                 logError("WARN: Unknown configuration option: %s\n", key);
             }
@@ -216,12 +227,15 @@ AGENTEXPORT jint JNICALL Agent_OnLoad(JavaVM *jvm, char *options, void *reserved
     Asgct::SetAsgct(Accessors::GetJvmFunction<ASGCTType>("AsyncGetCallTrace"));
 
     prof = new Profiler(jvm, jvmti, CONFIGURATION);
+    controller = new Controller(jvm, jvmti, prof, CONFIGURATION);
 
     return 0;
 }
 
 AGENTEXPORT void JNICALL Agent_OnUnload(JavaVM *vm) {
     IMPLICITLY_USE(vm);
+
+    controller->stop();
 }
 
 void bootstrapHandle(int signum, siginfo_t *info, void *context) {

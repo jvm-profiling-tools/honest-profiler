@@ -85,8 +85,6 @@ private:
             jvmtiEnv *jvmti,
             MethodListener &logWriter);
 
-    JNIEnv *getJNIEnv();
-
     DISALLOW_COPY_AND_ASSIGN(Profiler);
 };
 

@@ -2,6 +2,7 @@
 #define PROCESSOR_H
 
 #include <jvmti.h>
+#include "common.h"
 #include "log_writer.h"
 #include "signal_handler.h"
 
@@ -10,7 +11,7 @@ class Processor {
 public:
     explicit Processor(jvmtiEnv* jvmti, LogWriter& logWriter,
             CircularQueue& buffer, SignalHandler& handler, int interval)
-            : jvmti_(jvmti), logWriter_(logWriter), buffer_(buffer), isRunning_(true), handler_(handler), interval_(interval) {
+            : jvmti_(jvmti), logWriter_(logWriter), buffer_(buffer), isRunning_(false), handler_(handler), interval_(interval) {
     }
 
     void start(JNIEnv *jniEnv);
