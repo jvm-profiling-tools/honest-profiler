@@ -63,6 +63,7 @@ void Processor::start(JNIEnv *jniEnv) {
     jvmtiError result;
 
     std::cout << "Starting sampling\n";
+    isRunning_.store(true);
     jthread thread = newThread(jniEnv, "Honest Profiler Processing Thread");
     jvmtiStartFunction callback = callbackToRunProcessor;
     result = jvmti_->RunAgentThread(thread, callback, this, JVMTI_THREAD_NORM_PRIORITY);
