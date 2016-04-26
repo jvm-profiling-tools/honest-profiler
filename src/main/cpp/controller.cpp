@@ -18,15 +18,22 @@ void controllerRunnable(jvmtiEnv *jvmti_env, JNIEnv *jni_env, void *arg) {
 
 void Controller::start() {
     JNIEnv *env = getJNIEnv(jvm_);
+    jvmtiError result;
 
     if (env == NULL) {
         logError("ERROR: Failed to obtain JNIEnv\n");
         return;
     }
 
+    isRunning_.store(true);
+
     jthread thread = newThread(env, "Honest Profiler Controller Thread");
     jvmtiStartFunction callback = controllerRunnable;
-    jvmti_->RunAgentThread(thread, callback, this, JVMTI_THREAD_NORM_PRIORITY);
+    result = jvmti_->RunAgentThread(thread, callback, this, JVMTI_THREAD_NORM_PRIORITY);
+
+    if (result != JVMTI_ERROR_NONE) {
+        logError("ERROR: Running controller thread failed with: %d\n", result);
+    }
 }
 
 void Controller::stop() {
