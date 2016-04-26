@@ -20,7 +20,7 @@
 class Controller {
 public:
     explicit Controller(JavaVM *jvm, jvmtiEnv *jvmti, Profiler *profiler, ConfigurationOptions *configuration) :
-            jvm_(jvm), jvmti_(jvmti), profiler_(profiler), configuration_(configuration), isRunning_(true) {
+            jvm_(jvm), jvmti_(jvmti), profiler_(profiler), configuration_(configuration), isRunning_(false) {
 
     }
 
