@@ -66,25 +66,22 @@ static jint bci2line(jint bci, jvmtiLineNumberEntry *table, jint entry_count) {
 }
 
 jint LogWriter::getLineNo(jint bci, jmethodID methodId) {
-	if(bci <= 0) {
-		return bci;
-	}
+  if(bci <= 0) {
+      return bci;
+    }
 
-	jvmtiLineNumberEntry* jvmti_table;
-	jint entry_count;
-	jvmtiError err = jvmti_->GetLineNumberTable(methodId, &entry_count, &jvmti_table);
-	if (err != JVMTI_ERROR_NONE) {
-		return -100;
-	}
+    JvmtiScopedPtr<jvmtiLineNumberEntry> jvmti_table(jvmti_);
+    jint entry_count;
 
-	jint lineno = bci2line(bci, jvmti_table, entry_count);
+    JVMTI_ERROR_CLEANUP_RET_NO_MESSAGE(
+        jvmti_->GetLineNumberTable(methodId, &entry_count, jvmti_table.GetRef()),
+        -100,
+        jvmti_table.AbandonBecauseOfError());
 
-	// cleanup
-	err = jvmti_->Deallocate ((unsigned char*)jvmti_table);
-	if ( err != JVMTI_ERROR_NONE ) {
-		// TODO: Log err?
-	}
-	return lineno;
+    jint lineno = bci2line(bci, jvmti_table.Get(), entry_count);
+
+
+    return lineno;
 }
 
 void LogWriter::record(const JVMPI_CallTrace &trace) {
@@ -94,10 +91,16 @@ void LogWriter::record(const JVMPI_CallTrace &trace) {
     for (int i = 0; i < trace.num_frames; i++) {
         JVMPI_CallFrame frame = trace.frames[i];
         method_id methodId = (method_id) frame.method_id;
-	   // lineno is in fact BCI, needs converting to lineno
+
+        // lineno is in fact BCI, needs converting to lineno
         jint bci = frame.lineno;
-	    jint lineno = getLineNo(bci, frame.method_id);
-        recordFrame(bci, lineno, methodId);
+        if (bci > 0) {
+            jint lineno = getLineNo(bci, frame.method_id);
+            recordFrame(bci, lineno, methodId);
+        }
+        else {
+            recordFrame(bci, methodId);
+        }
         inspectMethod(methodId, frame);
     }
 }
