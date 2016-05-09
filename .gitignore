@@ -35,3 +35,5 @@ cmake_install.cmake
 Makefile
 Testing
 
+/.classpath
+/.project
