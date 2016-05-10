@@ -30,7 +30,32 @@ import static com.insightfullogic.honest_profiler.core.parser.LogParser.AmountRe
 
 public class LogParser
 {
+// These name match the names reported by the forte quality kit
+//  enum {
+//    ticks_no_Java_frame         =  0,
+//    ticks_no_class_load         = -1,
+//    ticks_GC_active             = -2,
+//    ticks_unknown_not_Java      = -3,
+//    ticks_not_walkable_not_Java = -4,
+//    ticks_unknown_Java          = -5,
+//    ticks_not_walkable_Java     = -6,
+//    ticks_unknown_state         = -7,
+//    ticks_thread_exit           = -8,
+//    ticks_deopt                 = -9,
+//    ticks_safepoint             = -10
+//  };
 
+    private static String[] AGCT_ERRORS = {"No Java Frames[ERR=0]",
+            "No class load[ERR=-1]",
+            "GC Active[ERR=-2]",
+            "Unknown not Java[ERR=-3]",
+            "Not walkable not Java[ERR=-4]",
+            "Unknown Java[ERR=-5]",
+            "Not walkable Java[ERR=-6]",
+            "Unknown state[ERR=-7]",
+            "Thread exit[ERR=-8]",
+            "Deopt[ERR=-9]",
+            "Safepoint[ERR=-10]"};
     private static final int NOT_WRITTEN = 0;
     private static final int TRACE_START = 1;
     private static final int STACK_FRAME_BCI_ONLY = 2;
@@ -49,6 +74,12 @@ public class LogParser
     {
         this.listener = listener;
         this.logger = logger;
+        // report the different errors as methods
+        for (long errId = 0; errId < AGCT_ERRORS.length; errId++)
+        {
+            // we use negative jmethodIds, these are invalid addresses and should not collide with jmethodIds supplied by JVM
+            new Method(-errId - 1, "", "-AGCT-", AGCT_ERRORS[(int) errId]).accept(listener);
+        }
     }
 
     public AmountRead readRecord(ByteBuffer input)
@@ -139,8 +170,27 @@ public class LogParser
     {
         int numberOfFrames = input.getInt();
         long threadId = input.getLong();
-        TraceStart traceStart = new TraceStart(numberOfFrames, threadId);
-        traceStart.accept(listener);
+
+        // number of frames <= 0 -> error, so log a mock stack frame reflecting the error. Logging errors as frames makes
+        // more sense when collecting profiles.
+        if (numberOfFrames <= 0)
+        {
+            // if this is an unknown error add a new method for it
+            if (-numberOfFrames >= AGCT_ERRORS.length)
+            {
+                new Method(numberOfFrames - 1, "", "AGCT", "Unknown err[ERR="+numberOfFrames+"]").accept(listener);
+            }
+
+            // we choose to report errors via frames, so pretend there's a single frame in the trace
+            new TraceStart(1, threadId).accept(listener);
+            // we shift the err code by -1 to avoid using the valid NULL jmethodId
+            new StackFrame(-1, numberOfFrames - 1).accept(listener);
+        }
+        else
+        {
+            TraceStart traceStart = new TraceStart(numberOfFrames, threadId);
+            traceStart.accept(listener);
+        }
     }
 
 }

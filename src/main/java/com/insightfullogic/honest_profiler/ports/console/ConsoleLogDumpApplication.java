@@ -53,33 +53,6 @@ class Counter
 
 public class ConsoleLogDumpApplication
 {
-// These name match the names reported by the forte quality kit
-//    enum {
-//      ticks_no_Java_frame         =  0,
-//      ticks_no_class_load         = -1,
-//      ticks_GC_active             = -2,
-//      ticks_unknown_not_Java      = -3,
-//      ticks_not_walkable_not_Java = -4,
-//      ticks_unknown_Java          = -5,
-//      ticks_not_walkable_Java     = -6,
-//      ticks_unknown_state         = -7,
-//      ticks_thread_exit           = -8,
-//      ticks_deopt                 = -9,
-//      ticks_safepoint             = -10
-//    };
-
-    public static String[] AGCT_ERRORS = {"No Java Frames",
-        "No class load",
-        "GC Active",
-        "Unknown not Java",
-        "Not walkable not Java",
-        "Unknown Java",
-        "Not walkable Java",
-        "Unknown state",
-        "Thread exit",
-        "Deopt",
-        "Safepoint"};
-
     private final Console output;
     private final Console error;
 
@@ -137,7 +110,7 @@ public class ConsoleLogDumpApplication
             long traceidx;
             long errCount;
 
-            Map<Integer, Counter> errHistogram = new HashMap<>();
+            Map<String, Counter> errHistogram = new HashMap<>();
             Map<Long, BoundMethod> methodNames = new HashMap<>();
 
             @Override
@@ -154,12 +127,26 @@ public class ConsoleLogDumpApplication
                 indent--;
                 long methodId = stackFrame.getMethodId();
                 BoundMethod boundMethod = methodNames.get(methodId);
+
                 if (methodId == 0)
-                { // null method
+                {
                     errCount++;
+                    // null method
                     out.print("StackFrame: ");
                     indent(out);
                     out.printf("%d @ %s (bci=%s)\n", methodId, stackFrame.getLineNumber(), stackFrame.getBci());
+                    Counter counter = errHistogram.computeIfAbsent("Null jmethodId", k -> new Counter());
+                    counter.inc();
+                }
+                else if (methodId < 0)
+                {
+                    errCount++;
+                    // bad sample dressed up as a frame
+                    out.print("StackFrame: ");
+                    indent(out);
+                    out.printf("%s::%s \n", boundMethod.className, boundMethod.methodName);
+                    Counter counter = errHistogram.computeIfAbsent(boundMethod.methodName, k -> new Counter());
+                    counter.inc();
                 }
                 else if (boundMethod == null)
                 {
@@ -185,17 +172,7 @@ public class ConsoleLogDumpApplication
             public void handle(TraceStart traceStart)
             {
                 int frames = traceStart.getNumberOfFrames();
-                if (frames <= 0)
-                {
-                    out.printf("TraceStart: [%d] tid=%d,err=%d\n", traceidx, traceStart.getThreadId(), frames);
-                    errCount++;
-                    Counter counter = errHistogram.computeIfAbsent(-frames, k -> new Counter());
-                    counter.inc();
-                }
-                else
-                {
-                    out.printf("TraceStart: [%d] tid=%d,frames=%d\n", traceidx, traceStart.getThreadId(), frames);
-                }
+                out.printf("TraceStart: [%d] tid=%d,frames=%d\n", traceidx, traceStart.getThreadId(), frames);
                 indent = frames;
                 traceidx++;
             }
@@ -204,20 +181,12 @@ public class ConsoleLogDumpApplication
             public void endOfLog()
             {
                 out.printf("Processed %d traces, %d faulty\n", traceidx, errCount);
-                for (Map.Entry<Integer, Counter> e : errHistogram.entrySet())
+                for (Map.Entry<String, Counter> e : errHistogram.entrySet())
                 {
-                    final Integer errCode = e.getKey();
+                    final String errCode = e.getKey();
                     final int errCodeCount = e.getValue().i;
-                    String errName;
-                    if (errCode < AGCT_ERRORS.length)
-                    {
-                        errName = AGCT_ERRORS[errCode];
-                    }
-                    else
-                    {
-                        errName = "Unknown err code";
-                    }
-                    out.printf("%-20s (-%d): %d \n", errName, errCode, errCodeCount);
+
+                    out.printf("%-20s: %d \n", errCode, errCodeCount);
                 }
             }
         });

@@ -106,13 +106,13 @@ public enum ProfileFormat
         }
         else if (frameInfo.getBci() == Frame.BCI_ERR_IGNORE)
         {
-            out.accept(String.format("(t %4.1f,s %4.1f) %s.%s",
+            out.accept(String.format("(t %4.1f,s %4.1f) %s::%s",
                 totalShare * 100, selfShare * 100,
                 frameInfo.getClassName(), frameInfo.getMethodName()));
         }
         else
         {
-            out.accept(String.format("(t %4.1f,s %4.1f) %s.%s @ (bci=%d,line=%d)",
+            out.accept(String.format("(t %4.1f,s %4.1f) %s::%s @ (bci=%d,line=%d)",
                 totalShare * 100, selfShare * 100,
                 frameInfo.getClassName(), frameInfo.getMethodName(),
                 frameInfo.getBci(), frameInfo.getLine()));
