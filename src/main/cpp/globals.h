@@ -40,20 +40,33 @@ struct ConfigurationOptions {
 #define IMPLICITLY_USE(x) (void) x;
 
 // Wrap JVMTI functions in this in functions that expect a return
-// value and require cleanup.
-#define JVMTI_ERROR_CLEANUP_1(error, retval, cleanup)                          \
+// value and require cleanup but no error message
+#define JVMTI_ERROR_CLEANUP_RET_NO_MESSAGE(error, retval, cleanup)             \
   {                                                                            \
     int err;                                                                   \
     if ((err = (error)) != JVMTI_ERROR_NONE) {                                 \
-      logError("JVMTI error %d\n", err);                                       \
+      cleanup;                                                                 \
+      return (retval);                                                         \
+    }                                                                          \
+  }
+// Wrap JVMTI functions in this in functions that expect a return
+// value and require cleanup.
+#define JVMTI_ERROR_MESSAGE_CLEANUP_RET(error, message, retval, cleanup)       \
+  {                                                                            \
+    int err;                                                                   \
+    if ((err = (error)) != JVMTI_ERROR_NONE) {                                 \
+      logError(message, err);                                                  \
       cleanup;                                                                 \
       return (retval);                                                         \
     }                                                                          \
   }
 
+#define JVMTI_ERROR_CLEANUP_RET(error, retval, cleanup)                        \
+    JVMTI_ERROR_MESSAGE_CLEANUP_RET(error, "JVMTI error %d\n", retval, cleanup)
+
 // Wrap JVMTI functions in this in functions that expect a return value.
-#define JVMTI_ERROR_1(error, retval)                                           \
-  JVMTI_ERROR_CLEANUP_1(error, retval, /* nothing */)
+#define JVMTI_ERROR_RET(error, retval)                                           \
+  JVMTI_ERROR_CLEANUP_RET(error, retval, /* nothing */)
 
 // Wrap JVMTI functions in this in void functions.
 #define JVMTI_ERROR(error) JVMTI_ERROR_CLEANUP(error, /* nothing */)

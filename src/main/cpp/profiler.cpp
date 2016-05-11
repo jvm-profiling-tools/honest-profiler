@@ -30,11 +30,11 @@ bool Profiler::lookupFrameInformation(const JVMPI_CallFrame &frame,
 
     // Get class name, put it in signature_ptr
     jclass declaring_class;
-    JVMTI_ERROR_1(
+    JVMTI_ERROR_RET(
             jvmti->GetMethodDeclaringClass(frame.method_id, &declaring_class), false);
 
     JvmtiScopedPtr<char> signature_ptr2(jvmti);
-    JVMTI_ERROR_CLEANUP_1(
+    JVMTI_ERROR_CLEANUP_RET(
             jvmti->GetClassSignature(declaring_class, signature_ptr2.GetRef(), NULL),
             false, signature_ptr2.AbandonBecauseOfError());
 

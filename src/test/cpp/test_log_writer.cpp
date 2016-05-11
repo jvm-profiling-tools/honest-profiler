@@ -96,7 +96,7 @@ void thenACompleteLogIsOutput(char buffer[]) {
   CHECK_EQUAL(5, buffer[longThen]);
 
   CHECK_EQUAL(FRAME_BCI_ONLY, buffer[index++]);
-  CHECK_EQUAL(52, buffer[intThen]);
+  CHECK_EQUAL(0, buffer[intThen]);
   CHECK_EQUAL(1, buffer[longThen]);
 
   CHECK_EQUAL(NEW_METHOD, buffer[index++]);
@@ -109,17 +109,17 @@ void thenACompleteLogIsOutput(char buffer[]) {
   CHECK_EQUAL('a', buffer[index++]);
 
   CHECK_EQUAL(FRAME_BCI_ONLY, buffer[index++]);
-  CHECK_EQUAL(42, buffer[intThen]);
+  CHECK_EQUAL(0, buffer[intThen]);
   CHECK_EQUAL(2, buffer[longThen]);
 }
 
 #define givenStackTrace()                                                      \
   JVMPI_CallFrame frame0 = {};                                                 \
-  frame0.lineno = 52;                                                          \
+  frame0.lineno = 0;                                                          \
   frame0.method_id = (jmethodID)1;                                             \
                                                                                \
   JVMPI_CallFrame frame1 = {};                                                 \
-  frame1.lineno = 42;                                                          \
+  frame1.lineno = 0;                                                          \
   frame1.method_id = (jmethodID)2;                                             \
                                                                                \
   JVMPI_CallFrame frames[] = { frame0, frame1 };                               \

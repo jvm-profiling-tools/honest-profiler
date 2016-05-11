@@ -33,8 +33,10 @@ void CreateJMethodIDsForClass(jvmtiEnv *jvmti, jclass klass) {
         // JVMTI_ERROR_CLASS_NOT_PREPARED is okay because some classes may
         // be loaded but not prepared at this point.
         JvmtiScopedPtr<char> ksig(jvmti);
-        JVMTI_ERROR((jvmti->GetClassSignature(klass, ksig.GetRef(), NULL)));
-        logError("ERROR: Failed to create method IDs for methods in class %s with error %d\n",
+        JVMTI_ERROR_CLEANUP(
+            jvmti->GetClassSignature(klass, ksig.GetRef(), NULL),
+            ksig.AbandonBecauseOfError());
+        logError("Failed to create method IDs for methods in class %s with error %d ",
                  ksig.Get(), e);
     }
 }
@@ -110,10 +112,10 @@ static bool PrepareJvmti(jvmtiEnv *jvmti) {
         }
 
         // This adds the capabilities.
-        if ((error = jvmti->AddCapabilities(&caps)) != JVMTI_ERROR_NONE) {
-            logError("ERROR: Failed to add capabilities with error %d\n", error);
-            return false;
-        }
+        JVMTI_ERROR_CLEANUP_RET(
+            jvmti->AddCapabilities(&caps),
+            false,
+            logError("Failed to add capabilities with error %d\n", error))
     }
     return true;
 }
@@ -129,7 +131,7 @@ static bool RegisterJvmti(jvmtiEnv *jvmti) {
     callbacks->ClassLoad = &OnClassLoad;
     callbacks->ClassPrepare = &OnClassPrepare;
 
-    JVMTI_ERROR_1(
+    JVMTI_ERROR_RET(
             (jvmti->SetEventCallbacks(callbacks, sizeof(jvmtiEventCallbacks))),
             false);
 
@@ -141,7 +143,7 @@ static bool RegisterJvmti(jvmtiEnv *jvmti) {
     // Enable the callbacks to be triggered when the events occur.
     // Events are enumerated in jvmstatagent.h
     for (int i = 0; i < num_events; i++) {
-        JVMTI_ERROR_1(
+        JVMTI_ERROR_RET(
                 (jvmti->SetEventNotificationMode(JVMTI_ENABLE, events[i], NULL)),
                 false);
     }
