@@ -23,6 +23,13 @@ void JNICALL OnClassLoad(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread thread,
     IMPLICITLY_USE(klass);
 }
 
+static void JNICALL CompiledMethodLoad(jvmtiEnv* jvmti, jmethodID method,
+                                       jint code_size, const void* code_addr,
+                                       jint map_length, const jvmtiAddrLocationMap* map,
+                                       const void* compile_info) {
+    // Needed to enable DebugNonSafepoints info by default
+}
+
 // Calls GetClassMethods on a given class to force the creation of
 // jmethodIDs of it.
 void CreateJMethodIDsForClass(jvmtiEnv *jvmti, jclass klass) {
@@ -93,6 +100,7 @@ static bool PrepareJvmti(jvmtiEnv *jvmti) {
     caps.can_get_line_numbers = 1;
     caps.can_get_bytecodes = 1;
     caps.can_get_constant_pool = 1;
+    caps.can_generate_compiled_method_load_events = 1;
 
     jvmtiCapabilities all_caps;
     int error;
@@ -131,12 +139,14 @@ static bool RegisterJvmti(jvmtiEnv *jvmti) {
     callbacks->ClassLoad = &OnClassLoad;
     callbacks->ClassPrepare = &OnClassPrepare;
 
+    callbacks->CompiledMethodLoad = &CompiledMethodLoad;
+
     JVMTI_ERROR_RET(
             (jvmti->SetEventCallbacks(callbacks, sizeof(jvmtiEventCallbacks))),
             false);
 
     jvmtiEvent events[] = {JVMTI_EVENT_CLASS_LOAD, JVMTI_EVENT_CLASS_PREPARE,
-            JVMTI_EVENT_VM_DEATH, JVMTI_EVENT_VM_INIT};
+            JVMTI_EVENT_VM_DEATH, JVMTI_EVENT_VM_INIT, JVMTI_EVENT_COMPILED_METHOD_LOAD};
 
     size_t num_events = sizeof(events) / sizeof(jvmtiEvent);
 
