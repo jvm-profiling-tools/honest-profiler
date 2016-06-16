@@ -201,6 +201,10 @@ void JNICALL OnThreadStart(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread thread)
     pthread_sigmask(SIG_UNBLOCK, &prof_signal_mask, NULL);
 }
 
+void JNICALL OnThreadEnd(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread thread) {
+    pthread_sigmask(SIG_BLOCK, &prof_signal_mask, NULL);
+}
+
 static bool RegisterJvmti(jvmtiEnv *jvmti) {
     sigemptyset(&prof_signal_mask);
     sigaddset(&prof_signal_mask, SIGPROF);
@@ -218,6 +222,7 @@ static bool RegisterJvmti(jvmtiEnv *jvmti) {
 
     callbacks->NativeMethodBind = &OnNativeMethodBind;
     callbacks->ThreadStart = &OnThreadStart;
+    callbacks->ThreadEnd = &OnThreadEnd;
 
     JVMTI_ERROR_RET(
             (jvmti->SetEventCallbacks(callbacks, sizeof(jvmtiEventCallbacks))),
@@ -227,6 +232,7 @@ static bool RegisterJvmti(jvmtiEnv *jvmti) {
             JVMTI_EVENT_VM_DEATH, JVMTI_EVENT_VM_INIT, JVMTI_EVENT_COMPILED_METHOD_LOAD
 #ifdef GETENV_NEW_THREAD_ASYNC_UNSAFE
         ,JVMTI_EVENT_THREAD_START,
+        JVMTI_EVENT_THREAD_END,
         JVMTI_EVENT_NATIVE_METHOD_BIND
 #endif
     };
