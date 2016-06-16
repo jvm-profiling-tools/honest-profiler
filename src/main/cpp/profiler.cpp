@@ -54,11 +54,6 @@ bool Profiler::lookupFrameInformation(const JVMPI_CallFrame &frame,
             signature_ptr2.Get(), methodName.Get());
 
     return true;
-    /*if (line_number != NULL) {
-      // TODO: is frame.lineno correct?  GetLineNumber
-      // expects a BCI.
-      *line_number = GetLineNumber(frame.method_id, frame.lineno);
-    }*/
 }
 
 void Profiler::handle(int signum, siginfo_t *info, void *context) {
