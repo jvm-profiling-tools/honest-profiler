@@ -33,6 +33,7 @@ import java.util.List;
 
 public class Util
 {
+    private Util(){ }
 
     public static File log0()
     {

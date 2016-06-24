@@ -25,6 +25,7 @@ import com.insightfullogic.honest_profiler.core.parser.Method;
 
 public class ProfileFixtures
 {
+    private ProfileFixtures(){ }
 
     public static final long printlnId = 5;
     public static final long appendId = 6;
