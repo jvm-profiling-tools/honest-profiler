@@ -62,39 +62,35 @@ public class AgentIntegrationTest
             });
 
             it.should("should result in a monitorable JVM", expect ->
-            {
-                AgentRunner.run("InfiniteExample", runner ->
-                {
-                    int seenTraceCount = 0;
+                    AgentRunner.run("InfiniteExample", runner ->
+                    {
+                        int seenTraceCount = 0;
 
-                    AtomicReference<Profile> lastProfile = discoverVirtualMachines();
+                        AtomicReference<Profile> lastProfile = discoverVirtualMachines();
 
-                    seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
+                        seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
 
-                    seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
+                        seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
 
-                    seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
-                });
-            });
+                        seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
+                    }));
 
             it.should("should be able to start/stop the JVM", expect ->
-            {
-                AgentRunner.run("InfiniteExample", "start=0", runner ->
-                {
-                    int seenTraceCount = 0;
+                    AgentRunner.run("InfiniteExample", "start=0", runner ->
+                    {
+                        int seenTraceCount = 0;
 
-                    AtomicReference<Profile> lastProfile = discoverVirtualMachines();
+                        AtomicReference<Profile> lastProfile = discoverVirtualMachines();
 
-                    seenTraceCount = expectNonIncreasingTraceCount(expect, seenTraceCount, lastProfile);
-                    runner.startProfiler();
+                        seenTraceCount = expectNonIncreasingTraceCount(expect, seenTraceCount, lastProfile);
+                        runner.startProfiler();
 
-                    seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
-                    runner.stopProfiler();
+                        seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
+                        runner.stopProfiler();
 
-                    seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
-                    seenTraceCount = expectNonIncreasingTraceCount(expect, seenTraceCount, lastProfile);
-                });
-            });
+                        seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
+                        seenTraceCount = expectNonIncreasingTraceCount(expect, seenTraceCount, lastProfile);
+                    }));
         });
 
     }

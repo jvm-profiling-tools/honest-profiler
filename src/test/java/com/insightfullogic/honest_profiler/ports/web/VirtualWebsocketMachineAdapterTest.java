@@ -45,9 +45,8 @@ public class VirtualWebsocketMachineAdapterTest
                 adapter = new WebsocketMachineAdapter(clients, new MessageEncoder());
             });
 
-            it.should("Register for connections", expect -> {
-                verify(clients).setListener(adapter);
-            });
+            it.should("Register for connections", expect ->
+                    verify(clients).setListener(adapter));
 
             it.should("send information about added JVMs", expect -> {
                 adapter.onNewMachine(jvm);
