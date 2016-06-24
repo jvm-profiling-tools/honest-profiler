@@ -144,7 +144,7 @@ public class ConsoleLogDumpApplication
                     // bad sample dressed up as a frame
                     out.print("StackFrame: ");
                     indent(out);
-                    out.printf("%s::%s \n", boundMethod.className, boundMethod.methodName);
+                    out.printf("%s::%s %n", boundMethod.className, boundMethod.methodName);
                     Counter counter = errHistogram.computeIfAbsent(boundMethod.methodName, k -> new Counter());
                     counter.inc();
                 }
@@ -180,13 +180,13 @@ public class ConsoleLogDumpApplication
             @Override
             public void endOfLog()
             {
-                out.printf("Processed %d traces, %d faulty\n", traceidx, errCount);
+                out.printf("Processed %d traces, %d faulty%n", traceidx, errCount);
                 for (Map.Entry<String, Counter> e : errHistogram.entrySet())
                 {
                     final String errCode = e.getKey();
                     final int errCodeCount = e.getValue().i;
 
-                    out.printf("%-20s: %d \n", errCode, errCodeCount);
+                    out.printf("%-20s: %d %n", errCode, errCodeCount);
                 }
             }
         });

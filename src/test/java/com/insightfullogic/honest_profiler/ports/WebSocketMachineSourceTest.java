@@ -52,7 +52,6 @@ public class WebSocketMachineSourceTest
             //DataConsumer dataConsumer = mock(DataConsumer.class);
             Monitor monitor = mock(Monitor.class);
             MachineListener listener = mock(MachineListener.class);
-            ProfileListener profileListener = mock(ProfileListener.class);
             Logger logger = mock(Logger.class);
 
             it.isSetupWith(() -> {

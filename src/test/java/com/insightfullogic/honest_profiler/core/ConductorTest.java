@@ -42,7 +42,6 @@ public class ConductorTest
 
             it.should("parse a basic log", expect -> {
                 LogEventListener listener = mock(LogEventListener.class);
-                LogSaver saver = mock(LogSaver.class);
                 Logger logger = mock(Logger.class);
                 LogParser parser = new LogParser(logger, listener);
                 Conductor consumer = new Conductor(logger, Util.log0Source(), parser, false);
