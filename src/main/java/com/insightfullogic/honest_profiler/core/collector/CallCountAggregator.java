@@ -37,7 +37,7 @@ import static java.util.stream.Collectors.toList;
 public class CallCountAggregator<T>
 {
     private static final Comparator<Entry<?, CallCounts>> sortBySelfCount
-        = comparing((Entry<?, CallCounts> entry) -> entry.getValue().timeInvokingThis).reversed();
+        = comparing((Entry<?, CallCounts> entry) -> entry.getValue().getTimeInvokingThis()).reversed();
 
     private final Map<T, CallCounts> callCountsByKey = new HashMap<>();
     private final Map<Long, Method> methodByMethodId;
@@ -70,8 +70,8 @@ public class CallCountAggregator<T>
     private FlatProfileEntry toFlatProfileEntry(
         final T key, final CallCounts callCounts, final double traceCount)
     {
-        double totalTimeShare = (double) callCounts.timeAppeared / traceCount;
-        double selfTimeShare = (double) callCounts.timeInvokingThis / traceCount;
+        double totalTimeShare = (double) callCounts.getTimeAppeared() / traceCount;
+        double selfTimeShare = (double) callCounts.getTimeInvokingThis() / traceCount;
         Method method;
         final Long methodId = getMethodId.apply(key);
         method = methodByMethodId.get(methodId);

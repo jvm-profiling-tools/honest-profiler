@@ -25,15 +25,15 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import static com.insightfullogic.honest_profiler.ports.javafx.WindowViewModel.Window.Landing;
+import static com.insightfullogic.honest_profiler.ports.javafx.WindowViewModel.Window.LANDING;
 
 public class WindowViewModel
 {
 
     public enum Window
     {
-        Landing,
-        Profile;
+        LANDING,
+        PROFILE;
 
         private String getFxmlFile()
         {
@@ -61,7 +61,7 @@ public class WindowViewModel
 
     public Parent displayStart()
     {
-        return display(Landing);
+        return display(LANDING);
     }
 
 }

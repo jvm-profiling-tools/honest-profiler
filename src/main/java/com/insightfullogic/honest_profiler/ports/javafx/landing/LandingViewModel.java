@@ -48,7 +48,7 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.insightfullogic.honest_profiler.ports.javafx.WindowViewModel.Window.Profile;
+import static com.insightfullogic.honest_profiler.ports.javafx.WindowViewModel.Window.PROFILE;
 
 public class LandingViewModel implements MachineListener
 {
@@ -98,7 +98,7 @@ public class LandingViewModel implements MachineListener
         File file = fileChooser.showOpenDialog(null);
         if (file != null)
         {
-            windowModel.display(Profile);
+            windowModel.display(PROFILE);
             try
             {
                 final LogEventListener collector = new LogEventPublisher()
@@ -115,7 +115,7 @@ public class LandingViewModel implements MachineListener
 
     public void monitorButton(final ActionEvent actionEvent)
     {
-        windowModel.display(Profile);
+        windowModel.display(PROFILE);
         MachineButton selectedButton = (MachineButton) toggleMachines.getSelectedToggle();
         VirtualMachine vm = selectedButton.getJvm();
         try

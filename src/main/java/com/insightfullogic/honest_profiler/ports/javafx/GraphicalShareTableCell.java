@@ -32,8 +32,8 @@ import static javafx.scene.paint.Color.DARKRED;
 public class GraphicalShareTableCell extends TableCell<FlatProfileEntry, Double>
 {
 
-    private static final double height = 29;
-    private static final Color timeTakenColor = DARKRED;
+    private static final double HEIGHT = 29;
+    private static final Color TIME_TAKEN_COLOR = DARKRED;
 
     private final double width;
 
@@ -53,10 +53,10 @@ public class GraphicalShareTableCell extends TableCell<FlatProfileEntry, Double>
         {
             final double scaledShare = timeShare * width;
 
-            Canvas canvas = new Canvas(width, height);
+            Canvas canvas = new Canvas(width, HEIGHT);
             GraphicsContext context = canvas.getGraphicsContext2D();
-            context.setFill(timeTakenColor);
-            context.fillRect(0, 0, scaledShare, height);
+            context.setFill(TIME_TAKEN_COLOR);
+            context.fillRect(0, 0, scaledShare, HEIGHT);
             setGraphic(canvas);
         }
     }

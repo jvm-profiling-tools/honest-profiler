@@ -27,7 +27,7 @@ import javafx.scene.control.TableCell;
 public class MethodNameTableCell extends TableCell<FlatProfileEntry, String>
 {
 
-    private static final String methodNameStyle =
+    private static final String METHOD_NAME_STYLE =
         "-fx-font-family: Courier New;" +
             "-fx-font-weight: bold;";
 
@@ -38,7 +38,7 @@ public class MethodNameTableCell extends TableCell<FlatProfileEntry, String>
         if (!isEmpty)
         {
             setText(value);
-            setStyle(methodNameStyle);
+            setStyle(METHOD_NAME_STYLE);
         }
     }
 
