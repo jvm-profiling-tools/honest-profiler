@@ -44,6 +44,13 @@ public class ConsoleApplication
     private File logLocation;
     private String filterDescription;
 
+    public ConsoleApplication(final Console error, final Console output)
+    {
+        this.output = output;
+        this.error = error;
+        ui = new ProfileView(output);
+    }
+
     public static void main(String[] args)
     {
         AnsiConsole.systemInstall();
@@ -60,13 +67,6 @@ public class ConsoleApplication
             System.err.println(e.getMessage());
             parser.printUsage(System.err);
         }
-    }
-
-    public ConsoleApplication(final Console error, final Console output)
-    {
-        this.output = output;
-        this.error = error;
-        ui = new ProfileView(output);
     }
 
     @Option(name = "-log", usage = "set the log that you want to parser or use")

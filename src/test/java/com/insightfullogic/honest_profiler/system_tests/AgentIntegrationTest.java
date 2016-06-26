@@ -46,6 +46,9 @@ import static org.hamcrest.Matchers.greaterThan;
 @RunWith(JunitSuiteRunner.class)
 public class AgentIntegrationTest
 {
+
+    private static Logger logger = LoggerFactory.getLogger(AgentIntegrationTest.class);
+
     private AtomicReference<FileLogSource> file = new AtomicReference<>();
 
     {
@@ -127,8 +130,6 @@ public class AgentIntegrationTest
 
         return lastProfile;
     }
-
-    private static Logger logger = LoggerFactory.getLogger(AgentIntegrationTest.class);
 
     private int expectIncreasingTraceCount(Expect expect, int seenTraceCount, AtomicReference<Profile> lastProfile)
     {

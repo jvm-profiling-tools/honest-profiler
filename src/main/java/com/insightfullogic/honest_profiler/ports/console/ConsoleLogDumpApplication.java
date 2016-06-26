@@ -58,6 +58,12 @@ public class ConsoleLogDumpApplication
 
     private File logLocation;
 
+    public ConsoleLogDumpApplication(final Console error, final Console output)
+    {
+        this.output = output;
+        this.error = error;
+    }
+
     public static void main(String[] args)
     {
         ConsoleLogDumpApplication entry = new ConsoleLogDumpApplication(() -> System.err, () -> System.out);
@@ -73,12 +79,6 @@ public class ConsoleLogDumpApplication
             System.err.println(e.getMessage());
             parser.printUsage(System.err);
         }
-    }
-
-    public ConsoleLogDumpApplication(final Console error, final Console output)
-    {
-        this.output = output;
-        this.error = error;
     }
 
     @Option(name = "-log", usage = "set the log that you want to parse or use", required = true)

@@ -55,6 +55,11 @@ public class FlatViewModel implements ProfileListener
     @FXML
     private TableColumn<FlatProfileEntry, Double> totalTimeShare;
 
+    public FlatViewModel()
+    {
+        flatProfile = FXCollections.observableArrayList();
+    }
+
     @FXML
     private void initialize()
     {
@@ -74,11 +79,6 @@ public class FlatViewModel implements ProfileListener
     {
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
         column.setCellFactory(col -> new TimeShareTableCell());
-    }
-
-    public FlatViewModel()
-    {
-        flatProfile = FXCollections.observableArrayList();
     }
 
     @Override

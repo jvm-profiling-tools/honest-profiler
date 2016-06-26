@@ -40,11 +40,6 @@ public final class NodeCollector
 
     private long methodId;
 
-    public int getNumberOfVisits()
-    {
-        return visits;
-    }
-
     private int visits;
 
     public NodeCollector(long methodId)
@@ -105,6 +100,12 @@ public final class NodeCollector
             .collect(toList());
 
         return new ProfileNode(method, timeShare, children);
+    }
+
+
+    public int getNumberOfVisits()
+    {
+        return visits;
     }
 
 }
