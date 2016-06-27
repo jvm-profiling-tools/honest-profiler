@@ -194,7 +194,8 @@ public class ConsoleLogDumpApplication
 
     private static class BoundMethod
     {
-        private final String className, methodName;
+        private final String className;
+        private final String methodName;
 
         public BoundMethod(String className, String methodName)
         {

@@ -41,7 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import static com.insightfullogic.honest_profiler.ports.javafx.WindowViewModel.Window.Landing;
+import static com.insightfullogic.honest_profiler.ports.javafx.WindowViewModel.Window.LANDING;
 
 public class ProfileViewModel implements Initializable
 {
@@ -119,7 +119,7 @@ public class ProfileViewModel implements Initializable
 
     public void back(ActionEvent actionEvent)
     {
-        windows.display(Landing);
+        windows.display(LANDING);
     }
 
     public void updateFilter(ActionEvent actionEvent)
