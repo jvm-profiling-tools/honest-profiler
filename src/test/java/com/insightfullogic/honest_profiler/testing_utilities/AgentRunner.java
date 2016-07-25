@@ -21,6 +21,8 @@
  **/
 package com.insightfullogic.honest_profiler.testing_utilities;
 
+import com.insightfullogic.honest_profiler.core.platform.Platforms;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +78,7 @@ public class AgentRunner
     private void startProcess() throws IOException
     {
         String java = System.getProperty("java.home") + "/bin/java";
-        String agentArg = "-agentpath:build/liblagent.so" + (args != null ? "=" + args : "");
+        String agentArg = "-agentpath:build/liblagent" + Platforms.getDynamicLibraryExtension() + (args != null ? "=" + args : "");
         // Eg: java -agentpath:build/liblagent.so -cp target/classes/ InfiniteExample
         process = new ProcessBuilder()
             .command(java, agentArg, "-cp", "target/classes/", className)

@@ -24,6 +24,7 @@ package com.insightfullogic.honest_profiler.ports.sources;
 import com.insightfullogic.honest_profiler.core.MachineListener;
 import com.insightfullogic.honest_profiler.core.ThreadedAgent;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
+import com.insightfullogic.honest_profiler.core.platform.Platforms;
 import com.sun.tools.attach.AttachNotSupportedException;
 import com.sun.tools.attach.VirtualMachineDescriptor;
 import org.slf4j.Logger;
@@ -41,7 +42,7 @@ public class LocalMachineSource
 {
 
     private static final String VM_ARGS = "sun.jvm.args";
-    private static final String AGENT_NAME = "liblagent.so";
+    private static final String AGENT_NAME = "liblagent" + Platforms.getDynamicLibraryExtension();
     private static final String USER_DIR = "user.dir";
     private static final long DEFAULT_SLEEP_PERIOD = 500;
 
