@@ -51,10 +51,10 @@ public class ConsoleApplicationTest
                 profiler.run();
 
                 then:
-                output.outputContains("PrintStream.printf");
+                output.outputContains("PrintStream::printf");
                 output.outputContains("100.0");
 
-                output.outputContains("PrintStream.append");
+                output.outputContains("PrintStream::append");
                 output.outputContains("100.0");
 
                 output.outputContains("Printing Profile for:");
