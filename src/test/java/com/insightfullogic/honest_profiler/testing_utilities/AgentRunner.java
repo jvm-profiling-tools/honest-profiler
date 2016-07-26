@@ -34,6 +34,18 @@ public class AgentRunner
 
     private static final Logger logger = LoggerFactory.getLogger(AgentRunner.class);
 
+    private final String className;
+    private final String args;
+
+    private Process process;
+    private int processId;
+
+    private AgentRunner(final String className, final String args)
+    {
+        this.className = className;
+        this.args = args;
+    }
+
     public static void run(final String className, final Consumer<AgentRunner> handler) throws IOException
     {
         run(className, null, handler);
@@ -53,18 +65,6 @@ public class AgentRunner
         {
             runner.stop();
         }
-    }
-
-    private final String className;
-    private final String args;
-
-    private Process process;
-    private int processId;
-
-    private AgentRunner(final String className, final String args)
-    {
-        this.className = className;
-        this.args = args;
     }
 
     private void start() throws IOException

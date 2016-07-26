@@ -38,11 +38,6 @@ public class Filters
 
     private int offset;
 
-    public static List<Filter> parse(String description)
-    {
-        return new Filters(description).parse();
-    }
-
     private Filters(String description)
     {
         filters = new ArrayList<>();
@@ -54,6 +49,11 @@ public class Filters
             description = description + ';';
         }
         this.description = description;
+    }
+
+    public static List<Filter> parse(String description)
+    {
+        return new Filters(description).parse();
     }
 
     private List<Filter> parse()
