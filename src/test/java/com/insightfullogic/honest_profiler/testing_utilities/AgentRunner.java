@@ -35,10 +35,18 @@ public class AgentRunner
 {
 
     private static final Logger logger = LoggerFactory.getLogger(AgentRunner.class);
+    public static final String DEFAULT_AGENT_INTERVAL = "interval=100";
 
     public static void run(final String className, final Consumer<AgentRunner> handler) throws IOException
     {
-        run(className, null, handler);
+        run(className, (String) null, handler);
+    }
+
+    public static void run(final String className,
+                           final String[] args,
+                           final Consumer<AgentRunner> handler) throws IOException
+    {
+        run(className, String.join(",", args), handler);
     }
 
     public static void run(final String className,

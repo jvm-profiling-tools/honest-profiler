@@ -63,7 +63,8 @@ public class AgentIntegrationTest
 
             it.should("should result in a monitorable JVM", expect ->
             {
-                AgentRunner.run("InfiniteExample", "interval=100", runner ->
+                AgentRunner.run("InfiniteExample", AgentRunner.DEFAULT_AGENT_INTERVAL,
+                        runner ->
                 {
                     int seenTraceCount = 0;
 
@@ -79,7 +80,8 @@ public class AgentIntegrationTest
 
             it.should("should be able to start/stop the JVM", expect ->
             {
-                AgentRunner.run("InfiniteExample", "start=0,interval=100", runner ->
+                AgentRunner.run("InfiniteExample", new String[] { "start=0", AgentRunner.DEFAULT_AGENT_INTERVAL },
+                        runner ->
                 {
                     int seenTraceCount = 0;
 
