@@ -21,7 +21,7 @@ public class LocalMachineSourceTest
 
 
             it.should("detect local machines", expect -> {
-                AgentRunner.run("InfiniteExample", runner -> {
+                AgentRunner.run("InfiniteExample", "interval=100", runner -> {
                     final int expectedProcessId = runner.getProcessId();
                     new LocalMachineSource(logger, new MachineListener()
                     {
