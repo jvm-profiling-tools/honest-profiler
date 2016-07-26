@@ -35,10 +35,11 @@ public class FilterParserTest
 
         describe("filter parsing", it -> {
 
-            it.should("not remove anything for empty strings", expect -> {
-                expect.that(Filters.parse("")).hasSize(1)
-                    .contains(new ThreadSampleFilter());
-            });
+            it.should("not remove anything for empty strings", expect ->
+                    expect
+                       .that(Filters.parse(""))
+                       .hasSize(1)
+                       .contains(new ThreadSampleFilter()));
 
             it.should("parse total time filters", expect -> {
                 List<Filter> filters = Filters.parse("total time > 0.3;");
@@ -68,16 +69,11 @@ public class FilterParserTest
                 );
             });
 
-            it.should("validate time filters", expect -> {
-                expect.exception(FilterParseException.class, () -> {
-                    Filters.parse("self time > 1.543;");
-                });
-            });
+            it.should("validate time filters", expect ->
+                    expect.exception(FilterParseException.class, () -> Filters.parse("self time > 1.543;")));
 
             it.should("throw an exception when the input is nonsense", expect -> {
-                expect.exception(FilterParseException.class, () -> {
-                    Filters.parse("self dasdasds");
-                });
+                expect.exception(FilterParseException.class, () -> Filters.parse("self dasdasds"));
             });
 
         });

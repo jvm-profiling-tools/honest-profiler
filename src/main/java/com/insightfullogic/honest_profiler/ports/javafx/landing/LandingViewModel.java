@@ -85,9 +85,8 @@ public class LandingViewModel implements MachineListener
     {
         logger.debug("Initializing LandingViewModel");
         toggleMachines.selectedToggleProperty()
-            .addListener((of, from, to) -> {
-                monitorButton.setDisable(to == null);
-            });
+            .addListener((of, from, to) ->
+                    monitorButton.setDisable(to == null));
         machines.forEach(this::displayMachine);
     }
 

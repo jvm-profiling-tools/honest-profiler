@@ -48,9 +48,7 @@ public class WebsocketMachineAdapter implements MachineListener, Consumer<WebSoc
     @Override
     public void accept(WebSocketConnection connection)
     {
-        machines.forEach(machine -> {
-            connection.send(messages.addJavaVirtualMachine(machine));
-        });
+        machines.forEach(machine -> connection.send(messages.addJavaVirtualMachine(machine)));
     }
 
     @Override

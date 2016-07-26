@@ -20,28 +20,27 @@ public class LocalMachineSourceTest
             Logger logger = mock(Logger.class);
 
 
-            it.should("detect local machines", expect -> {
+            it.should("detect local machines", expect ->
                 AgentRunner.run("InfiniteExample", runner -> {
-                    final int expectedProcessId = runner.getProcessId();
-                    new LocalMachineSource(logger, new MachineListener()
+                final int expectedProcessId = runner.getProcessId();
+                new LocalMachineSource(logger, new MachineListener()
+                {
+                    @Override
+                    public void onNewMachine(final VirtualMachine machine)
                     {
-                        @Override
-                        public void onNewMachine(final VirtualMachine machine)
-                        {
-                            int machineProcessId = Integer.parseInt(machine.getId());
-                            expect.that(machine.isAgentLoaded()).is(machineProcessId == expectedProcessId);
-                        }
+                        int machineProcessId = Integer.parseInt(machine.getId());
+                        expect.that(machine.isAgentLoaded()).is(machineProcessId == expectedProcessId);
+                    }
 
-                        @Override
-                        public void onClosedMachine(final VirtualMachine machine)
-                        {
-                            expect.failure("Should never close VM " + machine);
-                        }
-                    }).discoverVirtualMachines();
-                });
-            });
+                    @Override
+                    public void onClosedMachine(final VirtualMachine machine)
+                    {
+                        expect.failure("Should never close VM " + machine);
+                    }
+                }).discoverVirtualMachines();
+            }));
 
-            it.should("detect no local machines if none are running", expect -> {
+            it.should("detect no local machines if none are running", expect ->
                 new LocalMachineSource(logger, new MachineListener()
                 {
                     @Override
@@ -55,8 +54,8 @@ public class LocalMachineSourceTest
                     {
                         expect.failure("Should never close VM " + machine);
                     }
-                }).discoverVirtualMachines();
-            });
+                }).discoverVirtualMachines()
+            );
 
         });
 

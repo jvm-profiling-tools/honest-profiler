@@ -35,35 +35,33 @@ public class FileLogSourceTest
 {
     {
 
-        describe("File Log Source", it -> {
-
+        describe("File Log Source", it ->
             it.should("Be able to read from updating files", expect -> {
-                // Given
-                File file = File.createTempFile("foo", ".bin");
-                file.deleteOnExit();
+            // Given
+            File file = File.createTempFile("foo", ".bin");
+            file.deleteOnExit();
+
+            // when
+            try (FileOutputStream stream = new FileOutputStream(file))
+            {
+                stream.write(1);
+                stream.flush();
+                FileLogSource source = new FileLogSource(file);
+
+                // then
+                ByteBuffer buffer = source.read();
+                expect.that(buffer.limit()).is(1)
+                    .and(buffer.get()).is((byte) 1);
 
                 // when
-                try (FileOutputStream stream = new FileOutputStream(file))
-                {
-                    stream.write(1);
-                    stream.flush();
-                    FileLogSource source = new FileLogSource(file);
+                stream.write(2);
+                stream.flush();
 
-                    // then
-                    ByteBuffer buffer = source.read();
-                    expect.that(buffer.limit()).is(1)
-                        .and(buffer.get()).is((byte) 1);
-
-                    // when
-                    stream.write(2);
-                    stream.flush();
-
-                    // then
-                    buffer = source.read();
-                    expect.that(buffer.limit()).isGreaterThanOrEqualTo(1)
-                        .and(buffer.get()).is((byte) 2);
-                }
-            });
-        });
+                // then
+                buffer = source.read();
+                expect.that(buffer.limit()).isGreaterThanOrEqualTo(1)
+                    .and(buffer.get()).is((byte) 2);
+            }
+        }));
 
     }}

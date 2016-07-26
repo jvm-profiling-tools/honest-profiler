@@ -62,9 +62,7 @@ public class WebSocketMachineSourceTest
                 finder = new WebSocketMachineSource(logger, monitor, listener);
             });
 
-            it.should("initially know of no machines", expect -> {
-                verifyNoMoreInteractions(listener);
-            });
+            it.should("initially know of no machines", expect -> verifyNoMoreInteractions(listener));
 
             it.should("recognise a new machine", expect -> {
                 when:
