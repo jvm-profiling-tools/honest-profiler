@@ -12,6 +12,8 @@
 #define GETENV_NEW_THREAD_ASYNC_UNSAFE
 #endif
 
+#define GETENV_NEW_THREAD_ASYNC_UNSAFE
+
 static ConfigurationOptions* CONFIGURATION = new ConfigurationOptions();
 static Profiler* prof;
 static Controller* controller;
@@ -284,6 +286,8 @@ static void parseArguments(char *options, ConfigurationOptions &configuration) {
                 configuration.host = safe_copy_string(value, next);
             } else if (strstr(key, "port") == key) {
                 configuration.port = safe_copy_string(value, next);
+            } else if (strstr(key, "maxFrames") == key) {
+                configuration.maxFramesToCapture = atoi(value);
             } else {
                 logError("WARN: Unknown configuration option: %s\n", key);
             }

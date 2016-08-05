@@ -25,7 +25,7 @@ public:
 struct GivenQueue {
   GivenQueue() {
     holder = new ItemHolder();
-    queue = new CircularQueue(*holder);
+    queue = new CircularQueue(*holder, DEFAULT_MAX_FRAMES_TO_CAPTURE);
   }
 
   ~GivenQueue() {

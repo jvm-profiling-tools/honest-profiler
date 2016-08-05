@@ -44,7 +44,7 @@ public:
         }
 
         writer = new LogWriter(*logFile, &Profiler::lookupFrameInformation, jvmti);
-        buffer = new CircularQueue(*writer);
+        buffer = new CircularQueue(*writer, configuration->maxFramesToCapture);
 
         // flush the queue about twice as fast as it fills up
         int processor_interval = Size * configuration->samplingIntervalMin / 1000 / 2;

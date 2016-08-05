@@ -76,7 +76,9 @@ TEST_FIXTURE(GivenQueue, CantOverWriteUnreadInput) {
   CHECK(!pop(0));
 }
 
-const int THREAD_COUNT = std::thread::hardware_concurrency();
+/* Prevent floating point exception for GCC < 4.7 */
+const int THREAD_COUNT = std::thread::hardware_concurrency() ?
+  std::thread::hardware_concurrency() : 1;
 const int THREAD_GAP = Size / THREAD_COUNT;
 
 void runnable(long start, CircularQueue* queue) {

@@ -9,7 +9,7 @@
 #include "stacktraces.h"
 #include <string.h>
 
-#if __GNUC__ == 4 && __GNUC_MINOR__ < 6 && !defined(__APPLE__) && !defined(__FreeBSD__) 
+#if __GNUC__ == 4 && __GNUC_MINOR__ < 6 && !defined(__APPLE__) && !defined(__FreeBSD__) && __clang__ != 1
   #include <cstdatomic>
 #else
   #include <atomic>
@@ -43,13 +43,16 @@ struct TraceHolder {
 
 class CircularQueue {
 public:
-    explicit CircularQueue(QueueListener &listener)
-            : listener_(listener), input(0), output(0) {
+    explicit CircularQueue(QueueListener &listener, int queueSize)
+            : listener_(listener), input(0), output(0), maxFrames(queueSize) {
         memset(buffer, 0, sizeof(buffer));
-        memset((void *) frame_buffer_, 0, sizeof(frame_buffer_));
+        for (int i = 0; i < Capacity; ++i)
+            frame_buffer_[i] = new JVMPI_CallFrame[queueSize]();
     }
 
     ~CircularQueue() {
+        for (int i = 0; i < Capacity; ++i)
+            delete[] frame_buffer_[i];
     }
 
     bool push(const JVMPI_CallTrace &item);
@@ -62,9 +65,10 @@ private:
 
     std::atomic<size_t> input;
     std::atomic<size_t> output;
+    int maxFrames;
 
     TraceHolder buffer[Capacity];
-    JVMPI_CallFrame frame_buffer_[Capacity][kMaxFramesToCapture];
+    JVMPI_CallFrame *frame_buffer_[Capacity];
 
     size_t advance(size_t index) const;
 
