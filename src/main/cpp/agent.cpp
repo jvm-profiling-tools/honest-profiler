@@ -12,8 +12,6 @@
 #define GETENV_NEW_THREAD_ASYNC_UNSAFE
 #endif
 
-#define GETENV_NEW_THREAD_ASYNC_UNSAFE
-
 static ConfigurationOptions* CONFIGURATION = new ConfigurationOptions();
 static Profiler* prof;
 static Controller* controller;

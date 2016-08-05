@@ -43,11 +43,11 @@ struct TraceHolder {
 
 class CircularQueue {
 public:
-    explicit CircularQueue(QueueListener &listener, int queueSize)
-            : listener_(listener), input(0), output(0), maxFrames(queueSize) {
+    explicit CircularQueue(QueueListener &listener, int maxFrameSize)
+            : listener_(listener), input(0), output(0), maxFrames(maxFrameSize) {
         memset(buffer, 0, sizeof(buffer));
         for (int i = 0; i < Capacity; ++i)
-            frame_buffer_[i] = new JVMPI_CallFrame[queueSize]();
+            frame_buffer_[i] = new JVMPI_CallFrame[maxFrameSize]();
     }
 
     ~CircularQueue() {
