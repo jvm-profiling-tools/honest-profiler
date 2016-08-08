@@ -285,7 +285,9 @@ static void parseArguments(char *options, ConfigurationOptions &configuration) {
             } else if (strstr(key, "port") == key) {
                 configuration.port = safe_copy_string(value, next);
             } else if (strstr(key, "maxFrames") == key) {
-                configuration.maxFramesToCapture = atoi(value);
+                int framesCandidate = atoi(value);
+                if (framesCandidate > 0)
+                    configuration.maxFramesToCapture = framesCandidate;
             } else {
                 logError("WARN: Unknown configuration option: %s\n", key);
             }
