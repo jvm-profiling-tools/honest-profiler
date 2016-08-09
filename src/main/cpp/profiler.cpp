@@ -56,6 +56,15 @@ bool Profiler::lookupFrameInformation(const JVMPI_CallFrame &frame,
     return true;
 }
 
+string Profiler::generateFileName() {
+    string fileNameStr;
+    long pid = (long) getpid();
+    long epochMillis = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+    ostringstream fileBuilder;
+    fileBuilder << "log-" << pid << "-" << epochMillis << ".hpl";
+    return fileBuilder.str();
+}
+
 void Profiler::handle(int signum, siginfo_t *info, void *context) {
     IMPLICITLY_USE(signum);
     IMPLICITLY_USE(info);
@@ -83,20 +92,90 @@ bool Profiler::start(JNIEnv *jniEnv) {
         logError("WARN: Start called but sampling is already running\n");
         return true;
     }
-
+    configure();
     // reference back to Profiler::handle on the singleton
     // instance of Profiler
-    handler_.SetAction(&bootstrapHandle);
+    handler_->SetAction(&bootstrapHandle);
     processor->start(jniEnv);
-    return handler_.updateSigprofInterval();
+    return handler_->updateSigprofInterval();
 }
 
 void Profiler::stop() {
-    handler_.stopSigprof();
-    processor->stop();
-    signal(SIGPROF, SIG_IGN);
+    if (initialized) {
+        handler_->stopSigprof();
+        processor->stop();
+        signal(SIGPROF, SIG_IGN);
+    }
 }
 
 bool Profiler::isRunning() const {
-    return processor->isRunning();
+    return processor && processor->isRunning();
+}
+
+void Profiler::setFilePath(char *newFilePath) {
+    if (isRunning()) {
+        logError("WARN: Unable to modify running profiler\n");
+        return;
+    }
+    liveConfiguration->logFilePath = newFilePath;
+}
+
+void Profiler::setSamplingInterval(int intervalMin, int intervalMax) {
+    if (isRunning()) {
+        logError("WARN: Unable to modify running profiler\n");
+        return;
+    }
+    liveConfiguration->samplingIntervalMin = intervalMin;
+    liveConfiguration->samplingIntervalMin = intervalMax;
+}
+
+void Profiler::setMaxFramesToCapture(int maxFramesToCapture) {
+    if (isRunning()) {
+        logError("WARN: Unable to modify running profiler\n");
+        return;
+    }
+    liveConfiguration->maxFramesToCapture = maxFramesToCapture;
+}
+
+void Profiler::configure() {
+    bool needsUpdate = !initialized;
+    
+    needsUpdate = needsUpdate || configuration_->logFilePath != liveConfiguration->logFilePath;
+    if (needsUpdate) {
+        if (logFile) delete logFile;
+        if (writer) delete writer;
+        configuration_->logFilePath = liveConfiguration->logFilePath;
+        
+        char *fileName = configuration_->logFilePath;
+        if (fileName == NULL)
+            fileName = (char*)generateFileName().c_str();
+
+        logFile = new ofstream(fileName, ofstream::out | ofstream::binary);
+        if (logFile->fail()) {
+            // The JVM will still continue to run though; could call abort() to terminate the JVM abnormally.
+            logError("ERROR: Failed to open file %s for writing\n", fileName);
+        }
+        writer = new LogWriter(*logFile, &Profiler::lookupFrameInformation, jvmti_);
+    }
+    
+    needsUpdate = needsUpdate || configuration_->maxFramesToCapture != liveConfiguration->maxFramesToCapture;
+    if (needsUpdate) {
+        if (buffer) delete buffer;
+        configuration_->maxFramesToCapture = liveConfiguration->maxFramesToCapture;
+        buffer = new CircularQueue(*writer, configuration_->maxFramesToCapture);
+    }
+    
+    needsUpdate = needsUpdate || 
+        configuration_->samplingIntervalMin != liveConfiguration->samplingIntervalMin || 
+        configuration_->samplingIntervalMax != liveConfiguration->samplingIntervalMax;
+    if (needsUpdate) {
+        if (processor) delete processor;
+        if (handler_) delete handler_;
+        configuration_->samplingIntervalMin = liveConfiguration->samplingIntervalMin;
+        configuration_->samplingIntervalMax = liveConfiguration->samplingIntervalMax;
+        handler_ = new SignalHandler(configuration_->samplingIntervalMin, configuration_->samplingIntervalMax);
+        int processor_interval = Size * configuration_->samplingIntervalMin / 1000 / 2;
+        processor = new Processor(jvmti_, *writer, *buffer, *handler_, processor_interval > 0 ? processor_interval : 1);
+    }
+    initialized = true;
 }

@@ -67,7 +67,6 @@ void Processor::start(JNIEnv *jniEnv) {
     jthread thread = newThread(jniEnv, "Honest Profiler Processing Thread");
     jvmtiStartFunction callback = callbackToRunProcessor;
     result = jvmti_->RunAgentThread(thread, callback, this, JVMTI_THREAD_NORM_PRIORITY);
-
     if (result != JVMTI_ERROR_NONE) {
         logError("ERROR: Running agent thread failed with: %d\n", result);
     }
