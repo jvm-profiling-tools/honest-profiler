@@ -173,4 +173,6 @@ public:
 
 void bootstrapHandle(int signum, siginfo_t *info, void *context);
 
+char *safe_copy_string(const char *value, const char *next);
+
 #endif // GLOBALS_H

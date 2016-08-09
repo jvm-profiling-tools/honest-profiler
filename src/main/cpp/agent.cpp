@@ -250,7 +250,7 @@ static bool RegisterJvmti(jvmtiEnv *jvmti) {
     return true;
 }
 
-static char *safe_copy_string(const char *value, const char *next) {
+char *safe_copy_string(const char *value, const char *next) {
     size_t size = (next == 0) ? strlen(value) : (size_t) (next - value);
     char *dest = (char *) malloc((size + 1) * sizeof(char));
 

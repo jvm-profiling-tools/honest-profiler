@@ -27,6 +27,7 @@ public:
         // main object graph instantiated here
         // these objects all live for the lifecycle of the program
         liveConfiguration = new ConfigurationOptions(*configuration);
+        configure();
     }
 
     bool start(JNIEnv *jniEnv);
@@ -65,8 +66,6 @@ public:
     }
 
 private:
-    void configure();
-
     JavaVM *jvm_;
 
     jvmtiEnv *jvmti_;
@@ -91,7 +90,7 @@ private:
             jvmtiEnv *jvmti,
             MethodListener &logWriter);
 
-    static string generateFileName();
+    void configure();
 
     DISALLOW_COPY_AND_ASSIGN(Profiler);
 };

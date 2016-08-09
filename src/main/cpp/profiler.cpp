@@ -56,15 +56,6 @@ bool Profiler::lookupFrameInformation(const JVMPI_CallFrame &frame,
     return true;
 }
 
-string Profiler::generateFileName() {
-    string fileNameStr;
-    long pid = (long) getpid();
-    long epochMillis = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-    ostringstream fileBuilder;
-    fileBuilder << "log-" << pid << "-" << epochMillis << ".hpl";
-    return fileBuilder.str();
-}
-
 void Profiler::handle(int signum, siginfo_t *info, void *context) {
     IMPLICITLY_USE(signum);
     IMPLICITLY_USE(info);
@@ -143,11 +134,21 @@ void Profiler::configure() {
     if (needsUpdate) {
         if (logFile) delete logFile;
         if (writer) delete writer;
-        configuration_->logFilePath = liveConfiguration->logFilePath;
+        if (configuration_->logFilePath) delete configuration_->logFilePath;
         
-        char *fileName = configuration_->logFilePath;
-        if (fileName == NULL)
-            fileName = (char*)generateFileName().c_str();
+        char *fileName = liveConfiguration->logFilePath;
+        string fileNameStr;
+        if (fileName == NULL) {
+            ostringstream fileBuilder;
+            long pid = (long) getpid();
+            long epochMillis = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+            fileBuilder << "log-" << pid << "-" << epochMillis << ".hpl";
+            fileNameStr = fileBuilder.str();
+            fileName = (char*)fileNameStr.c_str();
+            configuration_->logFilePath = liveConfiguration->logFilePath = safe_copy_string(fileName, NULL);
+        } else {
+            configuration_->logFilePath = liveConfiguration->logFilePath;
+        }
 
         logFile = new ofstream(fileName, ofstream::out | ofstream::binary);
         if (logFile->fail()) {
