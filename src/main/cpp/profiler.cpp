@@ -70,7 +70,7 @@ void Profiler::handle(int signum, siginfo_t *info, void *context) {
     IMPLICITLY_USE(info);
 
     // sample data structure
-    JVMPI_CallFrame *frames = new JVMPI_CallFrame[configuration_->maxFramesToCapture];
+    STATIC_ARRAY(frames, JVMPI_CallFrame, configuration_->maxFramesToCapture, MAX_FRAMES_TO_CAPTURE);
 
     JVMPI_CallTrace trace;
     trace.frames = frames;
@@ -84,7 +84,6 @@ void Profiler::handle(int signum, siginfo_t *info, void *context) {
     }
     // log all samples, failures included, let the post processing sift through the data
   	buffer->push(trace);
-    delete[] frames;
 }
 
 bool Profiler::start(JNIEnv *jniEnv) {
