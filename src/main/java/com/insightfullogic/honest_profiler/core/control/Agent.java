@@ -28,4 +28,18 @@ public class Agent
     public static synchronized native void stop();
 
     public static synchronized native boolean isRunning();
+
+    public static synchronized native int getSamplingIntervalMin();
+
+    public static synchronized native int getSamplingIntervalMax();
+
+    public static synchronized native int getMaxFramesToCapture();
+
+    public static synchronized native String getFilePath();
+
+    public static synchronized native void setFilePath(String filePath);
+
+    public static synchronized native void setSamplingInterval(int intervalMin, int intervalMax);
+
+    public static synchronized native void setFilePath(int maxFramesToCapture);
 }

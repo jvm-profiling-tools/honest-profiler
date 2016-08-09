@@ -44,3 +44,58 @@ JNIEXPORT jboolean JNICALL Java_com_insightfullogic_honest_1profiler_core_contro
 
     return prof->isRunning();
 }
+
+extern "C"
+JNIEXPORT jint JNICALL Java_com_insightfullogic_honest_1profiler_core_control_Agent_getSamplingIntervalMin(JNIEnv *env, jclass klass) {
+    Profiler *prof = getProfiler();
+
+    return prof->getSamplingIntervalMin();
+}
+
+extern "C"
+JNIEXPORT jint JNICALL Java_com_insightfullogic_honest_1profiler_core_control_Agent_getSamplingIntervalMax(JNIEnv *env, jclass klass) {
+    Profiler *prof = getProfiler();
+
+    return prof->getSamplingIntervalMax();
+}
+
+extern "C"
+JNIEXPORT jint JNICALL Java_com_insightfullogic_honest_1profiler_core_control_Agent_getMaxFramesToCapture(JNIEnv *env, jclass klass) {
+    Profiler *prof = getProfiler();
+
+    return prof->getMaxFramesToCapture();
+}
+
+extern "C"
+JNIEXPORT jstring JNICALL Java_com_insightfullogic_honest_1profiler_core_control_Agent_getFilePath(JNIEnv *env, jclass klass) {
+    Profiler *prof = getProfiler();
+
+    return env->NewStringUTF(prof->getFilePath());
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_insightfullogic_honest_1profiler_core_control_Agent_setFilePath(JNIEnv *env, jclass klass, jstring filePath) {
+    Profiler *prof = getProfiler();
+
+    if (filePath == NULL) {
+    	prof->setFilePath(NULL);
+    } else {
+    	const char *nativeString = env->GetStringUTFChars(filePath, 0);
+    	prof->setFilePath(safe_copy_string(nativeString, NULL));
+    	env->ReleaseStringUTFChars(filePath, nativeString);
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_insightfullogic_honest_1profiler_core_control_Agent_setSamplingInterval(JNIEnv *env, jclass klass, jint intervalMin, jint intervalMax) {
+    Profiler *prof = getProfiler();
+
+    prof->setSamplingInterval(intervalMin > 0 ? intervalMin : 1, intervalMax > 0 ? intervalMax : 1);
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_insightfullogic_honest_1profiler_core_control_Agent_setMaxFramesToCapture(JNIEnv *env, jclass klass, jint maxFramesToCapture) {
+    Profiler *prof = getProfiler();
+
+    prof->setMaxFramesToCapture(maxFramesToCapture > 0 && maxFramesToCapture <= MAX_FRAMES_TO_CAPTURE ? maxFramesToCapture : DEFAULT_MAX_FRAMES_TO_CAPTURE);
+}
