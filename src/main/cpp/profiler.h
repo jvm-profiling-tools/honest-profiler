@@ -22,11 +22,11 @@ using std::string;
 class Profiler {
 public:
     explicit Profiler(JavaVM *jvm, jvmtiEnv *jvmti, ConfigurationOptions *configuration) 
-            : jvm_(jvm), jvmti_(jvmti), configuration_(configuration),
-            logFile(NULL), writer(NULL), buffer(NULL), processor(NULL), handler_(NULL), initialized(false) {
+            : jvm_(jvm), jvmti_(jvmti), liveConfiguration(configuration),
+            logFile(NULL), writer(NULL), buffer(NULL), processor(NULL), handler_(NULL) {
         // main object graph instantiated here
         // these objects all live for the lifecycle of the program
-        liveConfiguration = new ConfigurationOptions(*configuration);
+        configuration_ = new ConfigurationOptions();
         configure();
     }
 
@@ -55,14 +55,15 @@ public:
     void setMaxFramesToCapture(int maxFramesToCapture);
 
     ~Profiler() {
-        if (initialized) {
-            delete buffer;
-            delete logFile;
-            delete writer;
-            delete processor;
-            delete handler_;
-            delete liveConfiguration;
-        }
+        /* liveConfiguration is managed in agent.cpp */
+        if (liveConfiguration->logFilePath == configuration_->logFilePath)
+            configuration_->logFilePath = NULL;
+        delete configuration_;
+        delete buffer;
+        delete logFile;
+        delete writer;
+        delete processor;
+        delete handler_;
     }
 
 private:
@@ -84,7 +85,7 @@ private:
 
     SignalHandler* handler_;
 
-    bool initialized;
+    bool reloadConfig;
 
     static bool lookupFrameInformation(const JVMPI_CallFrame &frame,
             jvmtiEnv *jvmti,

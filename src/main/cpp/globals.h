@@ -45,14 +45,10 @@ struct ConfigurationOptions {
             maxFramesToCapture(DEFAULT_MAX_FRAMES_TO_CAPTURE) {
     }
 
-    ConfigurationOptions(const ConfigurationOptions &conf) :
-            samplingIntervalMin(conf.samplingIntervalMin),
-            samplingIntervalMax(conf.samplingIntervalMax),
-            logFilePath(conf.logFilePath),
-            host(conf.host),
-            port(conf.port),
-            start(conf.start),
-            maxFramesToCapture(conf.maxFramesToCapture) {
+    virtual ~ConfigurationOptions() {
+      if (logFilePath) delete logFilePath;
+      if (host) delete host;
+      if (port) delete port;
     }
 };
 

@@ -41,5 +41,5 @@ public class Agent
 
     public static synchronized native void setSamplingInterval(int intervalMin, int intervalMax);
 
-    public static synchronized native void setFilePath(int maxFramesToCapture);
+    public static synchronized native void setMaxFramesToCapture(int maxFramesToCapture);
 }

@@ -82,7 +82,9 @@ bool Profiler::start(JNIEnv *jniEnv) {
         logError("WARN: Start called but sampling is already running\n");
         return true;
     }
-    configure();
+    if (reloadConfig)
+        configure();
+    
     // reference back to Profiler::handle on the singleton
     // instance of Profiler
     handler_->SetAction(&bootstrapHandle);
@@ -91,11 +93,9 @@ bool Profiler::start(JNIEnv *jniEnv) {
 }
 
 void Profiler::stop() {
-    if (initialized) {
-        handler_->stopSigprof();
-        processor->stop();
-        signal(SIGPROF, SIG_IGN);
-    }
+    handler_->stopSigprof();
+    processor->stop();
+    signal(SIGPROF, SIG_IGN);
 }
 
 bool Profiler::isRunning() const {
@@ -107,7 +107,13 @@ void Profiler::setFilePath(char *newFilePath) {
         logError("WARN: Unable to modify running profiler\n");
         return;
     }
+    
+    if (liveConfiguration->logFilePath && 
+        liveConfiguration->logFilePath != configuration_->logFilePath)
+        delete liveConfiguration->logFilePath;
+
     liveConfiguration->logFilePath = newFilePath;
+    reloadConfig = true;
 }
 
 void Profiler::setSamplingInterval(int intervalMin, int intervalMax) {
@@ -116,7 +122,8 @@ void Profiler::setSamplingInterval(int intervalMin, int intervalMax) {
         return;
     }
     liveConfiguration->samplingIntervalMin = intervalMin;
-    liveConfiguration->samplingIntervalMin = intervalMax;
+    liveConfiguration->samplingIntervalMax = intervalMax;
+    reloadConfig = true;
 }
 
 void Profiler::setMaxFramesToCapture(int maxFramesToCapture) {
@@ -125,16 +132,18 @@ void Profiler::setMaxFramesToCapture(int maxFramesToCapture) {
         return;
     }
     liveConfiguration->maxFramesToCapture = maxFramesToCapture;
+    reloadConfig = true;
 }
 
 void Profiler::configure() {
-    bool needsUpdate = !initialized;
+    bool needsUpdate = processor == NULL;
     
     needsUpdate = needsUpdate || configuration_->logFilePath != liveConfiguration->logFilePath;
     if (needsUpdate) {
         if (logFile) delete logFile;
         if (writer) delete writer;
-        if (configuration_->logFilePath) delete configuration_->logFilePath;
+        if (configuration_->logFilePath)
+            delete configuration_->logFilePath;
         
         char *fileName = liveConfiguration->logFilePath;
         string fileNameStr;
@@ -177,5 +186,5 @@ void Profiler::configure() {
         int processor_interval = Size * configuration_->samplingIntervalMin / 1000 / 2;
         processor = new Processor(jvmti_, *writer, *buffer, *handler_, processor_interval > 0 ? processor_interval : 1);
     }
-    initialized = true;
+    reloadConfig = false;
 }

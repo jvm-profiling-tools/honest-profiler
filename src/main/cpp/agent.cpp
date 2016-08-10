@@ -88,7 +88,8 @@ void JNICALL OnVMDeath(jvmtiEnv *jvmti_env, JNIEnv *jni_env) {
     IMPLICITLY_USE(jvmti_env);
     IMPLICITLY_USE(jni_env);
 
-    prof->stop();
+    if (prof->isRunning())
+        prof->stop();
 }
 
 static bool PrepareJvmti(jvmtiEnv *jvmti) {
@@ -341,6 +342,10 @@ AGENTEXPORT void JNICALL Agent_OnUnload(JavaVM *vm) {
     IMPLICITLY_USE(vm);
 
     controller->stop();
+
+    delete controller;
+    delete prof;
+    delete CONFIGURATION;
 }
 
 void bootstrapHandle(int signum, siginfo_t *info, void *context) {
