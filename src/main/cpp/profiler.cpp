@@ -121,8 +121,10 @@ void Profiler::setSamplingInterval(int intervalMin, int intervalMax) {
         logError("WARN: Unable to modify running profiler\n");
         return;
     }
-    liveConfiguration->samplingIntervalMin = intervalMin;
-    liveConfiguration->samplingIntervalMax = intervalMax;
+    int min = intervalMin > 0 ? intervalMin : DEFAULT_SAMPLING_INTERVAL;
+    int max = intervalMax > 0 ? intervalMax : DEFAULT_SAMPLING_INTERVAL;
+    liveConfiguration->samplingIntervalMin = std::min(min, max);
+    liveConfiguration->samplingIntervalMax = std::max(min, max);
     reloadConfig = true;
 }
 
@@ -131,7 +133,9 @@ void Profiler::setMaxFramesToCapture(int maxFramesToCapture) {
         logError("WARN: Unable to modify running profiler\n");
         return;
     }
-    liveConfiguration->maxFramesToCapture = maxFramesToCapture;
+    int res = (maxFramesToCapture > 0 && maxFramesToCapture < MAX_FRAMES_TO_CAPTURE) ? 
+        maxFramesToCapture : DEFAULT_MAX_FRAMES_TO_CAPTURE;
+    liveConfiguration->maxFramesToCapture = res;
     reloadConfig = true;
 }
 

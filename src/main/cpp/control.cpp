@@ -90,12 +90,12 @@ extern "C"
 JNIEXPORT void JNICALL Java_com_insightfullogic_honest_1profiler_core_control_Agent_setSamplingInterval(JNIEnv *env, jclass klass, jint intervalMin, jint intervalMax) {
     Profiler *prof = getProfiler();
 
-    prof->setSamplingInterval(intervalMin > 0 ? intervalMin : 1, intervalMax > 0 ? intervalMax : 1);
+    prof->setSamplingInterval(intervalMin, intervalMax);
 }
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_insightfullogic_honest_1profiler_core_control_Agent_setMaxFramesToCapture(JNIEnv *env, jclass klass, jint maxFramesToCapture) {
     Profiler *prof = getProfiler();
 
-    prof->setMaxFramesToCapture(maxFramesToCapture > 0 && maxFramesToCapture <= MAX_FRAMES_TO_CAPTURE ? maxFramesToCapture : DEFAULT_MAX_FRAMES_TO_CAPTURE);
+    prof->setMaxFramesToCapture(maxFramesToCapture);
 }

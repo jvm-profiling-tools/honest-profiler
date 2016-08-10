@@ -27,6 +27,12 @@ public:
         // main object graph instantiated here
         // these objects all live for the lifecycle of the program
         configuration_ = new ConfigurationOptions();
+
+        // explicitly call setters to validate input params
+        setSamplingInterval(liveConfiguration->samplingIntervalMin, 
+            liveConfiguration->samplingIntervalMax);
+        setMaxFramesToCapture(liveConfiguration->maxFramesToCapture);
+        
         configure();
     }
 
