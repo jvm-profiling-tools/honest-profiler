@@ -40,7 +40,7 @@ public:
 
     /* Several getters and setters for externals APIs */
 
-    char* getFilePath() const { return liveConfiguration->logFilePath; }
+    char *getFilePath() const { return liveConfiguration->logFilePath; }
 
     int getSamplingIntervalMin() const { return liveConfiguration->samplingIntervalMin; }
 
