@@ -26,6 +26,9 @@ const int MAX_FRAMES_TO_CAPTURE = 512;
   #define STATIC_ARRAY(NAME, TYPE, SIZE, MAXSZ) TYPE NAME[SIZE]
 #endif
 
+char *safe_copy_string(const char *value, const char *next);
+void safe_free_string(char *value);
+
 struct ConfigurationOptions {
     /** Interval in microseconds */
     int samplingIntervalMin, samplingIntervalMax;
@@ -46,9 +49,9 @@ struct ConfigurationOptions {
     }
 
     virtual ~ConfigurationOptions() {
-      if (logFilePath) delete logFilePath;
-      if (host) delete host;
-      if (port) delete port;
+      if (logFilePath) safe_free_string(logFilePath);
+      if (host) safe_free_string(host);
+      if (port) safe_free_string(port);
     }
 };
 
@@ -168,7 +171,5 @@ public:
 };
 
 void bootstrapHandle(int signum, siginfo_t *info, void *context);
-
-char *safe_copy_string(const char *value, const char *next);
 
 #endif // GLOBALS_H

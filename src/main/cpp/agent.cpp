@@ -261,6 +261,10 @@ char *safe_copy_string(const char *value, const char *next) {
     return dest;
 }
 
+void safe_free_string(char *value) {
+    free(value);
+}
+
 static void parseArguments(char *options, ConfigurationOptions &configuration) {
     char* next = options;
     for (char *key = options; next != NULL; key = next + 1) {
@@ -341,11 +345,8 @@ AGENTEXPORT jint JNICALL Agent_OnLoad(JavaVM *jvm, char *options, void *reserved
 AGENTEXPORT void JNICALL Agent_OnUnload(JavaVM *vm) {
     IMPLICITLY_USE(vm);
 
-    controller->stop();
-
-    delete controller;
-    delete prof;
-    delete CONFIGURATION;
+    if (controller->isRunning())
+        controller->stop();
 }
 
 void bootstrapHandle(int signum, siginfo_t *info, void *context) {

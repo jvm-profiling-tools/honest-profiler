@@ -107,10 +107,10 @@ void Profiler::setFilePath(char *newFilePath) {
         logError("WARN: Unable to modify running profiler\n");
         return;
     }
-    
+
     if (liveConfiguration->logFilePath && 
         liveConfiguration->logFilePath != configuration_->logFilePath)
-        delete liveConfiguration->logFilePath;
+        safe_free_string(liveConfiguration->logFilePath);
 
     liveConfiguration->logFilePath = newFilePath;
     reloadConfig = true;
@@ -143,7 +143,7 @@ void Profiler::configure() {
         if (logFile) delete logFile;
         if (writer) delete writer;
         if (configuration_->logFilePath)
-            delete configuration_->logFilePath;
+            safe_free_string(configuration_->logFilePath);
         
         char *fileName = liveConfiguration->logFilePath;
         string fileNameStr;
