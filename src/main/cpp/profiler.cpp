@@ -153,7 +153,6 @@ void Profiler::configure() {
         string fileNameStr;
         if (fileName == NULL) {
             ostringstream fileBuilder;
-            long pid = (long) getpid();
             long epochMillis = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
             fileBuilder << "log-" << pid << "-" << epochMillis << ".hpl";
             fileNameStr = fileBuilder.str();

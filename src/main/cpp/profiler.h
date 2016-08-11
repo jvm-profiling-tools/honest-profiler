@@ -27,6 +27,7 @@ public:
         // main object graph instantiated here
         // these objects all live for the lifecycle of the program
         configuration_ = new ConfigurationOptions();
+        pid = (long) getpid();
 
         // explicitly call setters to validate input params
         setSamplingInterval(liveConfiguration->samplingIntervalMin, 
@@ -92,6 +93,8 @@ private:
     SignalHandler* handler_;
 
     bool reloadConfig;
+
+    long pid;
 
     static bool lookupFrameInformation(const JVMPI_CallFrame &frame,
             jvmtiEnv *jvmti,
