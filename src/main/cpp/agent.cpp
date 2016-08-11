@@ -262,6 +262,8 @@ char *safe_copy_string(const char *value, const char *next) {
 }
 
 void safe_free_string(char *value) {
+    /** Prevent Profiler from calling delete/free explicitly when string goes
+     *  out of the scope. */
     free(value);
 }
 

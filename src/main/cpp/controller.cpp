@@ -104,7 +104,7 @@ void Controller::run() {
                 reportStatus(clientConnection);
             } else if (strstr(buf, "get ") == buf) {
                 getProfilerParam(clientConnection, buf + 4);
-            } else if (strstr(buf, "put ") == buf) {
+            } else if (strstr(buf, "set ") == buf) {
                 setProfilerParam(buf + 4);
             } else {
                 logError("WARN: Unknown command received, ignoring: %s\n", buf);
