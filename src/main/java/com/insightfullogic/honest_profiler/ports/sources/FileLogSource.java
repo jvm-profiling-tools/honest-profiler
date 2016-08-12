@@ -44,14 +44,24 @@ public class FileLogSource implements LogSource
     public FileLogSource(final File file)
     {
         this.file = file;
+        RandomAccessFile randomAccessFile= null;
         try
         {
-            channel = new RandomAccessFile(file, "r").getChannel();
+            randomAccessFile = new RandomAccessFile(file, "r");
+            channel = randomAccessFile.getChannel();
             remapFile(channel.size());
         }
         catch (IOException e)
         {
             throw new CantReadFromSourceException(e);
+        }
+        finally {
+            if(randomAccessFile != null){
+                try {
+                    randomAccessFile.close();
+                }
+                catch(IOException ex){}
+            }
         }
     }
 

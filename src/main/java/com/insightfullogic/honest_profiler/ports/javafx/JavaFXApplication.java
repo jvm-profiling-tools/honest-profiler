@@ -59,8 +59,6 @@ public class JavaFXApplication extends Application
     void createStart(Stage stage)
     {
         pico = registerComponents(stage);
-        WindowViewModel stageModel = pico.getComponent(WindowViewModel.class);
-        Parent parent = stageModel.displayStart();
         pico.start();
     }
 
