@@ -20,7 +20,7 @@ using std::string;
 
 class Profiler {
 public:
-    explicit Profiler(JavaVM *jvm, jvmtiEnv *jvmti, ConfigurationOptions *configuration) : jvm_(jvm), configuration_(configuration), handler_(configuration_->samplingIntervalMin, configuration->samplingIntervalMax) {
+    explicit Profiler(JavaVM *jvm, jvmtiEnv *jvmti, ThreadMap &tMap, ConfigurationOptions *configuration) : jvm_(jvm), tMap_(tMap), configuration_(configuration), handler_(configuration_->samplingIntervalMin, configuration->samplingIntervalMax) {
         // main object graph instantiated here
         // these objects all live for the lifecycle of the program
 
@@ -43,7 +43,7 @@ public:
             logError("ERROR: Failed to open file %s for writing\n", fileName);
         }
 
-        writer = new LogWriter(*logFile, &Profiler::lookupFrameInformation, jvmti);
+        writer = new LogWriter(*logFile, &Profiler::lookupFrameInformation, jvmti, tMap_);
         buffer = new CircularQueue(*writer, configuration->maxFramesToCapture);
 
         // flush the queue about twice as fast as it fills up
@@ -68,6 +68,8 @@ public:
 
 private:
     JavaVM *jvm_;
+
+    ThreadMap &tMap_;
 
     ConfigurationOptions *configuration_;
 

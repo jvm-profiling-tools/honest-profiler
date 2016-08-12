@@ -15,7 +15,7 @@
 static ConfigurationOptions* CONFIGURATION = new ConfigurationOptions();
 static Profiler* prof;
 static Controller* controller;
-
+static ThreadMap threadMap;
 
 // This has to be here, or the VM turns off class loading events.
 // And AsyncGetCallTrace needs class loading events to be turned on!
@@ -184,6 +184,30 @@ void JNICALL OnNativeMethodBind(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread th
     jvmti_env->Deallocate((unsigned char *) signature_ptr);
 }
 
+/* TODO: Test */
+// http://source.winehq.org/git/wine.git/?a=blob;f=dlls/ntdll/server.c#l943
+int gettid() {
+  int ret = -1;
+#if defined(__linux__)
+  ret = syscall(SYS_gettid);
+#elif defined(__APPLE__)
+  //ret = pthread_getthreadid_np();
+  ret = mach_thread_self();
+  mach_port_deallocate(mach_task_self(), ret);
+#elif defined(__NetBSD__)
+  ret = _lwp_self();
+#elif defined(__FreeBSD__)
+  long lwpid;
+  thr_self(&lwpid);
+  ret = lwpid;
+#elif defined(__DragonFly__)
+  ret = lwp_gettid();
+#else
+  ret = pthread_self();
+#endif
+  return ret;
+}
+
 volatile bool main_started = false;
 
 void JNICALL OnThreadStart(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread thread) {
@@ -196,6 +220,11 @@ void JNICALL OnThreadStart(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread thread)
                 if (CONFIGURATION->start)
                     prof->start(jni_env);
             }
+            ThreadBucket info;
+            info.tid = gettid();
+            info.tiEnv = jvmti_env;
+            info.thread = jni_env->NewGlobalRef(thread);
+            threadMap[(int64_t)jni_env] = info;
         }
     }
     pthread_sigmask(SIG_UNBLOCK, &prof_signal_mask, NULL);
@@ -203,6 +232,11 @@ void JNICALL OnThreadStart(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread thread)
 
 void JNICALL OnThreadEnd(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread thread) {
     pthread_sigmask(SIG_BLOCK, &prof_signal_mask, NULL);
+
+    int64_t key = (int64_t)jni_env;
+    ThreadBucket &info = threadMap[key];
+    jni_env->DeleteGlobalRef(info.thread);
+    threadMap.unsafe_erase(key);
 }
 
 static bool RegisterJvmti(jvmtiEnv *jvmti) {
@@ -331,7 +365,7 @@ AGENTEXPORT jint JNICALL Agent_OnLoad(JavaVM *jvm, char *options, void *reserved
 
     Asgct::SetAsgct(Accessors::GetJvmFunction<ASGCTType>("AsyncGetCallTrace"));
 
-    prof = new Profiler(jvm, jvmti, CONFIGURATION);
+    prof = new Profiler(jvm, jvmti, threadMap, CONFIGURATION);
     controller = new Controller(jvm, jvmti, prof, CONFIGURATION);
 
     return 0;

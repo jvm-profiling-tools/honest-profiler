@@ -23,8 +23,20 @@ void LogWriter::writeValue(const T &value) {
 }
 
 // TODO: implement
-static int64_t getThreadId(JNIEnv *env_id) {
-    return (int64_t) env_id;
+static int getThreadId(JNIEnv *env_id, ThreadMap &tMap) {
+    int64_t id = (int64_t) env_id;
+    if (tMap.find(id) != tMap.end()) {
+        ThreadBucket &b = tMap[id];
+        /* Thread name can be sampled here as a bonus
+        jvmtiThreadInfo thread_info;
+        int error = b.tiEnv->GetThreadInfo(b.thread, &thread_info);
+        if (error == JNI_OK) {
+            std::cout << "@@@ thread name: " << thread_info.name << std::endl;
+        }
+        */
+        return b.tid;
+    }
+    return id;
 }
 
 static jint bci2line(jint bci, jvmtiLineNumberEntry *table, jint entry_count) {
@@ -85,7 +97,7 @@ jint LogWriter::getLineNo(jint bci, jmethodID methodId) {
 }
 
 void LogWriter::record(const JVMPI_CallTrace &trace) {
-    int64_t threadId = getThreadId(trace.env_id);
+    int64_t threadId = getThreadId(trace.env_id, tMap_);
     recordTraceStart(trace.num_frames, threadId);
 
     for (int i = 0; i < trace.num_frames; i++) {

@@ -1,5 +1,4 @@
 #include "profiler.h"
-#include <sys/time.h>
 
 ASGCTType Asgct::asgct_;
 
@@ -71,7 +70,7 @@ void Profiler::handle(int signum, siginfo_t *info, void *context) {
     } else {
   		trace.env_id = jniEnv;
 	  	ASGCTType asgct = Asgct::GetAsgct();
-		  (*asgct)(&trace, configuration_->maxFramesToCapture, context);
+		(*asgct)(&trace, configuration_->maxFramesToCapture, context);
     }
     // log all samples, failures included, let the post processing sift through the data
   	buffer->push(trace);
