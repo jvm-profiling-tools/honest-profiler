@@ -26,7 +26,7 @@ bool stubFrameInformation(const JVMPI_CallFrame &frame, jvmtiEnv *jvmti,
   ostreambuf<char> outputBuffer(buffer, sizeof(buffer));                       \
   ostream output(&outputBuffer);                                               \
   LogWriter logWriter(output, &stubFrameInformation, NULL);                    \
-  CircularQueue *queue = new CircularQueue(logWriter);
+  CircularQueue *queue = new CircularQueue(logWriter, DEFAULT_MAX_FRAMES_TO_CAPTURE);
 
 #define done() delete queue;
 

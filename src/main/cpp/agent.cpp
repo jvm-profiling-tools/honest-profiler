@@ -284,6 +284,10 @@ static void parseArguments(char *options, ConfigurationOptions &configuration) {
                 configuration.host = safe_copy_string(value, next);
             } else if (strstr(key, "port") == key) {
                 configuration.port = safe_copy_string(value, next);
+            } else if (strstr(key, "maxFrames") == key) {
+                int framesCandidate = atoi(value);
+                if (framesCandidate > 0 && framesCandidate <= MAX_FRAMES_TO_CAPTURE)
+                    configuration.maxFramesToCapture = framesCandidate;
             } else {
                 logError("WARN: Unknown configuration option: %s\n", key);
             }

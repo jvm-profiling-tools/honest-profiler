@@ -15,6 +15,16 @@ void logError(const char *__restrict format, ...);
 Profiler *getProfiler();
 
 const int DEFAULT_SAMPLING_INTERVAL = 1;
+const int DEFAULT_MAX_FRAMES_TO_CAPTURE = 128;
+const int MAX_FRAMES_TO_CAPTURE = 512;
+
+#if defined(STATIC_ALLOCATION_ALLOCA)
+  #define STATIC_ARRAY(NAME, TYPE, SIZE, MAXSZ) TYPE *NAME = (TYPE*)alloca((SIZE) * sizeof(TYPE))
+#elif defined(STATIC_ALLOCATION_PEDANTIC)
+  #define STATIC_ARRAY(NAME, TYPE, SIZE, MAXSZ) TYPE NAME[MAXSZ]
+#else
+  #define STATIC_ARRAY(NAME, TYPE, SIZE, MAXSZ) TYPE NAME[SIZE]
+#endif
 
 struct ConfigurationOptions {
     /** Interval in microseconds */
@@ -23,6 +33,7 @@ struct ConfigurationOptions {
     char* host;
     char* port;
     bool start;
+    int maxFramesToCapture;
 
     ConfigurationOptions() :
             samplingIntervalMin(DEFAULT_SAMPLING_INTERVAL),
@@ -30,7 +41,8 @@ struct ConfigurationOptions {
             logFilePath(NULL),
             host(NULL),
             port(NULL),
-            start(true) {
+            start(true),
+            maxFramesToCapture(DEFAULT_MAX_FRAMES_TO_CAPTURE) {
     }
 };
 
@@ -148,11 +160,6 @@ public:
         return bit_cast<FunctionType>(dlsym(RTLD_DEFAULT, function_name));
     }
 };
-
-// Things that should probably be user-configurable
-
-// Maximum number of frames to store from the stack traces sampled.
-static const int kMaxFramesToCapture = 128;
 
 void bootstrapHandle(int signum, siginfo_t *info, void *context);
 

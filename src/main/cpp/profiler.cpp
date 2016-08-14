@@ -61,7 +61,7 @@ void Profiler::handle(int signum, siginfo_t *info, void *context) {
     IMPLICITLY_USE(info);
 
     // sample data structure
-    JVMPI_CallFrame frames[kMaxFramesToCapture];
+    STATIC_ARRAY(frames, JVMPI_CallFrame, configuration_->maxFramesToCapture, MAX_FRAMES_TO_CAPTURE);
 
     JVMPI_CallTrace trace;
     trace.frames = frames;
@@ -71,7 +71,7 @@ void Profiler::handle(int signum, siginfo_t *info, void *context) {
     } else {
   		trace.env_id = jniEnv;
 	  	ASGCTType asgct = Asgct::GetAsgct();
-		  (*asgct)(&trace, kMaxFramesToCapture, context);
+		  (*asgct)(&trace, configuration_->maxFramesToCapture, context);
     }
     // log all samples, failures included, let the post processing sift through the data
   	buffer->push(trace);
