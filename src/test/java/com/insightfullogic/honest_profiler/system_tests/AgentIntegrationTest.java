@@ -95,11 +95,7 @@ public class AgentIntegrationTest
 
                     runner.startProfiler();
                     
-                    parkNanos(SECONDS.toNanos(2));
-                    
                     seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
-                    
-                    parkNanos(SECONDS.toNanos(2));
                     
                     runner.stopProfiler();
 
