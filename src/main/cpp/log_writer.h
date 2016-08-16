@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string.h>
 
+#include "thread_map.h"
 #include "circular_queue.h"
 #include "stacktraces.h"
 

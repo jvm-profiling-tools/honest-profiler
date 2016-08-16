@@ -5,8 +5,6 @@
 #include <stdint.h>
 #include <signal.h>
 
-#include <tbb/concurrent_unordered_map.h>
-
 // only for linux?
 #include <sys/syscall.h>
 
@@ -26,14 +24,6 @@ Profiler *getProfiler();
 const int DEFAULT_SAMPLING_INTERVAL = 1;
 const int DEFAULT_MAX_FRAMES_TO_CAPTURE = 128;
 const int MAX_FRAMES_TO_CAPTURE = 512;
-
-struct ThreadBucket {
-    int tid;
-    jthread thread; 
-    jvmtiEnv *tiEnv;
-};
-
-typedef tbb::concurrent_unordered_map<int64_t, ThreadBucket> ThreadMap;
 
 #if defined(STATIC_ALLOCATION_ALLOCA)
   #define STATIC_ARRAY(NAME, TYPE, SIZE, MAXSZ) TYPE *NAME = (TYPE*)alloca((SIZE) * sizeof(TYPE))

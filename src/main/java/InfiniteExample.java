@@ -46,7 +46,7 @@ public class InfiniteExample
 
     private static void subMethod()
     {
-        System.out.println("calling some code, lalala");
+        //System.out.println("calling some code, lalala");
     }
 
     private static void startOrStop()
