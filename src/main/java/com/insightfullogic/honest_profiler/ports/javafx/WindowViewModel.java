@@ -32,12 +32,18 @@ public class WindowViewModel
 
     public enum Window
     {
-        LANDING,
-        PROFILE;
+        LANDING("Landing"),
+        PROFILE("Profile");
+
+        private final String fxmlPrefix;
+
+        Window(String fxmlPrefix) {
+            this.fxmlPrefix = fxmlPrefix;
+        }
 
         private String getFxmlFile()
         {
-            return name() + "View.fxml";
+            return fxmlPrefix + "View.fxml";
         }
     }
 
