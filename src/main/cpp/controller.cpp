@@ -25,7 +25,7 @@ void Controller::start() {
         return;
     }
 
-    isRunning_.store(true);
+    isRunning_.store(true, std::memory_order_relaxed);
 
     jthread thread = newThread(env, "Honest Profiler Controller Thread");
     jvmtiStartFunction callback = controllerRunnable;
@@ -37,7 +37,7 @@ void Controller::start() {
 }
 
 void Controller::stop() {
-    isRunning_.store(false);
+    isRunning_.store(false, std::memory_order_relaxed);
 }
 
 void Controller::run() {
@@ -77,7 +77,7 @@ void Controller::run() {
         return;
     }
 
-    while (isRunning_.load()) {
+    while (isRunning_.load(std::memory_order_relaxed)) {
         if ((clientConnection = accept(listener, (struct sockaddr *) &clientAddress, &addressSize)) == -1) {
             logError("ERROR: Failed to accept incoming connection: %s\n", strerror(errno));
             continue;
