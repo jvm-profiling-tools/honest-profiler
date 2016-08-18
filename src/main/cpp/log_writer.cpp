@@ -24,17 +24,16 @@ void LogWriter::writeValue(const T &value) {
 
 // TODO: implement
 static int64_t getThreadId(JNIEnv *env_id, ThreadMap &tMap) {
-    /*ThreadBucket *tInfo = tMap.get(env_id);
+    ThreadBucket *tInfo = tMap.get(env_id);
     if (tInfo) {
-        /* Thread name can be sampled here as a bonus
+        /* Thread name can be sampled here as a bonus */
         jvmtiThreadInfo thread_info;
         int error = tInfo->tiEnv->GetThreadInfo(tInfo->thread, &thread_info);
         if (error == JNI_OK) {
             std::cout << "@@@ thread name: " << thread_info.name << std::endl;
         }
         return tInfo->tid;
-    }*/
-    std::cout << "@@@ aaa! \n";
+    }
     return (int64_t)env_id;
 }
 

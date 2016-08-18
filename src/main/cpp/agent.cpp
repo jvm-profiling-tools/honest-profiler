@@ -197,7 +197,7 @@ void JNICALL OnThreadStart(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread thread)
                 if (CONFIGURATION->start)
                     prof->start(jni_env);
             }
-            //threadMap.put(jni_env, jvmti_env, thread);
+            threadMap.put(jni_env, jvmti_env, thread);
         }
     }
     pthread_sigmask(SIG_UNBLOCK, &prof_signal_mask, NULL);
@@ -206,7 +206,7 @@ void JNICALL OnThreadStart(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread thread)
 void JNICALL OnThreadEnd(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread thread) {
     pthread_sigmask(SIG_BLOCK, &prof_signal_mask, NULL);
 
-    //threadMap.remove(jni_env);
+    threadMap.remove(jni_env);
 }
 
 static bool RegisterJvmti(jvmtiEnv *jvmti) {
