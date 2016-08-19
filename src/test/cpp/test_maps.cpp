@@ -7,6 +7,7 @@
 #include <vector>
 
 typedef LockFreeMapProvider<PointerHasher<int> > TestLockFreeMap;
+typedef void (*MapFunction)(AbstractMapProvider &, void **, void **, std::atomic<void*> *, size_t, bool);
 
 void **allocateTestBuffer(size_t size) {
 	int **buffer = new int*[size];
@@ -28,206 +29,146 @@ void deallocateTestBuffer(void **b, size_t size) {
 
 #define IDX(rev, i, sz) ((rev) ? (sz - 1 - i) : (i))
 
-template <typename T, bool reverse=false>
-void mapWriter(T &map, void **keys, void **values, size_t size) {
+void mapWriter(AbstractMapProvider &map, void **keys, void **values, std::atomic<void*> *result, size_t size, bool reverse=false) {
 	for (int i = 0; i < size; i++) {
 		map.put(keys[IDX(reverse, i, size)], values[IDX(reverse, i, size)]);
 	}
 }
 
-template <typename T, bool reverse=false>
-void mapReader(T &map, void **keys, void **result, size_t size) {
+void mapReader(AbstractMapProvider &map, void **keys, void **values, std::atomic<void*> *result, size_t size, bool reverse=false) {
 	for (int i = 0; i < size; i++) {
-		result[IDX(reverse, i, size)] = map.get(keys[IDX(reverse, i, size)]);
+		void *res = map.get(keys[IDX(reverse, i, size)]);
+		result[IDX(reverse, i, size)].store(res, std::memory_order_relaxed);
 	}
 }
 
-template <typename T, bool reverse=false>
-void mapRemover(T &map, void **keys, void **result, size_t size) {
+void mapRemover(AbstractMapProvider &map, void **keys, void **values, std::atomic<void*> *result, size_t size, bool reverse=false) {
 	for (int i = 0; i < size; i++) {
-		result[IDX(reverse, i, size)] = map.remove(keys[IDX(reverse, i, size)]);
+		void *res = map.remove(keys[IDX(reverse, i, size)]);
+		result[IDX(reverse, i, size)].store(res, std::memory_order_relaxed);
 	}
 }
 
-template <typename T>
-void singleThreadedTest() {
-	T map(16);
-
-	int bSize = 10; // < map size
-	void **keys = allocateTestBuffer(bSize);
-	void **values = allocateTestBuffer(bSize);
-	void **results = new void*[bSize];
-	
-	CHECK_EQUAL(0, map.size());
-	
-	mapReader(map, keys, results, 1);
-	CHECK_EQUAL((void*)NULL, results[0]);
-	
-	mapRemover(map, keys, results, 1);
-	CHECK_EQUAL((void*)NULL, results[0]);
-
-	mapWriter(map, keys, values, bSize);
-	CHECK_EQUAL(bSize, map.size());
-
-	mapReader(map, keys, results, bSize);
-	CHECK_ARRAY_EQUAL(values, results, bSize);
-
-	mapRemover(map, keys, results, bSize);
-	CHECK_ARRAY_EQUAL(values, results, bSize);
-
-	mapReader(map, keys, results, 1);
-	CHECK_EQUAL((void*)NULL, results[0]);
-
-	delete[] results;
-	deallocateTestBuffer(keys, bSize);
-	deallocateTestBuffer(values, bSize);
+template <bool overlap=false, bool altDirection=false>
+void doParallel(int threads, MapFunction func, AbstractMapProvider &map, void **keys, void **values, std::atomic<void*> *result, size_t size) {
+	int delta = overlap ? size : size / threads; 
+	int index = 0;
+	std::vector<std::thread> tvec(threads);
+	int reverse = false;
+	for (int i = 0; i < threads; ++i, index += (overlap ? 0 : delta)) {
+		tvec[i] = std::thread(func, std::ref(map), keys + index, values + index, result + index, delta, reverse);
+		reverse = altDirection ? !reverse : reverse;
+	}
+	for (int i = 0; i < threads; ++i) {
+		tvec[i].join();
+	}
 }
 
-
-#define CONCURRENT_PROLOGUE(power)                 \
-	T map(1 << (power));                           \
-	int bSize = 1 << (power - 1);                  \
-	void **keys = allocateTestBuffer(bSize);       \
-	void **values = allocateTestBuffer(bSize);     \
-	void **results = new void*[bSize]
+#define CONCURRENT_PROLOGUE(T, power)                  \
+	T map(1 << (power));                               \
+	int bSize = 1 << (power - 1);                      \
+	void **keys = allocateTestBuffer(bSize);           \
+	void **values = allocateTestBuffer(bSize);         \
+	void **nullarr = new void*[bSize];			       \
+	for (int i = 0; i < bSize; i++) nullarr[i] = NULL; \
+	std::atomic<void*> *results = new std::atomic<void*>[bSize]
 
 #define CONCURRENT_EPILOGUE()                      \
 	delete[] results;                              \
+	delete[] nullarr;                              \
 	deallocateTestBuffer(keys, bSize);             \
 	deallocateTestBuffer(values, bSize);           \
 
+#define REPEAT_NEW_MAP(times)                      \
+	for (int testnr = 0; testnr < times; ++testnr)
 
-template <typename T = TestLockFreeMap>
-void concReadSeesInsert() {
-	CONCURRENT_PROLOGUE(1);
+#define REPEAT_OLD_MAP(times)                      \
+	for (int loopnr = 0; loopnr < times; ++loopnr)
 
-	std::thread simpleWriter(mapWriter<T>, std::ref(map), keys, values, 1);
-
-	void *res;
-	while ( !(res = map.get(keys[0])) ); // spin until get() succeeds
-	CHECK_EQUAL(values[0], res);
+template <typename T>
+void singleThreadedTest() {
+	CONCURRENT_PROLOGUE(T, 4);
 	
-	simpleWriter.join();
+	CHECK_EQUAL(0, map.size());
+	
+	mapReader(map, keys, values, results, 1);
+	CHECK_EQUAL((void*)NULL, results[0]);
+	
+	mapRemover(map, keys, values, results, 1);
+	CHECK_EQUAL((void*)NULL, results[0]);
+
+	mapWriter(map, keys, values, results, bSize);
+	CHECK_EQUAL(bSize, map.size());
+
+	mapReader(map, keys, values, results, bSize);
+	CHECK_ARRAY_EQUAL(values, results, bSize);
+
+	mapRemover(map, keys, values, results, bSize);
+	CHECK_ARRAY_EQUAL(values, results, bSize);
+
+	mapReader(map, keys, values, results, 1);
+	CHECK_EQUAL((void*)NULL, results[0]);
+
 	CONCURRENT_EPILOGUE();
 }
 
-template <typename T = TestLockFreeMap>
-void concReadSeesDelete() {
-	CONCURRENT_PROLOGUE(1);
+// TODO: make this run
+void concMixedTestCase() {
+	REPEAT_NEW_MAP(5) {
+		CONCURRENT_PROLOGUE(TestLockFreeMap, 15);
+		int jobSize = bSize >> 1;
 
-	mapWriter(map, keys, values, 1);
-	CHECK_EQUAL(values[0], map.get(keys[0]));
+		REPEAT_OLD_MAP(3) {
+			void **writerKeys = keys + jobSize;
+			void **writerValues = values + jobSize;
+			void **removerKeys = keys;
+			void **removerValues = values;
 
-	std::thread simpleRemover(mapRemover<T>, std::ref(map), keys, results, 1);
+			doParallel(4, mapWriter, map, keys, values, results, jobSize);
+			doParallel(4, mapReader, map, keys, values, results, bSize);
+			CHECK_ARRAY_EQUAL(values, results, jobSize);
+			CHECK_ARRAY_EQUAL(nullarr, results + jobSize, jobSize);
 
-	void *res;
-	while ( (res = map.get(keys[0])) ); // spin until get() returns NULL
-	CHECK_EQUAL((void*)NULL, res);
+			std::thread writer(mapWriter, std::ref(map), writerKeys, writerValues, results, jobSize, false);
+			std::thread remover(mapRemover, std::ref(map), removerKeys, removerValues, results, jobSize, false);
 
-	simpleRemover.join();
-	CONCURRENT_EPILOGUE();
-}
+			bool *conditions = new bool[bSize];
+			int conditionsMet = 0;
+			
+			while (conditionsMet != bSize) {
+				for (int i = 0; i < jobSize; ++i) {
+					if (!conditions[i]) {
+						conditions[i] = (map.get(writerKeys[i]) == writerValues[i]);
+						conditionsMet += (conditions[i] ? 1 : 0);
+					}
+				}
+				for (int i = 0; i < jobSize; ++i) {
+					if (!conditions[i + jobSize]) {
+						conditions[i + jobSize] = (map.get(removerKeys[i]) == NULL);
+						conditionsMet += (conditions[i + jobSize] ? 1 : 0);
+					}
+				}
+			}
+			delete[] conditions;
 
-template <typename T = TestLockFreeMap>
-void concInsertsSeparate() {
-	CONCURRENT_PROLOGUE(15);
+			writer.join();
+			remover.join();
 
-	const int threadsSize = 4;
-	int delta = bSize / threadsSize; 
-	int index = 0;
+			// clean map in parallel
+			doParallel(2, mapRemover, map, keys, values, results, bSize);
 
-	for (int iteration = 0; iteration < 10; ++iteration, index = 0) {
-		std::vector<std::thread> threads(threadsSize);
-
-		for (int i = 0; i < threadsSize; ++i, index += delta) {
-			threads[i] = std::thread(mapWriter<T>, std::ref(map), keys + index, values + index, delta);
+			// check that map is indeed empty
+			doParallel(4, mapReader, map, keys, values, results, bSize);
+			CHECK_ARRAY_EQUAL(nullarr, results, bSize);
 		}
-
-		for (int i = 0; i < threadsSize; ++i) {
-			threads[i].join();
-		}
-
-		mapRemover(map, keys, results, bSize);
-		CHECK_ARRAY_EQUAL(values, results, index);
-		for (int i = index; i < bSize; ++i) {
-			CHECK_EQUAL((void*)NULL, results[i]);
-		}
+		CONCURRENT_EPILOGUE();
 	}
-	
-	CONCURRENT_EPILOGUE();
-}
-
-template <typename T = TestLockFreeMap>
-void concInsertsOverlapping() {
-	CONCURRENT_PROLOGUE(15);
-
-	const int threadsSize = 2;
-
-	for (int iteration = 0; iteration < 10; ++iteration) {
-		std::vector<std::thread> threads(threadsSize);
-
-		for (int i = 0; i < threadsSize; ++i) {
-			threads[i] = std::thread(mapWriter<T>, std::ref(map), keys, values, bSize);
-		}
-
-		for (int i = 0; i < threadsSize; ++i) {
-			threads[i].join();
-		}
-
-		mapRemover(map, keys, results, bSize);
-		CHECK_ARRAY_EQUAL(values, results, bSize);
-	}
-	
-	CONCURRENT_EPILOGUE();
-}
-
-template <typename T = TestLockFreeMap>
-void concInsertsSameKeys() {
-	CONCURRENT_PROLOGUE(15);
-	void **upd_values = allocateTestBuffer(bSize);
-
-	for (int iteration = 0; iteration < 10; ++iteration) {
-		std::thread writer1(mapWriter<T>, std::ref(map), keys, values, bSize);
-		std::thread writer2(mapWriter<T, true>, std::ref(map), keys, upd_values, bSize);
-
-		writer1.join();
-		writer2.join();
-
-		mapRemover(map, keys, results, bSize);
-		for (int i = 0; i < bSize; ++i) {
-			CHECK(results[i] == values[i] || results[i] == upd_values[i]);
-		}
-	}
-	
-	deallocateTestBuffer(upd_values, bSize);
-	CONCURRENT_EPILOGUE();
 }
 
 #ifdef CONCURRENT_MAP_TBB
 
 TEST(TbbHashMapSequentialSpec) {
-	/* make sure TBB map works as expected in single threaded case */
 	singleThreadedTest<TbbMapProvider>();
-}
-
-TEST(TbbConcurrentReadSeesInsert) {
-	concReadSeesInsert<TbbMapProvider>();
-}
-
-TEST(TbbConcurrentReadSeesRemove) {
-	concReadSeesDelete<TbbMapProvider>();
-}
-
-TEST(TbbConcurrentInserts) {
-	concInsertsSeparate<TbbMapProvider>();
-}
-
-TEST(TbbConcurrentOverlappingInserts) {
-	concInsertsOverlapping<TbbMapProvider>();
-}
-
-TEST(TbbConcurrentInsertSameKeys) {
-	concInsertsSameKeys<TbbMapProvider>();
 }
 
 #endif
@@ -236,22 +177,110 @@ TEST(LockFreeHashMapSequentialSpec) {
 	singleThreadedTest<TestLockFreeMap>();
 }
 
-TEST(LockFreeHashMapConcurrentReadSeesInsert) {
-	concReadSeesInsert<TestLockFreeMap>();
+TEST(LockFreeHashMapBasicConcurrentChecks) {
+	CONCURRENT_PROLOGUE(TestLockFreeMap, 4);
+
+	void *res;
+
+	mapReader(map, keys, values, results, 1);
+	CHECK_EQUAL((void*)NULL, results[0]);
+
+	std::thread writer(mapWriter, std::ref(map), keys, values, results, 1, false);
+	while ( !(res = map.get(keys[0])) );
+	CHECK_EQUAL(values[0], res);
+
+	std::thread remover(mapRemover, std::ref(map), keys, values, results, 1, false);
+	while ( (res = map.get(keys[0])) );
+	CHECK_EQUAL(values[0], results[0]);
+
+	writer.join();
+	remover.join();
+
+	CONCURRENT_EPILOGUE();
 }
 
-TEST(LockFreeHashMapConcurrentReadSeesRemove) {
-	concReadSeesDelete<TestLockFreeMap>();
+TEST(LockFreeHashMapConcurrentIsolatedModifications) {
+	REPEAT_NEW_MAP(5) {
+		CONCURRENT_PROLOGUE(TestLockFreeMap, 15);
+
+		REPEAT_OLD_MAP(3) {
+			// populate map in parallel
+			doParallel(1, mapWriter, map, keys, values, results, bSize);
+			doParallel(4, mapReader, map, keys, values, results, bSize);
+			CHECK_ARRAY_EQUAL(values, results, bSize);
+
+			// clean map in parallel
+			doParallel(4, mapRemover, map, keys, values, results, bSize);
+			CHECK_ARRAY_EQUAL(values, results, bSize);
+			
+			// check that map is indeed empty
+			doParallel(4, mapReader, map, keys, values, results, bSize);
+			CHECK_ARRAY_EQUAL(nullarr, results, bSize);
+		}
+	
+		CONCURRENT_EPILOGUE();
+	}
 }
 
-TEST(LockFreeHashMapConcurrentInserts) {
-	concInsertsSeparate<TestLockFreeMap>();
+TEST(LockFreeHashMapConcurrentOverlappingModifications) {
+	REPEAT_NEW_MAP(5) {
+		CONCURRENT_PROLOGUE(TestLockFreeMap, 15);
+
+		REPEAT_OLD_MAP(3) {
+			// 2 threads writing the same keys and same values
+			// write direction of threads is opposite t1 -> <- t2
+			doParallel<true, true>(2, mapWriter, map, keys, values, results, bSize);
+			doParallel(4, mapReader, map, keys, values, results, bSize);
+			CHECK_ARRAY_EQUAL(values, results, bSize);
+
+			// 2 threads removing the same keys
+			doParallel<true>(2, mapRemover, map, keys, values, results, bSize);
+			for (int i = 0; i < bSize; ++i) {
+				// each item was removed twice but results can be loaded in any order
+				void* res = results[i].load(std::memory_order_relaxed);
+				CHECK(res == NULL || res == values[i]);
+			}
+
+			// check that map is indeed empty
+			doParallel(4, mapReader, map, keys, values, results, bSize);
+			CHECK_ARRAY_EQUAL(nullarr, results, bSize);
+		}
+	
+		CONCURRENT_EPILOGUE();
+	}
 }
 
-TEST(LockFreeHashMapConcurrentOverlappingInserts) {
-	concInsertsOverlapping<TestLockFreeMap>();
+TEST(LockFreeHashMapConcurrentOverlappingUpdates) {
+	REPEAT_NEW_MAP(5) {
+		CONCURRENT_PROLOGUE(TestLockFreeMap, 15);
+		void **upd_values = allocateTestBuffer(bSize);
+
+		REPEAT_OLD_MAP(3) {
+			// 2 threads writing the same keys but different values
+			// write direction of threads is opposite t1 -> <- t2
+			std::thread writer1(mapWriter, std::ref(map), keys, values, results, bSize, false);
+			std::thread writer2(mapWriter, std::ref(map), keys, upd_values, results, bSize, true);
+
+			writer1.join();
+			writer2.join();
+
+			doParallel(4, mapReader, map, keys, values, results, bSize);
+			for (int i = 0; i < bSize; i++)
+				CHECK(results[i] == upd_values[i] || results[i] == values[i]);
+
+			// clean map in parallel
+			doParallel(2, mapRemover, map, keys, values, results, bSize);
+
+			// check that map is indeed empty
+			doParallel(4, mapReader, map, keys, values, results, bSize);
+			CHECK_ARRAY_EQUAL(nullarr, results, bSize);
+		}
+		
+		deallocateTestBuffer(upd_values, bSize);
+		CONCURRENT_EPILOGUE();
+	}
 }
 
-TEST(LockFreeHashMapConcurrentInsertSameKeys) {
-	concInsertsSameKeys<TestLockFreeMap>();
+TEST(LockFreeHashMapConcurrentMixedLoad) {
+	concMixedTestCase();
 }
