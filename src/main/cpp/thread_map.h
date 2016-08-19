@@ -48,10 +48,17 @@ struct ThreadBucket {
     jvmtiEnv *tiEnv;
 };
 
+class AbstractMapProvider {
+public:
+	virtual void put(void *key, void *value) = 0;
+	virtual void *get(void *key) = 0;
+	virtual void *remove(void *key) = 0;
+	virtual ~AbstractMapProvider() {}
+};
 
 #ifdef CONCURRENT_MAP_TBB
 
-class TbbMapProvider {
+class TbbMapProvider : public AbstractMapProvider {
 private:
 	typedef tbb::concurrent_hash_map<void*, void*> HashMap;
 	HashMap map;
@@ -108,7 +115,7 @@ struct PointerHasher {
 
 /* Hasher assumed to be collision free. */
 template <typename Hasher>
-class LockFreeMapProvider {
+class LockFreeMapProvider : public AbstractMapProvider {
 private:
 	LockFreeMapEntry *array;
 	int allocatedSize;
