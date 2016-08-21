@@ -23,23 +23,23 @@ package com.insightfullogic.honest_profiler.core.control;
 
 public class Agent
 {
-    public static synchronized native boolean start();
+    public static native boolean start();
 
-    public static synchronized native void stop();
+    public static native void stop();
 
-    public static synchronized native boolean isRunning();
+    public static native boolean isRunning();
 
-    public static synchronized native int getSamplingIntervalMin();
+    public static native int getSamplingIntervalMin();
 
-    public static synchronized native int getSamplingIntervalMax();
+    public static native int getSamplingIntervalMax();
 
-    public static synchronized native int getMaxFramesToCapture();
+    public static native int getMaxFramesToCapture();
 
-    public static synchronized native String getFilePath();
+    public static native String getFilePath();
 
-    public static synchronized native void setFilePath(String filePath);
+    public static native void setFilePath(String filePath);
 
-    public static synchronized native void setSamplingInterval(int intervalMin, int intervalMax);
+    public static native void setSamplingInterval(int intervalMin, int intervalMax);
 
-    public static synchronized native void setMaxFramesToCapture(int maxFramesToCapture);
+    public static native void setMaxFramesToCapture(int maxFramesToCapture);
 }

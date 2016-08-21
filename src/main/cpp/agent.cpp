@@ -194,8 +194,9 @@ void JNICALL OnThreadStart(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread thread)
         if (error == JNI_OK) {
             if (strcmp(thread_info.name, "main") == 0) {
                 main_started = true;
-                if (CONFIGURATION->start)
+                if (CONFIGURATION->start) {
                     prof->start(jni_env);
+                }
             }
         }
     }
