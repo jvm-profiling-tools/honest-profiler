@@ -19,6 +19,7 @@ set(SRC "src/main/cpp")
 set(SRC_TEST "src/test/cpp")
 set(BIN "build")
 set(OUTPUT "lagent")
+set(OUTPUT_TEST "lagent.test")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${BIN})
 
 ##########################################################
@@ -65,7 +66,8 @@ set(SOURCE_FILES
     ${SRC}/processor.h
     ${SRC}/profiler.cpp
     ${SRC}/profiler.h
-    ${SRC}/stacktraces.h)
+    ${SRC}/stacktraces.h
+    ${SRC}/trace.h)
 
 set(TEST_FILES
     ${SRC_TEST}/fixtures.h
@@ -73,7 +75,8 @@ set(TEST_FILES
     ${SRC_TEST}/test.cpp
     ${SRC_TEST}/test_log_writer.cpp
     ${SRC_TEST}/test_agent.cpp
-    ${SRC_TEST}/test.h)
+    ${SRC_TEST}/test.h
+    ${SRC_TEST}/test_profiler_config.cpp)
 
 
 ##########################################################
@@ -116,19 +119,26 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GLOBAL_WARNINGS} ${GLOBAL_COPTS} -pthr
 
 add_library(${OUTPUT} SHARED ${SOURCE_FILES})
 
+# Unit test build
+add_library(${OUTPUT_TEST} SHARED ${SOURCE_FILES})
+target_compile_definitions(${OUTPUT_TEST} PRIVATE TEST_PROFILER=1 ENABLE_TRACING=1)
+
 if ("${CMAKE_SYSTEM_NAME}" STREQUAL "FreeBSD") 
     target_link_libraries(${OUTPUT} ${JNI_LIBRARIES})
+    target_link_libraries(${OUTPUT_TEST} ${JNI_LIBRARIES})
 else()
     target_link_libraries(${OUTPUT} ${JNI_LIBRARIES} dl)
+    target_link_libraries(${OUTPUT_TEST} ${JNI_LIBRARIES} dl)
 endif()
 
 add_executable(unitTests ${TEST_FILES})
+target_compile_definitions(unitTests PRIVATE TEST_PROFILER=1 ENABLE_TRACING=1)
 
 if (DEFINED ENV{UNITTEST_LIBRARIES})
     message("User has configured " $ENV{UNITTEST_LIBRARIES} " as the unit test libraries")
-    target_link_libraries(unitTests ${OUTPUT} $ENV{UNITTEST_LIBRARIES})
+    target_link_libraries(unitTests ${OUTPUT_TEST} $ENV{UNITTEST_LIBRARIES})
 else()
-    target_link_libraries(unitTests ${OUTPUT} ${unittest++_LIBRARIES})
+    target_link_libraries(unitTests ${OUTPUT_TEST} ${unittest++_LIBRARIES})
 endif()
 
 # make test

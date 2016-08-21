@@ -324,7 +324,6 @@ void Profiler::configure() {
 #else
     bool needsUpdate = processorMock == NULL;
 #endif
-
     needsUpdate = needsUpdate || configuration_->logFilePath != liveConfiguration->logFilePath;
     if (needsUpdate) {
         if (logFile) delete logFile;
