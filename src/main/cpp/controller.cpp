@@ -135,7 +135,8 @@ void Controller::stopSampling() {
 void Controller::reportStatus(int clientConnection) {
     bool samplingIsRunning = profiler_->isRunning();
     // ensures there's space for status, log file path, comma, newline, and NULL
-    char *logFilePath = profiler_->getFilePath();
+    std::string filePath = profiler_->getFilePath();
+    const char *logFilePath = filePath.c_str();
     int bufSize = strlen(logFilePath) + 10;
     char buf[bufSize];
 
@@ -186,8 +187,7 @@ void Controller::setProfilerParam(char *paramDesc) {
 
     if (command == "logPath") {
         input >> stringArg;
-        char *newPath = safe_copy_string(stringArg.c_str(), NULL);
-        profiler_->setFilePath(newPath);
+        profiler_->setFilePath((char*)stringArg.c_str());
     } else {
         input >> numericArg1;
         if (command == "intervalMin") {

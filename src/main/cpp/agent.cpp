@@ -261,10 +261,11 @@ char *safe_copy_string(const char *value, const char *next) {
     return dest;
 }
 
-void safe_free_string(char *value) {
+void safe_free_string(char *&value) {
     /** Prevent Profiler from calling delete/free explicitly when string goes
      *  out of the scope. */
     free(value);
+    value = NULL;
 }
 
 static void parseArguments(char *options, ConfigurationOptions &configuration) {

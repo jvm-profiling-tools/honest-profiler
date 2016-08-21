@@ -70,7 +70,7 @@ extern "C"
 JNIEXPORT jstring JNICALL Java_com_insightfullogic_honest_1profiler_core_control_Agent_getFilePath(JNIEnv *env, jclass klass) {
     Profiler *prof = getProfiler();
 
-    return env->NewStringUTF(prof->getFilePath());
+    return env->NewStringUTF(prof->getFilePath().c_str());
 }
 
 extern "C"
@@ -81,7 +81,7 @@ JNIEXPORT void JNICALL Java_com_insightfullogic_honest_1profiler_core_control_Ag
     	prof->setFilePath(NULL);
     } else {
     	const char *nativeString = env->GetStringUTFChars(filePath, 0);
-    	prof->setFilePath(safe_copy_string(nativeString, NULL));
+    	prof->setFilePath((char*)nativeString);
     	env->ReleaseStringUTFChars(filePath, nativeString);
     }
 }

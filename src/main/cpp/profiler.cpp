@@ -3,6 +3,65 @@
 
 ASGCTType Asgct::asgct_;
 
+TRACE_DEFINE_BEGIN(Profiler, kTraceProfilerTotal)
+    TRACE_DEFINE("start failed")
+    TRACE_DEFINE("start succeeded")
+    TRACE_DEFINE("set sampling interval failed")
+    TRACE_DEFINE("set sampling interval succeeded")
+    TRACE_DEFINE("set stack frames to capture failed")
+    TRACE_DEFINE("set stack frames to capture succeeded")
+    TRACE_DEFINE("set new file failed")
+    TRACE_DEFINE("set new file succeeded")
+    TRACE_DEFINE("stop failed")
+    TRACE_DEFINE("stop succeeded")
+TRACE_DEFINE_END(Profiler, kTraceProfilerTotal);
+
+#ifdef TEST_PROFILER
+
+TRACE_DEFINE_BEGIN(ProcessorMock, kTraceProcMockTotal)
+    TRACE_DEFINE("start processor")
+    TRACE_DEFINE("stop processor")
+    TRACE_DEFINE("chech that processor is running")
+    TRACE_DEFINE("processor constructor")
+    TRACE_DEFINE("processor destructor")
+TRACE_DEFINE_END(ProcessorMock, kTraceProcMockTotal);
+
+void ProcessorMock::start() { 
+    TRACE(ProcessorMock, kTraceProcMockStart);
+    running.store(true);
+}
+
+void ProcessorMock::stop() {
+    TRACE(ProcessorMock, kTraceProcMockStop);
+    running.store(false);
+}
+
+bool ProcessorMock::isRunning() const {
+    TRACE(ProcessorMock, kTraceProcMockRunning);
+    return running.load();
+}
+
+ProcessorMock::ProcessorMock() {
+    TRACE(ProcessorMock, kTraceProcMockConstructor);
+    running.store(false);
+}
+
+ProcessorMock::~ProcessorMock() {
+    TRACE(ProcessorMock, kTraceProcMockDestructor);
+}
+
+#endif
+
+#define SPIN_LOCK() \
+    bool expectedState = false; \
+    while (!ongoingConf.compare_exchange_weak(expectedState, true, std::memory_order_acquire)) { expectedState = false; sched_yield(); }
+
+#define ACQUIRE_FENCE() \
+    ongoingConf.load(std::memory_order_acquire)
+
+#define SPIN_RELEASE(release) \
+    ongoingConf.store(false, release ? std::memory_order_release : std::memory_order_relaxed)
+
 
 bool Profiler::lookupFrameInformation(const JVMPI_CallFrame &frame,
         jvmtiEnv *jvmti,
@@ -59,6 +118,7 @@ bool Profiler::lookupFrameInformation(const JVMPI_CallFrame &frame,
 void Profiler::handle(int signum, siginfo_t *info, void *context) {
     IMPLICITLY_USE(signum);
     IMPLICITLY_USE(info);
+    ACQUIRE_FENCE(); // sync buffer
 
     // sample data structure
     STATIC_ARRAY(frames, JVMPI_CallFrame, configuration_->maxFramesToCapture, MAX_FRAMES_TO_CAPTURE);
@@ -78,70 +138,193 @@ void Profiler::handle(int signum, siginfo_t *info, void *context) {
 }
 
 bool Profiler::start(JNIEnv *jniEnv) {
-    if (isRunning()) {
+    SPIN_LOCK();
+    /* within critical section */
+
+    if (__is_running()) {
+        TRACE(Profiler, kTraceProfilerStartFailed);
         logError("WARN: Start called but sampling is already running\n");
+        SPIN_RELEASE(false);
         return true;
     }
+
+    TRACE(Profiler, kTraceProfilerStartOk);
+
     if (reloadConfig)
         configure();
-    
+
     // reference back to Profiler::handle on the singleton
     // instance of Profiler
     handler_->SetAction(&bootstrapHandle);
     processor->start(jniEnv);
-    return handler_->updateSigprofInterval();
+    bool res = handler_->updateSigprofInterval();
+    SPIN_RELEASE(true);
+    return res;
 }
 
+#ifdef TEST_PROFILER
+bool Profiler::start() {
+    /* Make sure it doesn't overlap with configure */
+    SPIN_LOCK();
+
+    if (__is_running()) {
+        TRACE(Profiler, kTraceProfilerStartFailed);
+        logError("WARN: Start called but sampling is already running\n");
+        SPIN_RELEASE(false);
+        return true;
+    }
+
+    TRACE(Profiler, kTraceProfilerStartOk);
+
+    if (reloadConfig)
+        configure();
+    
+    processorMock->start();
+    SPIN_RELEASE(true);
+    return true;
+}
+#endif
+
 void Profiler::stop() {
+    /* Make sure it doesn't overlap with configure */
+    SPIN_LOCK();
+
+    if (!__is_running()) {
+        TRACE(Profiler, kTraceProfilerStopFailed);
+        SPIN_RELEASE(false);
+        return;
+    }    
+
+#ifndef TEST_PROFILER
     handler_->stopSigprof();
     processor->stop();
     signal(SIGPROF, SIG_IGN);
+#else
+    processorMock->stop();
+#endif
+    SPIN_RELEASE(false); 
 }
 
-bool Profiler::isRunning() const {
-    return processor && processor->isRunning();
+bool Profiler::isRunning() {
+    /* Make sure it doesn't overlap with configure */
+    SPIN_LOCK();
+    bool res = __is_running();
+    SPIN_RELEASE(false);
+    return res;
+}
+
+// non-blocking version (cen be called once spin-lock with acquire semantics is grabed)
+bool Profiler::__is_running() {
+#ifndef TEST_PROFILER
+    bool res = processor && processor->isRunning();
+#else
+    bool res =  processorMock && processorMock->isRunning();
+#endif
+    return res;
 }
 
 void Profiler::setFilePath(char *newFilePath) {
-    if (isRunning()) {
+    /* Make sure it doesn't overlap with other sets */
+    SPIN_LOCK();
+
+    if (__is_running()) {
+        TRACE(Profiler, kTraceProfilerSetFileFailed);
         logError("WARN: Unable to modify running profiler\n");
+        SPIN_RELEASE(false);
         return;
     }
+
+    TRACE(Profiler, kTraceProfilerSetFileOk);
 
     if (liveConfiguration->logFilePath && 
         liveConfiguration->logFilePath != configuration_->logFilePath)
         safe_free_string(liveConfiguration->logFilePath);
 
-    liveConfiguration->logFilePath = newFilePath;
+    /* make local copy of string */
+    liveConfiguration->logFilePath = newFilePath ? safe_copy_string(newFilePath, NULL) : NULL;
     reloadConfig = true;
+
+    SPIN_RELEASE(true);
 }
 
 void Profiler::setSamplingInterval(int intervalMin, int intervalMax) {
-    if (isRunning()) {
+    /* Make sure it doesn't overlap with other sets */
+    SPIN_LOCK();
+
+    if (__is_running()) {
+        TRACE(Profiler, kTraceProfilerSetIntervalFailed);
         logError("WARN: Unable to modify running profiler\n");
+        SPIN_RELEASE(false);
         return;
     }
+
+    TRACE(Profiler, kTraceProfilerSetIntervalOk);
+
     int min = intervalMin > 0 ? intervalMin : DEFAULT_SAMPLING_INTERVAL;
     int max = intervalMax > 0 ? intervalMax : DEFAULT_SAMPLING_INTERVAL;
     liveConfiguration->samplingIntervalMin = std::min(min, max);
     liveConfiguration->samplingIntervalMax = std::max(min, max);
     reloadConfig = true;
+
+    SPIN_RELEASE(true);
 }
 
 void Profiler::setMaxFramesToCapture(int maxFramesToCapture) {
-    if (isRunning()) {
+    /* Make sure it doesn't overlap with other sets */
+    SPIN_LOCK();
+
+    if (__is_running()) {
+        TRACE(Profiler, kTraceProfilerSetFramesFailed);
         logError("WARN: Unable to modify running profiler\n");
+        SPIN_RELEASE(false);
         return;
     }
+
+    TRACE(Profiler, kTraceProfilerSetFramesOk);
+
     int res = (maxFramesToCapture > 0 && maxFramesToCapture < MAX_FRAMES_TO_CAPTURE) ? 
         maxFramesToCapture : DEFAULT_MAX_FRAMES_TO_CAPTURE;
     liveConfiguration->maxFramesToCapture = res;
     reloadConfig = true;
+    SPIN_RELEASE(true);
+}
+
+/* return copy of the string */
+std::string Profiler::getFilePath() {
+    /* Make sure it doesn't overlap with setFilePath */
+    SPIN_LOCK();
+    std::string res;
+
+    if (liveConfiguration->logFilePath)
+        res = std::string(liveConfiguration->logFilePath);
+    SPIN_RELEASE(false);
+    return res;
+}
+
+int Profiler::getSamplingIntervalMin() const {
+    ACQUIRE_FENCE();
+    return liveConfiguration->samplingIntervalMin; 
+}
+
+int Profiler::getSamplingIntervalMax() const {
+    ACQUIRE_FENCE();
+    return liveConfiguration->samplingIntervalMax; 
+}
+
+int Profiler::getMaxFramesToCapture() const {
+    ACQUIRE_FENCE();
+    return liveConfiguration->maxFramesToCapture; 
 }
 
 void Profiler::configure() {
+    /* nested critical section, no need to acquire or CAS */
+
+#ifndef TEST_PROFILER
     bool needsUpdate = processor == NULL;
-    
+#else
+    bool needsUpdate = processorMock == NULL;
+#endif
+
     needsUpdate = needsUpdate || configuration_->logFilePath != liveConfiguration->logFilePath;
     if (needsUpdate) {
         if (logFile) delete logFile;
@@ -162,32 +345,60 @@ void Profiler::configure() {
             configuration_->logFilePath = liveConfiguration->logFilePath;
         }
 
+#ifndef TEST_PROFILER
         logFile = new ofstream(fileName, ofstream::out | ofstream::binary);
         if (logFile->fail()) {
             // The JVM will still continue to run though; could call abort() to terminate the JVM abnormally.
             logError("ERROR: Failed to open file %s for writing\n", fileName);
         }
         writer = new LogWriter(*logFile, &Profiler::lookupFrameInformation, jvmti_);
+#endif
     }
     
     needsUpdate = needsUpdate || configuration_->maxFramesToCapture != liveConfiguration->maxFramesToCapture;
     if (needsUpdate) {
         if (buffer) delete buffer;
         configuration_->maxFramesToCapture = liveConfiguration->maxFramesToCapture;
+#ifndef TEST_PROFILER
         buffer = new CircularQueue(*writer, configuration_->maxFramesToCapture);
+#endif
     }
     
     needsUpdate = needsUpdate || 
         configuration_->samplingIntervalMin != liveConfiguration->samplingIntervalMin || 
         configuration_->samplingIntervalMax != liveConfiguration->samplingIntervalMax;
     if (needsUpdate) {
+#ifdef TEST_PROFILER
+        if (processorMock) delete processorMock;
+#endif
         if (processor) delete processor;
         if (handler_) delete handler_;
         configuration_->samplingIntervalMin = liveConfiguration->samplingIntervalMin;
         configuration_->samplingIntervalMax = liveConfiguration->samplingIntervalMax;
+#ifndef TEST_PROFILER
         handler_ = new SignalHandler(configuration_->samplingIntervalMin, configuration_->samplingIntervalMax);
         int processor_interval = Size * configuration_->samplingIntervalMin / 1000 / 2;
         processor = new Processor(jvmti_, *writer, *buffer, *handler_, processor_interval > 0 ? processor_interval : 1);
+#else
+        processorMock = new ProcessorMock();
+#endif
     }
     reloadConfig = false;
+}
+
+Profiler::~Profiler() {
+    ACQUIRE_FENCE();
+    /* liveConfiguration is managed in agent.cpp */
+    if (liveConfiguration->logFilePath == configuration_->logFilePath)
+        configuration_->logFilePath = NULL;
+    delete configuration_;
+#ifndef TEST_PROFILER
+    delete buffer;
+    delete logFile;
+    delete writer;
+    delete processor;
+    delete handler_;
+#else
+    delete processorMock;
+#endif
 }

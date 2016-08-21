@@ -27,7 +27,7 @@ const int MAX_FRAMES_TO_CAPTURE = 512;
 #endif
 
 char *safe_copy_string(const char *value, const char *next);
-void safe_free_string(char *value);
+void safe_free_string(char *&value);
 
 struct ConfigurationOptions {
     /** Interval in microseconds */
