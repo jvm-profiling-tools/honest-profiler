@@ -366,3 +366,7 @@ void logError(const char *__restrict format, ...) {
 Profiler *getProfiler() {
     return prof;
 }
+
+void setProfiler(Profiler *p) {
+    prof = p;
+}

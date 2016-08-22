@@ -35,35 +35,6 @@ const int kTraceProfilerStopOk = 9;
 
 TRACE_DECLARE(Profiler, kTraceProfilerTotal);
 
-#ifdef TEST_PROFILER
-
-const int kTraceProcMockTotal = 5;
-
-const int kTraceProcMockStart = 0;
-const int kTraceProcMockStop = 1;
-const int kTraceProcMockRunning = 2;
-const int kTraceProcMockConstructor = 3;
-const int kTraceProcMockDestructor = 4;
-
-TRACE_DECLARE(ProcessorMock, kTraceProcMockTotal);
-
-class ProcessorMock {
-private:
-    std::atomic<bool> running;
-
-public:
-    ProcessorMock();
-
-    ~ProcessorMock();
-
-    void start();
-
-    void stop();
-
-    bool isRunning() const;
-};
-
-#endif
 
 class Profiler {
 public:
@@ -76,9 +47,6 @@ public:
         configuration_ = new ConfigurationOptions();
         pid = (long) getpid();
 
-#ifdef TEST_PROFILER
-        processorMock = NULL;
-#endif
         // explicitly call setters to validate input params
         setSamplingInterval(liveConfiguration->samplingIntervalMin, 
             liveConfiguration->samplingIntervalMax);
@@ -88,10 +56,6 @@ public:
     }
 
     bool start(JNIEnv *jniEnv);
-
-#ifdef TEST_PROFILER
-    bool start();
-#endif
 
     void stop();
 
@@ -118,10 +82,6 @@ public:
     ~Profiler();
 
 private:
-#ifdef TEST_PROFILER
-    friend class ProfilerTestHelper;
-#endif
-
     JavaVM *jvm_;
 
     jvmtiEnv *jvmti_;
@@ -137,10 +97,6 @@ private:
     CircularQueue *buffer;
 
     Processor *processor;
-
-#ifdef TEST_PROFILER
-    ProcessorMock *processorMock;
-#endif
 
     SignalHandler* handler_;
 
@@ -161,21 +117,5 @@ private:
 
     DISALLOW_COPY_AND_ASSIGN(Profiler);
 };
-
-#ifdef TEST_PROFILER
-
-class ProfilerTestHelper {
-private:
-    Profiler *prof;
-
-public:
-    ProfilerTestHelper(Profiler *p) : prof(p) {}
-
-    ConfigurationOptions *getHiddenConfig() {
-        return prof->configuration_;
-    }
-}; 
-
-#endif
 
 #endif // PROFILER_H

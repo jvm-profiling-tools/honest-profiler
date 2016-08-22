@@ -16,41 +16,6 @@ TRACE_DEFINE_BEGIN(Profiler, kTraceProfilerTotal)
     TRACE_DEFINE("stop succeeded")
 TRACE_DEFINE_END(Profiler, kTraceProfilerTotal);
 
-#ifdef TEST_PROFILER
-
-TRACE_DEFINE_BEGIN(ProcessorMock, kTraceProcMockTotal)
-    TRACE_DEFINE("start processor")
-    TRACE_DEFINE("stop processor")
-    TRACE_DEFINE("chech that processor is running")
-    TRACE_DEFINE("processor constructor")
-    TRACE_DEFINE("processor destructor")
-TRACE_DEFINE_END(ProcessorMock, kTraceProcMockTotal);
-
-void ProcessorMock::start() { 
-    TRACE(ProcessorMock, kTraceProcMockStart);
-    running.store(true);
-}
-
-void ProcessorMock::stop() {
-    TRACE(ProcessorMock, kTraceProcMockStop);
-    running.store(false);
-}
-
-bool ProcessorMock::isRunning() const {
-    TRACE(ProcessorMock, kTraceProcMockRunning);
-    return running.load();
-}
-
-ProcessorMock::ProcessorMock() {
-    TRACE(ProcessorMock, kTraceProcMockConstructor);
-    running.store(false);
-}
-
-ProcessorMock::~ProcessorMock() {
-    TRACE(ProcessorMock, kTraceProcMockDestructor);
-}
-
-#endif
 
 #define SPIN_LOCK() \
     bool expectedState = false; \
@@ -131,7 +96,7 @@ void Profiler::handle(int signum, siginfo_t *info, void *context) {
     } else {
   		trace.env_id = jniEnv;
 	  	ASGCTType asgct = Asgct::GetAsgct();
-		  (*asgct)(&trace, configuration_->maxFramesToCapture, context);
+		(*asgct)(&trace, configuration_->maxFramesToCapture, context);
     }
     // log all samples, failures included, let the post processing sift through the data
   	buffer->push(trace);
@@ -162,29 +127,6 @@ bool Profiler::start(JNIEnv *jniEnv) {
     return res;
 }
 
-#ifdef TEST_PROFILER
-bool Profiler::start() {
-    /* Make sure it doesn't overlap with configure */
-    SPIN_LOCK();
-
-    if (__is_running()) {
-        TRACE(Profiler, kTraceProfilerStartFailed);
-        logError("WARN: Start called but sampling is already running\n");
-        SPIN_RELEASE(false);
-        return true;
-    }
-
-    TRACE(Profiler, kTraceProfilerStartOk);
-
-    if (reloadConfig)
-        configure();
-    
-    processorMock->start();
-    SPIN_RELEASE(true);
-    return true;
-}
-#endif
-
 void Profiler::stop() {
     /* Make sure it doesn't overlap with configure */
     SPIN_LOCK();
@@ -195,14 +137,10 @@ void Profiler::stop() {
         return;
     }    
 
-#ifndef TEST_PROFILER
     handler_->stopSigprof();
     processor->stop();
     signal(SIGPROF, SIG_IGN);
-#else
-    processorMock->stop();
-#endif
-    SPIN_RELEASE(false); 
+    SPIN_RELEASE(true); 
 }
 
 bool Profiler::isRunning() {
@@ -215,12 +153,7 @@ bool Profiler::isRunning() {
 
 // non-blocking version (cen be called once spin-lock with acquire semantics is grabed)
 bool Profiler::__is_running() {
-#ifndef TEST_PROFILER
-    bool res = processor && processor->isRunning();
-#else
-    bool res =  processorMock && processorMock->isRunning();
-#endif
-    return res;
+    return processor && processor->isRunning();
 }
 
 void Profiler::setFilePath(char *newFilePath) {
@@ -318,12 +251,8 @@ int Profiler::getMaxFramesToCapture() const {
 
 void Profiler::configure() {
     /* nested critical section, no need to acquire or CAS */
-
-#ifndef TEST_PROFILER
     bool needsUpdate = processor == NULL;
-#else
-    bool needsUpdate = processorMock == NULL;
-#endif
+
     needsUpdate = needsUpdate || configuration_->logFilePath != liveConfiguration->logFilePath;
     if (needsUpdate) {
         if (logFile) delete logFile;
@@ -344,43 +273,32 @@ void Profiler::configure() {
             configuration_->logFilePath = liveConfiguration->logFilePath;
         }
 
-#ifndef TEST_PROFILER
         logFile = new ofstream(fileName, ofstream::out | ofstream::binary);
         if (logFile->fail()) {
             // The JVM will still continue to run though; could call abort() to terminate the JVM abnormally.
             logError("ERROR: Failed to open file %s for writing\n", fileName);
         }
         writer = new LogWriter(*logFile, &Profiler::lookupFrameInformation, jvmti_);
-#endif
     }
     
     needsUpdate = needsUpdate || configuration_->maxFramesToCapture != liveConfiguration->maxFramesToCapture;
     if (needsUpdate) {
         if (buffer) delete buffer;
         configuration_->maxFramesToCapture = liveConfiguration->maxFramesToCapture;
-#ifndef TEST_PROFILER
         buffer = new CircularQueue(*writer, configuration_->maxFramesToCapture);
-#endif
     }
     
     needsUpdate = needsUpdate || 
         configuration_->samplingIntervalMin != liveConfiguration->samplingIntervalMin || 
         configuration_->samplingIntervalMax != liveConfiguration->samplingIntervalMax;
     if (needsUpdate) {
-#ifdef TEST_PROFILER
-        if (processorMock) delete processorMock;
-#endif
         if (processor) delete processor;
         if (handler_) delete handler_;
         configuration_->samplingIntervalMin = liveConfiguration->samplingIntervalMin;
         configuration_->samplingIntervalMax = liveConfiguration->samplingIntervalMax;
-#ifndef TEST_PROFILER
         handler_ = new SignalHandler(configuration_->samplingIntervalMin, configuration_->samplingIntervalMax);
         int processor_interval = Size * configuration_->samplingIntervalMin / 1000 / 2;
         processor = new Processor(jvmti_, *writer, *buffer, *handler_, processor_interval > 0 ? processor_interval : 1);
-#else
-        processorMock = new ProcessorMock();
-#endif
     }
     reloadConfig = false;
 }
@@ -390,14 +308,10 @@ Profiler::~Profiler() {
     /* liveConfiguration is managed in agent.cpp */
     if (liveConfiguration->logFilePath == configuration_->logFilePath)
         configuration_->logFilePath = NULL;
-    delete configuration_;
-#ifndef TEST_PROFILER
-    delete buffer;
-    delete logFile;
-    delete writer;
     delete processor;
     delete handler_;
-#else
-    delete processorMock;
-#endif
+    delete buffer;
+    delete writer;
+    delete logFile;
+    delete configuration_;
 }

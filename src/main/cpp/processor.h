@@ -6,6 +6,17 @@
 #include "log_writer.h"
 #include "signal_handler.h"
 
+#include "trace.h"
+
+const int kTraceProcessorTotal = 3;
+
+const int kTraceProcessorStart = 0;
+const int kTraceProcessorStop = 1;
+const int kTraceProcessorRunning = 2;
+
+TRACE_DECLARE(Processor, kTraceProcessorTotal);
+
+
 class Processor {
 
 public:
@@ -30,6 +41,8 @@ private:
     CircularQueue& buffer_;
 
     std::atomic_bool isRunning_;
+
+    std::atomic_flag workerDone;
 
     SignalHandler& handler_;
 
