@@ -65,7 +65,8 @@ set(SOURCE_FILES
     ${SRC}/processor.h
     ${SRC}/profiler.cpp
     ${SRC}/profiler.h
-    ${SRC}/stacktraces.h)
+    ${SRC}/stacktraces.h
+    ${SRC}/trace.h)
 
 set(TEST_FILES
     ${SRC_TEST}/fixtures.h
@@ -73,7 +74,8 @@ set(TEST_FILES
     ${SRC_TEST}/test.cpp
     ${SRC_TEST}/test_log_writer.cpp
     ${SRC_TEST}/test_agent.cpp
-    ${SRC_TEST}/test.h)
+    ${SRC_TEST}/test.h
+    ${SRC_TEST}/test_profiler_config.cpp)
 
 
 ##########################################################
@@ -109,6 +111,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     set(GLOBAL_WARNINGS, "${GLOBAL_WARNINGS} -Wno-unknown-pragmas -Wno-builtin-macro-redefined -Wl,-fatal_warnings")
 endif()
 
+# to enable tracing add: -DENABLE_TRACING
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GLOBAL_WARNINGS} ${GLOBAL_COPTS} -pthread -std=c++0x")
 
 ##########################################################

@@ -3,6 +3,30 @@
 
 ASGCTType Asgct::asgct_;
 
+TRACE_DEFINE_BEGIN(Profiler, kTraceProfilerTotal)
+    TRACE_DEFINE("start failed")
+    TRACE_DEFINE("start succeeded")
+    TRACE_DEFINE("set sampling interval failed")
+    TRACE_DEFINE("set sampling interval succeeded")
+    TRACE_DEFINE("set stack frames to capture failed")
+    TRACE_DEFINE("set stack frames to capture succeeded")
+    TRACE_DEFINE("set new file failed")
+    TRACE_DEFINE("set new file succeeded")
+    TRACE_DEFINE("stop failed")
+    TRACE_DEFINE("stop succeeded")
+TRACE_DEFINE_END(Profiler, kTraceProfilerTotal);
+
+
+#define SPIN_LOCK() \
+    bool expectedState = false; \
+    while (!ongoingConf.compare_exchange_weak(expectedState, true, std::memory_order_acquire)) { expectedState = false; sched_yield(); }
+
+#define ACQUIRE_FENCE() \
+    ongoingConf.load(std::memory_order_acquire)
+
+#define SPIN_RELEASE(release) \
+    ongoingConf.store(false, release ? std::memory_order_release : std::memory_order_relaxed)
+
 
 bool Profiler::lookupFrameInformation(const JVMPI_CallFrame &frame,
         jvmtiEnv *jvmti,
@@ -59,6 +83,7 @@ bool Profiler::lookupFrameInformation(const JVMPI_CallFrame &frame,
 void Profiler::handle(int signum, siginfo_t *info, void *context) {
     IMPLICITLY_USE(signum);
     IMPLICITLY_USE(info);
+    ACQUIRE_FENCE(); // sync buffer
 
     // sample data structure
     STATIC_ARRAY(frames, JVMPI_CallFrame, configuration_->maxFramesToCapture, MAX_FRAMES_TO_CAPTURE);
@@ -71,31 +96,222 @@ void Profiler::handle(int signum, siginfo_t *info, void *context) {
     } else {
   		trace.env_id = jniEnv;
 	  	ASGCTType asgct = Asgct::GetAsgct();
-		  (*asgct)(&trace, configuration_->maxFramesToCapture, context);
+		(*asgct)(&trace, configuration_->maxFramesToCapture, context);
     }
     // log all samples, failures included, let the post processing sift through the data
   	buffer->push(trace);
 }
 
 bool Profiler::start(JNIEnv *jniEnv) {
-    if (isRunning()) {
+    SPIN_LOCK();
+    /* within critical section */
+
+    if (__is_running()) {
+        TRACE(Profiler, kTraceProfilerStartFailed);
         logError("WARN: Start called but sampling is already running\n");
+        SPIN_RELEASE(false);
         return true;
     }
 
+    TRACE(Profiler, kTraceProfilerStartOk);
+
+    if (reloadConfig)
+        configure();
+
     // reference back to Profiler::handle on the singleton
     // instance of Profiler
-    handler_.SetAction(&bootstrapHandle);
+    handler_->SetAction(&bootstrapHandle);
     processor->start(jniEnv);
-    return handler_.updateSigprofInterval();
+    bool res = handler_->updateSigprofInterval();
+    SPIN_RELEASE(true);
+    return res;
 }
 
 void Profiler::stop() {
-    handler_.stopSigprof();
+    /* Make sure it doesn't overlap with configure */
+    SPIN_LOCK();
+
+    if (!__is_running()) {
+        TRACE(Profiler, kTraceProfilerStopFailed);
+        SPIN_RELEASE(false);
+        return;
+    }    
+
+    handler_->stopSigprof();
     processor->stop();
     signal(SIGPROF, SIG_IGN);
+    SPIN_RELEASE(true); 
 }
 
-bool Profiler::isRunning() const {
-    return processor->isRunning();
+bool Profiler::isRunning() {
+    /* Make sure it doesn't overlap with configure */
+    SPIN_LOCK();
+    bool res = __is_running();
+    SPIN_RELEASE(false);
+    return res;
+}
+
+// non-blocking version (cen be called once spin-lock with acquire semantics is grabed)
+bool Profiler::__is_running() {
+    return processor && processor->isRunning();
+}
+
+void Profiler::setFilePath(char *newFilePath) {
+    /* Make sure it doesn't overlap with other sets */
+    SPIN_LOCK();
+
+    if (__is_running()) {
+        TRACE(Profiler, kTraceProfilerSetFileFailed);
+        logError("WARN: Unable to modify running profiler\n");
+        SPIN_RELEASE(false);
+        return;
+    }
+
+    TRACE(Profiler, kTraceProfilerSetFileOk);
+
+    if (liveConfiguration->logFilePath && 
+        liveConfiguration->logFilePath != configuration_->logFilePath)
+        safe_free_string(liveConfiguration->logFilePath);
+
+    /* make local copy of string */
+    liveConfiguration->logFilePath = newFilePath ? safe_copy_string(newFilePath, NULL) : NULL;
+    reloadConfig = true;
+
+    SPIN_RELEASE(true);
+}
+
+void Profiler::setSamplingInterval(int intervalMin, int intervalMax) {
+    /* Make sure it doesn't overlap with other sets */
+    SPIN_LOCK();
+
+    if (__is_running()) {
+        TRACE(Profiler, kTraceProfilerSetIntervalFailed);
+        logError("WARN: Unable to modify running profiler\n");
+        SPIN_RELEASE(false);
+        return;
+    }
+
+    TRACE(Profiler, kTraceProfilerSetIntervalOk);
+
+    int min = intervalMin > 0 ? intervalMin : DEFAULT_SAMPLING_INTERVAL;
+    int max = intervalMax > 0 ? intervalMax : DEFAULT_SAMPLING_INTERVAL;
+    liveConfiguration->samplingIntervalMin = std::min(min, max);
+    liveConfiguration->samplingIntervalMax = std::max(min, max);
+    reloadConfig = true;
+
+    SPIN_RELEASE(true);
+}
+
+void Profiler::setMaxFramesToCapture(int maxFramesToCapture) {
+    /* Make sure it doesn't overlap with other sets */
+    SPIN_LOCK();
+
+    if (__is_running()) {
+        TRACE(Profiler, kTraceProfilerSetFramesFailed);
+        logError("WARN: Unable to modify running profiler\n");
+        SPIN_RELEASE(false);
+        return;
+    }
+
+    TRACE(Profiler, kTraceProfilerSetFramesOk);
+
+    int res = (maxFramesToCapture > 0 && maxFramesToCapture < MAX_FRAMES_TO_CAPTURE) ? 
+        maxFramesToCapture : DEFAULT_MAX_FRAMES_TO_CAPTURE;
+    liveConfiguration->maxFramesToCapture = res;
+    reloadConfig = true;
+    SPIN_RELEASE(true);
+}
+
+/* return copy of the string */
+std::string Profiler::getFilePath() {
+    /* Make sure it doesn't overlap with setFilePath */
+    SPIN_LOCK();
+    std::string res;
+
+    if (liveConfiguration->logFilePath)
+        res = std::string(liveConfiguration->logFilePath);
+    SPIN_RELEASE(false);
+    return res;
+}
+
+int Profiler::getSamplingIntervalMin() const {
+    ACQUIRE_FENCE();
+    return liveConfiguration->samplingIntervalMin; 
+}
+
+int Profiler::getSamplingIntervalMax() const {
+    ACQUIRE_FENCE();
+    return liveConfiguration->samplingIntervalMax; 
+}
+
+int Profiler::getMaxFramesToCapture() const {
+    ACQUIRE_FENCE();
+    return liveConfiguration->maxFramesToCapture; 
+}
+
+void Profiler::configure() {
+    /* nested critical section, no need to acquire or CAS */
+    bool needsUpdate = processor == NULL;
+
+    needsUpdate = needsUpdate || configuration_->logFilePath != liveConfiguration->logFilePath;
+    if (needsUpdate) {
+        if (logFile) delete logFile;
+        if (writer) delete writer;
+        if (configuration_->logFilePath)
+            safe_free_string(configuration_->logFilePath);
+        
+        char *fileName = liveConfiguration->logFilePath;
+        string fileNameStr;
+        if (fileName == NULL) {
+            ostringstream fileBuilder;
+            long epochMillis = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+            fileBuilder << "log-" << pid << "-" << epochMillis << ".hpl";
+            fileNameStr = fileBuilder.str();
+            fileName = (char*)fileNameStr.c_str();
+            configuration_->logFilePath = liveConfiguration->logFilePath = safe_copy_string(fileName, NULL);
+        } else {
+            configuration_->logFilePath = liveConfiguration->logFilePath;
+        }
+
+        logFile = new ofstream(fileName, ofstream::out | ofstream::binary);
+        if (logFile->fail()) {
+            // The JVM will still continue to run though; could call abort() to terminate the JVM abnormally.
+            logError("ERROR: Failed to open file %s for writing\n", fileName);
+        }
+        writer = new LogWriter(*logFile, &Profiler::lookupFrameInformation, jvmti_);
+    }
+    
+    needsUpdate = needsUpdate || configuration_->maxFramesToCapture != liveConfiguration->maxFramesToCapture;
+    if (needsUpdate) {
+        if (buffer) delete buffer;
+        configuration_->maxFramesToCapture = liveConfiguration->maxFramesToCapture;
+        buffer = new CircularQueue(*writer, configuration_->maxFramesToCapture);
+    }
+    
+    needsUpdate = needsUpdate || 
+        configuration_->samplingIntervalMin != liveConfiguration->samplingIntervalMin || 
+        configuration_->samplingIntervalMax != liveConfiguration->samplingIntervalMax;
+    if (needsUpdate) {
+        if (processor) delete processor;
+        if (handler_) delete handler_;
+        configuration_->samplingIntervalMin = liveConfiguration->samplingIntervalMin;
+        configuration_->samplingIntervalMax = liveConfiguration->samplingIntervalMax;
+        handler_ = new SignalHandler(configuration_->samplingIntervalMin, configuration_->samplingIntervalMax);
+        int processor_interval = Size * configuration_->samplingIntervalMin / 1000 / 2;
+        processor = new Processor(jvmti_, *writer, *buffer, *handler_, processor_interval > 0 ? processor_interval : 1);
+    }
+    reloadConfig = false;
+}
+
+Profiler::~Profiler() {
+    ACQUIRE_FENCE();
+    /* liveConfiguration is managed in agent.cpp */
+    if (liveConfiguration->logFilePath == configuration_->logFilePath)
+        configuration_->logFilePath = NULL;
+    delete processor;
+    delete handler_;
+    delete buffer;
+    delete writer;
+    delete logFile;
+    delete configuration_;
 }

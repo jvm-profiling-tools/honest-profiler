@@ -30,6 +30,8 @@ public:
 
     void run();
 
+    bool isRunning() const;
+
 private:
     JavaVM *jvm_;
     jvmtiEnv *jvmti_;
@@ -43,6 +45,10 @@ private:
     void stopSampling();
 
     void reportStatus(int clientConnection);
+
+    void getProfilerParam(int clientConnection, char *param);
+
+    void setProfilerParam(char *paramDesc);
 };
 
 #endif

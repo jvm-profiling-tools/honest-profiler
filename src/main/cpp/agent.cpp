@@ -88,7 +88,8 @@ void JNICALL OnVMDeath(jvmtiEnv *jvmti_env, JNIEnv *jni_env) {
     IMPLICITLY_USE(jvmti_env);
     IMPLICITLY_USE(jni_env);
 
-    prof->stop();
+    if (prof->isRunning())
+        prof->stop();
 }
 
 static bool PrepareJvmti(jvmtiEnv *jvmti) {
@@ -193,8 +194,9 @@ void JNICALL OnThreadStart(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread thread)
         if (error == JNI_OK) {
             if (strcmp(thread_info.name, "main") == 0) {
                 main_started = true;
-                if (CONFIGURATION->start)
+                if (CONFIGURATION->start) {
                     prof->start(jni_env);
+                }
             }
         }
     }
@@ -250,7 +252,7 @@ static bool RegisterJvmti(jvmtiEnv *jvmti) {
     return true;
 }
 
-static char *safe_copy_string(const char *value, const char *next) {
+char *safe_copy_string(const char *value, const char *next) {
     size_t size = (next == 0) ? strlen(value) : (size_t) (next - value);
     char *dest = (char *) malloc((size + 1) * sizeof(char));
 
@@ -258,6 +260,13 @@ static char *safe_copy_string(const char *value, const char *next) {
     dest[size] = '\0';
 
     return dest;
+}
+
+void safe_free_string(char *&value) {
+    /** Prevent Profiler from calling delete/free explicitly when string goes
+     *  out of the scope. */
+    free(value);
+    value = NULL;
 }
 
 static void parseArguments(char *options, ConfigurationOptions &configuration) {
@@ -285,9 +294,7 @@ static void parseArguments(char *options, ConfigurationOptions &configuration) {
             } else if (strstr(key, "port") == key) {
                 configuration.port = safe_copy_string(value, next);
             } else if (strstr(key, "maxFrames") == key) {
-                int framesCandidate = atoi(value);
-                if (framesCandidate > 0 && framesCandidate <= MAX_FRAMES_TO_CAPTURE)
-                    configuration.maxFramesToCapture = framesCandidate;
+                configuration.maxFramesToCapture = atoi(value);
             } else {
                 logError("WARN: Unknown configuration option: %s\n", key);
             }
@@ -340,7 +347,8 @@ AGENTEXPORT jint JNICALL Agent_OnLoad(JavaVM *jvm, char *options, void *reserved
 AGENTEXPORT void JNICALL Agent_OnUnload(JavaVM *vm) {
     IMPLICITLY_USE(vm);
 
-    controller->stop();
+    if (controller->isRunning())
+        controller->stop();
 }
 
 void bootstrapHandle(int signum, siginfo_t *info, void *context) {
@@ -357,4 +365,8 @@ void logError(const char *__restrict format, ...) {
 
 Profiler *getProfiler() {
     return prof;
+}
+
+void setProfiler(Profiler *p) {
+    prof = p;
 }
