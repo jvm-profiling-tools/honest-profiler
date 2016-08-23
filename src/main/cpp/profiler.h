@@ -19,37 +19,44 @@ using std::ofstream;
 using std::ostringstream;
 using std::string;
 
+#include "trace.h"
+
+const int kTraceProfilerTotal = 10;
+
+const int kTraceProfilerStartFailed = 0;
+const int kTraceProfilerStartOk = 1;
+const int kTraceProfilerSetIntervalFailed = 2;
+const int kTraceProfilerSetIntervalOk = 3;
+const int kTraceProfilerSetFramesFailed = 4;
+const int kTraceProfilerSetFramesOk = 5;
+const int kTraceProfilerSetFileFailed = 6;
+const int kTraceProfilerSetFileOk = 7;
+const int kTraceProfilerStopFailed = 8;
+const int kTraceProfilerStopOk = 9;
+
+TRACE_DECLARE(Profiler, kTraceProfilerTotal);
+
+
 class Profiler {
 public:
-    explicit Profiler(JavaVM *jvm, jvmtiEnv *jvmti, ThreadMap &tMap, ConfigurationOptions *configuration) : jvm_(jvm), tMap_(tMap), configuration_(configuration), handler_(configuration_->samplingIntervalMin, configuration->samplingIntervalMax) {
-        // main object graph instantiated here
+    explicit Profiler(JavaVM *jvm, jvmtiEnv *jvmti, ConfigurationOptions *configuration, ThreadMap &tMap) 
+        : jvm_(jvm), jvmti_(jvmti), tMap_(tMap), liveConfiguration(configuration),
+        logFile(NULL), writer(NULL), buffer(NULL), processor(NULL), handler_(NULL),
+        ongoingConf(false) {       
+	    // main object graph instantiated here
         // these objects all live for the lifecycle of the program
 
-        long pid = (long) getpid();
-        long epochMillis = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+        // main object graph instantiated here
+        // these objects all live for the lifecycle of the program
+        configuration_ = new ConfigurationOptions();
+        pid = (long) getpid();
 
-        char* fileName = configuration->logFilePath;
-        string fileNameStr;
-        if (fileName == NULL) {
-            ostringstream fileBuilder;
-            fileBuilder << "log-" << pid << "-" << epochMillis << ".hpl";
-            fileNameStr = fileBuilder.str();
-            fileName = (char *) fileNameStr.c_str();
-        }
-
-        logFile = new ofstream(fileName, ofstream::out | ofstream::binary);
-
-        if (logFile->fail()) {
-            // The JVM will still continue to run though; could call abort() to terminate the JVM abnormally.
-            logError("ERROR: Failed to open file %s for writing\n", fileName);
-        }
-
-        writer = new LogWriter(*logFile, &Profiler::lookupFrameInformation, jvmti, tMap_);
-        buffer = new CircularQueue(*writer, configuration->maxFramesToCapture);
-
-        // flush the queue about twice as fast as it fills up
-        int processor_interval = Size * configuration->samplingIntervalMin / 1000 / 2;
-        processor = new Processor(jvmti, *writer, *buffer, handler_, processor_interval > 0 ? processor_interval : 1);
+        // explicitly call setters to validate input params
+        setSamplingInterval(liveConfiguration->samplingIntervalMin, 
+            liveConfiguration->samplingIntervalMax);
+        setMaxFramesToCapture(liveConfiguration->maxFramesToCapture);
+        
+        configure();
     }
 
     bool start(JNIEnv *jniEnv);
@@ -58,21 +65,36 @@ public:
 
     void handle(int signum, siginfo_t *info, void *context);
 
-    bool isRunning() const;
+    bool isRunning();
 
-    ~Profiler() {
-        delete buffer;
-        delete logFile;
-        delete writer;
-        delete processor;
-    }
+    /* Several getters and setters for externals APIs */
+
+    std::string getFilePath();
+
+    int getSamplingIntervalMin() const;
+
+    int getSamplingIntervalMax() const;
+
+    int getMaxFramesToCapture() const;
+
+    void setFilePath(char *newFilePath);
+
+    void setSamplingInterval(int intervalMin, int intervalMax);
+
+    void setMaxFramesToCapture(int maxFramesToCapture);
+
+    ~Profiler();
 
 private:
     JavaVM *jvm_;
 
+    jvmtiEnv *jvmti_;
+
     ThreadMap &tMap_;
 
     ConfigurationOptions *configuration_;
+
+    ConfigurationOptions *liveConfiguration;
 
     ostream *logFile;
 
@@ -82,11 +104,22 @@ private:
 
     Processor *processor;
 
-    SignalHandler handler_;
+    SignalHandler* handler_;
+
+    bool reloadConfig;
+
+    long pid;
+
+    // indicates change of internal state
+    std::atomic<bool> ongoingConf;
 
     static bool lookupFrameInformation(const JVMPI_CallFrame &frame,
             jvmtiEnv *jvmti,
             MethodListener &logWriter);
+
+    void configure();
+
+    bool __is_running();
 
     DISALLOW_COPY_AND_ASSIGN(Profiler);
 };

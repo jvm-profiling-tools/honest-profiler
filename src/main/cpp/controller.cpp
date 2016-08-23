@@ -40,6 +40,10 @@ void Controller::stop() {
     isRunning_.store(false, std::memory_order_relaxed);
 }
 
+bool Controller::isRunning() const {
+    return isRunning_.load();
+}
+
 void Controller::run() {
     struct addrinfo hints, *res;
     char buf[MAX_DATA_SIZE];
@@ -98,6 +102,10 @@ void Controller::run() {
                 stopSampling();
             } else if (strstr(buf, "status") == buf) {
                 reportStatus(clientConnection);
+            } else if (strstr(buf, "get ") == buf) {
+                getProfilerParam(clientConnection, buf + 4);
+            } else if (strstr(buf, "set ") == buf) {
+                setProfilerParam(buf + 4);
             } else {
                 logError("WARN: Unknown command received, ignoring: %s\n", buf);
             }
@@ -126,15 +134,73 @@ void Controller::stopSampling() {
 
 void Controller::reportStatus(int clientConnection) {
     bool samplingIsRunning = profiler_->isRunning();
-    // ensures there's space for status, log file path, comma, newline, and NUL
-    int bufSize = strlen(configuration_->logFilePath) + 10;
+    // ensures there's space for status, log file path, comma, newline, and NULL
+    std::string filePath = profiler_->getFilePath();
+    const char *logFilePath = filePath.c_str();
+    int bufSize = strlen(logFilePath) + 10;
     char buf[bufSize];
 
-    snprintf(buf, bufSize, "%s,%s\n", samplingIsRunning ? "started" : "stopped", configuration_->logFilePath);
+    snprintf(buf, bufSize, "%s,%s\n", samplingIsRunning ? "started" : "stopped", logFilePath);
 
     int length = strlen(buf);
 
     if (send(clientConnection, buf, length, 0) <= 0) {
         logError("ERROR: Failed to respond to client: %s\n", strerror(errno));
+    }
+}
+
+void Controller::getProfilerParam(int clientConnection, char *param) {
+    std::stringstream buffer;
+    if (strstr(param, "intervalMin") == param) {
+        buffer << profiler_->getSamplingIntervalMin();
+    } else if (strstr(param, "intervalMax") == param) {
+        buffer << profiler_->getSamplingIntervalMax();
+    } else if (strstr(param, "interval") == param) {
+        buffer << profiler_->getSamplingIntervalMin() 
+            << ' ' 
+            << profiler_->getSamplingIntervalMax();
+    } else if (strstr(param, "maxFrames") == param) {
+        buffer << profiler_->getMaxFramesToCapture();
+    } else if (strstr(param, "logPath") == param) {
+        buffer << profiler_->getFilePath();
+    } else {
+        logError("WARN: Unknown parameter, ignoring: %s\n", param);
+        return;
+    }
+
+    buffer << '\n';
+    std::string content = buffer.str();
+    if (send(clientConnection, content.c_str(), content.size(), 0) <= 0) {
+        logError("ERROR: Failed to respond to client: %s\n", strerror(errno));
+    }
+}
+
+void Controller::setProfilerParam(char *paramDesc) {
+    std::istringstream input(paramDesc);
+    input >> std::ws;
+
+    std::string command;
+    int numericArg1, numericArg2;
+    std::string stringArg;
+
+    input >> command;
+
+    if (command == "logPath") {
+        input >> stringArg;
+        profiler_->setFilePath((char*)stringArg.c_str());
+    } else {
+        input >> numericArg1;
+        if (command == "intervalMin") {
+            profiler_->setSamplingInterval(numericArg1, profiler_->getSamplingIntervalMax());
+        } else if (command == "intervalMax") {
+            profiler_->setSamplingInterval(profiler_->getSamplingIntervalMin(), numericArg1);
+        } else if (command == "maxFrames") {
+            profiler_->setMaxFramesToCapture(numericArg1);
+        } else if (command == "interval") {
+            input >> numericArg2;
+            profiler_->setSamplingInterval(numericArg1, numericArg2);
+        } else {
+            logError("WARN: Unknown command, ignoring: %s\n", command.c_str());
+        }
     }
 }

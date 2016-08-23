@@ -22,7 +22,6 @@ void LogWriter::writeValue(const T &value) {
     }
 }
 
-// TODO: implement
 static int64_t getThreadId(JNIEnv *env_id, ThreadMap &tMap) {
     ThreadBucket *tInfo = tMap.get(env_id);
     if (tInfo) {

@@ -20,10 +20,11 @@ class Profiler;
 void logError(const char *__restrict format, ...);
 
 Profiler *getProfiler();
+void setProfiler(Profiler *p);
 
 const int DEFAULT_SAMPLING_INTERVAL = 1;
 const int DEFAULT_MAX_FRAMES_TO_CAPTURE = 128;
-const int MAX_FRAMES_TO_CAPTURE = 512;
+const int MAX_FRAMES_TO_CAPTURE = 2048;
 
 #if defined(STATIC_ALLOCATION_ALLOCA)
   #define STATIC_ARRAY(NAME, TYPE, SIZE, MAXSZ) TYPE *NAME = (TYPE*)alloca((SIZE) * sizeof(TYPE))
@@ -32,6 +33,9 @@ const int MAX_FRAMES_TO_CAPTURE = 512;
 #else
   #define STATIC_ARRAY(NAME, TYPE, SIZE, MAXSZ) TYPE NAME[SIZE]
 #endif
+
+char *safe_copy_string(const char *value, const char *next);
+void safe_free_string(char *&value);
 
 struct ConfigurationOptions {
     /** Interval in microseconds */
@@ -50,6 +54,12 @@ struct ConfigurationOptions {
             port(NULL),
             start(true),
             maxFramesToCapture(DEFAULT_MAX_FRAMES_TO_CAPTURE) {
+    }
+
+    virtual ~ConfigurationOptions() {
+      if (logFilePath) safe_free_string(logFilePath);
+      if (host) safe_free_string(host);
+      if (port) safe_free_string(port);
     }
 };
 

@@ -20,6 +20,12 @@ void sleep_for_millis(uint period) {
 #endif
 }
 
+TRACE_DEFINE_BEGIN(Processor, kTraceProcessorTotal)
+    TRACE_DEFINE("start processor")
+    TRACE_DEFINE("stop processor")
+    TRACE_DEFINE("chech that processor is running")
+TRACE_DEFINE_END(Processor, kTraceProcessorTotal);
+
 void Processor::run() {
     int popped = 0;
 
@@ -43,6 +49,8 @@ void Processor::run() {
     }
 
     handler_.stopSigprof();
+    workerDone.clear(std::memory_order_relaxed);
+    // no shared data access after this point, can be safely deleted
 }
 
 void callbackToRunProcessor(jvmtiEnv *jvmti_env, JNIEnv *jni_env, void *arg) {
@@ -60,10 +68,12 @@ void callbackToRunProcessor(jvmtiEnv *jvmti_env, JNIEnv *jni_env, void *arg) {
 }
 
 void Processor::start(JNIEnv *jniEnv) {
+    TRACE(Processor, kTraceProcessorStart);
     jvmtiError result;
 
     std::cout << "Starting sampling\n";
     isRunning_.store(true, std::memory_order_relaxed);
+    workerDone.test_and_set(std::memory_order_relaxed); // initial is true
     jthread thread = newThread(jniEnv, "Honest Profiler Processing Thread");
     jvmtiStartFunction callback = callbackToRunProcessor;
     result = jvmti_->RunAgentThread(thread, callback, this, JVMTI_THREAD_NORM_PRIORITY);
@@ -74,10 +84,14 @@ void Processor::start(JNIEnv *jniEnv) {
 }
 
 void Processor::stop() {
+    TRACE(Processor, kTraceProcessorStop);
+
     isRunning_.store(false, std::memory_order_relaxed);
     std::cout << "Stopping sampling\n";
+    while (workerDone.test_and_set(std::memory_order_relaxed)) sched_yield();
 }
 
 bool Processor::isRunning() const {
+    TRACE(Processor, kTraceProcessorRunning);
     return isRunning_.load(std::memory_order_relaxed);
 }

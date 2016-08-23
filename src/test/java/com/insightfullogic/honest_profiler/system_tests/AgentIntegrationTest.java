@@ -28,6 +28,7 @@ import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
 import com.insightfullogic.honest_profiler.ports.sources.LocalMachineSource;
 import com.insightfullogic.honest_profiler.testing_utilities.AgentRunner;
+import com.insightfullogic.honest_profiler.testing_utilities.NonInteractiveAgentRunner;
 import com.insightfullogic.lambdabehave.JunitSuiteRunner;
 import com.insightfullogic.lambdabehave.expectations.Expect;
 import org.hamcrest.Matcher;
@@ -91,6 +92,7 @@ public class AgentIntegrationTest
                     AtomicReference<Profile> lastProfile = discoverVirtualMachines();
 
                     seenTraceCount = expectNonIncreasingTraceCount(expect, seenTraceCount, lastProfile);
+
                     runner.startProfiler();
                     parkNanos(SECONDS.toNanos(1));
 
@@ -100,6 +102,17 @@ public class AgentIntegrationTest
 
                     seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
                     seenTraceCount = expectNonIncreasingTraceCount(expect, seenTraceCount, lastProfile);
+                });
+            });
+
+            it.should("should be able to change agent settings", expect ->
+            {
+                NonInteractiveAgentRunner.run("AgentApiExample", "start=0", runner ->
+                {
+                    expect.that(runner.isSuccessful()).is(equalTo(true));
+
+                    if (!runner.isSuccessful())
+                        logger.debug("Errors in agent profiled process {}", runner.getErrorMessages());
                 });
             });
         });
