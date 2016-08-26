@@ -6,6 +6,7 @@
 #include <thread>
 #include <vector>
 
+
 typedef LockFreeMapProvider<PointerHasher<int> > TestLockFreeMap;
 typedef void (*MapFunction)(AbstractMapProvider &, void **, void **, std::atomic<void*> *, size_t, bool);
 
@@ -64,14 +65,17 @@ void doParallel(int threads, MapFunction func, AbstractMapProvider &map, void **
 	}
 }
 
-#define CONCURRENT_PROLOGUE(T, power)                  \
+#define CONCURRENT_PROLOGUE_RESIZE(T, power, bsz)      \
 	T map(1 << (power));                               \
-	int bSize = 1 << (power - 1);                      \
+	int bSize = 1 << (bsz);                            \
 	void **keys = allocateTestBuffer(bSize);           \
 	void **values = allocateTestBuffer(bSize);         \
 	void **nullarr = new void*[bSize];			       \
 	for (int i = 0; i < bSize; i++) nullarr[i] = NULL; \
 	std::atomic<void*> *results = new std::atomic<void*>[bSize]
+
+#define CONCURRENT_PROLOGUE(T, power)                  \
+	CONCURRENT_PROLOGUE_RESIZE(T, power, power-1)
 
 #define CONCURRENT_EPILOGUE()                      \
 	delete[] results;                              \
@@ -85,67 +89,48 @@ void doParallel(int threads, MapFunction func, AbstractMapProvider &map, void **
 #define REPEAT_OLD_MAP(times)                      \
 	for (int loopnr = 0; loopnr < times; ++loopnr)
 
-template <typename T>
-void singleThreadedTest() {
-	CONCURRENT_PROLOGUE(T, 4);
-	
-	CHECK_EQUAL(0, map.size());
-	
-	mapReader(map, keys, values, results, 1);
-	CHECK_EQUAL((void*)NULL, results[0]);
-	
-	mapRemover(map, keys, values, results, 1);
-	CHECK_EQUAL((void*)NULL, results[0]);
 
-	mapWriter(map, keys, values, results, bSize);
-	CHECK_EQUAL(bSize, map.size());
-
-	mapReader(map, keys, values, results, bSize);
-	CHECK_ARRAY_EQUAL(values, results, bSize);
-
-	mapRemover(map, keys, values, results, bSize);
-	CHECK_ARRAY_EQUAL(values, results, bSize);
-
-	mapReader(map, keys, values, results, 1);
-	CHECK_EQUAL((void*)NULL, results[0]);
-
-	CONCURRENT_EPILOGUE();
-}
-
-// TODO: make this run
 void concMixedTestCase() {
-	REPEAT_NEW_MAP(5) {
-		CONCURRENT_PROLOGUE(TestLockFreeMap, 15);
+	REPEAT_NEW_MAP(1) {
+		CONCURRENT_PROLOGUE_RESIZE(TestLockFreeMap, 1, 15);
+
 		int jobSize = bSize >> 1;
 
-		REPEAT_OLD_MAP(3) {
+		REPEAT_OLD_MAP(1) {
+			TraceGroup_LFMap.reset();
+
 			void **writerKeys = keys + jobSize;
 			void **writerValues = values + jobSize;
 			void **removerKeys = keys;
 			void **removerValues = values;
 
-			doParallel(4, mapWriter, map, keys, values, results, jobSize);
-			doParallel(4, mapReader, map, keys, values, results, bSize);
+			doParallel(4, mapWriter, map, removerKeys, removerValues, results, jobSize); // populate 1 half of the map
+			doParallel(4, mapReader, map, keys, values, results, bSize);   // read entire
 			CHECK_ARRAY_EQUAL(values, results, jobSize);
 			CHECK_ARRAY_EQUAL(nullarr, results + jobSize, jobSize);
+			CHECK_EQUAL(jobSize, map.unsafeUsed());
+			CHECK_EQUAL(jobSize, map.unsafeDirty());
+
+			TraceGroup_LFMap.reset();
+
 
 			std::thread writer(mapWriter, std::ref(map), writerKeys, writerValues, results, jobSize, false);
 			std::thread remover(mapRemover, std::ref(map), removerKeys, removerValues, results, jobSize, false);
 
-			bool *conditions = new bool[bSize];
+			bool *conditions = new bool[bSize]();
 			int conditionsMet = 0;
 			
-			while (conditionsMet != bSize) {
+			while (conditionsMet < bSize) {
 				for (int i = 0; i < jobSize; ++i) {
 					if (!conditions[i]) {
 						conditions[i] = (map.get(writerKeys[i]) == writerValues[i]);
-						conditionsMet += (conditions[i] ? 1 : 0);
+						if (conditions[i]) conditionsMet++;
 					}
 				}
 				for (int i = 0; i < jobSize; ++i) {
 					if (!conditions[i + jobSize]) {
 						conditions[i + jobSize] = (map.get(removerKeys[i]) == NULL);
-						conditionsMet += (conditions[i + jobSize] ? 1 : 0);
+						if (conditions[i + jobSize]) conditionsMet++;
 					}
 				}
 			}
@@ -165,16 +150,64 @@ void concMixedTestCase() {
 	}
 }
 
-#ifdef CONCURRENT_MAP_TBB
-
-TEST(TbbHashMapSequentialSpec) {
-	singleThreadedTest<TbbMapProvider>();
-}
-
-#endif
-
 TEST(LockFreeHashMapSequentialSpec) {
-	singleThreadedTest<TestLockFreeMap>();
+	CONCURRENT_PROLOGUE_RESIZE(TestLockFreeMap, 1, 15);
+	
+	mapReader(map, keys, values, results, 1);
+	CHECK_ARRAY_EQUAL(nullarr, results, 1);
+	
+	mapRemover(map, keys, values, results, 1);
+	CHECK_ARRAY_EQUAL(nullarr, results, 1);
+	CHECK_EQUAL(0, map.unsafeUsed());
+	CHECK_EQUAL(0, map.unsafeDirty());
+
+	mapWriter(map, keys, values, results, bSize);
+	CHECK_EQUAL(1 << 16, map.capacity());
+	CHECK_EQUAL(bSize, map.unsafeUsed());
+	CHECK_EQUAL(bSize, map.unsafeDirty());
+
+	mapReader(map, keys, values, results, bSize);
+	CHECK_ARRAY_EQUAL(values, results, bSize);
+
+	mapRemover(map, keys, values, results, bSize);
+	CHECK_ARRAY_EQUAL(values, results, bSize);
+	CHECK_EQUAL(0, map.unsafeUsed());
+	CHECK_EQUAL(bSize, map.unsafeDirty());
+
+	mapReader(map, keys, values, results, bSize);
+	CHECK_ARRAY_EQUAL(nullarr, results, bSize);
+
+	// minimize the space
+	int halfSize = (1 << 14);
+	void **keys1 = allocateTestBuffer(halfSize);
+	void **values1 = allocateTestBuffer(halfSize);
+
+	mapWriter(map, keys1, values1, results, halfSize);
+	CHECK_EQUAL(halfSize, map.unsafeUsed());
+	CHECK_EQUAL(bSize + halfSize, map.unsafeDirty());
+
+	mapRemover(map, keys1, values1, results, halfSize); // 75% is allocated
+	CHECK_EQUAL(0, map.unsafeUsed());
+	CHECK_EQUAL(bSize + halfSize, map.unsafeDirty());
+
+	int *key2 = new int(1);
+	int *val2 = new int(1);
+	mapWriter(map, (void**)&key2, (void**)&val2, results, 1);
+	CHECK_EQUAL(LFMAP_HASHTABLE_SIZE_MIN, map.capacity());
+	CHECK_EQUAL(1, map.unsafeUsed());
+	CHECK_EQUAL(1, map.unsafeDirty());
+
+	mapReader(map, (void**)&key2, (void**)&val2, results, 1);
+	CHECK_ARRAY_EQUAL((void**)&val2, results, 1);
+
+	mapReader(map, keys, values, results, bSize);
+	CHECK_ARRAY_EQUAL(nullarr, results, bSize);
+	
+	delete val2;
+	delete key2;
+	deallocateTestBuffer(keys1, halfSize);
+	deallocateTestBuffer(values1, halfSize);
+	CONCURRENT_EPILOGUE();
 }
 
 TEST(LockFreeHashMapBasicConcurrentChecks) {
@@ -201,7 +234,7 @@ TEST(LockFreeHashMapBasicConcurrentChecks) {
 
 TEST(LockFreeHashMapConcurrentIsolatedModifications) {
 	REPEAT_NEW_MAP(5) {
-		CONCURRENT_PROLOGUE(TestLockFreeMap, 15);
+		CONCURRENT_PROLOGUE_RESIZE(TestLockFreeMap, 4, 15);
 
 		REPEAT_OLD_MAP(3) {
 			// populate map in parallel
@@ -224,7 +257,7 @@ TEST(LockFreeHashMapConcurrentIsolatedModifications) {
 
 TEST(LockFreeHashMapConcurrentOverlappingModifications) {
 	REPEAT_NEW_MAP(5) {
-		CONCURRENT_PROLOGUE(TestLockFreeMap, 15);
+		CONCURRENT_PROLOGUE_RESIZE(TestLockFreeMap, 4, 15);
 
 		REPEAT_OLD_MAP(3) {
 			// 2 threads writing the same keys and same values
@@ -252,7 +285,8 @@ TEST(LockFreeHashMapConcurrentOverlappingModifications) {
 
 TEST(LockFreeHashMapConcurrentOverlappingUpdates) {
 	REPEAT_NEW_MAP(5) {
-		CONCURRENT_PROLOGUE(TestLockFreeMap, 15);
+		CONCURRENT_PROLOGUE_RESIZE(TestLockFreeMap, 4, 15);
+
 		void **upd_values = allocateTestBuffer(bSize);
 
 		REPEAT_OLD_MAP(3) {

@@ -4,11 +4,7 @@
 #include <jvmti.h>
 #include <jni.h>
 
-#if __GNUC__ == 4 && __GNUC_MINOR__ < 6 && !defined(__APPLE__) && !defined(__FreeBSD__) 
-  #include <cstdatomic>
-#else
-  #include <atomic>
-#endif
+#include "concurrent_map.h"
 
 // debug
 #define CONCURRENT_MAP_TBB
@@ -48,15 +44,15 @@ struct ThreadBucket {
     jvmtiEnv *tiEnv;
 };
 
-class AbstractMapProvider {
-public:
-	virtual void put(void *key, void *value) = 0;
-	virtual void *get(void *key) = 0;
-	virtual void *remove(void *key) = 0;
-	virtual ~AbstractMapProvider() {}
-};
-
 #ifdef CONCURRENT_MAP_TBB
+
+const int kTraceTbbMapTotal = 3;
+
+const int kTraceTbbMapPut = 0;
+const int kTraceTbbMapGet = 1;
+const int kTraceTbbMapRemove = 2;
+
+TRACE_DECLARE(TbbMap, kTraceTbbMapTotal);
 
 class TbbMapProvider : public AbstractMapProvider {
 private:
@@ -64,45 +60,32 @@ private:
 	HashMap map;
 
 public:
-
 	TbbMapProvider(size_t initialSize) : map(initialSize) {}
 
 	virtual ~TbbMapProvider() {}
 
 	void put(void *key, void *value) {
+		TRACE(TbbMap, kTraceTbbMapPut);
 		HashMap::accessor acc;
 		map.insert(acc, key);
 		acc->second = value;
 	}
 
 	void *get(void *key) {
+		TRACE(TbbMap, kTraceTbbMapGet);
 		HashMap::accessor acc;
 		return map.find(acc, key) ? acc->second : NULL;
 	}
 
 	void *remove(void *key) {
+		TRACE(TbbMap, kTraceTbbMapRemove);
 		void *old = get(key);
 		map.erase(key);
 		return old;
 	}
-
-	/* unsafe */
-	size_t size() {
-		return map.size();
-	}
 };
 
 #endif
-
-#define MAP_HASH_NULL (int64_t)-1
-
-struct LockFreeMapEntry {
-	std::atomic<int64_t> hash;
-	std::atomic<void*> value;
-
-	LockFreeMapEntry() : hash(MAP_HASH_NULL), value(NULL) {}
-	LockFreeMapEntry(int64_t h, void *v) : hash(h), value(v) {}
-};
 
 template <typename PType>
 struct PointerHasher {
@@ -112,118 +95,6 @@ struct PointerHasher {
 		return ((int64_t)p) / sizeof(PType);
 	}
 };
-
-/* Hasher assumed to be collision free. */
-template <typename Hasher>
-class LockFreeMapProvider : public AbstractMapProvider {
-private:
-	LockFreeMapEntry *array;
-	int allocatedSize;
-	std::atomic_int freeBuckets;
-
-	LockFreeMapEntry* lookup(void *key) {
-		int64_t tHash = Hasher::hash(key);
-		int sizeMask = allocatedSize - 1;
-		int i = tHash & sizeMask;
-		for (;; ++i) {
-			i &= sizeMask;
-
-			LockFreeMapEntry* entr = array + i;
-			int64_t bucketHash = entr->hash.load(std::memory_order_relaxed);
-		
-			if (bucketHash == MAP_HASH_NULL) { // not found
-				return NULL;
-			} else if (bucketHash == tHash) {
-				return entr;
-			}
-		}
-	}
-
-public:
-	LockFreeMapProvider(size_t initialSize) {
-		allocatedSize = nearestPow2(initialSize);
-		freeBuckets = allocatedSize;
-		array = new LockFreeMapEntry[allocatedSize];
-	}
-
-	virtual ~LockFreeMapProvider() {
-		delete[] array;
-	}
-
-	void put(void *key, void *value) {
-		int64_t tHash = Hasher::hash(key);
-		int sizeMask = allocatedSize - 1;
-		int i = tHash & sizeMask;
-		for (;; ++i) {
-			i &= sizeMask;
-
-			LockFreeMapEntry* entr = array + i;
-			int64_t bucketHash = entr->hash.load(std::memory_order_relaxed);
-		
-			if (bucketHash == MAP_HASH_NULL) { // unallocated bucket
-				int cellsAfterInsert = freeBuckets.fetch_sub(1, std::memory_order_relaxed);
-
-				if (cellsAfterInsert <= 0) {
-					std::cerr << "Error: Attempt to insert to full map\n";
-					freeBuckets.fetch_add(1, std::memory_order_relaxed);
-					return;
-				}
-
-				if (entr->hash.compare_exchange_strong(bucketHash, tHash, std::memory_order_relaxed)) {
-					bucketHash = tHash;
-				} else {
-					/*  Potentially we can continue on failed CAS, since hash collisions are not allowed and
-			 	 	*  failed CAS only means that bucket was allocated for different hash, but allow double 
-			 	 	*  check for a future modifications.
-			 	 	*/
-			 	 	freeBuckets.fetch_add(1, std::memory_order_relaxed);
-				}
-			}
-
-			if (bucketHash == tHash) { // CAS succeeded or allocated bucket found
-				void *oldValue = entr->value.load(std::memory_order_relaxed); // we are only interested in adress
-				if (oldValue == value ||
-					entr->value.compare_exchange_strong(oldValue, value, std::memory_order_acq_rel)) {
-					break;
-				}
-			}
-		}
-	}
-
-	void *get(void *key) {
-		LockFreeMapEntry *el = lookup(key);
-		return el ? el->value.load(std::memory_order_consume) : NULL;
-	}
-
-	void *remove(void *key) {
-		LockFreeMapEntry *entr = lookup(key);
-		if (!entr)
-			return NULL;
-
-		void *oldValue = entr->value.load(std::memory_order_relaxed);
-		while (true) {
-			if (entr->value.compare_exchange_strong(oldValue, NULL, std::memory_order_consume))
-				return oldValue;
-		}
-	}
-
-	/* reports number of occupied buckets */
-	size_t size() {
-		return allocatedSize - freeBuckets.load(std::memory_order_relaxed);
-	}
-
-	/* nearest (larger) power of 2 */
-	static unsigned int nearestPow2(unsigned int x) {
-		x--;
-		x |= x >> 1;
-		x |= x >> 2;
-		x |= x >> 4;
-		x |= x >> 8;
-		x |= x >> 16;
-		return x + 1;
-	}
-};
-
 
 #define INITIAL_CONCURRENT_MAP_SIZE 256
 
@@ -261,9 +132,9 @@ public:
 typedef ThreadMapBase<TbbMapProvider> ThreadMap;
 typedef ThreadMap TbbThreadMap;
 #else
-typedef ThreadMapBase<LockFreeMapProvider<PointerHasher<JNIEnv> > > ThreadMap;
+typedef ThreadMapBase<LockFreeMapProvider<PointerHasher<JNIEnv>, true> > ThreadMap;
 #endif
 
-typedef ThreadMapBase<LockFreeMapProvider<PointerHasher<JNIEnv> > > LockFreeThreadMap;
+typedef ThreadMapBase<LockFreeMapProvider<PointerHasher<JNIEnv>, true> > LockFreeThreadMap;
 
 #endif

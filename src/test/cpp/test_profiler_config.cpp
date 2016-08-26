@@ -7,7 +7,9 @@
 static JavaVM *jvm = NULL;
 static JNIEnv *env = NULL;
 static jvmtiEnv *jvmti = NULL;
+static ThreadMap map; // empty map
 
+/*
 static void init() {
 	if (jvm) return;
 
@@ -40,7 +42,7 @@ public:
 	ProfilerControl() {
 		init();
 		liveConfig = new ConfigurationOptions();
-		profiler = new Profiler(jvm, jvmti, liveConfig);
+		profiler = new Profiler(jvm, jvmti, liveConfig, map);
 
 		// otherwise Profiler::handle called from bootstrapHandle in agent.cpp will fail
 		setProfiler(profiler);
@@ -213,3 +215,4 @@ TEST_FIXTURE(ProfilerControl, ProfilerConcurrentModification) {
 	//TraceGroup_Profiler.dumpIfUsed();
 #endif
 }
+*/

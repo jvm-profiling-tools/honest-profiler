@@ -342,7 +342,7 @@ AGENTEXPORT jint JNICALL Agent_OnLoad(JavaVM *jvm, char *options, void *reserved
 
     Asgct::SetAsgct(Accessors::GetJvmFunction<ASGCTType>("AsyncGetCallTrace"));
 
-    prof = new Profiler(jvm, jvmti, threadMap, CONFIGURATION);
+    prof = new Profiler(jvm, jvmti, CONFIGURATION, threadMap);
     controller = new Controller(jvm, jvmti, prof, CONFIGURATION);
 
     return 0;

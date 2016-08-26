@@ -5,6 +5,8 @@
  *  URL: https://github.com/preshing/turf
  */
 
+#include <iostream>
+
 class TraceGroup {
 public:
     struct Counter {
@@ -31,7 +33,7 @@ public:
     void dump() {
     	printf("--------------- %s\n", m_name);
     	for (int i = 0; i < m_numCounters; i++) {
-        	printf("#### %s: %d\n", m_counters[i].str, m_counters[i].count.load(std::memory_order_relaxed));
+            std::cout << "#### " << m_counters[i].str << ": " << m_counters[i].count.load(std::memory_order_relaxed) << std::endl;
     	}
     }
 
