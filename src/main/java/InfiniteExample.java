@@ -34,8 +34,8 @@ public class InfiniteExample
         final int index = jvmName.indexOf('@');
         final Thread control = new Thread(InfiniteExample::startOrStop);
 
-        control.start();
         System.out.println(parseLong(jvmName.substring(0, index)));
+        control.start();
 
         while (true)
         {
@@ -46,7 +46,7 @@ public class InfiniteExample
 
     private static void subMethod()
     {
-        //System.out.println("calling some code, lalala");
+        System.out.println("calling some code, lalala");
     }
 
     private static void startOrStop()

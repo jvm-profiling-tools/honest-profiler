@@ -7,7 +7,7 @@
 static JavaVM *jvm = NULL;
 static JNIEnv *env = NULL;
 static jvmtiEnv *jvmti = NULL;
-static ThreadMap map; // empty map
+static ThreadMap threadMap; // empty map
 
 /*
 static void init() {

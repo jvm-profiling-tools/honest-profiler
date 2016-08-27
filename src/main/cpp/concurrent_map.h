@@ -1,6 +1,13 @@
 #ifndef CONCURRENT_MAP_H
 #define CONCURRENT_MAP_H
 
+/**
+ * Concurrent hash map implementation with lock-free readers that can be used
+ * in signal handlers. Writers use locks only for memory allocation bounded 
+ * number of times during migration (resize) only. Map is ported from @preshing's 
+ * ConcurrentMap_Linear: https://github.com/preshing/junction/blob/master/junction/ConcurrentMap_Linear.h.
+ */
+
 #if __GNUC__ == 4 && __GNUC_MINOR__ < 6 && !defined(__APPLE__) && !defined(__FreeBSD__) 
 	#include <cstdatomic>
 #else
@@ -11,24 +18,6 @@
 #include <condition_variable>
 
 #include "trace.h"
-
-class AbstractMapProvider {
-public:
-	virtual void put(void *key, void *value) = 0;
-	virtual void *get(void *key) = 0;
-	virtual void *remove(void *key) = 0;
-	virtual ~AbstractMapProvider() {}
-};
-
-static int nearestPow2(unsigned int x) {
-	x--;
-	x |= x >> 1;
-	x |= x >> 2;
-	x |= x >> 4;
-	x |= x >> 8;
-	x |= x >> 16;
-	return x + 1;
-}
 
 #define MAP_HASH_NULL (int64_t)-1
 #define MAP_VALUE_MIGRATION (void*)-1
@@ -42,6 +31,18 @@ TRACE_DECLARE(LFMap, kTraceLFMapTotal);
 #define LFMAP_MAX_SAMPLE_SIZE 256
 
 typedef int64_t (*HashFunction)(void*);
+
+namespace map {
+
+static int nearestPow2(unsigned int x) {
+	x--;
+	x |= x >> 1;
+	x |= x >> 2;
+	x |= x >> 4;
+	x |= x >> 8;
+	x |= x >> 16;
+	return x + 1;
+}
 
 class JobCoordinator {
 public:
@@ -436,9 +437,17 @@ end_migration:
 	}
 };
 
+class AbstractMapProvider {
+public:
+	virtual void put(void *key, void *value) = 0;
+	virtual void *get(void *key) = 0;
+	virtual void *remove(void *key) = 0;
+	virtual ~AbstractMapProvider() {}
+};
+
 /* Hasher assumed to be collision free. */
-template <typename Hasher, bool signalSafeReaders=false>
-class LockFreeMapProvider : public AbstractMapProvider {
+template <typename Hasher, bool signalSafeReaders>
+class ConcurrentMapProvider : public AbstractMapProvider {
 private:
 	TableGuard current;
 	HashFunction hasher;
@@ -478,7 +487,7 @@ private:
 			return;
 		}
 
-		auto *m = new Migration<LockFreeMapProvider<Hasher> >(*this, 1);
+		auto *m = new Migration<ConcurrentMapProvider<Hasher, signalSafeReaders> >(*this, 1);
 		m->dest = new HashTable(targetSize);
 		m->sources[0].table = table;
 		m->sources[0].index.store(0, std::memory_order_relaxed);
@@ -488,10 +497,10 @@ private:
 	}
 
 public:
-	LockFreeMapProvider(size_t initialSize) : current(new HashTable(initialSize)), hasher(&Hasher::hash) {
+	ConcurrentMapProvider(size_t initialSize) : current(new HashTable(initialSize)), hasher(&Hasher::hash) {
 	}
 
-	virtual ~LockFreeMapProvider() {
+	virtual ~ConcurrentMapProvider() {
 	}
 
 	void put(void *key, void *value) {
@@ -593,5 +602,7 @@ public:
 		return size;
 	}
 };
+
+} // namespace map end
 
 #endif

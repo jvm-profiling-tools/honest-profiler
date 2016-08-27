@@ -189,18 +189,18 @@ void JNICALL OnNativeMethodBind(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread th
 volatile bool main_started = false;
 
 void JNICALL OnThreadStart(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread thread) {
-    if (!main_started) {
-        jvmtiThreadInfo thread_info;
-        int error = jvmti_env->GetThreadInfo(thread, &thread_info);
-        if (error == JNI_OK) {
+    jvmtiThreadInfo thread_info;
+    int error = jvmti_env->GetThreadInfo(thread, &thread_info);
+    if (error == JNI_OK) {
+        if (!main_started) {
             if (strcmp(thread_info.name, "main") == 0) {
                 main_started = true;
                 if (CONFIGURATION->start) {
                     prof->start(jni_env);
                 }
             }
-            threadMap.put(jni_env, jvmti_env, thread);
         }
+        threadMap.put(jni_env, jvmti_env, thread);
     }
     pthread_sigmask(SIG_UNBLOCK, &prof_signal_mask, NULL);
 }

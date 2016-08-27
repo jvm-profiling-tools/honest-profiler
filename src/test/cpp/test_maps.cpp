@@ -6,8 +6,9 @@
 #include <thread>
 #include <vector>
 
+using namespace map;
 
-typedef LockFreeMapProvider<PointerHasher<int> > TestLockFreeMap;
+typedef ConcurrentMapProvider<PointerHasher<int>, false> TestLockFreeMap;
 typedef void (*MapFunction)(AbstractMapProvider &, void **, void **, std::atomic<void*> *, size_t, bool);
 
 void **allocateTestBuffer(size_t size) {
