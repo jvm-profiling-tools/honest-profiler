@@ -92,12 +92,12 @@ void doParallel(int threads, MapFunction func, AbstractMapProvider &map, void **
 
 
 void concMixedTestCase() {
-	REPEAT_NEW_MAP(1) {
+	REPEAT_NEW_MAP(5) {
 		CONCURRENT_PROLOGUE_RESIZE(TestLockFreeMap, 1, 15);
 
 		int jobSize = bSize >> 1;
 
-		REPEAT_OLD_MAP(1) {
+		REPEAT_OLD_MAP(3) {
 			TraceGroup_LFMap.reset();
 
 			void **writerKeys = keys + jobSize;
@@ -109,9 +109,7 @@ void concMixedTestCase() {
 			doParallel(4, mapReader, map, keys, values, results, bSize);   // read entire
 			CHECK_ARRAY_EQUAL(values, results, jobSize);
 			CHECK_ARRAY_EQUAL(nullarr, results + jobSize, jobSize);
-			CHECK_EQUAL(jobSize, map.unsafeUsed());
-			CHECK_EQUAL(jobSize, map.unsafeDirty());
-
+			
 			TraceGroup_LFMap.reset();
 
 
@@ -217,10 +215,10 @@ TEST(LockFreeHashMapBasicConcurrentChecks) {
 	void *res;
 
 	mapReader(map, keys, values, results, 1);
-	CHECK_EQUAL((void*)NULL, results[0]);
+	CHECK_ARRAY_EQUAL(nullarr, results, 1);
 
 	std::thread writer(mapWriter, std::ref(map), keys, values, results, 1, false);
-	while ( !(res = map.get(keys[0])) );
+	while ( !(res = map.get(keys[0])) ) sched_yield();
 	CHECK_EQUAL(values[0], res);
 
 	std::thread remover(mapRemover, std::ref(map), keys, values, results, 1, false);
