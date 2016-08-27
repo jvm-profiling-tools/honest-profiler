@@ -94,10 +94,9 @@ public class AgentIntegrationTest
                     seenTraceCount = expectNonIncreasingTraceCount(expect, seenTraceCount, lastProfile);
 
                     runner.startProfiler();
-                    parkNanos(SECONDS.toNanos(1));
 
                     seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
-                    parkNanos(SECONDS.toNanos(1));
+                    
                     runner.stopProfiler();
 
                     seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
@@ -168,7 +167,6 @@ public class AgentIntegrationTest
         Profile profile = lastProfile.get();
         int currentTraceCount = profile == null ? 0 : profile.getTraceCount();
         expect.that(currentTraceCount).is(matcher);
-        parkNanos(SECONDS.toNanos(1));
         return currentTraceCount;
     }
 }

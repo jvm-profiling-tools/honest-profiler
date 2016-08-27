@@ -66,7 +66,10 @@ set(SOURCE_FILES
     ${SRC}/profiler.cpp
     ${SRC}/profiler.h
     ${SRC}/stacktraces.h
-    ${SRC}/trace.h)
+    ${SRC}/trace.h
+    ${SRC}/thread_map.h
+    ${SRC}/concurrent_map.h
+    ${SRC}/concurrent_map.cpp)
 
 set(TEST_FILES
     ${SRC_TEST}/fixtures.h
@@ -75,7 +78,8 @@ set(TEST_FILES
     ${SRC_TEST}/test_log_writer.cpp
     ${SRC_TEST}/test_agent.cpp
     ${SRC_TEST}/test.h
-    ${SRC_TEST}/test_profiler_config.cpp)
+    ${SRC_TEST}/test_profiler_config.cpp
+    ${SRC_TEST}/test_maps.cpp)
 
 
 ##########################################################
