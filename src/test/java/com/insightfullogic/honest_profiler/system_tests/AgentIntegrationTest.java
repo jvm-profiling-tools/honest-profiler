@@ -94,9 +94,9 @@ public class AgentIntegrationTest
                     seenTraceCount = expectNonIncreasingTraceCount(expect, seenTraceCount, lastProfile);
 
                     runner.startProfiler();
-
-                    seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
                     
+                    seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
+
                     runner.stopProfiler();
 
                     seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);

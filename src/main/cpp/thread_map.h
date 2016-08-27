@@ -78,6 +78,6 @@ public:
 	}
 };
 
-typedef ThreadMapBase<map::ConcurrentMapProvider<PointerHasher<JNIEnv>, true> > ThreadMap;
+typedef ThreadMapBase<map::ConcurrentMapProvider<PointerHasher<JNIEnv>, false> > ThreadMap;
 
 #endif
