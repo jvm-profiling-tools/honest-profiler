@@ -21,6 +21,7 @@
 
 #define MAP_HASH_NULL (int64_t)-1
 #define MAP_VALUE_MIGRATION (void*)-1
+#define PENDING_QUEUE_LENGTH 4
 
 const int kTraceLFMapTotal = 24;
 
@@ -137,8 +138,9 @@ struct HashTable {
 
 };
 
-#define PENDING_QUEUE_LENGTH 8
-
+/**
+ * Multi-reader, single writer fixed size array.
+ */
 class TableGuard {
 private:
 	struct Entry {
@@ -150,28 +152,26 @@ private:
 	std::atomic_int current;
 
 public:
-	TableGuard(HashTable *initial) : current(-1) {
+	TableGuard(HashTable *initial) : current(0) {
 		for (int i = 0; i < PENDING_QUEUE_LENGTH; i++) {
-			pending[i].table.store(NULL, std::memory_order_relaxed);
 			pending[i].references.store(0, std::memory_order_relaxed);
+			pending[i].table.store(NULL, std::memory_order_release);
 		}
-		publish(initial);
+		pending[0].references.store(1, std::memory_order_relaxed);
+		pending[0].table.store(initial, std::memory_order_release);
 	}
 
 	HashTable *acquire() {
 		int index = current.load(std::memory_order_relaxed) & (PENDING_QUEUE_LENGTH - 1);
 		pending[index].references.fetch_add(1, std::memory_order_relaxed);
-		return pending[index].table.load(std::memory_order_consume);
+		return pending[index].table.load(std::memory_order_acquire);
 	}
 
 	void release(HashTable *p) {
 		for (int index = 0; index < PENDING_QUEUE_LENGTH; ++index) {
 			HashTable *root = pending[index].table.load(std::memory_order_relaxed);
 			if (p == root) {
-				int refsBefore = pending[index].references.fetch_sub(1, std::memory_order_relaxed);
-				if (refsBefore == 1 && pending[index].table.compare_exchange_strong(root, NULL, std::memory_order_relaxed)) {
-					delete root;
-				}
+				pending[index].references.fetch_sub(1, std::memory_order_relaxed);
 				return;
 			}
 		}
@@ -179,13 +179,21 @@ public:
 	}
 
 	void publish(HashTable *p) {
+		int oldRoot = current.load(std::memory_order_relaxed);
+		int index = oldRoot;
 		while (true) {
-			int index = (current.fetch_add(1, std::memory_order_relaxed) + 1) & (PENDING_QUEUE_LENGTH - 1);
-			HashTable *root = pending[index].table.load(std::memory_order_relaxed);
-			if (root == NULL) {
-				pending[index].references.store(1, std::memory_order_relaxed);
-				if (pending[index].table.compare_exchange_strong(root, p, std::memory_order_acq_rel))
+			index = (index + 1) & (PENDING_QUEUE_LENGTH - 1);
+			HashTable *root = pending[index].table.load(std::memory_order_acquire);
+			int refs = pending[index].references.load(std::memory_order_relaxed);
+			if (refs < 1) {
+				if (refs < 0) std::cout << "#### [publish] references: " << refs << std::endl;
+				if (pending[index].table.compare_exchange_strong(root, p, std::memory_order_relaxed)) {
+					if (root != NULL) delete root;
+					pending[index].references.store(1, std::memory_order_relaxed); // global ref
+					current.store(index, std::memory_order_release);
+					pending[oldRoot].references.fetch_sub(1, std::memory_order_relaxed); // remove global ref
 					return;
+				}
 			}
 		}
 	}
@@ -299,13 +307,17 @@ struct Migration : public JobCoordinator::Job {
 	std::atomic<bool> overflowed;
 	std::atomic<int> state; // odd means migration completed
 	std::atomic<int> unitsRemaining;
+	Migration<Map> *prev;
 
-	Migration(Map &self, int numSources) : map(self), sources(numSources), overflowed(false), state(0), unitsRemaining(0) {}
+	Migration(Map &self, int numSources) : map(self), sources(numSources), 
+		overflowed(false), state(0), unitsRemaining(0), prev(NULL) {}
 
 	virtual ~Migration() {
-		TablesIterator it = sources.begin(); 
-		for (it++; it != sources.end(); it++) // skip 1st
-			delete it->table;
+		if (prev != NULL) delete prev;
+		TablesIterator it = sources.begin();
+		for (it++; it != sources.end(); it++) {
+			if (it->table) delete it->table;
+		} // skip 1st
 	}
 
 	virtual void run() {
@@ -379,6 +391,7 @@ end_migration:
 				m->sources[sources.size()].table = dest;
 				m->sources[sources.size()].index.store(0, std::memory_order_relaxed);
 				m->unitsRemaining = unitsRemaining + dest->getMigrationSize();
+				m->prev = this;
 
 				origTable->coordinator.set(m);
         	} else {
@@ -568,10 +581,7 @@ public:
 
 	// Migration callback, called once per successful migration
 	void finishMigration(HashTable *newRoot) {
-		ScopedGuard guard(current);
 		current.publish(newRoot);
-		current.release(guard.root);
-		// release ref 2 times: local ref + construction ref
 	}
 
 	int capacity() {

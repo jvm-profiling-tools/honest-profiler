@@ -91,64 +91,6 @@ void doParallel(int threads, MapFunction func, AbstractMapProvider &map, void **
 	for (int loopnr = 0; loopnr < times; ++loopnr)
 
 
-void concMixedTestCase() {
-	REPEAT_NEW_MAP(5) {
-		CONCURRENT_PROLOGUE_RESIZE(TestLockFreeMap, 1, 15);
-
-		int jobSize = bSize >> 1;
-
-		REPEAT_OLD_MAP(3) {
-			TraceGroup_LFMap.reset();
-
-			void **writerKeys = keys + jobSize;
-			void **writerValues = values + jobSize;
-			void **removerKeys = keys;
-			void **removerValues = values;
-
-			doParallel(4, mapWriter, map, removerKeys, removerValues, results, jobSize); // populate 1 half of the map
-			doParallel(4, mapReader, map, keys, values, results, bSize);   // read entire
-			CHECK_ARRAY_EQUAL(values, results, jobSize);
-			CHECK_ARRAY_EQUAL(nullarr, results + jobSize, jobSize);
-			
-			TraceGroup_LFMap.reset();
-
-
-			std::thread writer(mapWriter, std::ref(map), writerKeys, writerValues, results, jobSize, false);
-			std::thread remover(mapRemover, std::ref(map), removerKeys, removerValues, results, jobSize, false);
-
-			bool *conditions = new bool[bSize]();
-			int conditionsMet = 0;
-			
-			while (conditionsMet < bSize) {
-				for (int i = 0; i < jobSize; ++i) {
-					if (!conditions[i]) {
-						conditions[i] = (map.get(writerKeys[i]) == writerValues[i]);
-						if (conditions[i]) conditionsMet++;
-					}
-				}
-				for (int i = 0; i < jobSize; ++i) {
-					if (!conditions[i + jobSize]) {
-						conditions[i + jobSize] = (map.get(removerKeys[i]) == NULL);
-						if (conditions[i + jobSize]) conditionsMet++;
-					}
-				}
-			}
-			delete[] conditions;
-
-			writer.join();
-			remover.join();
-
-			// clean map in parallel
-			doParallel(2, mapRemover, map, keys, values, results, bSize);
-
-			// check that map is indeed empty
-			doParallel(4, mapReader, map, keys, values, results, bSize);
-			CHECK_ARRAY_EQUAL(nullarr, results, bSize);
-		}
-		CONCURRENT_EPILOGUE();
-	}
-}
-
 TEST(LockFreeHashMapSequentialSpec) {
 	CONCURRENT_PROLOGUE_RESIZE(TestLockFreeMap, 1, 15);
 	
@@ -220,13 +162,14 @@ TEST(LockFreeHashMapBasicConcurrentChecks) {
 	std::thread writer(mapWriter, std::ref(map), keys, values, results, 1, false);
 	while ( !(res = map.get(keys[0])) ) sched_yield();
 	CHECK_EQUAL(values[0], res);
+	writer.join();
 
 	std::thread remover(mapRemover, std::ref(map), keys, values, results, 1, false);
-	while ( (res = map.get(keys[0])) );
-	CHECK_EQUAL(values[0], results[0]);
-
-	writer.join();
+	while ( (res = map.get(keys[0])) ) sched_yield();
+	CHECK_EQUAL((void*)NULL, res);
 	remover.join();
+
+	CHECK_EQUAL(0, map.unsafeUsed());
 
 	CONCURRENT_EPILOGUE();
 }
@@ -237,17 +180,14 @@ TEST(LockFreeHashMapConcurrentIsolatedModifications) {
 
 		REPEAT_OLD_MAP(3) {
 			// populate map in parallel
-			doParallel(1, mapWriter, map, keys, values, results, bSize);
+			doParallel(4, mapWriter, map, keys, values, results, bSize);
 			doParallel(4, mapReader, map, keys, values, results, bSize);
 			CHECK_ARRAY_EQUAL(values, results, bSize);
+			CHECK_EQUAL(bSize, map.unsafeUsed());
 
 			// clean map in parallel
 			doParallel(4, mapRemover, map, keys, values, results, bSize);
-			CHECK_ARRAY_EQUAL(values, results, bSize);
-			
-			// check that map is indeed empty
-			doParallel(4, mapReader, map, keys, values, results, bSize);
-			CHECK_ARRAY_EQUAL(nullarr, results, bSize);
+			CHECK_EQUAL(0, map.unsafeUsed());
 		}
 	
 		CONCURRENT_EPILOGUE();
@@ -273,9 +213,7 @@ TEST(LockFreeHashMapConcurrentOverlappingModifications) {
 				CHECK(res == NULL || res == values[i]);
 			}
 
-			// check that map is indeed empty
-			doParallel(4, mapReader, map, keys, values, results, bSize);
-			CHECK_ARRAY_EQUAL(nullarr, results, bSize);
+			CHECK_EQUAL(0, map.unsafeUsed());
 		}
 	
 		CONCURRENT_EPILOGUE();
@@ -298,15 +236,15 @@ TEST(LockFreeHashMapConcurrentOverlappingUpdates) {
 			writer2.join();
 
 			doParallel(4, mapReader, map, keys, values, results, bSize);
-			for (int i = 0; i < bSize; i++)
-				CHECK(results[i] == upd_values[i] || results[i] == values[i]);
+			for (int i = 0; i < bSize; i++) {
+				void *check = results[i].load(std::memory_order_relaxed);
+				CHECK(check == upd_values[i] || check == values[i]);
+			}
 
 			// clean map in parallel
 			doParallel(2, mapRemover, map, keys, values, results, bSize);
 
-			// check that map is indeed empty
-			doParallel(4, mapReader, map, keys, values, results, bSize);
-			CHECK_ARRAY_EQUAL(nullarr, results, bSize);
+			CHECK_EQUAL(0, map.unsafeUsed());
 		}
 		
 		deallocateTestBuffer(upd_values, bSize);
@@ -315,5 +253,58 @@ TEST(LockFreeHashMapConcurrentOverlappingUpdates) {
 }
 
 TEST(LockFreeHashMapConcurrentMixedLoad) {
-	concMixedTestCase();
+	REPEAT_NEW_MAP(5) {
+		CONCURRENT_PROLOGUE_RESIZE(TestLockFreeMap, 1, 15);
+
+		int jobSize = bSize >> 1;
+
+		REPEAT_OLD_MAP(3) {
+			TraceGroup_LFMap.reset();
+
+			void **writerKeys = keys + jobSize;
+			void **writerValues = values + jobSize;
+			void **removerKeys = keys;
+			void **removerValues = values;
+
+			doParallel(4, mapWriter, map, removerKeys, removerValues, results, jobSize); // populate 1 half of the map
+			CHECK_EQUAL(jobSize, map.unsafeUsed());
+			
+			TraceGroup_LFMap.reset();
+
+
+			std::thread writer(mapWriter, std::ref(map), writerKeys, writerValues, results, jobSize, false);
+			std::thread remover(mapRemover, std::ref(map), removerKeys, removerValues, results, jobSize, false);
+
+			bool *conditions = new bool[bSize]();
+			int conditionsMet = 0;
+			
+			while (conditionsMet < bSize) {
+				for (int i = 0; i < jobSize; ++i) {
+					if (!conditions[i]) {
+						conditions[i] = (map.get(writerKeys[i]) == writerValues[i]);
+						if (conditions[i]) conditionsMet++;
+					}
+				}
+				for (int i = 0; i < jobSize; ++i) {
+					if (!conditions[i + jobSize]) {
+						conditions[i + jobSize] = (map.get(removerKeys[i]) == NULL);
+						if (conditions[i + jobSize]) conditionsMet++;
+					}
+				}
+			}
+			delete[] conditions;
+
+			writer.join();
+			remover.join();
+
+			// clean map in parallel
+			doParallel(2, mapRemover, map, keys, values, results, bSize);
+			CHECK_EQUAL(0, map.unsafeUsed());
+
+			// check that map is indeed empty
+			doParallel(4, mapReader, map, keys, values, results, bSize);
+			CHECK_EQUAL(0, map.unsafeUsed());
+		}
+		CONCURRENT_EPILOGUE();
+	}
 }
