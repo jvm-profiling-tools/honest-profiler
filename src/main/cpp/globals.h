@@ -5,12 +5,6 @@
 #include <stdint.h>
 #include <signal.h>
 
-// only for linux?
-#include <sys/syscall.h>
-
-#ifdef __APPLE__
-  #include <mach/mach.h>
-#endif
 
 #ifndef GLOBALS_H
 #define GLOBALS_H

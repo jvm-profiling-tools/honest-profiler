@@ -22,18 +22,27 @@ void LogWriter::writeValue(const T &value) {
     }
 }
 
-static int64_t getThreadId(JNIEnv *env_id, ThreadMap &tMap) {
+static int64_t getThreadId(JNIEnv *env_id, jvmtiEnv *tiEnv, ThreadMap &tMap) {
     ThreadBucket *tInfo = tMap.get(env_id);
-    if (tInfo) {
-        // Thread name can be sampled here as a bonus
-        /*jvmtiThreadInfo thread_info;
-        int error = tInfo->tiEnv->GetThreadInfo(tInfo->thread, &thread_info);
-        if (error == JNI_OK) {
-            std::cout << "@@@ thread name: " << thread_info.name << std::endl;
-        }*/
-        return tInfo->tid;
+    if (tInfo && tInfo->tid > 0) {
+        return (int64_t)tInfo->tid;
     }
     return (int64_t)env_id;
+}
+
+static void getThreadName(JNIEnv *env_id, jvmtiEnv *tiEnv, ThreadMap &tMap, char *buff, int buffsz) {
+    jvmtiThreadInfo thread_info;
+    char *src = (char*)"Unknown";
+    ThreadBucket *tInfo = tMap.get(env_id);
+    if (tInfo && tInfo->tid > 0) {
+        int error = tiEnv->GetThreadInfo(tInfo->thread, &thread_info);
+        if (error == JNI_OK) {
+            src = thread_info.name;
+        }
+    }
+    int symbols = std::min((int)strlen(src), buffsz - 1);
+    strncpy(buff, src, symbols);
+    buff[symbols] = '\0';
 }
 
 static jint bci2line(jint bci, jvmtiLineNumberEntry *table, jint entry_count) {
@@ -57,7 +66,6 @@ static jint bci2line(jint bci, jvmtiLineNumberEntry *table, jint entry_count) {
         }
         half = half >> 1;
     }
-
 
     /* Now start the table search from approximated start_index */
     for (int i = start_index ; i < entry_count ; i++ ) {
@@ -94,7 +102,11 @@ jint LogWriter::getLineNo(jint bci, jmethodID methodId) {
 }
 
 void LogWriter::record(const JVMPI_CallTrace &trace) {
-    int64_t threadId = getThreadId(trace.env_id, tMap_);
+    constexpr const int size = 128;
+    char namebuff[size];
+
+    int64_t threadId = getThreadId(trace.env_id, jvmti_, tMap_);
+    getThreadName(trace.env_id, jvmti_, tMap_, namebuff, size);
     recordTraceStart(trace.num_frames, threadId);
 
     for (int i = 0; i < trace.num_frames; i++) {

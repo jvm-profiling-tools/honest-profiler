@@ -3,38 +3,14 @@
 
 #include <jvmti.h>
 #include <jni.h>
-
 #include "concurrent_map.h"
-#include <sys/syscall.h>
-#include <unistd.h>
 
-// http://source.winehq.org/git/wine.git/?a=blob;f=dlls/ntdll/server.c#l943
-static int gettid() {
-	int ret = -1;
-#if defined(__linux__)
-	ret = syscall(SYS_gettid);
-#elif defined(__APPLE__)
-	//ret = pthread_getthreadid_np();
-	ret = mach_thread_self();
-	mach_port_deallocate(mach_task_self(), ret);
-#elif defined(__NetBSD__)
-	ret = _lwp_self();
-#elif defined(__FreeBSD__)
-	long lwpid;
-	thr_self(&lwpid);
-	ret = lwpid;
-#elif defined(__DragonFly__)
-	ret = lwp_gettid();
-#else
-	ret = pthread_self();
-#endif
-	return ret;
-}
+
+int gettid();
 
 struct ThreadBucket {
     int tid;
-    jthread thread; 
-    jvmtiEnv *tiEnv;
+    jthread thread;
 };
 
 template <typename PType>
@@ -57,11 +33,14 @@ public:
 
 	ThreadMapBase(int capacity=INITIAL_CONCURRENT_MAP_SIZE) : map(capacity) {}
 
-	void put(JNIEnv *jni_env, jvmtiEnv *jvmti_env, jthread thread) {
+	void put(JNIEnv *jni_env, jthread thread) {
+        put(jni_env, thread, gettid());
+	}
+
+	void put(JNIEnv *jni_env, jthread thread, int tid, bool globalRef=true) {
 		ThreadBucket *info = new ThreadBucket;
-        info->tid = gettid();
-        info->tiEnv = jvmti_env;
-        info->thread = jni_env->NewGlobalRef(thread);
+        info->tid = tid;
+        info->thread = globalRef ? thread : jni_env->NewGlobalRef(thread);
         map.put(jni_env, info);
 	}
 
