@@ -437,7 +437,10 @@ end_migration:
 					// only 1 thread can migrate bucket at time, so srcValue != MAP_VALUE_MIGRATION and srcHash is not in dest
 					if (srcValue != NULL) {
 						bool migrationOverflow = LockFreeMapPrimitives::insertOrUpdate(dest, srcHash, srcValue);
-						if (migrationOverflow) return true; // overflow
+						if (migrationOverflow) {
+							entry->value.store(srcValue, std::memory_order_release); // return replaced value
+							return true; // overflow
+						}
 					} else {
 						TRACE(LFMap, 22);
 					}
