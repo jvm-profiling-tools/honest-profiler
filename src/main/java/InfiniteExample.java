@@ -34,8 +34,8 @@ public class InfiniteExample
         final int index = jvmName.indexOf('@');
         final Thread control = new Thread(InfiniteExample::startOrStop);
 
-        control.start();
         System.out.println(parseLong(jvmName.substring(0, index)));
+        control.start();
 
         while (true)
         {

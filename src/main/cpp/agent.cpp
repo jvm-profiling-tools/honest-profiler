@@ -5,6 +5,7 @@
 #include <jvmti.h>
 
 #include "globals.h"
+#include "thread_map.h"
 #include "profiler.h"
 #include "controller.h"
 
@@ -15,7 +16,7 @@
 static ConfigurationOptions* CONFIGURATION = new ConfigurationOptions();
 static Profiler* prof;
 static Controller* controller;
-
+static ThreadMap threadMap;
 
 // This has to be here, or the VM turns off class loading events.
 // And AsyncGetCallTrace needs class loading events to be turned on!
@@ -188,10 +189,10 @@ void JNICALL OnNativeMethodBind(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread th
 volatile bool main_started = false;
 
 void JNICALL OnThreadStart(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread thread) {
-    if (!main_started) {
-        jvmtiThreadInfo thread_info;
-        int error = jvmti_env->GetThreadInfo(thread, &thread_info);
-        if (error == JNI_OK) {
+    jvmtiThreadInfo thread_info;
+    int error = jvmti_env->GetThreadInfo(thread, &thread_info);
+    if (error == JNI_OK) {
+        if (!main_started) {
             if (strcmp(thread_info.name, "main") == 0) {
                 main_started = true;
                 if (CONFIGURATION->start) {
@@ -199,12 +200,14 @@ void JNICALL OnThreadStart(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread thread)
                 }
             }
         }
+        threadMap.put(jni_env, thread);
     }
     pthread_sigmask(SIG_UNBLOCK, &prof_signal_mask, NULL);
 }
 
 void JNICALL OnThreadEnd(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread thread) {
     pthread_sigmask(SIG_BLOCK, &prof_signal_mask, NULL);
+    threadMap.remove(jni_env);
 }
 
 static bool RegisterJvmti(jvmtiEnv *jvmti) {
@@ -338,7 +341,7 @@ AGENTEXPORT jint JNICALL Agent_OnLoad(JavaVM *jvm, char *options, void *reserved
 
     Asgct::SetAsgct(Accessors::GetJvmFunction<ASGCTType>("AsyncGetCallTrace"));
 
-    prof = new Profiler(jvm, jvmti, CONFIGURATION);
+    prof = new Profiler(jvm, jvmti, CONFIGURATION, threadMap);
     controller = new Controller(jvm, jvmti, prof, CONFIGURATION);
 
     return 0;

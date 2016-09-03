@@ -96,7 +96,7 @@ public class AgentIntegrationTest
                     runner.startProfiler();
                     
                     seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
-                    
+
                     runner.stopProfiler();
 
                     seenTraceCount = expectIncreasingTraceCount(expect, seenTraceCount, lastProfile);
@@ -117,6 +117,7 @@ public class AgentIntegrationTest
         });
 
     }
+
 
     private AtomicReference<Profile> discoverVirtualMachines()
     {

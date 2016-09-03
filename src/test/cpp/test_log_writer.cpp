@@ -25,7 +25,8 @@ bool stubFrameInformation(const JVMPI_CallFrame &frame, jvmtiEnv *jvmti,
   char buffer[100] = {};                                                       \
   ostreambuf<char> outputBuffer(buffer, sizeof(buffer));                       \
   ostream output(&outputBuffer);                                               \
-  LogWriter logWriter(output, &stubFrameInformation, NULL);                    \
+  ThreadMap emptyMapStub;                                                      \
+  LogWriter logWriter(output, &stubFrameInformation, NULL, emptyMapStub);      \
   CircularQueue *queue = new CircularQueue(logWriter, DEFAULT_MAX_FRAMES_TO_CAPTURE);
 
 #define done() delete queue;
@@ -115,11 +116,11 @@ void thenACompleteLogIsOutput(char buffer[]) {
 
 #define givenStackTrace()                                                      \
   JVMPI_CallFrame frame0 = {};                                                 \
-  frame0.lineno = 0;                                                          \
+  frame0.lineno = 0;                                                           \
   frame0.method_id = (jmethodID)1;                                             \
                                                                                \
   JVMPI_CallFrame frame1 = {};                                                 \
-  frame1.lineno = 0;                                                          \
+  frame1.lineno = 0;                                                           \
   frame1.method_id = (jmethodID)2;                                             \
                                                                                \
   JVMPI_CallFrame frames[] = { frame0, frame1 };                               \
@@ -156,8 +157,9 @@ bool dumpStubFrameInformation(const JVMPI_CallFrame &frame, jvmtiEnv *jvmti,
 TEST(DumpTestFile) {
   givenStackTrace();
 
+  ThreadMap tMap;
   ofstream output("dump.hpl", ofstream::out | ofstream::binary);
-  LogWriter logWriter(output, &dumpStubFrameInformation, NULL);
+  LogWriter logWriter(output, &dumpStubFrameInformation, NULL, tMap);
 
   logWriter.record(trace);
   logWriter.record(trace);

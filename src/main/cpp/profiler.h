@@ -8,6 +8,7 @@
 #include <string>
 
 #include "globals.h"
+#include "thread_map.h"
 #include "signal_handler.h"
 #include "stacktraces.h"
 #include "processor.h"
@@ -38,10 +39,13 @@ TRACE_DECLARE(Profiler, kTraceProfilerTotal);
 
 class Profiler {
 public:
-    explicit Profiler(JavaVM *jvm, jvmtiEnv *jvmti, ConfigurationOptions *configuration) 
-            : jvm_(jvm), jvmti_(jvmti), liveConfiguration(configuration),
-            logFile(NULL), writer(NULL), buffer(NULL), processor(NULL), handler_(NULL),
-            ongoingConf(false) {
+    explicit Profiler(JavaVM *jvm, jvmtiEnv *jvmti, ConfigurationOptions *configuration, ThreadMap &tMap) 
+        : jvm_(jvm), jvmti_(jvmti), tMap_(tMap), liveConfiguration(configuration),
+        logFile(NULL), writer(NULL), buffer(NULL), processor(NULL), handler_(NULL),
+        ongoingConf(false) {       
+	    // main object graph instantiated here
+        // these objects all live for the lifecycle of the program
+
         // main object graph instantiated here
         // these objects all live for the lifecycle of the program
         configuration_ = new ConfigurationOptions();
@@ -85,6 +89,8 @@ private:
     JavaVM *jvm_;
 
     jvmtiEnv *jvmti_;
+
+    ThreadMap &tMap_;
 
     ConfigurationOptions *configuration_;
 

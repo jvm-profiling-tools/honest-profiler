@@ -41,7 +41,7 @@ void Processor::run() {
             popped = 0;
         }
 
-        if (!isRunning_.load()) {
+        if (!isRunning_.load(std::memory_order_relaxed)) {
             break;
         }
 
@@ -72,11 +72,12 @@ void Processor::start(JNIEnv *jniEnv) {
     jvmtiError result;
 
     std::cout << "Starting sampling\n";
-    isRunning_.store(true);
+    isRunning_.store(true, std::memory_order_relaxed);
     workerDone.test_and_set(std::memory_order_relaxed); // initial is true
     jthread thread = newThread(jniEnv, "Honest Profiler Processing Thread");
     jvmtiStartFunction callback = callbackToRunProcessor;
     result = jvmti_->RunAgentThread(thread, callback, this, JVMTI_THREAD_NORM_PRIORITY);
+
     if (result != JVMTI_ERROR_NONE) {
         logError("ERROR: Running agent thread failed with: %d\n", result);
     }
@@ -85,12 +86,12 @@ void Processor::start(JNIEnv *jniEnv) {
 void Processor::stop() {
     TRACE(Processor, kTraceProcessorStop);
 
-    isRunning_.store(false);
+    isRunning_.store(false, std::memory_order_relaxed);
     std::cout << "Stopping sampling\n";
     while (workerDone.test_and_set(std::memory_order_relaxed)) sched_yield();
 }
 
 bool Processor::isRunning() const {
     TRACE(Processor, kTraceProcessorRunning);
-    return isRunning_.load();
+    return isRunning_.load(std::memory_order_relaxed);
 }

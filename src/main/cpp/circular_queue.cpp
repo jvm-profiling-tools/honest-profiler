@@ -69,4 +69,3 @@ bool CircularQueue::pop() {
 size_t CircularQueue::advance(size_t index) const {
     return (index + 1) % Capacity;
 }
-

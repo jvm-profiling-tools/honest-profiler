@@ -1,5 +1,4 @@
 #include "profiler.h"
-#include <sys/time.h>
 
 ASGCTType Asgct::asgct_;
 
@@ -278,7 +277,7 @@ void Profiler::configure() {
             // The JVM will still continue to run though; could call abort() to terminate the JVM abnormally.
             logError("ERROR: Failed to open file %s for writing\n", fileName);
         }
-        writer = new LogWriter(*logFile, &Profiler::lookupFrameInformation, jvmti_);
+        writer = new LogWriter(*logFile, &Profiler::lookupFrameInformation, jvmti_, tMap_);
     }
     
     needsUpdate = needsUpdate || configuration_->maxFramesToCapture != liveConfiguration->maxFramesToCapture;

@@ -4,9 +4,11 @@
 #include "test.h"
 #include "../../main/cpp/profiler.h"
 
+
 static JavaVM *jvm = NULL;
 static JNIEnv *env = NULL;
 static jvmtiEnv *jvmti = NULL;
+static ThreadMap threadMap; // empty map
 
 static void init() {
 	if (jvm) return;
@@ -40,7 +42,7 @@ public:
 	ProfilerControl() {
 		init();
 		liveConfig = new ConfigurationOptions();
-		profiler = new Profiler(jvm, jvmti, liveConfig);
+		profiler = new Profiler(jvm, jvmti, liveConfig, threadMap);
 
 		// otherwise Profiler::handle called from bootstrapHandle in agent.cpp will fail
 		setProfiler(profiler);

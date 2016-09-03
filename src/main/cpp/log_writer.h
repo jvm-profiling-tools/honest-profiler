@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string.h>
 
+#include "thread_map.h"
 #include "circular_queue.h"
 #include "stacktraces.h"
 
@@ -44,8 +45,8 @@ class LogWriter : public QueueListener, public MethodListener {
 
 public:
     explicit LogWriter(ostream &output, GetFrameInformation frameLookup,
-            jvmtiEnv *jvmti)
-            : output_(output), frameLookup_(frameLookup), jvmti_(jvmti) {
+            jvmtiEnv *jvmti, ThreadMap &tMap)
+            : output_(output), frameLookup_(frameLookup), jvmti_(jvmti), tMap_(tMap) {
     }
 
     virtual void record(const JVMPI_CallTrace &trace);
@@ -67,6 +68,8 @@ private:
     GetFrameInformation frameLookup_;
 
     jvmtiEnv *jvmti_;
+
+    ThreadMap &tMap_;
 
     unordered_set<method_id> knownMethods;
 
