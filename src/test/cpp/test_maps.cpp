@@ -182,9 +182,9 @@ TEST(LockFreeHashMapConcurrentIsolatedModifications) {
 			// populate map in parallel
 			doParallel(4, mapWriter, map, keys, values, results, bSize);
 			doParallel(4, mapReader, map, keys, values, results, bSize);
-			CHECK_ARRAY_EQUAL(values, results, bSize);
 			CHECK_EQUAL(bSize, map.unsafeUsed());
-
+			CHECK_ARRAY_EQUAL(values, results, bSize);
+			
 			// clean map in parallel
 			doParallel(4, mapRemover, map, keys, values, results, bSize);
 			CHECK_EQUAL(0, map.unsafeUsed());
@@ -199,11 +199,14 @@ TEST(LockFreeHashMapConcurrentOverlappingModifications) {
 		CONCURRENT_PROLOGUE_RESIZE(TestLockFreeMap, 4, 15);
 
 		REPEAT_OLD_MAP(3) {
+			TraceGroup_LFMap.reset();
+
 			// 2 threads writing the same keys and same values
 			// write direction of threads is opposite t1 -> <- t2
 			doParallel<true, true>(2, mapWriter, map, keys, values, results, bSize);
 			doParallel(4, mapReader, map, keys, values, results, bSize);
 			CHECK_ARRAY_EQUAL(values, results, bSize);
+			CHECK_EQUAL(bSize, map.unsafeUsed());
 
 			// 2 threads removing the same keys
 			doParallel<true>(2, mapRemover, map, keys, values, results, bSize);

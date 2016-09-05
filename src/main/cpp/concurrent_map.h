@@ -22,8 +22,12 @@
 #define MAP_HASH_NULL (int64_t)-1
 #define MAP_VALUE_MIGRATION (void*)-1
 #define PENDING_QUEUE_LENGTH 4
+#define MAP_DELTA_UNDEF -1
+#define MAP_DELTA_EXTEND -2
+#define MAP_NEIGHBOURHOOD 16
+#define MAP_MAX_JUMPS 4
 
-const int kTraceLFMapTotal = 24;
+const int kTraceLFMapTotal = 26;
 
 TRACE_DECLARE(LFMap, kTraceLFMapTotal);
 
@@ -76,7 +80,7 @@ public:
 			Job *cjob = job.load(std::memory_order_consume);
 			if (cjob == prevJob) { // this job is done, wait for a new job
 				while (true) {
-					cjob = job.load(std::memory_order_relaxed);
+					cjob = job.load(std::memory_order_consume);
 					if (cjob != prevJob)
 						break;
 					sched_yield();
@@ -96,9 +100,10 @@ public:
 struct LockFreeMapEntry {
 	std::atomic<int64_t> hash;
 	std::atomic<void*> value;
+	std::atomic<int> deltaNext;
 
-	LockFreeMapEntry() : hash(MAP_HASH_NULL), value(NULL) {}
-	LockFreeMapEntry(int64_t h, void *v) : hash(h), value(v) {}
+	LockFreeMapEntry() : hash(MAP_HASH_NULL), value(NULL), deltaNext(MAP_DELTA_UNDEF) {}
+	LockFreeMapEntry(int64_t h, void *v) : hash(h), value(v), deltaNext(MAP_DELTA_UNDEF) {}
 };
 
 struct HashTable {
@@ -155,21 +160,26 @@ public:
 	TableGuard(HashTable *initial) : current(0) {
 		for (int i = 0; i < PENDING_QUEUE_LENGTH; i++) {
 			pending[i].references.store(0, std::memory_order_relaxed);
-			pending[i].table.store(NULL, std::memory_order_release);
+			pending[i].table.store(NULL, std::memory_order_relaxed);
 		}
 		pending[0].references.store(1, std::memory_order_relaxed);
 		pending[0].table.store(initial, std::memory_order_release);
 	}
 
 	HashTable *acquire() {
-		int index = current.load(std::memory_order_relaxed) & (PENDING_QUEUE_LENGTH - 1);
+		TRACE(LFMap, 24);
+		int index = current.load(std::memory_order_consume);
 		pending[index].references.fetch_add(1, std::memory_order_relaxed);
 		return pending[index].table.load(std::memory_order_acquire);
 	}
 
 	void release(HashTable *p) {
-		for (int index = 0; index < PENDING_QUEUE_LENGTH; ++index) {
-			HashTable *root = pending[index].table.load(std::memory_order_relaxed);
+		TRACE(LFMap, 25);
+		int startIndex = current.load(std::memory_order_consume);
+		int endIndex = startIndex - PENDING_QUEUE_LENGTH;
+		for (int index = startIndex; index > endIndex; index--) {
+			index &= (PENDING_QUEUE_LENGTH - 1);
+			HashTable *root = pending[index].table.load(std::memory_order_acquire);
 			if (p == root) {
 				pending[index].references.fetch_sub(1, std::memory_order_relaxed);
 				return;
@@ -183,15 +193,18 @@ public:
 		int index = oldRoot;
 		while (true) {
 			index = (index + 1) & (PENDING_QUEUE_LENGTH - 1);
-			HashTable *root = pending[index].table.load(std::memory_order_acquire);
-			int refs = pending[index].references.load(std::memory_order_relaxed);
+			int refs = pending[index].references.load(std::memory_order_consume);
 			if (refs < 1) {
-				if (refs < 0) std::cout << "#### [publish] references: " << refs << std::endl;
-				if (pending[index].table.compare_exchange_strong(root, p, std::memory_order_relaxed)) {
+				HashTable *root = pending[index].table.load(std::memory_order_consume);
+				if (refs < 0) {
+					std::cout << "#### [publish] references: " << refs << std::endl;
+					TraceGroup_LFMap.dump();
+				}
+				if (pending[index].table.compare_exchange_strong(root, p, std::memory_order_acq_rel)) {
 					if (root != NULL) delete root;
 					pending[index].references.store(1, std::memory_order_relaxed); // global ref
-					current.store(index, std::memory_order_release);
 					pending[oldRoot].references.fetch_sub(1, std::memory_order_relaxed); // remove global ref
+					current.store(index, std::memory_order_release);
 					return;
 				}
 			}
@@ -225,8 +238,8 @@ class LockFreeMapPrimitives {
 public:
 	static LockFreeMapEntry *find(HashTable *root, void *key, HashFunction hasher) {
 		int64_t tHash = hasher(key);
-		int i = tHash & root->sizeMask;
-		for (;; ++i) {
+		int i = tHash;
+		while (true) {
 			i &= root->sizeMask;
 
 			LockFreeMapEntry* entr = root->array + i;
@@ -239,6 +252,15 @@ public:
 				TRACE(LFMap, 1);
 				return entr;
 			}
+
+			int delta = entr->deltaNext.load(std::memory_order_relaxed);
+			
+			if (delta == MAP_DELTA_UNDEF || delta == MAP_DELTA_EXTEND) {
+				// there's no next bucket or it's not ready yet, giving up
+				return NULL;
+			}
+
+			i += delta;
 		}
 	}
 
@@ -247,10 +269,47 @@ public:
 	}
 
 	static InsertOutcome insertOrUpdate(HashTable *root, int64_t tHash, void *value) {
-		int i = tHash & root->sizeMask;
-		for (;; ++i) {
-			i &= root->sizeMask;
-			LockFreeMapEntry* entr = root->array + i;
+		int i = tHash;
+		int delta = 0, jumps = 0;
+		LockFreeMapEntry *prev, *entr;
+
+		while (true) {
+			do {
+				if (jumps > MAP_MAX_JUMPS) return INSERT_OVERFLOW;
+				i = (i + delta) & root->sizeMask;
+				prev = root->array + i;
+				int64_t bucketHash = prev->hash.load(std::memory_order_relaxed);
+
+				// all items in chain are already allocated
+				if (bucketHash == tHash) { // allocated bucket found
+					void *oldValue = prev->value.load(std::memory_order_relaxed);
+					if (oldValue == MAP_VALUE_MIGRATION) {
+						return INSERT_HELP_MIGRATION; // indicate overflow
+					} else if (prev->value.compare_exchange_strong(oldValue, value, std::memory_order_acq_rel)) {
+						TRACE(LFMap, 5);
+					} else {
+						TRACE(LFMap, 6);
+					}
+				
+					// if there's a concurrent write or erase (i.e. CAS failed), giving up and pretending that value was overwritten
+					return INSERT_OK;
+				}
+
+				delta = prev->deltaNext.load(std::memory_order_relaxed);
+				jumps++;
+			} while (delta != MAP_DELTA_UNDEF && delta != MAP_DELTA_EXTEND);
+
+			delta = MAP_DELTA_UNDEF;
+			if (prev->deltaNext.compare_exchange_strong(delta, MAP_DELTA_EXTEND, std::memory_order_acq_rel))
+				break;
+
+			while (prev->deltaNext.load(std::memory_order_relaxed) == MAP_DELTA_EXTEND) sched_yield(); // wait until parent is extended
+			delta = 0;
+		}
+
+		// linear search
+		for (int d = 0; d < MAP_NEIGHBOURHOOD; d++) {
+			entr = root->array + ((i + d) & root->sizeMask);
 			int64_t bucketHash = entr->hash.load(std::memory_order_relaxed);
 		
 			if (bucketHash == MAP_HASH_NULL) { // unallocated bucket
@@ -259,23 +318,25 @@ public:
 				if (cellsBeforeInsert <= 0) {
 					TRACE(LFMap, 2);
 					root->freeBuckets.fetch_add(1, std::memory_order_relaxed);
+
+					// reset prev state
+					prev->deltaNext.store(MAP_DELTA_UNDEF, std::memory_order_release);
 					return INSERT_OVERFLOW; // indicate overflow
 				}
 
 				if (entr->hash.compare_exchange_strong(bucketHash, tHash, std::memory_order_relaxed)) {
 					TRACE(LFMap, 3);
 					bucketHash = tHash;
+					prev->deltaNext.store(d > 0 ? d : MAP_DELTA_UNDEF, std::memory_order_release);
+					bucketHash = tHash;
 				} else {
-					/*  Potentially we can continue on failed CAS, since hash collisions are not allowed and
-			 	 	 *  failed CAS only means that bucket was allocated for different hash, but allow double 
-			 	 	 *  check for a future modifications.
-			 	 	 */
-			 	 	TRACE(LFMap, 4);
-			 	 	root->freeBuckets.fetch_add(1, std::memory_order_relaxed);
+		 	 		TRACE(LFMap, 4);
+		 	 		root->freeBuckets.fetch_add(1, std::memory_order_relaxed);
 				}
 			}
 
-			if (bucketHash == tHash) { // CAS succeeded or allocated bucket found
+			if (bucketHash == tHash) {
+				// by chance bucket was allocated but unnoticed or allocated by code above
 				void *oldValue = entr->value.load(std::memory_order_relaxed); // we are only interested in address
 				if (oldValue == MAP_VALUE_MIGRATION) {
 					return INSERT_HELP_MIGRATION; // indicate overflow
@@ -283,11 +344,17 @@ public:
 					TRACE(LFMap, 5);
 				} else {
 					TRACE(LFMap, 6);
+					if (oldValue == MAP_VALUE_MIGRATION) 
+						return INSERT_HELP_MIGRATION;
 				}
+
 				// if there's a concurrent write or erase (i.e. CAS failed), giving up and pretending that value was overwritten
 				return INSERT_OK;
 			}
 		}
+
+		prev->deltaNext.store(MAP_DELTA_UNDEF, std::memory_order_release);
+		return INSERT_OVERFLOW; // no free space in neighbourhood
 	}
 };
 
@@ -369,8 +436,8 @@ end_migration:
 
 		if (!overflow) {
 			sources[0].table->victim.store(this, std::memory_order_release);
-			map.finishMigration(dest);
 			sources[0].table->coordinator.end();
+			map.finishMigration(dest);
 		} else {
 			HashTable *origTable = sources[0].table;
 			std::lock_guard<std::mutex> guard(origTable->mutex);
@@ -401,7 +468,7 @@ end_migration:
 	}
 
 	bool migrateRange(HashTable *from, int startIndex) {
-		int tableSize = from->sizeMask, last = std::min(startIndex + LFMAP_MIGRATION_CHUNK_SIZE, tableSize + 1);
+		int last = std::min(startIndex + LFMAP_MIGRATION_CHUNK_SIZE, from->sizeMask + 1);
 
 		for (int index = startIndex; index < last; index++) {
 			LockFreeMapEntry *entry = &from->array[index];
@@ -436,8 +503,11 @@ end_migration:
 
 					// only 1 thread can migrate bucket at time, so srcValue != MAP_VALUE_MIGRATION and srcHash is not in dest
 					if (srcValue != NULL) {
-						bool migrationOverflow = LockFreeMapPrimitives::insertOrUpdate(dest, srcHash, srcValue);
-						if (migrationOverflow) return true; // overflow
+						InsertOutcome res = LockFreeMapPrimitives::insertOrUpdate(dest, srcHash, srcValue);
+						if (res == INSERT_OVERFLOW) {
+							entry->value.store(srcValue, std::memory_order_release); // return replaced value
+							return true; // overflow
+						}
 					} else {
 						TRACE(LFMap, 22);
 					}
@@ -537,7 +607,7 @@ public:
 		}
 	}
 
-	// this is the only function that can be called from signal handler co
+	// this is the only function that can be called from signal handler
 	void *get(void *key) {
 		while (true) {
 			ScopedGuard guard(current);

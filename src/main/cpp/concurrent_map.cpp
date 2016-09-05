@@ -25,4 +25,6 @@ TRACE_DEFINE_BEGIN(LFMap, kTraceLFMapTotal)
     TRACE_DEFINE("[Migration::migrateRange] Allocated cell migration flag")
     TRACE_DEFINE("[Migration::migrateRange] Racing erase when migrating allocated bucket")
     TRACE_DEFINE("[TableGuard::release] Hashmap not found in pending maps")
+    TRACE_DEFINE("[TableGuard::acquire] Call to aquire")
+    TRACE_DEFINE("[TableGuard::release] Call to release")
 TRACE_DEFINE_END(LFMap, kTraceLFMapTotal);
