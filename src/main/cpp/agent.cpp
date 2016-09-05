@@ -72,24 +72,6 @@ void JNICALL OnVMInit(jvmtiEnv *jvmti, JNIEnv *jniEnv, jthread thread) {
         controller->start();
     }
 #endif
-    
-    /*
-    jint threadsTotal;
-    jthread *threadsList;
-    jvmtiThreadInfo thread_info;
-
-    int err = jvmti->GetAllThreads(&threadsTotal, &threadsList);
-    if (err == JVMTI_ERROR_NONE) {
-        for (int i = 0; i < threadsTotal; i++) {
-            int error = jvmti->GetThreadInfo(threadsList[i], &thread_info);
-            if (error == JNI_OK) {
-                std::cout << "#### Thread " << thread_info.name << " already running...\n";
-            }
-            //threadMap.put();
-        }
-        jvmti->Deallocate((unsigned char *)threadsList);
-    }
-    */
 }
 
 void JNICALL OnClassPrepare(jvmtiEnv *jvmti_env, JNIEnv *jni_env,

@@ -68,6 +68,7 @@ set(SOURCE_FILES
     ${SRC}/stacktraces.h
     ${SRC}/trace.h
     ${SRC}/thread_map.h
+    ${SRC}/thread_map.cpp
     ${SRC}/concurrent_map.h
     ${SRC}/concurrent_map.cpp)
 
