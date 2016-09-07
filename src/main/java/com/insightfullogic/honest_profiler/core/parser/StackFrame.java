@@ -89,7 +89,7 @@ public final class StackFrame implements LogEvent
     {
         return "StackFrame{" +
             "bci=" + bci +
-            "lineNumber=" + lineNumber +
+            ", lineNumber=" + lineNumber +
             ", methodId=" + methodId +
             '}';
     }

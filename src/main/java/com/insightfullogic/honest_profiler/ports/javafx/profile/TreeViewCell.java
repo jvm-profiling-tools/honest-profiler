@@ -53,7 +53,7 @@ public class TreeViewCell extends TreeCell<ProfileNode>
         super.updateItem(profileNode, empty);
 
         TreeItem<ProfileNode> treeItem = getTreeItem();
-
+        
         if (treeItem instanceof ThreadNodeAdapter)
         {
             ThreadNodeAdapter adapter = (ThreadNodeAdapter) treeItem;
@@ -64,30 +64,31 @@ public class TreeViewCell extends TreeCell<ProfileNode>
         {
             renderMethodNode(profileNode, empty);
         }
+        else if (empty) {
+            setText(null);
+            setGraphic(null);
+        } 
     }
 
     private void renderMethodNode(ProfileNode profileNode, boolean empty)
     {
-        if (!empty && isVisible())
-        {
-            setText(renderMethod(profileNode.getFrameInfo()));
-            Canvas canvas = new Canvas(IMAGE_WIDTH, IMAGE_HEIGHT);
-            GraphicsContext context = canvas.getGraphicsContext2D();
-            context.setFill(Color.BLACK);
-            context.strokeRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
+        setText(renderMethod(profileNode.getFrameInfo()));
+        Canvas canvas = new Canvas(IMAGE_WIDTH, IMAGE_HEIGHT);
+        GraphicsContext context = canvas.getGraphicsContext2D();
+        context.setFill(Color.BLACK);
+        context.strokeRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
 
-            double timeShare = profileNode.getTotalTimeShare();
-            double scaledShare = timeShare * IMAGE_WIDTH;
-            double xStart = IMAGE_WIDTH - scaledShare;
-            context.setFill(Color.GREEN);
-            context.fillRect(xStart, 0, scaledShare, IMAGE_HEIGHT);
+        double timeShare = profileNode.getTotalTimeShare();
+        double scaledShare = timeShare * IMAGE_WIDTH;
+        double xStart = IMAGE_WIDTH - scaledShare;
+        context.setFill(Color.GREEN);
+        context.fillRect(xStart, 0, scaledShare, IMAGE_HEIGHT);
 
-            Color color = timeShare > 0.5 ? WHEAT : RED;
-            context.setFill(color);
-            context.fillText(renderTimeShare(timeShare), TEXT_HORIZONTAL_INSET, TEXT_VERTICAL_INSET);
+        Color color = timeShare > 0.5 ? WHEAT : RED;
+        context.setFill(color);
+        context.fillText(renderTimeShare(timeShare), TEXT_HORIZONTAL_INSET, TEXT_VERTICAL_INSET);
 
-            setGraphic(canvas);
-        }
+        setGraphic(canvas);
     }
 
 }
