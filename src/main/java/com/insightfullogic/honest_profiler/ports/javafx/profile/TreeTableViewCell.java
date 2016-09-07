@@ -21,21 +21,21 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.profile;
 
-import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.TreeCell;
-import javafx.scene.control.TreeItem;
-import javafx.scene.paint.Color;
-
-import static com.insightfullogic.honest_profiler.ports.javafx.Rendering.renderMethod;
 import static com.insightfullogic.honest_profiler.ports.javafx.Rendering.renderTimeShare;
-import static com.insightfullogic.honest_profiler.ports.javafx.profile.TreeViewModel.MethodNodeAdapter;
-import static com.insightfullogic.honest_profiler.ports.javafx.profile.TreeViewModel.ThreadNodeAdapter;
 import static javafx.scene.paint.Color.RED;
 import static javafx.scene.paint.Color.WHEAT;
 
-public class TreeViewCell extends TreeCell<ProfileNode>
+import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
+import com.insightfullogic.honest_profiler.ports.javafx.profile.TreeTableViewModel.MethodNodeAdapter;
+import com.insightfullogic.honest_profiler.ports.javafx.profile.TreeTableViewModel.ThreadNodeAdapter;
+
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableCell;
+import javafx.scene.paint.Color;
+
+public class TreeTableViewCell extends TreeTableCell<ProfileNode, ProfileNode>
 {
 
     private static final int IMAGE_WIDTH = 50;
@@ -51,44 +51,38 @@ public class TreeViewCell extends TreeCell<ProfileNode>
     protected void updateItem(ProfileNode profileNode, boolean empty)
     {
         super.updateItem(profileNode, empty);
-
-        TreeItem<ProfileNode> treeItem = getTreeItem();
         
-        if (treeItem instanceof ThreadNodeAdapter)
-        {
-            ThreadNodeAdapter adapter = (ThreadNodeAdapter) treeItem;
-            setText("Thread " + adapter.getThreadId());
+        TreeItem<ProfileNode> treeItem = getTreeTableRow().getTreeItem();
+
+        if (treeItem instanceof ThreadNodeAdapter) {
             setGraphic(null);
         }
         else if (treeItem instanceof MethodNodeAdapter)
         {
-            renderMethodNode(profileNode, empty);
+            renderMethodNode(treeItem.getValue(), empty);
         }
-        else if (empty) {
-            setText(null);
-            setGraphic(null);
-        } 
     }
 
     private void renderMethodNode(ProfileNode profileNode, boolean empty)
     {
-        setText(renderMethod(profileNode.getFrameInfo()));
-        Canvas canvas = new Canvas(IMAGE_WIDTH, IMAGE_HEIGHT);
-        GraphicsContext context = canvas.getGraphicsContext2D();
-        context.setFill(Color.BLACK);
-        context.strokeRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
+        {
+            Canvas canvas = new Canvas(IMAGE_WIDTH, IMAGE_HEIGHT);
+            GraphicsContext context = canvas.getGraphicsContext2D();
+            context.setFill(Color.BLACK);
+            context.strokeRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
 
-        double timeShare = profileNode.getTotalTimeShare();
-        double scaledShare = timeShare * IMAGE_WIDTH;
-        double xStart = IMAGE_WIDTH - scaledShare;
-        context.setFill(Color.GREEN);
-        context.fillRect(xStart, 0, scaledShare, IMAGE_HEIGHT);
+            double timeShare = profileNode.getTotalTimeShare();
+            double scaledShare = timeShare * IMAGE_WIDTH;
+            double xStart = IMAGE_WIDTH - scaledShare;
+            context.setFill(Color.GREEN);
+            context.fillRect(xStart, 0, scaledShare, IMAGE_HEIGHT);
 
-        Color color = timeShare > 0.5 ? WHEAT : RED;
-        context.setFill(color);
-        context.fillText(renderTimeShare(timeShare), TEXT_HORIZONTAL_INSET, TEXT_VERTICAL_INSET);
+            Color color = timeShare > 0.5 ? WHEAT : RED;
+            context.setFill(color);
+            context.fillText(renderTimeShare(timeShare), TEXT_HORIZONTAL_INSET, TEXT_VERTICAL_INSET);
 
-        setGraphic(canvas);
+            setGraphic(canvas);
+        }
     }
 
 }

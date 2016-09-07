@@ -21,35 +21,90 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.profile;
 
-import com.insightfullogic.honest_profiler.core.profiles.Profile;
-import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
-import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
-import com.insightfullogic.honest_profiler.core.profiles.ProfileTree;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import static com.insightfullogic.honest_profiler.ports.javafx.Rendering.renderMethod;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class TreeViewModel implements ProfileListener
-{
+import com.insightfullogic.honest_profiler.core.profiles.Profile;
+import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
+import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
+import com.insightfullogic.honest_profiler.core.profiles.ProfileTree;
+import com.insightfullogic.honest_profiler.ports.javafx.Rendering;
 
+import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableCell;
+import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.TreeTableView;
+import javafx.util.Callback;
+
+public class TreeTableViewModel implements ProfileListener
+{
     private static final double TIMESHARE_EXPAND_FACTOR = 0.2;
 
     @FXML
-    private TreeView<ProfileNode> treeView;
+    private TreeTableView<ProfileNode> treeView;
 
     private final RootNodeAdapter rootNode = new RootNodeAdapter();
 
     @FXML
     private void initialize()
     {
-        treeView.setCellFactory(view -> new TreeViewCell());
         treeView.setShowRoot(false);
         treeView.setRoot(rootNode);
+        treeView.setEditable(false);
+        
+        TreeTableColumn<ProfileNode, String> totalColumn = new TreeTableColumn<>("Total");
+        totalColumn.setSortable(false);
+        totalColumn.setCellValueFactory(
+            (TreeTableColumn.CellDataFeatures<ProfileNode, String> param) -> 
+            new ReadOnlyStringWrapper(param.getValue().getValue()!=null?Rendering.renderTimeShare(param.getValue().getValue().getTotalTimeShare()):"")
+        );
+
+        TreeTableColumn<ProfileNode, String> selfColumn = new TreeTableColumn<>("Self");
+        selfColumn.setSortable(false);
+        selfColumn.setCellValueFactory(
+            (TreeTableColumn.CellDataFeatures<ProfileNode, String> param) -> 
+            new ReadOnlyStringWrapper(param.getValue().getValue()!=null?Rendering.renderTimeShare(param.getValue().getValue().getSelfTimeShare()):"")
+        );
+            
+        TreeTableColumn<ProfileNode, String> methodColumn = new TreeTableColumn<>("Method");
+        methodColumn.setSortable(false);
+        methodColumn.setCellValueFactory(
+                (TreeTableColumn.CellDataFeatures<ProfileNode, String> param) -> {
+                	TreeItem<ProfileNode> treeItem = param.getValue();
+                	String text = "";
+                    if (treeItem instanceof ThreadNodeAdapter)
+                    {
+                        ThreadNodeAdapter adapter = (ThreadNodeAdapter) treeItem;
+                        text = ("Thread " + adapter.getThreadId());
+                    }
+                    else if (treeItem instanceof MethodNodeAdapter)
+                    {
+                    	text = renderMethod(treeItem.getValue().getFrameInfo());
+                    }
+				return new ReadOnlyStringWrapper(text);
+                }
+            );
+        
+        TreeTableColumn<ProfileNode, ProfileNode> percentColumn = new TreeTableColumn<>("%");
+        percentColumn.setPrefWidth(65);
+        percentColumn.setSortable(false);
+        percentColumn.setResizable(false);
+        percentColumn.setCellFactory(new Callback<TreeTableColumn<ProfileNode, ProfileNode>, TreeTableCell<ProfileNode, ProfileNode>>()
+        {
+            @Override
+            public TreeTableCell<ProfileNode, ProfileNode> call(TreeTableColumn<ProfileNode, ProfileNode> param)
+            {
+            	return new TreeTableViewCell();
+            }}
+        );
+        
+        treeView.getColumns().setAll(methodColumn, percentColumn, totalColumn, selfColumn);
     }
 
     @Override

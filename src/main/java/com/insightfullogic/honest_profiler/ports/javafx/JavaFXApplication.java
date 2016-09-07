@@ -21,18 +21,25 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx;
 
+import org.picocontainer.MutablePicoContainer;
+import org.picocontainer.PicoBuilder;
+
 import com.insightfullogic.honest_profiler.core.Monitor;
 import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
 import com.insightfullogic.honest_profiler.ports.LoggerInjector;
 import com.insightfullogic.honest_profiler.ports.javafx.landing.LandingViewModel;
-import com.insightfullogic.honest_profiler.ports.javafx.profile.*;
+import com.insightfullogic.honest_profiler.ports.javafx.profile.CachingProfileListener;
+import com.insightfullogic.honest_profiler.ports.javafx.profile.FlameGraphViewModel;
+import com.insightfullogic.honest_profiler.ports.javafx.profile.FlatViewModel;
+import com.insightfullogic.honest_profiler.ports.javafx.profile.ProfileListenerProvider;
+import com.insightfullogic.honest_profiler.ports.javafx.profile.ProfileViewModel;
+import com.insightfullogic.honest_profiler.ports.javafx.profile.TraceCountViewModel;
+import com.insightfullogic.honest_profiler.ports.javafx.profile.TreeTableViewModel;
 import com.insightfullogic.honest_profiler.ports.sources.LocalMachineSource;
 import com.insightfullogic.honest_profiler.ports.web.store.FileLogRepository;
+
 import javafx.application.Application;
-import javafx.scene.Parent;
 import javafx.stage.Stage;
-import org.picocontainer.MutablePicoContainer;
-import org.picocontainer.PicoBuilder;
 
 public class JavaFXApplication extends Application
 {
@@ -60,7 +67,7 @@ public class JavaFXApplication extends Application
     {
         pico = registerComponents(stage);
         WindowViewModel stageModel = pico.getComponent(WindowViewModel.class);
-        Parent parent = stageModel.displayStart();
+        stageModel.displayStart();
         pico.start();
     }
 
@@ -90,7 +97,7 @@ public class JavaFXApplication extends Application
                 // Delivery
             .addComponent(CachingProfileListener.class)
             .addComponent(FlatViewModel.class)
-            .addComponent(TreeViewModel.class)
+            .addComponent(TreeTableViewModel.class)
             .addComponent(FlameGraphViewModel.class)
             .addComponent(TraceCountViewModel.class)
             .addComponent(ProfileViewModel.class)
