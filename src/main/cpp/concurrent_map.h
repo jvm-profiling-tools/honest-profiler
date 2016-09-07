@@ -21,13 +21,13 @@
 
 #define MAP_HASH_NULL (int64_t)-1
 #define MAP_VALUE_MIGRATION (void*)-1
-#define PENDING_QUEUE_LENGTH 4
+#define PENDING_QUEUE_LENGTH 8
 #define MAP_DELTA_UNDEF -1
 #define MAP_DELTA_EXTEND -2
 #define MAP_NEIGHBOURHOOD 16
-#define MAP_MAX_JUMPS 4
+#define MAP_MAX_JUMPS 8
 
-const int kTraceLFMapTotal = 26;
+const int kTraceLFMapTotal = 28;
 
 TRACE_DECLARE(LFMap, kTraceLFMapTotal);
 
@@ -162,30 +162,27 @@ public:
 			pending[i].references.store(0, std::memory_order_relaxed);
 			pending[i].table.store(NULL, std::memory_order_relaxed);
 		}
-		pending[0].references.store(1, std::memory_order_relaxed);
 		pending[0].table.store(initial, std::memory_order_release);
 	}
 
 	HashTable *acquire() {
-		TRACE(LFMap, 24);
-		int index = current.load(std::memory_order_consume);
+		int index = current.load(std::memory_order_acquire);
 		pending[index].references.fetch_add(1, std::memory_order_relaxed);
-		return pending[index].table.load(std::memory_order_acquire);
+		return pending[index].table.load(std::memory_order_consume);
 	}
 
 	void release(HashTable *p) {
-		TRACE(LFMap, 25);
-		int startIndex = current.load(std::memory_order_consume);
+		int startIndex = current.load(std::memory_order_acquire);
 		int endIndex = startIndex - PENDING_QUEUE_LENGTH;
 		for (int index = startIndex; index > endIndex; index--) {
 			index &= (PENDING_QUEUE_LENGTH - 1);
-			HashTable *root = pending[index].table.load(std::memory_order_acquire);
+			HashTable *root = pending[index].table.load(std::memory_order_consume);
 			if (p == root) {
 				pending[index].references.fetch_sub(1, std::memory_order_relaxed);
 				return;
 			}
 		}
-		TRACE(LFMap, 23);
+		TRACE(LFMap, 27);
 	}
 
 	void publish(HashTable *p) {
@@ -193,17 +190,19 @@ public:
 		int index = oldRoot;
 		while (true) {
 			index = (index + 1) & (PENDING_QUEUE_LENGTH - 1);
-			int refs = pending[index].references.load(std::memory_order_consume);
+			int refs = pending[index].references.load(std::memory_order_consume) + (index == oldRoot ? 1 : 0); // global ref
+			bool safeDelete = true;
 			if (refs < 1) {
 				HashTable *root = pending[index].table.load(std::memory_order_consume);
 				if (refs < 0) {
-					std::cout << "#### [publish] references: " << refs << std::endl;
-					TraceGroup_LFMap.dump();
+					// something unexpected happend, prevent any heap corruption by forbidding delete (shouldn't happen, just to double check)
+					std::cerr << "[map::TableGuard::publish] wrong references value for candidate cell: " << refs << std::endl;
+					safeDelete = false;
 				}
-				if (pending[index].table.compare_exchange_strong(root, p, std::memory_order_acq_rel)) {
-					if (root != NULL) delete root;
-					pending[index].references.store(1, std::memory_order_relaxed); // global ref
-					pending[oldRoot].references.fetch_sub(1, std::memory_order_relaxed); // remove global ref
+				// atomic relaxed store is also fine instead of CAS below
+				if (pending[index].table.compare_exchange_strong(root, p, std::memory_order_relaxed)) {
+					if (root != NULL && safeDelete) delete root;
+					pending[index].references.store(0, std::memory_order_relaxed); // global ref
 					current.store(index, std::memory_order_release);
 					return;
 				}
@@ -275,7 +274,10 @@ public:
 
 		while (true) {
 			do {
-				if (jumps > MAP_MAX_JUMPS) return INSERT_OVERFLOW;
+				if (jumps > MAP_MAX_JUMPS) {
+					TRACE(LFMap, 2);
+					return INSERT_OVERFLOW;
+				}
 				i = (i + delta) & root->sizeMask;
 				prev = root->array + i;
 				int64_t bucketHash = prev->hash.load(std::memory_order_relaxed);
@@ -286,9 +288,9 @@ public:
 					if (oldValue == MAP_VALUE_MIGRATION) {
 						return INSERT_HELP_MIGRATION; // indicate overflow
 					} else if (prev->value.compare_exchange_strong(oldValue, value, std::memory_order_acq_rel)) {
-						TRACE(LFMap, 5);
+						TRACE(LFMap, 3);
 					} else {
-						TRACE(LFMap, 6);
+						TRACE(LFMap, 4);
 					}
 				
 					// if there's a concurrent write or erase (i.e. CAS failed), giving up and pretending that value was overwritten
@@ -316,7 +318,7 @@ public:
 				int cellsBeforeInsert = root->freeBuckets.fetch_sub(1, std::memory_order_relaxed);
 
 				if (cellsBeforeInsert <= 0) {
-					TRACE(LFMap, 2);
+					TRACE(LFMap, 5);
 					root->freeBuckets.fetch_add(1, std::memory_order_relaxed);
 
 					// reset prev state
@@ -325,12 +327,12 @@ public:
 				}
 
 				if (entr->hash.compare_exchange_strong(bucketHash, tHash, std::memory_order_relaxed)) {
-					TRACE(LFMap, 3);
+					TRACE(LFMap, 6);
 					bucketHash = tHash;
 					prev->deltaNext.store(d > 0 ? d : MAP_DELTA_UNDEF, std::memory_order_release);
 					bucketHash = tHash;
 				} else {
-		 	 		TRACE(LFMap, 4);
+		 	 		TRACE(LFMap, 7);
 		 	 		root->freeBuckets.fetch_add(1, std::memory_order_relaxed);
 				}
 			}
@@ -341,9 +343,9 @@ public:
 				if (oldValue == MAP_VALUE_MIGRATION) {
 					return INSERT_HELP_MIGRATION; // indicate overflow
 				} else if (entr->value.compare_exchange_strong(oldValue, value, std::memory_order_acq_rel)) {
-					TRACE(LFMap, 5);
+					TRACE(LFMap, 8);
 				} else {
-					TRACE(LFMap, 6);
+					TRACE(LFMap, 9);
 					if (oldValue == MAP_VALUE_MIGRATION) 
 						return INSERT_HELP_MIGRATION;
 				}
@@ -353,6 +355,7 @@ public:
 			}
 		}
 
+		TRACE(LFMap, 10);
 		prev->deltaNext.store(MAP_DELTA_UNDEF, std::memory_order_release);
 		return INSERT_OVERFLOW; // no free space in neighbourhood
 	}
@@ -389,7 +392,7 @@ struct Migration : public JobCoordinator::Job {
 
 	virtual void run() {
 		if (state.load(std::memory_order_relaxed) & 1) {
-			TRACE(LFMap, 12);
+			TRACE(LFMap, 16);
 			return; // work is done, new table not published yet
 		}
 		state.fetch_add(2, std::memory_order_relaxed);
@@ -399,7 +402,7 @@ struct Migration : public JobCoordinator::Job {
 
 			while (true) {
 				if (state.load(std::memory_order_relaxed) & 1) {
-					TRACE(LFMap, 13);
+					TRACE(LFMap, 17);
 					goto end_migration;
 				}
 
@@ -408,7 +411,7 @@ struct Migration : public JobCoordinator::Job {
 
 				bool rangeOverflow = migrateRange(table, index);
 				if (rangeOverflow) {
-					TRACE(LFMap, 14);
+					TRACE(LFMap, 18);
 					overflowed.store(true, std::memory_order_relaxed);
 					state.fetch_or(1, std::memory_order_relaxed);
 					goto end_migration;
@@ -421,14 +424,14 @@ struct Migration : public JobCoordinator::Job {
 				}
 			}
 		}
-		TRACE(LFMap, 15);
+		TRACE(LFMap, 19);
 
 end_migration:
 
 		int stateProbe = state.fetch_sub(2, std::memory_order_acq_rel); // see all changes
 
 		if (stateProbe > 3) {
-			TRACE(LFMap, 16);
+			TRACE(LFMap, 20);
 			return; // not the last one
 		}
 
@@ -462,7 +465,7 @@ end_migration:
 
 				origTable->coordinator.set(m);
         	} else {
-        		TRACE(LFMap, 17);
+        		TRACE(LFMap, 21);
         	}
 		}
 	}
@@ -481,10 +484,10 @@ end_migration:
 					if (entry->value.compare_exchange_strong(srcValue, MAP_VALUE_MIGRATION, std::memory_order_relaxed)) {
 						break; // nothing to move to new table
 					} else if (srcValue == MAP_VALUE_MIGRATION) {
-						TRACE(LFMap, 18);
+						TRACE(LFMap, 22);
 						break; // found previous unfinished migration
 					}
-					TRACE(LFMap, 19);
+					TRACE(LFMap, 23);
 					// someone placed value to the cell, reread
 				} else { // used cell: deleted or not
 					srcValue = entry->value.load(std::memory_order_relaxed); // we only need a pointer
@@ -492,10 +495,10 @@ end_migration:
 						if (entry->value.compare_exchange_strong(srcValue, MAP_VALUE_MIGRATION, std::memory_order_relaxed)) {
 							break; // nothing to move to new table
 						}
-						TRACE(LFMap, 20);
+						TRACE(LFMap, 24);
 						// someone placed value to the cell, evacuation required
 					} else if (srcValue == MAP_VALUE_MIGRATION) {
-						TRACE(LFMap, 21);
+						TRACE(LFMap, 25);
 						break; // found previous unfinished migration
 					}
 
@@ -509,7 +512,7 @@ end_migration:
 							return true; // overflow
 						}
 					} else {
-						TRACE(LFMap, 22);
+						TRACE(LFMap, 26);
 					}
 					
 					break; // next element
@@ -548,7 +551,7 @@ private:
 
 				if (value == MAP_VALUE_MIGRATION) {
 					// someone has already strated the migration, join it
-					TRACE(LFMap, 10);
+					TRACE(LFMap, 14);
 					return;
 				} else if (value != NULL) {
 					estimatedSize++;
@@ -566,7 +569,7 @@ private:
 		JobCoordinator::Job *migration = table->coordinator.get();
 		if (migration) {
 			// no need to create second migration job
-			TRACE(LFMap, 11);
+			TRACE(LFMap, 15);
 			return;
 		}
 
@@ -631,7 +634,7 @@ public:
 
 			LockFreeMapEntry *entr = LockFreeMapPrimitives::find(root, key, hasher);
 			if (entr == NULL) { // not found
-				TRACE(LFMap, 7);
+				TRACE(LFMap, 11);
 				return NULL;
 			}
 
@@ -639,11 +642,11 @@ public:
 			if (oldValue == MAP_VALUE_MIGRATION) {
 				root->coordinator.participate();
 			} else if (entr->value.compare_exchange_strong(oldValue, NULL, std::memory_order_consume)) {
-				TRACE(LFMap, 8);
+				TRACE(LFMap, 12);
 				return oldValue;
 			} else { // CAS failed
 				// there's a concurrent write or erase, giving up and pretending that value was overwritten
-				TRACE(LFMap, 9);
+				TRACE(LFMap, 13);
 				return NULL;
 			}
 		}

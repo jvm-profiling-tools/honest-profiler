@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <thread>
 #include <vector>
+#include <chrono>
 
 using namespace map;
 
@@ -174,6 +175,47 @@ TEST(LockFreeHashMapBasicConcurrentChecks) {
 	CONCURRENT_EPILOGUE();
 }
 
+void threadUser(TableGuard &guard, int iterations) {
+	while (iterations--) {
+		HashTable *root = guard.acquire();
+		std::this_thread::sleep_for(std::chrono::milliseconds(2));
+		guard.release(root);
+	}
+}
+
+void threadPublisher(TableGuard &guard, int size, int iterations) {
+	while (iterations--) {
+		HashTable *root = guard.acquire();
+
+		HashTable *newRoot = new HashTable(size);
+		guard.publish(newRoot);
+
+		guard.release(root);
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+	}
+}
+
+TEST(LockFreeHashMapGCTest) {
+	const int size = 1 << 14;
+	const int iterations = 100;
+	const int rthreads = 4;
+
+	HashTable *initial = new HashTable(size);
+
+	TableGuard guard(initial);
+	std::vector<std::thread> threads;
+
+	for (int i = 0; i < rthreads; i++)
+		threads.push_back(std::thread(threadUser, std::ref(guard), iterations));
+
+	std::thread mg(threadPublisher, std::ref(guard), size, iterations);
+
+	mg.join();
+	for (int i = 0; i < rthreads; i++)
+		threads[i].join();
+}
+
 TEST(LockFreeHashMapConcurrentIsolatedModifications) {
 	REPEAT_NEW_MAP(5) {
 		CONCURRENT_PROLOGUE_RESIZE(TestLockFreeMap, 4, 15);
@@ -199,8 +241,6 @@ TEST(LockFreeHashMapConcurrentOverlappingModifications) {
 		CONCURRENT_PROLOGUE_RESIZE(TestLockFreeMap, 4, 15);
 
 		REPEAT_OLD_MAP(3) {
-			TraceGroup_LFMap.reset();
-
 			// 2 threads writing the same keys and same values
 			// write direction of threads is opposite t1 -> <- t2
 			doParallel<true, true>(2, mapWriter, map, keys, values, results, bSize);
@@ -262,8 +302,6 @@ TEST(LockFreeHashMapConcurrentMixedLoad) {
 		int jobSize = bSize >> 1;
 
 		REPEAT_OLD_MAP(3) {
-			TraceGroup_LFMap.reset();
-
 			void **writerKeys = keys + jobSize;
 			void **writerValues = values + jobSize;
 			void **removerKeys = keys;
@@ -271,9 +309,6 @@ TEST(LockFreeHashMapConcurrentMixedLoad) {
 
 			doParallel(4, mapWriter, map, removerKeys, removerValues, results, jobSize); // populate 1 half of the map
 			CHECK_EQUAL(jobSize, map.unsafeUsed());
-			
-			TraceGroup_LFMap.reset();
-
 
 			std::thread writer(mapWriter, std::ref(map), writerKeys, writerValues, results, jobSize, false);
 			std::thread remover(mapRemover, std::ref(map), removerKeys, removerValues, results, jobSize, false);
