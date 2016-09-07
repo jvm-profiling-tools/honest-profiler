@@ -135,7 +135,7 @@ TEST(LockFreeHashMapSequentialSpec) {
 	int *key2 = new int(1);
 	int *val2 = new int(1);
 	mapWriter(map, (void**)&key2, (void**)&val2, results, 1);
-	CHECK_EQUAL(LFMAP_HASHTABLE_SIZE_MIN, map.capacity());
+	CHECK_EQUAL(kSizeMin, map.capacity());
 	CHECK_EQUAL(1, map.unsafeUsed());
 	CHECK_EQUAL(1, map.unsafeDirty());
 

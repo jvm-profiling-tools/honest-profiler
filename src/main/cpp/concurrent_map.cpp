@@ -1,5 +1,7 @@
 #include "concurrent_map.h"
 
+namespace map {
+
 TRACE_DEFINE_BEGIN(LFMap, kTraceLFMapTotal)
     TRACE_DEFINE("[LockFreeMapPrimitives::find] Item not found")
     TRACE_DEFINE("[LockFreeMapPrimitives::find] Item found")
@@ -30,3 +32,5 @@ TRACE_DEFINE_BEGIN(LFMap, kTraceLFMapTotal)
     TRACE_DEFINE("[Migration::migrateRange] Racing erase when migrating allocated bucket")
     TRACE_DEFINE("[TableGuard::release] Hashmap not found in pending maps")
 TRACE_DEFINE_END(LFMap, kTraceLFMapTotal);
+
+}
