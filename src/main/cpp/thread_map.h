@@ -22,7 +22,7 @@ struct PointerHasher {
 	}
 };
 
-#define INITIAL_CONCURRENT_MAP_SIZE 256
+const int kInitialMapSize = 256;
 
 template <typename MapProvider>
 class ThreadMapBase {
@@ -31,7 +31,7 @@ private:
 
 public:
 
-	ThreadMapBase(int capacity=INITIAL_CONCURRENT_MAP_SIZE) : map(capacity) {}
+	ThreadMapBase(int capacity=kInitialMapSize) : map(capacity) {}
 
 	void put(JNIEnv *jni_env, jthread thread) {
         put(jni_env, thread, gettid());
@@ -41,15 +41,15 @@ public:
 		ThreadBucket *info = new ThreadBucket;
         info->tid = tid;
         info->thread = globalRef ? thread : jni_env->NewGlobalRef(thread);
-        map.put(jni_env, info);
+        map.put((map::KeyType)jni_env, (map::ValueType)info);
 	}
 
 	ThreadBucket *get(JNIEnv *jni_env) {
-		return reinterpret_cast<ThreadBucket*>(map.get(jni_env));
+		return reinterpret_cast<ThreadBucket*>(map.get((map::KeyType)jni_env));
 	}
 
 	void remove(JNIEnv *jni_env) {
-    	ThreadBucket *info = (ThreadBucket*)map.remove(jni_env);
+    	ThreadBucket *info = (ThreadBucket*)map.remove((map::KeyType)jni_env);
     	if (info) {
     		jni_env->DeleteGlobalRef(info->thread);
     		delete info;

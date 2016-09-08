@@ -1,13 +1,19 @@
 #include "concurrent_map.h"
 
+namespace map {
+
 TRACE_DEFINE_BEGIN(LFMap, kTraceLFMapTotal)
     TRACE_DEFINE("[LockFreeMapPrimitives::find] Item not found")
     TRACE_DEFINE("[LockFreeMapPrimitives::find] Item found")
-    TRACE_DEFINE("[LockFreeMapPrimitives::insertOrUpdate] Overflow detected")
+    TRACE_DEFINE("[LockFreeMapPrimitives::insertOrUpdate] Max number of jumps reached")
+    TRACE_DEFINE("[LockFreeMapPrimitives::insertOrUpdate] Update bucket value")
+    TRACE_DEFINE("[LockFreeMapPrimitives::insertOrUpdate] Update value race detected")
+    TRACE_DEFINE("[LockFreeMapPrimitives::insertOrUpdate] Can't allocate a cell, map is too full")
     TRACE_DEFINE("[LockFreeMapPrimitives::insertOrUpdate] Allocate fresh bucket")
     TRACE_DEFINE("[LockFreeMapPrimitives::insertOrUpdate] Allocation race detected")
-    TRACE_DEFINE("[LockFreeMapPrimitives::insertOrUpdate] Update bucket value")
-    TRACE_DEFINE("[LockFreeMapPrimitives::insertOrUpdate] Update value race detected (giving up)")
+    TRACE_DEFINE("[LockFreeMapPrimitives::insertOrUpdate] Set bucket value")
+    TRACE_DEFINE("[LockFreeMapPrimitives::insertOrUpdate] Set value race detected")
+    TRACE_DEFINE("[LockFreeMapPrimitives::insertOrUpdate] No empty cell in the neighbourhood")
     TRACE_DEFINE("[LockFreeMapProvider::remove] Item not found")
     TRACE_DEFINE("[LockFreeMapProvider::remove] Remove bucket's value")
     TRACE_DEFINE("[LockFreeMapProvider::remove] Remove value race detected (giving up)")
@@ -26,3 +32,5 @@ TRACE_DEFINE_BEGIN(LFMap, kTraceLFMapTotal)
     TRACE_DEFINE("[Migration::migrateRange] Racing erase when migrating allocated bucket")
     TRACE_DEFINE("[TableGuard::release] Hashmap not found in pending maps")
 TRACE_DEFINE_END(LFMap, kTraceLFMapTotal);
+
+}

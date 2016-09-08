@@ -16,17 +16,6 @@ TRACE_DEFINE_BEGIN(Profiler, kTraceProfilerTotal)
 TRACE_DEFINE_END(Profiler, kTraceProfilerTotal);
 
 
-#define SPIN_LOCK() \
-    bool expectedState = false; \
-    while (!ongoingConf.compare_exchange_weak(expectedState, true, std::memory_order_acquire)) { expectedState = false; sched_yield(); }
-
-#define ACQUIRE_FENCE() \
-    ongoingConf.load(std::memory_order_acquire)
-
-#define SPIN_RELEASE(release) \
-    ongoingConf.store(false, release ? std::memory_order_release : std::memory_order_relaxed)
-
-
 bool Profiler::lookupFrameInformation(const JVMPI_CallFrame &frame,
         jvmtiEnv *jvmti,
         MethodListener &logWriter) {
@@ -82,7 +71,7 @@ bool Profiler::lookupFrameInformation(const JVMPI_CallFrame &frame,
 void Profiler::handle(int signum, siginfo_t *info, void *context) {
     IMPLICITLY_USE(signum);
     IMPLICITLY_USE(info);
-    ACQUIRE_FENCE(); // sync buffer
+    SimpleSpinLockGuard<false> guard(ongoingConf); // sync buffer
 
     // sample data structure
     STATIC_ARRAY(frames, JVMPI_CallFrame, configuration_->maxFramesToCapture, MAX_FRAMES_TO_CAPTURE);
@@ -102,13 +91,12 @@ void Profiler::handle(int signum, siginfo_t *info, void *context) {
 }
 
 bool Profiler::start(JNIEnv *jniEnv) {
-    SPIN_LOCK();
+    SimpleSpinLockGuard<true> guard(ongoingConf);
     /* within critical section */
 
     if (__is_running()) {
         TRACE(Profiler, kTraceProfilerStartFailed);
         logError("WARN: Start called but sampling is already running\n");
-        SPIN_RELEASE(false);
         return true;
     }
 
@@ -122,31 +110,27 @@ bool Profiler::start(JNIEnv *jniEnv) {
     handler_->SetAction(&bootstrapHandle);
     processor->start(jniEnv);
     bool res = handler_->updateSigprofInterval();
-    SPIN_RELEASE(true);
     return res;
 }
 
 void Profiler::stop() {
     /* Make sure it doesn't overlap with configure */
-    SPIN_LOCK();
+    SimpleSpinLockGuard<true> guard(ongoingConf);
 
     if (!__is_running()) {
         TRACE(Profiler, kTraceProfilerStopFailed);
-        SPIN_RELEASE(false);
         return;
     }    
 
     handler_->stopSigprof();
     processor->stop();
     signal(SIGPROF, SIG_IGN);
-    SPIN_RELEASE(true); 
 }
 
 bool Profiler::isRunning() {
     /* Make sure it doesn't overlap with configure */
-    SPIN_LOCK();
+    SimpleSpinLockGuard<true> guard(ongoingConf, false);
     bool res = __is_running();
-    SPIN_RELEASE(false);
     return res;
 }
 
@@ -157,12 +141,11 @@ bool Profiler::__is_running() {
 
 void Profiler::setFilePath(char *newFilePath) {
     /* Make sure it doesn't overlap with other sets */
-    SPIN_LOCK();
+    SimpleSpinLockGuard<true> guard(ongoingConf);
 
     if (__is_running()) {
         TRACE(Profiler, kTraceProfilerSetFileFailed);
         logError("WARN: Unable to modify running profiler\n");
-        SPIN_RELEASE(false);
         return;
     }
 
@@ -175,18 +158,15 @@ void Profiler::setFilePath(char *newFilePath) {
     /* make local copy of string */
     liveConfiguration->logFilePath = newFilePath ? safe_copy_string(newFilePath, NULL) : NULL;
     reloadConfig = true;
-
-    SPIN_RELEASE(true);
 }
 
 void Profiler::setSamplingInterval(int intervalMin, int intervalMax) {
     /* Make sure it doesn't overlap with other sets */
-    SPIN_LOCK();
+    SimpleSpinLockGuard<true> guard(ongoingConf);
 
     if (__is_running()) {
         TRACE(Profiler, kTraceProfilerSetIntervalFailed);
         logError("WARN: Unable to modify running profiler\n");
-        SPIN_RELEASE(false);
         return;
     }
 
@@ -197,18 +177,15 @@ void Profiler::setSamplingInterval(int intervalMin, int intervalMax) {
     liveConfiguration->samplingIntervalMin = std::min(min, max);
     liveConfiguration->samplingIntervalMax = std::max(min, max);
     reloadConfig = true;
-
-    SPIN_RELEASE(true);
 }
 
 void Profiler::setMaxFramesToCapture(int maxFramesToCapture) {
     /* Make sure it doesn't overlap with other sets */
-    SPIN_LOCK();
+    SimpleSpinLockGuard<true> guard(ongoingConf);
 
     if (__is_running()) {
         TRACE(Profiler, kTraceProfilerSetFramesFailed);
         logError("WARN: Unable to modify running profiler\n");
-        SPIN_RELEASE(false);
         return;
     }
 
@@ -218,33 +195,32 @@ void Profiler::setMaxFramesToCapture(int maxFramesToCapture) {
         maxFramesToCapture : DEFAULT_MAX_FRAMES_TO_CAPTURE;
     liveConfiguration->maxFramesToCapture = res;
     reloadConfig = true;
-    SPIN_RELEASE(true);
 }
 
 /* return copy of the string */
 std::string Profiler::getFilePath() {
     /* Make sure it doesn't overlap with setFilePath */
-    SPIN_LOCK();
+    SimpleSpinLockGuard<true> guard(ongoingConf, true); // relaxed store
     std::string res;
 
     if (liveConfiguration->logFilePath)
         res = std::string(liveConfiguration->logFilePath);
-    SPIN_RELEASE(false);
+
     return res;
 }
 
-int Profiler::getSamplingIntervalMin() const {
-    ACQUIRE_FENCE();
+int Profiler::getSamplingIntervalMin() {
+    SimpleSpinLockGuard<false> guard(ongoingConf); // nonblocking
     return liveConfiguration->samplingIntervalMin; 
 }
 
-int Profiler::getSamplingIntervalMax() const {
-    ACQUIRE_FENCE();
+int Profiler::getSamplingIntervalMax() {
+    SimpleSpinLockGuard<false> guard(ongoingConf); // nonblocking
     return liveConfiguration->samplingIntervalMax; 
 }
 
-int Profiler::getMaxFramesToCapture() const {
-    ACQUIRE_FENCE();
+int Profiler::getMaxFramesToCapture() {
+    SimpleSpinLockGuard<false> guard(ongoingConf); // nonblocking
     return liveConfiguration->maxFramesToCapture; 
 }
 
@@ -303,7 +279,7 @@ void Profiler::configure() {
 }
 
 Profiler::~Profiler() {
-    ACQUIRE_FENCE();
+    SimpleSpinLockGuard<false> guard(ongoingConf); // nonblocking
     /* liveConfiguration is managed in agent.cpp */
     if (liveConfiguration->logFilePath == configuration_->logFilePath)
         configuration_->logFilePath = NULL;

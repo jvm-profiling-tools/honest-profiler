@@ -36,6 +36,35 @@ const int kTraceProfilerStopOk = 9;
 
 TRACE_DECLARE(Profiler, kTraceProfilerTotal);
 
+template <bool blocking = true>
+class SimpleSpinLockGuard {
+private:
+    std::atomic_bool& f;
+    bool rel;
+
+public:
+    SimpleSpinLockGuard(std::atomic_bool& field, bool relaxed = false) : f(field), rel(relaxed) {
+        bool expectedState = false;
+        while (!f.compare_exchange_weak(expectedState, true, std::memory_order_acquire)) { 
+            expectedState = false; 
+            sched_yield(); 
+        }
+    }
+
+    ~SimpleSpinLockGuard() {
+        f.store(false, rel ? std::memory_order_relaxed : std::memory_order_release);   
+    }
+};
+
+template <>
+class SimpleSpinLockGuard<false> {
+public:
+    SimpleSpinLockGuard(std::atomic_bool& field) {
+        field.load(std::memory_order_acquire);
+    }
+
+    ~SimpleSpinLockGuard() {}
+};
 
 class Profiler {
 public:
@@ -71,11 +100,11 @@ public:
 
     std::string getFilePath();
 
-    int getSamplingIntervalMin() const;
+    int getSamplingIntervalMin();
 
-    int getSamplingIntervalMax() const;
+    int getSamplingIntervalMax();
 
-    int getMaxFramesToCapture() const;
+    int getMaxFramesToCapture();
 
     void setFilePath(char *newFilePath);
 

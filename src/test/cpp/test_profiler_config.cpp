@@ -4,7 +4,6 @@
 #include "test.h"
 #include "../../main/cpp/profiler.h"
 
-
 static JavaVM *jvm = NULL;
 static JNIEnv *env = NULL;
 static jvmtiEnv *jvmti = NULL;
