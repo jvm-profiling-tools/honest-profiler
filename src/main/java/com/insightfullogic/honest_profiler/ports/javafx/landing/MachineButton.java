@@ -39,7 +39,7 @@ public class MachineButton extends RadioButton
 
     public MachineButton(VirtualMachine jvm)
     {
-        super(jvm.getDisplayName());
+        super(jvm.getDisplayName() + " ("+jvm.getId()+")");
         this.jvm = jvm;
         setDisable(!jvm.isAgentLoaded());
         setId(jvm.getId());
