@@ -33,23 +33,32 @@ void deallocateTestBuffer(void **b, size_t size) {
 #define IDX(rev, i, sz) ((rev) ? (sz - 1 - i) : (i))
 
 void mapWriter(AbstractMapProvider &map, void **keys, void **values, std::atomic<void*> *result, size_t size, bool reverse=false) {
+	GCHelper::attach();
 	for (int i = 0; i < size; i++) {
 		map.put(keys[IDX(reverse, i, size)], values[IDX(reverse, i, size)]);
 	}
+	GCHelper::safepoint();
+	GCHelper::detach();
 }
 
 void mapReader(AbstractMapProvider &map, void **keys, void **values, std::atomic<void*> *result, size_t size, bool reverse=false) {
+	GCHelper::attach();
 	for (int i = 0; i < size; i++) {
 		void *res = map.get(keys[IDX(reverse, i, size)]);
 		result[IDX(reverse, i, size)].store(res, std::memory_order_relaxed);
 	}
+	GCHelper::safepoint();
+	GCHelper::detach();
 }
 
 void mapRemover(AbstractMapProvider &map, void **keys, void **values, std::atomic<void*> *result, size_t size, bool reverse=false) {
+	GCHelper::attach();
 	for (int i = 0; i < size; i++) {
 		void *res = map.remove(keys[IDX(reverse, i, size)]);
 		result[IDX(reverse, i, size)].store(res, std::memory_order_relaxed);
 	}
+	GCHelper::safepoint();
+	GCHelper::detach();
 }
 
 template <bool overlap=false, bool altDirection=false>
@@ -91,13 +100,14 @@ void doParallel(int threads, MapFunction func, AbstractMapProvider &map, void **
 #define REPEAT_OLD_MAP(times)                      \
 	for (int loopnr = 0; loopnr < times; ++loopnr)
 
-
 TEST(LockFreeHashMapSequentialSpec) {
+#ifdef DEBUG_MAP_GC
+	int prevSheduled = DefaultGC.statsSheduled;
+#endif
 	CONCURRENT_PROLOGUE_RESIZE(TestLockFreeMap, 1, 15);
 	
 	mapReader(map, keys, values, results, 1);
 	CHECK_ARRAY_EQUAL(nullarr, results, 1);
-	
 	mapRemover(map, keys, values, results, 1);
 	CHECK_ARRAY_EQUAL(nullarr, results, 1);
 	CHECK_EQUAL(0, map.unsafeUsed());
@@ -107,7 +117,11 @@ TEST(LockFreeHashMapSequentialSpec) {
 	CHECK_EQUAL(1 << 16, map.capacity());
 	CHECK_EQUAL(bSize, map.unsafeUsed());
 	CHECK_EQUAL(bSize, map.unsafeDirty());
-
+#ifdef DEBUG_MAP_GC
+	CHECK(DefaultGC.statsSheduled > prevSheduled);
+	prevSheduled = DefaultGC.statsSheduled;
+	CHECK_EQUAL(DefaultGC.statsSheduled, DefaultGC.statsRemoved);
+#endif
 	mapReader(map, keys, values, results, bSize);
 	CHECK_ARRAY_EQUAL(values, results, bSize);
 
@@ -115,6 +129,9 @@ TEST(LockFreeHashMapSequentialSpec) {
 	CHECK_ARRAY_EQUAL(values, results, bSize);
 	CHECK_EQUAL(0, map.unsafeUsed());
 	CHECK_EQUAL(bSize, map.unsafeDirty());
+#ifdef DEBUG_MAP_GC
+	CHECK_EQUAL(DefaultGC.statsSheduled, DefaultGC.statsRemoved);
+#endif
 
 	mapReader(map, keys, values, results, bSize);
 	CHECK_ARRAY_EQUAL(nullarr, results, bSize);
@@ -127,6 +144,9 @@ TEST(LockFreeHashMapSequentialSpec) {
 	mapWriter(map, keys1, values1, results, halfSize);
 	CHECK_EQUAL(halfSize, map.unsafeUsed());
 	CHECK_EQUAL(bSize + halfSize, map.unsafeDirty());
+#ifdef DEBUG_MAP_GC
+	CHECK_EQUAL(DefaultGC.statsSheduled, DefaultGC.statsRemoved);
+#endif
 
 	mapRemover(map, keys1, values1, results, halfSize); // 75% is allocated
 	CHECK_EQUAL(0, map.unsafeUsed());
@@ -138,6 +158,11 @@ TEST(LockFreeHashMapSequentialSpec) {
 	CHECK_EQUAL(kSizeMin, map.capacity());
 	CHECK_EQUAL(1, map.unsafeUsed());
 	CHECK_EQUAL(1, map.unsafeDirty());
+#ifdef DEBUG_MAP_GC
+	CHECK(DefaultGC.statsSheduled > prevSheduled);
+	prevSheduled = DefaultGC.statsSheduled;
+	CHECK_EQUAL(DefaultGC.statsSheduled, DefaultGC.statsRemoved);
+#endif
 
 	mapReader(map, (void**)&key2, (void**)&val2, results, 1);
 	CHECK_ARRAY_EQUAL((void**)&val2, results, 1);
@@ -157,6 +182,8 @@ TEST(LockFreeHashMapBasicConcurrentChecks) {
 
 	void *res;
 
+	GCHelper::attach();
+
 	mapReader(map, keys, values, results, 1);
 	CHECK_ARRAY_EQUAL(nullarr, results, 1);
 
@@ -170,50 +197,14 @@ TEST(LockFreeHashMapBasicConcurrentChecks) {
 	CHECK_EQUAL((void*)NULL, res);
 	remover.join();
 
+	GCHelper::detach();
+
 	CHECK_EQUAL(0, map.unsafeUsed());
+#ifdef DEBUG_MAP_GC
+	CHECK_EQUAL(DefaultGC.statsSheduled, DefaultGC.statsRemoved);
+#endif
 
 	CONCURRENT_EPILOGUE();
-}
-
-void threadUser(TableGuard &guard, int iterations) {
-	while (iterations--) {
-		HashTable *root = guard.acquire();
-		std::this_thread::sleep_for(std::chrono::milliseconds(2));
-		guard.release(root);
-	}
-}
-
-void threadPublisher(TableGuard &guard, int size, int iterations) {
-	while (iterations--) {
-		HashTable *root = guard.acquire();
-
-		HashTable *newRoot = new HashTable(size);
-		guard.publish(newRoot);
-
-		guard.release(root);
-
-		std::this_thread::sleep_for(std::chrono::milliseconds(1));
-	}
-}
-
-TEST(LockFreeHashMapGCTest) {
-	const int size = 1 << 14;
-	const int iterations = 100;
-	const int rthreads = 4;
-
-	HashTable *initial = new HashTable(size);
-
-	TableGuard guard(initial);
-	std::vector<std::thread> threads;
-
-	for (int i = 0; i < rthreads; i++)
-		threads.push_back(std::thread(threadUser, std::ref(guard), iterations));
-
-	std::thread mg(threadPublisher, std::ref(guard), size, iterations);
-
-	mg.join();
-	for (int i = 0; i < rthreads; i++)
-		threads[i].join();
 }
 
 TEST(LockFreeHashMapConcurrentIsolatedModifications) {
@@ -230,6 +221,10 @@ TEST(LockFreeHashMapConcurrentIsolatedModifications) {
 			// clean map in parallel
 			doParallel(4, mapRemover, map, keys, values, results, bSize);
 			CHECK_EQUAL(0, map.unsafeUsed());
+
+#ifdef DEBUG_MAP_GC
+			CHECK_EQUAL(DefaultGC.statsSheduled, DefaultGC.statsRemoved);
+#endif
 		}
 	
 		CONCURRENT_EPILOGUE();
@@ -257,6 +252,10 @@ TEST(LockFreeHashMapConcurrentOverlappingModifications) {
 			}
 
 			CHECK_EQUAL(0, map.unsafeUsed());
+
+#ifdef DEBUG_MAP_GC
+			CHECK_EQUAL(DefaultGC.statsSheduled, DefaultGC.statsRemoved);
+#endif
 		}
 	
 		CONCURRENT_EPILOGUE();
@@ -288,6 +287,10 @@ TEST(LockFreeHashMapConcurrentOverlappingUpdates) {
 			doParallel(2, mapRemover, map, keys, values, results, bSize);
 
 			CHECK_EQUAL(0, map.unsafeUsed());
+
+#ifdef DEBUG_MAP_GC
+			CHECK_EQUAL(DefaultGC.statsSheduled, DefaultGC.statsRemoved);
+#endif
 		}
 		
 		deallocateTestBuffer(upd_values, bSize);
@@ -315,6 +318,8 @@ TEST(LockFreeHashMapConcurrentMixedLoad) {
 
 			bool *conditions = new bool[bSize]();
 			int conditionsMet = 0;
+
+			GCHelper::attach();
 			
 			while (conditionsMet < bSize) {
 				for (int i = 0; i < jobSize; ++i) {
@@ -329,8 +334,11 @@ TEST(LockFreeHashMapConcurrentMixedLoad) {
 						if (conditions[i + jobSize]) conditionsMet++;
 					}
 				}
+				GCHelper::safepoint();
 			}
 			delete[] conditions;
+
+			GCHelper::detach();
 
 			writer.join();
 			remover.join();
@@ -342,6 +350,10 @@ TEST(LockFreeHashMapConcurrentMixedLoad) {
 			// check that map is indeed empty
 			doParallel(4, mapReader, map, keys, values, results, bSize);
 			CHECK_EQUAL(0, map.unsafeUsed());
+
+#ifdef DEBUG_MAP_GC
+			CHECK_EQUAL(DefaultGC.statsSheduled, DefaultGC.statsRemoved);
+#endif
 		}
 		CONCURRENT_EPILOGUE();
 	}

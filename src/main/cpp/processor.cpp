@@ -49,6 +49,7 @@ void Processor::run() {
     }
 
     handler_.stopSigprof();
+    logWriter_.terminate(); // make sure processing thread is detached from thread map
     workerDone.clear(std::memory_order_relaxed);
     // no shared data access after this point, can be safely deleted
 }

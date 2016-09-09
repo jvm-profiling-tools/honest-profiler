@@ -21,11 +21,10 @@
 
 namespace map {
 
-const int kTraceLFMapTotal = 28;
+const int kTraceLFMapTotal = 27;
 TRACE_DECLARE(LFMap, kTraceLFMapTotal);
 
 // Configurable parameters
-const int kPendingQueueLength = 8; // GC queue capacity
 const int kNeighbourhood = 16;
 const int kMaxJumpsAllowed = 8;
 const int kMigrationChunkSize = 32;
@@ -138,94 +137,90 @@ struct HashTable {
 		delete[] array;
 	}
 
-	int getAllocBuckets() {
-		return sizeMask + 1 - freeBuckets.load(std::memory_order_relaxed);
-	}
-
 	int getMigrationSize() {
 		return (sizeMask + 1) / kMigrationChunkSize; // both are powers of 2
 	}
 
 };
 
-/**
- * Multi-reader, single writer fixed size array.
- */
-class TableGuard {
+class GC {
 private:
-	struct Entry {
-		std::atomic<HashTable*> table;
-		std::atomic_int references;
-	};
+	std::mutex mutex;
+	int totalThreads;
+	int globalEpoch;
+	int remaining;
+	std::vector<HashTable*> recentGarbage;
+	std::vector<HashTable*> oldGarbage;
+#ifdef DEBUG_MAP_GC
+public:
+	int statsSheduled;
+	int statsRemoved;
+#endif
 
-	Entry pending[kPendingQueueLength];
-	std::atomic_int current;
+	void newEpoch() { // within mutex
+		#ifdef DEBUG_MAP_GC
+			statsRemoved += oldGarbage.size();
+		#endif
+		while (!oldGarbage.empty()) {
+    		delete oldGarbage.back();
+    		oldGarbage.pop_back();
+  		}
+  		globalEpoch++;
+  		remaining = totalThreads;
+  		oldGarbage = std::move(recentGarbage);
+  		recentGarbage.clear();
+	}
 
 public:
-	TableGuard(HashTable *initial) : current(0) {
-		for (int i = 0; i < kPendingQueueLength; i++) {
-			pending[i].references.store(0, std::memory_order_relaxed);
-			if (i == 0) {
-				pending[i].table.store(initial, std::memory_order_release);
-			} else {
-				pending[i].table.store(nullptr, std::memory_order_relaxed);
-			}
+	typedef unsigned int EpochType;
+	static const EpochType kEpochInitial;
+
+	GC() : totalThreads(0), globalEpoch(1), remaining(0) {}
+
+	EpochType attachThread() {
+		std::lock_guard<std::mutex> guard(mutex);
+		totalThreads++;
+		remaining++;
+		return globalEpoch - 1; // force thread to move to global epoch at least once
+	}
+
+	void detachThread(EpochType &localEpoch) {
+		std::lock_guard<std::mutex> guard(mutex);
+		totalThreads--;
+		if (localEpoch < globalEpoch) { 
+			remaining--;
+			if (remaining == 0)
+				newEpoch();
+		}
+		localEpoch = kEpochInitial;
+	}
+
+	void safepoint(EpochType &localEpoch) {
+		std::lock_guard<std::mutex> guard(mutex);
+		if (localEpoch < globalEpoch) {
+			localEpoch = globalEpoch;
+			remaining--;
+			if (remaining == 0) 
+				newEpoch();
 		}
 	}
 
-	HashTable *acquire() {
-		int index = current.load(std::memory_order_acquire);
-		pending[index].references.fetch_add(1, std::memory_order_relaxed);
-		return pending[index].table.load(std::memory_order_consume);
+	void sheduleDelete(HashTable *pointer) {
+		std::lock_guard<std::mutex> guard(mutex);
+#ifdef DEBUG_MAP_GC
+		statsSheduled++;
+#endif
+		recentGarbage.push_back(pointer);
 	}
 
-	void release(HashTable *p) {
-		int startIndex = current.load(std::memory_order_acquire);
-		int endIndex = startIndex - kPendingQueueLength;
-		for (int index = startIndex; index > endIndex; index--) {
-			index &= (kPendingQueueLength - 1);
-			HashTable *root = pending[index].table.load(std::memory_order_consume);
-			if (p == root) {
-				pending[index].references.fetch_sub(1, std::memory_order_relaxed);
-				return;
-			}
-		}
-		TRACE(LFMap, 27);
-	}
-
-	void publish(HashTable *p) {
-		int oldRoot = current.load(std::memory_order_relaxed);
-		int index = oldRoot;
-		while (true) {
-			index = (index + 1) & (kPendingQueueLength - 1);
-			int refs = pending[index].references.load(std::memory_order_consume) + (index == oldRoot ? 1 : 0); // global ref
-			bool safeDelete = true;
-			if (refs < 1) {
-				HashTable *root = pending[index].table.load(std::memory_order_consume);
-				if (refs < 0) {
-					// something unexpected happend, prevent any heap corruption by forbidding delete (shouldn't happen, just to double check)
-					std::cerr << "[map::TableGuard::publish] wrong references value for candidate cell: " << refs << std::endl;
-					safeDelete = false;
-				}
-				// atomic relaxed store is also fine instead of CAS below
-				if (pending[index].table.compare_exchange_strong(root, p, std::memory_order_relaxed)) {
-					if (root != nullptr && safeDelete) delete root;
-					pending[index].references.store(0, std::memory_order_relaxed); // global ref
-					current.store(index, std::memory_order_release);
-					return;
-				}
-			}
-		}
-	}
-
-	~TableGuard() {
-		for (int i = 0; i < kPendingQueueLength; i++) {
-			HashTable *t = pending[i].table.load(std::memory_order_consume);
-			int refs = pending[i].references.load(std::memory_order_relaxed);
-			if (t != nullptr && refs == 0) delete t;
-		}
+	~GC() {
+		std::move(recentGarbage.begin(), recentGarbage.end(), std::back_inserter(oldGarbage));
+		recentGarbage.clear();
+		newEpoch();
 	}
 };
+
+extern GC DefaultGC;
 
 enum InsertOutcome { INSERT_OK, INSERT_OVERFLOW, INSERT_HELP_MIGRATION };
 
@@ -531,20 +526,7 @@ public:
 template <typename Hasher, bool signalSafeReaders>
 class ConcurrentMapProvider : public AbstractMapProvider {
 private:
-	struct ScopedGuard {
-		HashTable *root;
-		TableGuard &tg;
-
-		ScopedGuard(TableGuard &guard) : tg(guard) {
-			root = tg.acquire();
-		}
-
-		~ScopedGuard() {
-			tg.release(root);
-		}
-	};
-
-	TableGuard current;
+	std::atomic<HashTable*> current;
 	HashFunction hasher;
 
 	void migrationStart(HashTable *table, bool doubleSize) {
@@ -592,17 +574,19 @@ private:
 	}
 
 public:
-	ConcurrentMapProvider(size_t initialSize) : current(new HashTable(initialSize)), hasher(&Hasher::hash) {
+	ConcurrentMapProvider(size_t initialSize) : hasher(&Hasher::hash) {
+		HashTable *initial = new HashTable(initialSize);
+		current.store(initial, std::memory_order_relaxed);
 	}
 
 	virtual ~ConcurrentMapProvider() {
+		delete current.load(std::memory_order_consume);
 	}
 
 	void put(KeyType key, ValueType value) {
 		bool doubleSize = false;
 		while (true) {
-			ScopedGuard guard(current);
-			HashTable *root = guard.root;
+			HashTable *root = current.load(std::memory_order_consume);
 			InsertOutcome res = LockFreeMapPrimitives::insertOrUpdate(root, key, value, hasher);
 
 			if (res == INSERT_OK) {
@@ -622,8 +606,7 @@ public:
 	// this is the only function that can be called from signal handler
 	ValueType get(KeyType key) {
 		while (true) {
-			ScopedGuard guard(current);
-			HashTable *root = guard.root;
+			HashTable *root = current.load(std::memory_order_consume);
 
 			HashTable::LockFreeMapEntry *el = LockFreeMapPrimitives::find(root, key, hasher);
 			ValueType res = el ? el->value.load(std::memory_order_consume) : MapValEmpty;
@@ -638,8 +621,7 @@ public:
 
 	ValueType remove(KeyType key) {
 		while (true) {
-			ScopedGuard guard(current);
-			HashTable *root = guard.root;
+			HashTable *root = current.load(std::memory_order_consume);
 
 			HashTable::LockFreeMapEntry *entr = LockFreeMapPrimitives::find(root, key, hasher);
 			if (entr == nullptr) { // not found
@@ -663,18 +645,19 @@ public:
 
 	// Migration callback, called once per successful migration
 	void finishMigration(HashTable *newRoot) {
-		current.publish(newRoot);
+		HashTable *oldRoot = current.load(std::memory_order_consume);
+		current.store(newRoot, std::memory_order_release);
+		DefaultGC.sheduleDelete(oldRoot);
 	}
 
 	int capacity() {
-		ScopedGuard guard(current);
-		return guard.root->sizeMask + 1;
+		HashTable *root = current.load(std::memory_order_consume);
+		return root->sizeMask + 1;
 	}
 
 	int unsafeUsed() {
 		int size = 0;
-		ScopedGuard guard(current);
-		HashTable *root = guard.root;
+		HashTable *root = current.load(std::memory_order_consume);
 		for (int i = 0; i < root->sizeMask + 1; i++) {
 			ValueType value = root->array[i].value.load(std::memory_order_relaxed);
 			if (value != MapValEmpty && value != MapValMove)
@@ -685,8 +668,7 @@ public:
 
 	int unsafeDirty() {
 		int size = 0;
-		ScopedGuard guard(current);
-		HashTable *root = guard.root;
+		HashTable *root = current.load(std::memory_order_consume);
 		for (int i = 0; i < root->sizeMask + 1; i++) {
 			if (root->array[i].hash.load(std::memory_order_relaxed) != MapHashEmpty)
 				size++;

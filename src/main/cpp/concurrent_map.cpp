@@ -30,7 +30,10 @@ TRACE_DEFINE_BEGIN(LFMap, kTraceLFMapTotal)
     TRACE_DEFINE("[Migration::migrateRange] Allocated cell value insert race")
     TRACE_DEFINE("[Migration::migrateRange] Allocated cell migration flag")
     TRACE_DEFINE("[Migration::migrateRange] Racing erase when migrating allocated bucket")
-    TRACE_DEFINE("[TableGuard::release] Hashmap not found in pending maps")
 TRACE_DEFINE_END(LFMap, kTraceLFMapTotal);
+
+const GC::EpochType GC::kEpochInitial = -1;
+
+GC DefaultGC;
 
 }

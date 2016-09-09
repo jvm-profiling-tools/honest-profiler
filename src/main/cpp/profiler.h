@@ -70,7 +70,7 @@ class Profiler {
 public:
     explicit Profiler(JavaVM *jvm, jvmtiEnv *jvmti, ConfigurationOptions *configuration, ThreadMap &tMap) 
         : jvm_(jvm), jvmti_(jvmti), tMap_(tMap), liveConfiguration(configuration),
-        logFile(NULL), writer(NULL), buffer(NULL), processor(NULL), handler_(NULL),
+        logFile(nullptr), writer(nullptr), buffer(nullptr), processor(nullptr), handler_(nullptr),
         ongoingConf(false) {       
 	    // main object graph instantiated here
         // these objects all live for the lifecycle of the program

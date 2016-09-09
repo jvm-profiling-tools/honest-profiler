@@ -29,7 +29,7 @@ bool stubFrameInformation(const JVMPI_CallFrame &frame, jvmtiEnv *jvmti,
   LogWriter logWriter(output, &stubFrameInformation, NULL, emptyMapStub);      \
   CircularQueue *queue = new CircularQueue(logWriter, DEFAULT_MAX_FRAMES_TO_CAPTURE);
 
-#define done() delete queue;
+#define done() logWriter.terminate(); delete queue;
 
 TEST(RecordsStartOfStackTrace) {
   givenLogWriter();
@@ -163,4 +163,5 @@ TEST(DumpTestFile) {
 
   logWriter.record(trace);
   logWriter.record(trace);
+  logWriter.terminate(); // detach a thread from map
 }
