@@ -153,7 +153,7 @@ private:
 	std::vector<HashTable*> oldGarbage;
 #ifdef DEBUG_MAP_GC
 public:
-	int statsSheduled;
+	int statsScheduled;
 	int statsRemoved;
 #endif
 
@@ -205,10 +205,10 @@ public:
 		}
 	}
 
-	void sheduleDelete(HashTable *pointer) {
+	void scheduleDelete(HashTable *pointer) {
 		std::lock_guard<std::mutex> guard(mutex);
 #ifdef DEBUG_MAP_GC
-		statsSheduled++;
+		statsScheduled++;
 #endif
 		recentGarbage.push_back(pointer);
 	}
@@ -647,7 +647,7 @@ public:
 	void finishMigration(HashTable *newRoot) {
 		HashTable *oldRoot = current.load(std::memory_order_consume);
 		current.store(newRoot, std::memory_order_release);
-		DefaultGC.sheduleDelete(oldRoot);
+		DefaultGC.scheduleDelete(oldRoot);
 	}
 
 	int capacity() {

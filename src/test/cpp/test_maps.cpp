@@ -102,7 +102,7 @@ void doParallel(int threads, MapFunction func, AbstractMapProvider &map, void **
 
 TEST(LockFreeHashMapSequentialSpec) {
 #ifdef DEBUG_MAP_GC
-	int prevSheduled = DefaultGC.statsSheduled;
+	int prevScheduled = DefaultGC.statsScheduled;
 #endif
 	CONCURRENT_PROLOGUE_RESIZE(TestLockFreeMap, 1, 15);
 	
@@ -118,9 +118,9 @@ TEST(LockFreeHashMapSequentialSpec) {
 	CHECK_EQUAL(bSize, map.unsafeUsed());
 	CHECK_EQUAL(bSize, map.unsafeDirty());
 #ifdef DEBUG_MAP_GC
-	CHECK(DefaultGC.statsSheduled > prevSheduled);
-	prevSheduled = DefaultGC.statsSheduled;
-	CHECK_EQUAL(DefaultGC.statsSheduled, DefaultGC.statsRemoved);
+	CHECK(DefaultGC.statsScheduled > prevScheduled);
+	prevScheduled = DefaultGC.statsScheduled;
+	CHECK_EQUAL(DefaultGC.statsScheduled, DefaultGC.statsRemoved);
 #endif
 	mapReader(map, keys, values, results, bSize);
 	CHECK_ARRAY_EQUAL(values, results, bSize);
@@ -130,7 +130,7 @@ TEST(LockFreeHashMapSequentialSpec) {
 	CHECK_EQUAL(0, map.unsafeUsed());
 	CHECK_EQUAL(bSize, map.unsafeDirty());
 #ifdef DEBUG_MAP_GC
-	CHECK_EQUAL(DefaultGC.statsSheduled, DefaultGC.statsRemoved);
+	CHECK_EQUAL(DefaultGC.statsScheduled, DefaultGC.statsRemoved);
 #endif
 
 	mapReader(map, keys, values, results, bSize);
@@ -145,7 +145,7 @@ TEST(LockFreeHashMapSequentialSpec) {
 	CHECK_EQUAL(halfSize, map.unsafeUsed());
 	CHECK_EQUAL(bSize + halfSize, map.unsafeDirty());
 #ifdef DEBUG_MAP_GC
-	CHECK_EQUAL(DefaultGC.statsSheduled, DefaultGC.statsRemoved);
+	CHECK_EQUAL(DefaultGC.statsScheduled, DefaultGC.statsRemoved);
 #endif
 
 	mapRemover(map, keys1, values1, results, halfSize); // 75% is allocated
@@ -159,9 +159,9 @@ TEST(LockFreeHashMapSequentialSpec) {
 	CHECK_EQUAL(1, map.unsafeUsed());
 	CHECK_EQUAL(1, map.unsafeDirty());
 #ifdef DEBUG_MAP_GC
-	CHECK(DefaultGC.statsSheduled > prevSheduled);
-	prevSheduled = DefaultGC.statsSheduled;
-	CHECK_EQUAL(DefaultGC.statsSheduled, DefaultGC.statsRemoved);
+	CHECK(DefaultGC.statsScheduled > prevScheduled);
+	prevScheduled = DefaultGC.statsScheduled;
+	CHECK_EQUAL(DefaultGC.statsScheduled, DefaultGC.statsRemoved);
 #endif
 
 	mapReader(map, (void**)&key2, (void**)&val2, results, 1);
@@ -201,7 +201,7 @@ TEST(LockFreeHashMapBasicConcurrentChecks) {
 
 	CHECK_EQUAL(0, map.unsafeUsed());
 #ifdef DEBUG_MAP_GC
-	CHECK_EQUAL(DefaultGC.statsSheduled, DefaultGC.statsRemoved);
+	CHECK_EQUAL(DefaultGC.statsScheduled, DefaultGC.statsRemoved);
 #endif
 
 	CONCURRENT_EPILOGUE();
@@ -223,7 +223,7 @@ TEST(LockFreeHashMapConcurrentIsolatedModifications) {
 			CHECK_EQUAL(0, map.unsafeUsed());
 
 #ifdef DEBUG_MAP_GC
-			CHECK_EQUAL(DefaultGC.statsSheduled, DefaultGC.statsRemoved);
+			CHECK_EQUAL(DefaultGC.statsScheduled, DefaultGC.statsRemoved);
 #endif
 		}
 	
@@ -254,7 +254,7 @@ TEST(LockFreeHashMapConcurrentOverlappingModifications) {
 			CHECK_EQUAL(0, map.unsafeUsed());
 
 #ifdef DEBUG_MAP_GC
-			CHECK_EQUAL(DefaultGC.statsSheduled, DefaultGC.statsRemoved);
+			CHECK_EQUAL(DefaultGC.statsScheduled, DefaultGC.statsRemoved);
 #endif
 		}
 	
@@ -289,7 +289,7 @@ TEST(LockFreeHashMapConcurrentOverlappingUpdates) {
 			CHECK_EQUAL(0, map.unsafeUsed());
 
 #ifdef DEBUG_MAP_GC
-			CHECK_EQUAL(DefaultGC.statsSheduled, DefaultGC.statsRemoved);
+			CHECK_EQUAL(DefaultGC.statsScheduled, DefaultGC.statsRemoved);
 #endif
 		}
 		
@@ -352,7 +352,7 @@ TEST(LockFreeHashMapConcurrentMixedLoad) {
 			CHECK_EQUAL(0, map.unsafeUsed());
 
 #ifdef DEBUG_MAP_GC
-			CHECK_EQUAL(DefaultGC.statsSheduled, DefaultGC.statsRemoved);
+			CHECK_EQUAL(DefaultGC.statsScheduled, DefaultGC.statsRemoved);
 #endif
 		}
 		CONCURRENT_EPILOGUE();

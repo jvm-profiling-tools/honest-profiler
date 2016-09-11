@@ -226,7 +226,7 @@ int Profiler::getMaxFramesToCapture() {
 
 void Profiler::configure() {
     /* nested critical section, no need to acquire or CAS */
-    bool needsUpdate = processor == nullptr;
+    bool needsUpdate = processor == NULL;
 
     needsUpdate = needsUpdate || configuration_->logFilePath != liveConfiguration->logFilePath;
     if (needsUpdate) {
