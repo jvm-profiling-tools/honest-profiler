@@ -9,8 +9,8 @@
 int gettid();
 
 struct ThreadBucket {
-    int tid;
-    jthread thread;
+	int tid;
+	jthread thread;
 };
 
 template <typename PType>
@@ -58,19 +58,19 @@ private:
 
 public:
 
-	ThreadMapBase(int capacity=kInitialMapSize) : map(capacity) {}
+	ThreadMapBase(int capacity = kInitialMapSize) : map(capacity) {}
 
 	void put(JNIEnv *jni_env, jthread thread) {
-        put(jni_env, thread, gettid());
+		put(jni_env, thread, gettid());
 	}
 
-	void put(JNIEnv *jni_env, jthread thread, int tid, bool globalRef=true) {
+	void put(JNIEnv *jni_env, jthread thread, int tid, bool globalRef = true) {
 		GCHelper::attach();
 		ThreadBucket *info = new ThreadBucket;
-        info->tid = tid;
-        info->thread = globalRef ? thread : jni_env->NewGlobalRef(thread);
-        map.put((map::KeyType)jni_env, (map::ValueType)info);
-        GCHelper::safepoint(); // each thread inserts once
+		info->tid = tid;
+		info->thread = globalRef ? thread : jni_env->NewGlobalRef(thread);
+		map.put((map::KeyType)jni_env, (map::ValueType)info);
+		GCHelper::safepoint(); // each thread inserts once
 	}
 
 	ThreadBucket *get(JNIEnv *jni_env) {
@@ -81,12 +81,12 @@ public:
 
 	void remove(JNIEnv *jni_env) {
 		GCHelper::attach();
-    	ThreadBucket *info = (ThreadBucket*)map.remove((map::KeyType)jni_env);
-    	if (info) {
-    		jni_env->DeleteGlobalRef(info->thread);
-    		delete info;
-    	}
-    	GCHelper::safepoint(); // each thread deletes once
+		ThreadBucket *info = (ThreadBucket*)map.remove((map::KeyType)jni_env);
+		if (info) {
+			jni_env->DeleteGlobalRef(info->thread);
+			delete info;
+		}
+		GCHelper::safepoint(); // each thread deletes once
 	}
 
 	void attach() {

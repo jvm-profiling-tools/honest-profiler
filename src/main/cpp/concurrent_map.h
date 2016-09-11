@@ -3,15 +3,15 @@
 
 /**
  * Concurrent hash map implementation with lock-free readers that can be used
- * in signal handlers. Writers use locks only for memory allocation bounded 
- * number of times during migration (resize) only. Map is ported from @preshing's 
+ * in signal handlers. Writers use locks only for memory allocation bounded
+ * number of times during migration (resize) only. Map is ported from @preshing's
  * ConcurrentMap_Linear: https://github.com/preshing/junction/blob/master/junction/ConcurrentMap_Linear.h.
  */
 
-#if __GNUC__ == 4 && __GNUC_MINOR__ < 6 && !defined(__APPLE__) && !defined(__FreeBSD__) 
-	#include <cstdatomic>
+#if __GNUC__ == 4 && __GNUC_MINOR__ < 6 && !defined(__APPLE__) && !defined(__FreeBSD__)
+#include <cstdatomic>
 #else
-	#include <atomic>
+#include <atomic>
 #endif
 
 #include <vector>
@@ -53,7 +53,7 @@ static int nearestPow2(int x) {
 	x |= x >> 16;
 	return x + 1;
 }
-  
+
 class JobCoordinator {
 public:
 	struct Job {
@@ -91,10 +91,10 @@ public:
 					sched_yield();
 				}
 			}
-        	if (cjob == (Job*)-1) return;
-        	cjob->run();
-        	prevJob = cjob;
-    	}
+			if (cjob == (Job*)-1) return;
+			cjob->run();
+			prevJob = cjob;
+		}
 	}
 
 	void end() {
@@ -158,17 +158,17 @@ public:
 #endif
 
 	void newEpoch() { // within mutex
-		#ifdef DEBUG_MAP_GC
-			statsRemoved += oldGarbage.size();
-		#endif
+#ifdef DEBUG_MAP_GC
+		statsRemoved += oldGarbage.size();
+#endif
 		while (!oldGarbage.empty()) {
-    		delete oldGarbage.back();
-    		oldGarbage.pop_back();
-  		}
-  		globalEpoch++;
-  		remaining = totalThreads;
-  		oldGarbage = std::move(recentGarbage);
-  		recentGarbage.clear();
+			delete oldGarbage.back();
+			oldGarbage.pop_back();
+		}
+		globalEpoch++;
+		remaining = totalThreads;
+		oldGarbage = std::move(recentGarbage);
+		recentGarbage.clear();
 	}
 
 public:
@@ -187,7 +187,7 @@ public:
 	void detachThread(EpochType &localEpoch) {
 		std::lock_guard<std::mutex> guard(mutex);
 		totalThreads--;
-		if (localEpoch < globalEpoch) { 
+		if (localEpoch < globalEpoch) {
 			remaining--;
 			if (remaining == 0)
 				newEpoch();
@@ -200,7 +200,7 @@ public:
 		if (localEpoch < globalEpoch) {
 			localEpoch = globalEpoch;
 			remaining--;
-			if (remaining == 0) 
+			if (remaining == 0)
 				newEpoch();
 		}
 	}
@@ -232,7 +232,7 @@ public:
 		while (true) {
 			HashTable::LockFreeMapEntry* entr = root->array + i;
 			HashType bucketHash = entr->hash.load(std::memory_order_relaxed);
-	
+
 			if (bucketHash == MapHashEmpty) { // not found
 				TRACE(LFMap, 0);
 				return nullptr;
@@ -242,7 +242,7 @@ public:
 			}
 
 			DeltaType delta = entr->deltaNext.load(std::memory_order_relaxed);
-			
+
 			if (delta == MapDeltaEmpty || delta == MapDeltaExtend) {
 				// there's no next bucket or it's not ready yet, giving up
 				return nullptr;
@@ -284,7 +284,7 @@ public:
 					} else {
 						TRACE(LFMap, 4);
 					}
-				
+
 					// if there's a concurrent write or erase (i.e. CAS failed), giving up and pretending that value was overwritten
 					return INSERT_OK;
 				}
@@ -304,7 +304,7 @@ public:
 		for (int d = 0; d < kNeighbourhood; d++) {
 			entr = root->array + ((i + d) & root->sizeMask);
 			HashType bucketHash = entr->hash.load(std::memory_order_relaxed);
-		
+
 			if (bucketHash == MapHashEmpty) { // unallocated bucket
 				int cellsBeforeInsert = root->freeBuckets.fetch_sub(1, std::memory_order_relaxed);
 
@@ -323,8 +323,8 @@ public:
 					prev->deltaNext.store(d > 0 ? d : MapDeltaEmpty, std::memory_order_release);
 					bucketHash = tHash;
 				} else {
-		 	 		TRACE(LFMap, 7);
-		 	 		root->freeBuckets.fetch_add(1, std::memory_order_relaxed);
+					TRACE(LFMap, 7);
+					root->freeBuckets.fetch_add(1, std::memory_order_relaxed);
 				}
 			}
 
@@ -337,7 +337,7 @@ public:
 					TRACE(LFMap, 8);
 				} else {
 					TRACE(LFMap, 9);
-					if (oldValue == MapValMove) 
+					if (oldValue == MapValMove)
 						return INSERT_HELP_MIGRATION;
 				}
 
@@ -370,7 +370,7 @@ struct Migration : public JobCoordinator::Job {
 	std::atomic<int> unitsRemaining;
 	Migration<Map> *prev;
 
-	Migration(Map &self, int numSources) : map(self), sources(numSources), 
+	Migration(Map &self, int numSources) : map(self), sources(numSources),
 		overflowed(false), state(0), unitsRemaining(0), prev(nullptr) {}
 
 	virtual ~Migration() {
@@ -398,7 +398,7 @@ struct Migration : public JobCoordinator::Job {
 				}
 
 				int index = it->index.fetch_add(kMigrationChunkSize, std::memory_order_relaxed);
-				if (index > table->sizeMask) break; // migrate next source 
+				if (index > table->sizeMask) break; // migrate next source
 
 				bool rangeOverflow = migrateRange(table, index);
 				if (rangeOverflow) {
@@ -406,7 +406,7 @@ struct Migration : public JobCoordinator::Job {
 					overflowed.store(true, std::memory_order_relaxed);
 					state.fetch_or(1, std::memory_order_relaxed);
 					goto end_migration;
-				} 
+				}
 
 				int sizeToMigrate = unitsRemaining.fetch_sub(1, std::memory_order_relaxed);
 				if (sizeToMigrate == 1) { // successful data migration
@@ -436,10 +436,10 @@ end_migration:
 			HashTable *origTable = sources[0].table;
 			std::lock_guard<std::mutex> guard(origTable->mutex);
 
-        	JobCoordinator::Job *startedMigration = origTable->coordinator.get();
+			JobCoordinator::Job *startedMigration = origTable->coordinator.get();
 
-        	if (startedMigration == this) { // make sure no new migrations started
-        		Migration *m = new Migration(map, sources.size() + 1);
+			if (startedMigration == this) { // make sure no new migrations started
+				Migration *m = new Migration(map, sources.size() + 1);
 				m->dest = new HashTable((dest->sizeMask + 1) << 1);
 				int unitsRemaining = 0, i = 0;
 				for (TablesIterator it = sources.begin(); it != sources.end(); it++, i++) {
@@ -455,9 +455,9 @@ end_migration:
 				m->prev = this;
 
 				origTable->coordinator.set(m);
-        	} else {
-        		TRACE(LFMap, 21);
-        	}
+			} else {
+				TRACE(LFMap, 21);
+			}
 		}
 	}
 
@@ -505,7 +505,7 @@ end_migration:
 					} else {
 						TRACE(LFMap, 26);
 					}
-					
+
 					break; // next element
 				}
 			}
@@ -614,7 +614,7 @@ public:
 			if (res != MapValMove)
 				return res;
 
-			if (!signalSafeReaders) 
+			if (!signalSafeReaders)
 				root->coordinator.participate();
 		}
 	}

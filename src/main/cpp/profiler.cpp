@@ -17,8 +17,8 @@ TRACE_DEFINE_END(Profiler, kTraceProfilerTotal);
 
 
 bool Profiler::lookupFrameInformation(const JVMPI_CallFrame &frame,
-        jvmtiEnv *jvmti,
-        MethodListener &logWriter) {
+                                      jvmtiEnv *jvmti,
+                                      MethodListener &logWriter) {
     jint error;
     JvmtiScopedPtr<char> methodName(jvmti);
 
@@ -43,12 +43,12 @@ bool Profiler::lookupFrameInformation(const JVMPI_CallFrame &frame,
     // Get class name, put it in signature_ptr
     jclass declaring_class;
     JVMTI_ERROR_RET(
-            jvmti->GetMethodDeclaringClass(frame.method_id, &declaring_class), false);
+        jvmti->GetMethodDeclaringClass(frame.method_id, &declaring_class), false);
 
     JvmtiScopedPtr<char> signature_ptr2(jvmti);
     JVMTI_ERROR_CLEANUP_RET(
-            jvmti->GetClassSignature(declaring_class, signature_ptr2.GetRef(), NULL),
-            false, signature_ptr2.AbandonBecauseOfError());
+        jvmti->GetClassSignature(declaring_class, signature_ptr2.GetRef(), NULL),
+        false, signature_ptr2.AbandonBecauseOfError());
 
     // Get source file, put it in source_name_ptr
     char *fileName;
@@ -63,7 +63,7 @@ bool Profiler::lookupFrameInformation(const JVMPI_CallFrame &frame,
     }
 
     logWriter.recordNewMethod((method_id) frame.method_id, fileName,
-            signature_ptr2.Get(), methodName.Get());
+                              signature_ptr2.Get(), methodName.Get());
 
     return true;
 }
@@ -80,14 +80,14 @@ void Profiler::handle(int signum, siginfo_t *info, void *context) {
     trace.frames = frames;
     JNIEnv *jniEnv = getJNIEnv(jvm_);
     if (jniEnv == NULL) {
-    	trace.num_frames = -3; // ticks_unknown_not_Java
+        trace.num_frames = -3; // ticks_unknown_not_Java
     } else {
-  		trace.env_id = jniEnv;
-	  	ASGCTType asgct = Asgct::GetAsgct();
-		(*asgct)(&trace, configuration_->maxFramesToCapture, context);
+        trace.env_id = jniEnv;
+        ASGCTType asgct = Asgct::GetAsgct();
+        (*asgct)(&trace, configuration_->maxFramesToCapture, context);
     }
     // log all samples, failures included, let the post processing sift through the data
-  	buffer->push(trace);
+    buffer->push(trace);
 }
 
 bool Profiler::start(JNIEnv *jniEnv) {
@@ -120,7 +120,7 @@ void Profiler::stop() {
     if (!__is_running()) {
         TRACE(Profiler, kTraceProfilerStopFailed);
         return;
-    }    
+    }
 
     handler_->stopSigprof();
     processor->stop();
@@ -151,8 +151,8 @@ void Profiler::setFilePath(char *newFilePath) {
 
     TRACE(Profiler, kTraceProfilerSetFileOk);
 
-    if (liveConfiguration->logFilePath && 
-        liveConfiguration->logFilePath != configuration_->logFilePath)
+    if (liveConfiguration->logFilePath &&
+            liveConfiguration->logFilePath != configuration_->logFilePath)
         safe_free_string(liveConfiguration->logFilePath);
 
     /* make local copy of string */
@@ -191,8 +191,8 @@ void Profiler::setMaxFramesToCapture(int maxFramesToCapture) {
 
     TRACE(Profiler, kTraceProfilerSetFramesOk);
 
-    int res = (maxFramesToCapture > 0 && maxFramesToCapture < MAX_FRAMES_TO_CAPTURE) ? 
-        maxFramesToCapture : DEFAULT_MAX_FRAMES_TO_CAPTURE;
+    int res = (maxFramesToCapture > 0 && maxFramesToCapture < MAX_FRAMES_TO_CAPTURE) ?
+              maxFramesToCapture : DEFAULT_MAX_FRAMES_TO_CAPTURE;
     liveConfiguration->maxFramesToCapture = res;
     reloadConfig = true;
 }
@@ -211,17 +211,17 @@ std::string Profiler::getFilePath() {
 
 int Profiler::getSamplingIntervalMin() {
     SimpleSpinLockGuard<false> guard(ongoingConf); // nonblocking
-    return liveConfiguration->samplingIntervalMin; 
+    return liveConfiguration->samplingIntervalMin;
 }
 
 int Profiler::getSamplingIntervalMax() {
     SimpleSpinLockGuard<false> guard(ongoingConf); // nonblocking
-    return liveConfiguration->samplingIntervalMax; 
+    return liveConfiguration->samplingIntervalMax;
 }
 
 int Profiler::getMaxFramesToCapture() {
     SimpleSpinLockGuard<false> guard(ongoingConf); // nonblocking
-    return liveConfiguration->maxFramesToCapture; 
+    return liveConfiguration->maxFramesToCapture;
 }
 
 void Profiler::configure() {
@@ -234,7 +234,7 @@ void Profiler::configure() {
         if (writer) delete writer;
         if (configuration_->logFilePath)
             safe_free_string(configuration_->logFilePath);
-        
+
         char *fileName = liveConfiguration->logFilePath;
         string fileNameStr;
         if (fileName == NULL) {
@@ -255,17 +255,17 @@ void Profiler::configure() {
         }
         writer = new LogWriter(*logFile, &Profiler::lookupFrameInformation, jvmti_, tMap_);
     }
-    
+
     needsUpdate = needsUpdate || configuration_->maxFramesToCapture != liveConfiguration->maxFramesToCapture;
     if (needsUpdate) {
         if (buffer) delete buffer;
         configuration_->maxFramesToCapture = liveConfiguration->maxFramesToCapture;
         buffer = new CircularQueue(*writer, configuration_->maxFramesToCapture);
     }
-    
-    needsUpdate = needsUpdate || 
-        configuration_->samplingIntervalMin != liveConfiguration->samplingIntervalMin || 
-        configuration_->samplingIntervalMax != liveConfiguration->samplingIntervalMax;
+
+    needsUpdate = needsUpdate ||
+                  configuration_->samplingIntervalMin != liveConfiguration->samplingIntervalMin ||
+                  configuration_->samplingIntervalMax != liveConfiguration->samplingIntervalMax;
     if (needsUpdate) {
         if (processor) delete processor;
         if (handler_) delete handler_;
