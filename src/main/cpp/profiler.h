@@ -45,14 +45,14 @@ private:
 public:
     SimpleSpinLockGuard(std::atomic_bool& field, bool relaxed = false) : f(field), rel(relaxed) {
         bool expectedState = false;
-        while (!f.compare_exchange_weak(expectedState, true, std::memory_order_acquire)) { 
-            expectedState = false; 
-            sched_yield(); 
+        while (!f.compare_exchange_weak(expectedState, true, std::memory_order_acquire)) {
+            expectedState = false;
+            sched_yield();
         }
     }
 
     ~SimpleSpinLockGuard() {
-        f.store(false, rel ? std::memory_order_relaxed : std::memory_order_release);   
+        f.store(false, rel ? std::memory_order_relaxed : std::memory_order_release);
     }
 };
 
@@ -68,11 +68,11 @@ public:
 
 class Profiler {
 public:
-    explicit Profiler(JavaVM *jvm, jvmtiEnv *jvmti, ConfigurationOptions *configuration, ThreadMap &tMap) 
+    explicit Profiler(JavaVM *jvm, jvmtiEnv *jvmti, ConfigurationOptions *configuration, ThreadMap &tMap)
         : jvm_(jvm), jvmti_(jvmti), tMap_(tMap), liveConfiguration(configuration),
-        logFile(NULL), writer(NULL), buffer(NULL), processor(NULL), handler_(NULL),
-        ongoingConf(false) {       
-	    // main object graph instantiated here
+          logFile(NULL), writer(NULL), buffer(NULL), processor(NULL), handler_(NULL),
+          ongoingConf(false) {
+        // main object graph instantiated here
         // these objects all live for the lifecycle of the program
 
         // main object graph instantiated here
@@ -81,10 +81,10 @@ public:
         pid = (long) getpid();
 
         // explicitly call setters to validate input params
-        setSamplingInterval(liveConfiguration->samplingIntervalMin, 
-            liveConfiguration->samplingIntervalMax);
+        setSamplingInterval(liveConfiguration->samplingIntervalMin,
+                            liveConfiguration->samplingIntervalMax);
         setMaxFramesToCapture(liveConfiguration->maxFramesToCapture);
-        
+
         configure();
     }
 
@@ -143,8 +143,8 @@ private:
     std::atomic<bool> ongoingConf;
 
     static bool lookupFrameInformation(const JVMPI_CallFrame &frame,
-            jvmtiEnv *jvmti,
-            MethodListener &logWriter);
+                                       jvmtiEnv *jvmti,
+                                       MethodListener &logWriter);
 
     void configure();
 

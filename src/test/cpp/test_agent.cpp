@@ -39,6 +39,7 @@ TEST(ParsesMultipleArguments) {
     CHECK_EQUAL(10, options.samplingIntervalMin);
     CHECK_EQUAL(10, options.samplingIntervalMax);
     CHECK_EQUAL("/home/richard/log.hpl", options.logFilePath);
+    safe_free_string(options.logFilePath);
 
     string = (char *) "logPath=/home/richard/log.hpl,interval=10";
     parseArguments(string, options);

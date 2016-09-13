@@ -34,6 +34,10 @@ public:
 
     bool stopSigprof() { return updateSigprofInterval(0); }
 
+    ~SignalHandler() {
+        delete[] timingIntervals;
+    }
+
 private:
     int intervalIndex;
     int *timingIntervals;

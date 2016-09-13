@@ -13,7 +13,7 @@
 #define GETENV_NEW_THREAD_ASYNC_UNSAFE
 #endif
 
-static ConfigurationOptions* CONFIGURATION = new ConfigurationOptions();
+static ConfigurationOptions* CONFIGURATION;
 static Profiler* prof;
 static Controller* controller;
 static ThreadMap threadMap;
@@ -200,6 +200,7 @@ void JNICALL OnThreadStart(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread thread)
                 }
             }
         }
+        // no need to call attach explicitly
         threadMap.put(jni_env, thread);
     }
     pthread_sigmask(SIG_UNBLOCK, &prof_signal_mask, NULL);
@@ -208,6 +209,7 @@ void JNICALL OnThreadStart(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread thread)
 void JNICALL OnThreadEnd(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread thread) {
     pthread_sigmask(SIG_BLOCK, &prof_signal_mask, NULL);
     threadMap.remove(jni_env);
+    threadMap.detach(); // detach must be called
 }
 
 static bool RegisterJvmti(jvmtiEnv *jvmti) {
@@ -309,6 +311,7 @@ AGENTEXPORT jint JNICALL Agent_OnLoad(JavaVM *jvm, char *options, void *reserved
     IMPLICITLY_USE(reserved);
     int err;
     jvmtiEnv *jvmti;
+    CONFIGURATION = new ConfigurationOptions();
     parseArguments(options, *CONFIGURATION);
 
     if ((err = (jvm->GetEnv(reinterpret_cast<void **>(&jvmti), JVMTI_VERSION))) !=
@@ -352,6 +355,10 @@ AGENTEXPORT void JNICALL Agent_OnUnload(JavaVM *vm) {
 
     if (controller->isRunning())
         controller->stop();
+
+    delete controller;
+    delete prof;
+    delete CONFIGURATION;
 }
 
 void bootstrapHandle(int signum, siginfo_t *info, void *context) {

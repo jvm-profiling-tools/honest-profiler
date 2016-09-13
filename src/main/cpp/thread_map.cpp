@@ -4,7 +4,7 @@
 #include <unistd.h>
 
 #ifdef __APPLE__
-  #include <mach/mach.h>
+#include <mach/mach.h>
 #endif
 
 // taken from Wine's get_unix_tid

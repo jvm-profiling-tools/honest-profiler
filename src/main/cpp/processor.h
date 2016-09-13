@@ -21,9 +21,9 @@ class Processor {
 
 public:
     explicit Processor(jvmtiEnv* jvmti, LogWriter& logWriter,
-            CircularQueue& buffer, SignalHandler& handler, int interval)
-            : jvmti_(jvmti), logWriter_(logWriter), buffer_(buffer), 
-              isRunning_(false), handler_(handler), interval_(interval) {
+                       CircularQueue& buffer, SignalHandler& handler, int interval)
+        : jvmti_(jvmti), logWriter_(logWriter), buffer_(buffer),
+          isRunning_(false), handler_(handler), interval_(interval) {
     }
 
     void start(JNIEnv *jniEnv);
