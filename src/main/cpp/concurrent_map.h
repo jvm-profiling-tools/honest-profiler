@@ -252,12 +252,12 @@ public:
 		}
 	}
 
-	static InsertOutcome insertOrUpdate(HashTable *root, KeyType key, ValueType value, HashFunction hasher) {
+	static InsertOutcome insertOrUpdate(HashTable *root, KeyType key, ValueType value, HashFunction hasher, ValueType& oldValue) {
 		HashType hash = hasher(key);
-		return insertOrUpdate(root, hash, value);
+		return insertOrUpdate(root, hash, value, oldValue);
 	}
 
-	static InsertOutcome insertOrUpdate(HashTable *root, HashType tHash, ValueType value) {
+	static InsertOutcome insertOrUpdate(HashTable *root, HashType tHash, ValueType value, ValueType& oldValue) {
 		int i = tHash & root->sizeMask;
 		int jumps = 0;
 		DeltaType delta = 0;
@@ -276,7 +276,7 @@ public:
 
 				// all items in chain are already allocated
 				if (bucketHash == tHash) { // allocated bucket found
-					ValueType oldValue = prev->value.load(std::memory_order_relaxed);
+					oldValue = prev->value.load(std::memory_order_relaxed);
 					if (oldValue == MapValMove) {
 						return INSERT_HELP_MIGRATION; // indicate overflow
 					} else if (prev->value.compare_exchange_strong(oldValue, value, std::memory_order_acq_rel)) {
@@ -330,7 +330,7 @@ public:
 
 			if (bucketHash == tHash) {
 				// by chance bucket was allocated but unnoticed or allocated by code above
-				ValueType oldValue = entr->value.load(std::memory_order_relaxed); // we are only interested in address
+				oldValue = entr->value.load(std::memory_order_relaxed); // we are only interested in address
 				if (oldValue == MapValMove) {
 					return INSERT_HELP_MIGRATION; // indicate overflow
 				} else if (entr->value.compare_exchange_strong(oldValue, value, std::memory_order_acq_rel)) {
@@ -497,7 +497,8 @@ end_migration:
 
 					// only 1 thread can migrate bucket at time, so srcValue != MapValMove and srcHash is not in dest
 					if (srcValue != MapValEmpty) {
-						InsertOutcome res = LockFreeMapPrimitives::insertOrUpdate(dest, srcHash, srcValue);
+						ValueType oldValue;
+						InsertOutcome res = LockFreeMapPrimitives::insertOrUpdate(dest, srcHash, srcValue, oldValue);
 						if (res == INSERT_OVERFLOW) {
 							entry->value.store(srcValue, std::memory_order_release); // return replaced value
 							return true; // overflow
@@ -516,7 +517,7 @@ end_migration:
 
 class AbstractMapProvider {
 public:
-	virtual void put(KeyType key, ValueType value) = 0;
+	virtual ValueType put(KeyType key, ValueType value) = 0;
 	virtual ValueType get(KeyType key) = 0;
 	virtual ValueType remove(KeyType key) = 0;
 	virtual ~AbstractMapProvider() {}
@@ -583,14 +584,15 @@ public:
 		delete current.load(std::memory_order_consume);
 	}
 
-	void put(KeyType key, ValueType value) {
+	ValueType put(KeyType key, ValueType value) {
 		bool doubleSize = false;
 		while (true) {
 			HashTable *root = current.load(std::memory_order_consume);
-			InsertOutcome res = LockFreeMapPrimitives::insertOrUpdate(root, key, value, hasher);
+			ValueType oldValue;
+			InsertOutcome res = LockFreeMapPrimitives::insertOrUpdate(root, key, value, hasher, oldValue);
 
 			if (res == INSERT_OK) {
-				return;
+				return oldValue;
 			} else if (res == INSERT_OVERFLOW) {
 				migrationStart(root, doubleSize);
 			}

@@ -51,6 +51,8 @@ public:
 
     virtual void record(const JVMPI_CallTrace &trace);
 
+    virtual void startup();    
+
     virtual void terminate();
 
     void recordTraceStart(const jint num_frames, const int64_t threadId);

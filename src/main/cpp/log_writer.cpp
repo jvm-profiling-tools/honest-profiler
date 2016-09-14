@@ -126,8 +126,12 @@ void LogWriter::record(const JVMPI_CallTrace &trace) {
     }
 }
 
+void LogWriter::startup() {
+    tMap_.attachReader();
+}
+
 void LogWriter::terminate() {
-    tMap_.detach();
+    tMap_.detachReader();
 }
 
 void LogWriter::inspectMethod(const method_id methodId,

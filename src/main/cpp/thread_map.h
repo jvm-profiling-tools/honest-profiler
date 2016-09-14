@@ -8,11 +8,6 @@
 
 int gettid();
 
-struct ThreadBucket {
-	int tid;
-	jthread thread;
-};
-
 template <typename PType>
 struct PointerHasher {
 	/* pointer hash bijection (collision-free) */
@@ -25,76 +20,109 @@ struct PointerHasher {
 const int kInitialMapSize = 256;
 const int KSafepointTrigger = 32; // each 32nd read results in safepoint
 
-thread_local static map::GC::EpochType localEpoch = map::GC::kEpochInitial;
-thread_local static int mapUsageCounter = 0;
-
 class GCHelper {
 public:
-	static void safepointOnDemand() {
-		if (!(mapUsageCounter++ & (KSafepointTrigger - 1))) // mapUsageCounter = 0 (mod KSafepointTrigger)
+	static void safepointOnDemand(map::GC::EpochType &localEpoch, unsigned int &count) {
+		if (!(count++ & (KSafepointTrigger - 1))) // count = 0 (mod KSafepointTrigger)
 			map::DefaultGC.safepoint(localEpoch);
 	}
 
-	static void attach() {
-		if (localEpoch == map::GC::kEpochInitial)
-			localEpoch = map::DefaultGC.attachThread();
+	static map::GC::EpochType attach() {
+		return map::DefaultGC.attachThread();
 	}
 
-	static void detach() {
+	static void detach(map::GC::EpochType &localEpoch) {
 		if (localEpoch != map::GC::kEpochInitial)
 			map::DefaultGC.detachThread(localEpoch);
 	}
 
-	static void safepoint() {
-		if (localEpoch == map::GC::kEpochInitial) attach();
+	static void safepoint(map::GC::EpochType &localEpoch) {
 		map::DefaultGC.safepoint(localEpoch);
 	}
 };
 
+struct ThreadBucket {
+	const int tid;
+	const jthread thread;
+	map::GC::EpochType localEpoch;
+	std::atomic_int refs;
+
+	ThreadBucket(int id, jthread thr) : tid(id), thread(thr), localEpoch(GCHelper::attach()), refs(1) {
+	}
+};
+
+// MWSR
 template <typename MapProvider>
 class ThreadMapBase {
 private:
 	MapProvider map;
+	map::GC::EpochType readerEpoch;
+	unsigned int readerCounter;
+
+	static ThreadBucket *acq_bucket(ThreadBucket *tb) {
+		if (tb != nullptr) {
+			int prev = tb->refs.fetch_add(1, std::memory_order_relaxed);
+			if (prev > 0) {
+				return tb;
+			}
+			tb->refs.fetch_sub(1, std::memory_order_relaxed);
+		}
+		return nullptr;
+	}
+
+	static void rel_bucket(ThreadBucket *tb, JNIEnv *jni_env) {
+		if (tb != nullptr) {
+			int prev = tb->refs.fetch_sub(1, std::memory_order_acquire);
+			if (prev == 1) {
+				jni_env->DeleteGlobalRef(tb->thread);
+				delete tb;
+			}
+		}
+	}
 
 public:
 
-	ThreadMapBase(int capacity = kInitialMapSize) : map(capacity) {}
+	ThreadMapBase(int capacity = kInitialMapSize) : map(capacity) {
+		readerEpoch = map::GC::kEpochInitial;
+		readerCounter = 0;
+	}
 
 	void put(JNIEnv *jni_env, jthread thread) {
 		put(jni_env, thread, gettid());
 	}
 
 	void put(JNIEnv *jni_env, jthread thread, int tid, bool globalRef = true) {
-		GCHelper::attach();
-		ThreadBucket *info = new ThreadBucket;
-		info->tid = tid;
-		info->thread = globalRef ? thread : jni_env->NewGlobalRef(thread);
-		map.put((map::KeyType)jni_env, (map::ValueType)info);
-		GCHelper::safepoint(); // each thread inserts once
+		// constructor == call to acquire
+		ThreadBucket *info = new ThreadBucket(tid, globalRef ? thread : jni_env->NewGlobalRef(thread));
+		ThreadBucket *old = (ThreadBucket*)map.put((map::KeyType)jni_env, (map::ValueType)info);
+		rel_bucket(old, jni_env);
+		GCHelper::safepoint(info->localEpoch); // each thread inserts once
 	}
 
 	ThreadBucket *get(JNIEnv *jni_env) {
-		GCHelper::attach();
-		GCHelper::safepointOnDemand();
-		return reinterpret_cast<ThreadBucket*>(map.get((map::KeyType)jni_env));
+		GCHelper::safepointOnDemand(readerEpoch, readerCounter);
+		return acq_bucket((ThreadBucket*)map.get((map::KeyType)jni_env));
 	}
 
 	void remove(JNIEnv *jni_env) {
-		GCHelper::attach();
 		ThreadBucket *info = (ThreadBucket*)map.remove((map::KeyType)jni_env);
 		if (info) {
-			jni_env->DeleteGlobalRef(info->thread);
-			delete info;
+			GCHelper::detach(info->localEpoch);
+			rel_bucket(info, jni_env);
 		}
-		GCHelper::safepoint(); // each thread deletes once
 	}
 
-	void attach() {
-		GCHelper::attach();
+	void attachReader() {
+		if (readerEpoch == map::GC::kEpochInitial) {
+			readerEpoch = GCHelper::attach();
+			readerCounter = 0;
+		}
 	}
 
-	void detach() {
-		GCHelper::detach();
+	void detachReader() {
+		if (readerEpoch != map::GC::kEpochInitial) {
+			GCHelper::detach(readerEpoch);
+		}
 	}
 };
 
