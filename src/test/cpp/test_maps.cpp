@@ -9,7 +9,13 @@
 
 using namespace map;
 
-typedef ConcurrentMapProvider<PointerHasher<int>, false> TestLockFreeMap;
+struct TestHasher {
+	static int64_t hash(void *p) {
+  		return (int64_t)p / sizeof(int);
+	}
+};
+
+typedef ConcurrentMapProvider<TestHasher, false> TestLockFreeMap;
 typedef void (*MapFunction)(AbstractMapProvider &, void **, void **, std::atomic<void*> *, size_t, bool);
 
 void **allocateTestBuffer(size_t size) {
@@ -33,32 +39,32 @@ void deallocateTestBuffer(void **b, size_t size) {
 #define IDX(rev, i, sz) ((rev) ? (sz - 1 - i) : (i))
 
 void mapWriter(AbstractMapProvider &map, void **keys, void **values, std::atomic<void*> *result, size_t size, bool reverse=false) {
-	GCHelper::attach();
+	map::GC::EpochType id = GCHelper::attach();
 	for (int i = 0; i < size; i++) {
 		map.put(keys[IDX(reverse, i, size)], values[IDX(reverse, i, size)]);
 	}
-	GCHelper::safepoint();
-	GCHelper::detach();
+	GCHelper::safepoint(id);
+	GCHelper::detach(id);
 }
 
 void mapReader(AbstractMapProvider &map, void **keys, void **values, std::atomic<void*> *result, size_t size, bool reverse=false) {
-	GCHelper::attach();
+	map::GC::EpochType id = GCHelper::attach();
 	for (int i = 0; i < size; i++) {
 		void *res = map.get(keys[IDX(reverse, i, size)]);
 		result[IDX(reverse, i, size)].store(res, std::memory_order_relaxed);
 	}
-	GCHelper::safepoint();
-	GCHelper::detach();
+	GCHelper::safepoint(id);
+	GCHelper::detach(id);
 }
 
 void mapRemover(AbstractMapProvider &map, void **keys, void **values, std::atomic<void*> *result, size_t size, bool reverse=false) {
-	GCHelper::attach();
+	map::GC::EpochType id = GCHelper::attach();
 	for (int i = 0; i < size; i++) {
 		void *res = map.remove(keys[IDX(reverse, i, size)]);
 		result[IDX(reverse, i, size)].store(res, std::memory_order_relaxed);
 	}
-	GCHelper::safepoint();
-	GCHelper::detach();
+	GCHelper::safepoint(id);
+	GCHelper::detach(id);
 }
 
 template <bool overlap=false, bool altDirection=false>
@@ -182,7 +188,7 @@ TEST(LockFreeHashMapBasicConcurrentChecks) {
 
 	void *res;
 
-	GCHelper::attach();
+	map::GC::EpochType id = GCHelper::attach();
 
 	mapReader(map, keys, values, results, 1);
 	CHECK_ARRAY_EQUAL(nullarr, results, 1);
@@ -197,7 +203,7 @@ TEST(LockFreeHashMapBasicConcurrentChecks) {
 	CHECK_EQUAL((void*)NULL, res);
 	remover.join();
 
-	GCHelper::detach();
+	GCHelper::detach(id);
 
 	CHECK_EQUAL(0, map.unsafeUsed());
 #ifdef DEBUG_MAP_GC
@@ -319,7 +325,7 @@ TEST(LockFreeHashMapConcurrentMixedLoad) {
 			bool *conditions = new bool[bSize]();
 			int conditionsMet = 0;
 
-			GCHelper::attach();
+			map::GC::EpochType id = GCHelper::attach();
 			
 			while (conditionsMet < bSize) {
 				for (int i = 0; i < jobSize; ++i) {
@@ -334,11 +340,11 @@ TEST(LockFreeHashMapConcurrentMixedLoad) {
 						if (conditions[i + jobSize]) conditionsMet++;
 					}
 				}
-				GCHelper::safepoint();
+				GCHelper::safepoint(id);
 			}
 			delete[] conditions;
 
-			GCHelper::detach();
+			GCHelper::detach(id);
 
 			writer.join();
 			remover.join();

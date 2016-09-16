@@ -200,8 +200,7 @@ void JNICALL OnThreadStart(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread thread)
                 }
             }
         }
-        // no need to call attach explicitly
-        threadMap.put(jni_env, thread);
+        threadMap.put(jni_env, thread_info.name);
     }
     pthread_sigmask(SIG_UNBLOCK, &prof_signal_mask, NULL);
 }
@@ -209,7 +208,6 @@ void JNICALL OnThreadStart(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread thread)
 void JNICALL OnThreadEnd(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread thread) {
     pthread_sigmask(SIG_BLOCK, &prof_signal_mask, NULL);
     threadMap.remove(jni_env);
-    threadMap.detach(); // detach must be called
 }
 
 static bool RegisterJvmti(jvmtiEnv *jvmti) {

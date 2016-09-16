@@ -22,29 +22,6 @@ void LogWriter::writeValue(const T &value) {
     }
 }
 
-static int64_t getThreadId(JNIEnv *env_id, jvmtiEnv *tiEnv, ThreadMap &tMap) {
-    ThreadBucket *tInfo = tMap.get(env_id);
-    if (tInfo && tInfo->tid > 0) {
-        return (int64_t)tInfo->tid;
-    }
-    return (int64_t)env_id;
-}
-
-static void getThreadName(JNIEnv *env_id, jvmtiEnv *tiEnv, ThreadMap &tMap, char *buff, int buffsz) {
-    jvmtiThreadInfo thread_info;
-    char *src = (char*)"Unknown";
-    ThreadBucket *tInfo = tMap.get(env_id);
-    if (tInfo && tInfo->tid > 0) {
-        int error = tiEnv->GetThreadInfo(tInfo->thread, &thread_info);
-        if (error == JNI_OK) {
-            src = thread_info.name;
-        }
-    }
-    int symbols = std::min((int)strlen(src), buffsz - 1);
-    strncpy(buff, src, symbols);
-    buff[symbols] = '\0';
-}
-
 static jint bci2line(jint bci, jvmtiLineNumberEntry *table, jint entry_count) {
 	jint line_number = -101;
 	if ( entry_count == 0 ) {
@@ -101,12 +78,17 @@ jint LogWriter::getLineNo(jint bci, jmethodID methodId) {
     return lineno;
 }
 
-void LogWriter::record(const JVMPI_CallTrace &trace) {
-    constexpr const int size = 128;
-    char namebuff[size];
+void LogWriter::record(const JVMPI_CallTrace &trace, ThreadBucket *info) {
+    map::HashType threadId = (map::HashType) trace.env_id;
+    // char *src = (char*)"";
 
-    int64_t threadId = getThreadId(trace.env_id, jvmti_, tMap_);
-    getThreadName(trace.env_id, jvmti_, tMap_, namebuff, size);
+    if (info) {
+        threadId = (map::HashType) info->tid;
+        // src = info->name;
+    }
+
+    // std::cout << "#### thread: " << trace.env_id << ", tid: " << threadId << ", src: " << src << std::endl;
+
     recordTraceStart(trace.num_frames, threadId);
 
     for (int i = 0; i < trace.num_frames; i++) {
@@ -124,10 +106,9 @@ void LogWriter::record(const JVMPI_CallTrace &trace) {
         }
         inspectMethod(methodId, frame);
     }
-}
 
-void LogWriter::terminate() {
-    tMap_.detach();
+    if (info != nullptr)
+        info->release();
 }
 
 void LogWriter::inspectMethod(const method_id methodId,
@@ -140,7 +121,7 @@ void LogWriter::inspectMethod(const method_id methodId,
     frameLookup_(frame, jvmti_, *this);
 }
 
-void LogWriter::recordTraceStart(const jint numFrames, const int64_t threadId) {
+void LogWriter::recordTraceStart(const jint numFrames, const map::HashType threadId) {
     output_.put(TRACE_START);
     writeValue(numFrames);
     writeValue(threadId);
@@ -169,7 +150,7 @@ void LogWriter::writeWithSize(const char *value) {
     output_.write(value, size);
 }
 
-void LogWriter::recordNewMethod(const int64_t methodId, const char *fileName,
+void LogWriter::recordNewMethod(const map::HashType methodId, const char *fileName,
         const char *className, const char *methodName) {
     output_.put(NEW_METHOD);
     writeValue(methodId);

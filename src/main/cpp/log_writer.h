@@ -45,15 +45,13 @@ class LogWriter : public QueueListener, public MethodListener {
 
 public:
     explicit LogWriter(ostream &output, GetFrameInformation frameLookup,
-            jvmtiEnv *jvmti, ThreadMap &tMap)
-            : output_(output), frameLookup_(frameLookup), jvmti_(jvmti), tMap_(tMap) {
+            jvmtiEnv *jvmti)
+            : output_(output), frameLookup_(frameLookup), jvmti_(jvmti) {
     }
 
-    virtual void record(const JVMPI_CallTrace &trace);
+    virtual void record(const JVMPI_CallTrace &trace, ThreadBucket *info = nullptr);
 
-    virtual void terminate();
-
-    void recordTraceStart(const jint num_frames, const int64_t threadId);
+    void recordTraceStart(const jint num_frames, const map::HashType threadId);
 
     // method are unique pointers, use a long to standardise
     // between 32 and 64 bits
@@ -70,8 +68,6 @@ private:
     GetFrameInformation frameLookup_;
 
     jvmtiEnv *jvmti_;
-
-    ThreadMap &tMap_;
 
     unordered_set<method_id> knownMethods;
 

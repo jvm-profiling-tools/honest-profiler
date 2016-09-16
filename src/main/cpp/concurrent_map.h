@@ -9,9 +9,9 @@
  */
 
 #if __GNUC__ == 4 && __GNUC_MINOR__ < 6 && !defined(__APPLE__) && !defined(__FreeBSD__)
-#include <cstdatomic>
+#	include <cstdatomic>
 #else
-#include <atomic>
+#	include <atomic>
 #endif
 
 #include <vector>
@@ -147,8 +147,8 @@ class GC {
 private:
 	std::mutex mutex;
 	int totalThreads;
-	int globalEpoch;
-	int remaining;
+	std::atomic_int globalEpoch;
+	std::atomic_int remaining;
 	std::vector<HashTable*> recentGarbage;
 	std::vector<HashTable*> oldGarbage;
 #ifdef DEBUG_MAP_GC
@@ -165,8 +165,8 @@ public:
 			delete oldGarbage.back();
 			oldGarbage.pop_back();
 		}
-		globalEpoch++;
-		remaining = totalThreads;
+		globalEpoch.fetch_add(1, std::memory_order_relaxed);
+		remaining.store(totalThreads, std::memory_order_relaxed);
 		oldGarbage = std::move(recentGarbage);
 		recentGarbage.clear();
 	}
@@ -180,28 +180,44 @@ public:
 	EpochType attachThread() {
 		std::lock_guard<std::mutex> guard(mutex);
 		totalThreads++;
-		remaining++;
-		return globalEpoch - 1; // force thread to move to global epoch at least once
+		remaining.fetch_add(1, std::memory_order_relaxed);
+		return globalEpoch.load(std::memory_order_relaxed) - 1; // force thread to move to global epoch at least once
 	}
 
 	void detachThread(EpochType &localEpoch) {
 		std::lock_guard<std::mutex> guard(mutex);
 		totalThreads--;
+		int rem;
 		if (localEpoch < globalEpoch) {
-			remaining--;
-			if (remaining == 0)
-				newEpoch();
+			rem = remaining.fetch_sub(1, std::memory_order_relaxed) - 1;
+		} else {
+			rem = remaining.load(std::memory_order_relaxed);
 		}
+		if (rem == 0) 
+			newEpoch();
 		localEpoch = kEpochInitial;
 	}
 
 	void safepoint(EpochType &localEpoch) {
 		std::lock_guard<std::mutex> guard(mutex);
+		int rem;
+
 		if (localEpoch < globalEpoch) {
 			localEpoch = globalEpoch;
-			remaining--;
-			if (remaining == 0)
-				newEpoch();
+			rem = remaining.fetch_sub(1, std::memory_order_relaxed) - 1;
+		} else {
+			rem = remaining.load(std::memory_order_relaxed);
+		}
+		if (rem == 0)
+			newEpoch();
+	}
+
+	/* for reads within signal handler */
+	void ss_safepoint(EpochType &localEpoch) {
+		EpochType global = globalEpoch.load(std::memory_order_relaxed);
+		if (localEpoch < global) { // no thread can move global epoch since remaining > 0
+			remaining.fetch_sub(1, std::memory_order_relaxed);
+			localEpoch = global;
 		}
 	}
 
@@ -252,12 +268,12 @@ public:
 		}
 	}
 
-	static InsertOutcome insertOrUpdate(HashTable *root, KeyType key, ValueType value, HashFunction hasher) {
+	static InsertOutcome insertOrUpdate(HashTable *root, KeyType key, ValueType value, HashFunction hasher, ValueType& oldValue) {
 		HashType hash = hasher(key);
-		return insertOrUpdate(root, hash, value);
+		return insertOrUpdate(root, hash, value, oldValue);
 	}
 
-	static InsertOutcome insertOrUpdate(HashTable *root, HashType tHash, ValueType value) {
+	static InsertOutcome insertOrUpdate(HashTable *root, HashType tHash, ValueType value, ValueType& oldValue) {
 		int i = tHash & root->sizeMask;
 		int jumps = 0;
 		DeltaType delta = 0;
@@ -276,7 +292,7 @@ public:
 
 				// all items in chain are already allocated
 				if (bucketHash == tHash) { // allocated bucket found
-					ValueType oldValue = prev->value.load(std::memory_order_relaxed);
+					oldValue = prev->value.load(std::memory_order_relaxed);
 					if (oldValue == MapValMove) {
 						return INSERT_HELP_MIGRATION; // indicate overflow
 					} else if (prev->value.compare_exchange_strong(oldValue, value, std::memory_order_acq_rel)) {
@@ -330,7 +346,7 @@ public:
 
 			if (bucketHash == tHash) {
 				// by chance bucket was allocated but unnoticed or allocated by code above
-				ValueType oldValue = entr->value.load(std::memory_order_relaxed); // we are only interested in address
+				oldValue = entr->value.load(std::memory_order_relaxed); // we are only interested in address
 				if (oldValue == MapValMove) {
 					return INSERT_HELP_MIGRATION; // indicate overflow
 				} else if (entr->value.compare_exchange_strong(oldValue, value, std::memory_order_acq_rel)) {
@@ -497,7 +513,8 @@ end_migration:
 
 					// only 1 thread can migrate bucket at time, so srcValue != MapValMove and srcHash is not in dest
 					if (srcValue != MapValEmpty) {
-						InsertOutcome res = LockFreeMapPrimitives::insertOrUpdate(dest, srcHash, srcValue);
+						ValueType oldValue;
+						InsertOutcome res = LockFreeMapPrimitives::insertOrUpdate(dest, srcHash, srcValue, oldValue);
 						if (res == INSERT_OVERFLOW) {
 							entry->value.store(srcValue, std::memory_order_release); // return replaced value
 							return true; // overflow
@@ -516,7 +533,7 @@ end_migration:
 
 class AbstractMapProvider {
 public:
-	virtual void put(KeyType key, ValueType value) = 0;
+	virtual ValueType put(KeyType key, ValueType value) = 0;
 	virtual ValueType get(KeyType key) = 0;
 	virtual ValueType remove(KeyType key) = 0;
 	virtual ~AbstractMapProvider() {}
@@ -583,14 +600,15 @@ public:
 		delete current.load(std::memory_order_consume);
 	}
 
-	void put(KeyType key, ValueType value) {
+	ValueType put(KeyType key, ValueType value) {
 		bool doubleSize = false;
 		while (true) {
 			HashTable *root = current.load(std::memory_order_consume);
-			InsertOutcome res = LockFreeMapPrimitives::insertOrUpdate(root, key, value, hasher);
+			ValueType oldValue;
+			InsertOutcome res = LockFreeMapPrimitives::insertOrUpdate(root, key, value, hasher, oldValue);
 
 			if (res == INSERT_OK) {
-				return;
+				return oldValue;
 			} else if (res == INSERT_OVERFLOW) {
 				migrationStart(root, doubleSize);
 			}
