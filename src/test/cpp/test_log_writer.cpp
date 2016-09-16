@@ -25,8 +25,7 @@ bool stubFrameInformation(const JVMPI_CallFrame &frame, jvmtiEnv *jvmti,
   char buffer[100] = {};                                                       \
   ostreambuf<char> outputBuffer(buffer, sizeof(buffer));                       \
   ostream output(&outputBuffer);                                               \
-  ThreadMap emptyMapStub;                                                      \
-  LogWriter logWriter(output, &stubFrameInformation, NULL, emptyMapStub);      \
+  LogWriter logWriter(output, &stubFrameInformation, NULL);                    \
   CircularQueue *queue = new CircularQueue(logWriter, DEFAULT_MAX_FRAMES_TO_CAPTURE);
 
 #define done() delete queue;
@@ -157,9 +156,8 @@ bool dumpStubFrameInformation(const JVMPI_CallFrame &frame, jvmtiEnv *jvmti,
 TEST(DumpTestFile) {
   givenStackTrace();
 
-  ThreadMap tMap;
   ofstream output("dump.hpl", ofstream::out | ofstream::binary);
-  LogWriter logWriter(output, &dumpStubFrameInformation, NULL, tMap);
+  LogWriter logWriter(output, &dumpStubFrameInformation, NULL);
 
   logWriter.record(trace);
   logWriter.record(trace);
