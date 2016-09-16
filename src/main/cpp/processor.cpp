@@ -28,7 +28,6 @@ TRACE_DEFINE_END(Processor, kTraceProcessorTotal);
 
 void Processor::run() {
     int popped = 0;
-    logWriter_.startup();
 
     while (true) {
         while (buffer_.pop()) {
@@ -50,7 +49,6 @@ void Processor::run() {
     }
 
     handler_.stopSigprof();
-    logWriter_.terminate(); // make sure processing thread is detached from thread map
     workerDone.clear(std::memory_order_relaxed);
     // no shared data access after this point, can be safely deleted
 }

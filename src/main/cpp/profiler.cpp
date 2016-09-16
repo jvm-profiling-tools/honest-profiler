@@ -72,6 +72,7 @@ void Profiler::handle(int signum, siginfo_t *info, void *context) {
     IMPLICITLY_USE(signum);
     IMPLICITLY_USE(info);
     SimpleSpinLockGuard<false> guard(ongoingConf); // sync buffer
+    ThreadBucket *threadInfo;
 
     // sample data structure
     STATIC_ARRAY(frames, JVMPI_CallFrame, configuration_->maxFramesToCapture, MAX_FRAMES_TO_CAPTURE);
@@ -81,13 +82,15 @@ void Profiler::handle(int signum, siginfo_t *info, void *context) {
     JNIEnv *jniEnv = getJNIEnv(jvm_);
     if (jniEnv == NULL) {
         trace.num_frames = -3; // ticks_unknown_not_Java
+        threadInfo = nullptr;
     } else {
         trace.env_id = jniEnv;
         ASGCTType asgct = Asgct::GetAsgct();
         (*asgct)(&trace, configuration_->maxFramesToCapture, context);
+        threadInfo = tMap_.get(jniEnv);
     }
     // log all samples, failures included, let the post processing sift through the data
-    buffer->push(trace);
+    buffer->push(trace, threadInfo);
 }
 
 bool Profiler::start(JNIEnv *jniEnv) {

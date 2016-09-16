@@ -9,9 +9,9 @@
  */
 
 #if __GNUC__ == 4 && __GNUC_MINOR__ < 6 && !defined(__APPLE__) && !defined(__FreeBSD__)
-#include <cstdatomic>
+#	include <cstdatomic>
 #else
-#include <atomic>
+#	include <atomic>
 #endif
 
 #include <vector>
@@ -147,8 +147,8 @@ class GC {
 private:
 	std::mutex mutex;
 	int totalThreads;
-	int globalEpoch;
-	int remaining;
+	std::atomic_int globalEpoch;
+	std::atomic_int remaining;
 	std::vector<HashTable*> recentGarbage;
 	std::vector<HashTable*> oldGarbage;
 #ifdef DEBUG_MAP_GC
@@ -165,8 +165,8 @@ public:
 			delete oldGarbage.back();
 			oldGarbage.pop_back();
 		}
-		globalEpoch++;
-		remaining = totalThreads;
+		globalEpoch.fetch_add(1, std::memory_order_relaxed);
+		remaining.store(totalThreads, std::memory_order_relaxed);
 		oldGarbage = std::move(recentGarbage);
 		recentGarbage.clear();
 	}
@@ -180,28 +180,44 @@ public:
 	EpochType attachThread() {
 		std::lock_guard<std::mutex> guard(mutex);
 		totalThreads++;
-		remaining++;
-		return globalEpoch - 1; // force thread to move to global epoch at least once
+		remaining.fetch_add(1, std::memory_order_relaxed);
+		return globalEpoch.load(std::memory_order_relaxed) - 1; // force thread to move to global epoch at least once
 	}
 
 	void detachThread(EpochType &localEpoch) {
 		std::lock_guard<std::mutex> guard(mutex);
 		totalThreads--;
+		int rem;
 		if (localEpoch < globalEpoch) {
-			remaining--;
-			if (remaining == 0)
-				newEpoch();
+			rem = remaining.fetch_sub(1, std::memory_order_relaxed) - 1;
+		} else {
+			rem = remaining.load(std::memory_order_relaxed);
 		}
+		if (rem == 0) 
+			newEpoch();
 		localEpoch = kEpochInitial;
 	}
 
 	void safepoint(EpochType &localEpoch) {
 		std::lock_guard<std::mutex> guard(mutex);
+		int rem;
+
 		if (localEpoch < globalEpoch) {
 			localEpoch = globalEpoch;
-			remaining--;
-			if (remaining == 0)
-				newEpoch();
+			rem = remaining.fetch_sub(1, std::memory_order_relaxed) - 1;
+		} else {
+			rem = remaining.load(std::memory_order_relaxed);
+		}
+		if (rem == 0)
+			newEpoch();
+	}
+
+	/* for reads within signal handler */
+	void ss_safepoint(EpochType &localEpoch) {
+		EpochType global = globalEpoch.load(std::memory_order_relaxed);
+		if (localEpoch < global) { // no thread can move global epoch since remaining > 0
+			remaining.fetch_sub(1, std::memory_order_relaxed);
+			localEpoch = global;
 		}
 	}
 

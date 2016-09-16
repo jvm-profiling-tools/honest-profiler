@@ -9,7 +9,13 @@
 
 using namespace map;
 
-typedef ConcurrentMapProvider<PointerHasher<int>, false> TestLockFreeMap;
+struct TestHasher {
+	static int64_t hash(void *p) {
+  		return (int64_t)p / sizeof(int);
+	}
+};
+
+typedef ConcurrentMapProvider<TestHasher, false> TestLockFreeMap;
 typedef void (*MapFunction)(AbstractMapProvider &, void **, void **, std::atomic<void*> *, size_t, bool);
 
 void **allocateTestBuffer(size_t size) {

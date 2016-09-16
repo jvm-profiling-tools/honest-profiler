@@ -200,8 +200,7 @@ void JNICALL OnThreadStart(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread thread)
                 }
             }
         }
-        // no need to call attach explicitly
-        threadMap.put(jni_env, thread);
+        threadMap.put(jni_env, thread_info.name);
     }
     pthread_sigmask(SIG_UNBLOCK, &prof_signal_mask, NULL);
 }
