@@ -3,6 +3,13 @@
 #include <unistd.h>
 
 bool CircularQueue::push(const JVMPI_CallTrace &item, ThreadBucket *info) {
+    timespec spec;
+    TimeUtils::current_utc_time(&spec);
+
+    return push(spec, item, info);
+}
+
+bool CircularQueue::push(const timespec &ts, const JVMPI_CallTrace &item, ThreadBucket *info) {
     size_t currentInput;
     size_t nextInput;
     do {
@@ -14,6 +21,8 @@ bool CircularQueue::push(const JVMPI_CallTrace &item, ThreadBucket *info) {
         // TODO: have someone review the memory ordering constraints
     } while (!input.compare_exchange_strong(currentInput, nextInput, std::memory_order_relaxed));
     write(item, currentInput);
+    buffer[currentInput].tspec.tv_sec = ts.tv_sec;
+    buffer[currentInput].tspec.tv_nsec = ts.tv_nsec;
     buffer[currentInput].info = info;
     buffer[currentInput].is_committed.store(COMMITTED, std::memory_order_release);
 
@@ -48,7 +57,7 @@ bool CircularQueue::pop() {
         usleep(1);
     }
 
-    listener_.record(buffer[current_output].trace, buffer[current_output].info);
+    listener_.record(buffer[current_output].tspec, buffer[current_output].trace, buffer[current_output].info);
     
     // 0 out all frames so the next write is clean
     JVMPI_CallFrame *fb = frame_buffer_[current_output];

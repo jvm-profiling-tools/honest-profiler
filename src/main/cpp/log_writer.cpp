@@ -79,17 +79,14 @@ jint LogWriter::getLineNo(jint bci, jmethodID methodId) {
 }
 
 void LogWriter::record(const JVMPI_CallTrace &trace, ThreadBucket *info) {
-    map::HashType threadId = (map::HashType) trace.env_id;
-    // char *src = (char*)"";
+    timespec spec;
+    TimeUtils::current_utc_time(&spec);
 
-    if (info) {
-        threadId = (map::HashType) info->tid;
-        // src = info->name;
-    }
+    record(spec, trace, info);
+}
 
-    // std::cout << "#### thread: " << trace.env_id << ", tid: " << threadId << ", src: " << src << std::endl;
-
-    recordTraceStart(trace.num_frames, threadId);
+void LogWriter::record(const timespec &ts, const JVMPI_CallTrace &trace, ThreadBucket *info) {
+    recordTraceStart(trace.num_frames, (map::HashType)trace.env_id, ts, info);
 
     for (int i = 0; i < trace.num_frames; i++) {
         JVMPI_CallFrame frame = trace.frames[i];
@@ -121,10 +118,21 @@ void LogWriter::inspectMethod(const method_id methodId,
     frameLookup_(frame, jvmti_, *this);
 }
 
-void LogWriter::recordTraceStart(const jint numFrames, const map::HashType threadId) {
+void LogWriter::recordTraceStart(const jint numFrames, map::HashType envHash, const timespec &ts, ThreadBucket *info) {
+    map::HashType threadId = envHash;
+    char *threadName = (char*)"";
+
+    if (info) {
+        threadId = (map::HashType) info->tid;
+        threadName = info->name;
+    }
+
     output_.put(TRACE_START);
     writeValue(numFrames);
     writeValue(threadId);
+    writeValue((int64_t)ts.tv_sec);
+    writeValue((int64_t)ts.tv_nsec);
+    writeWithSize(threadName);
     output_.flush();
 }
 

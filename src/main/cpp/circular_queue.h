@@ -8,8 +8,10 @@
 
 #include "thread_map.h"
 #include "stacktraces.h"
+#include <time.h>
 #include <string.h>
 #include <cstddef>
+#include <time.h>
 
 const size_t Size = 1024;
 
@@ -21,7 +23,7 @@ const size_t Capacity = Size + 1;
 
 class QueueListener {
 public:
-    virtual void record(const JVMPI_CallTrace &item, ThreadBucket *info = nullptr) = 0;
+    virtual void record(const timespec &ts, const JVMPI_CallTrace &item, ThreadBucket *info = nullptr) = 0;
 
     virtual ~QueueListener() {
     }
@@ -31,6 +33,7 @@ const int COMMITTED = 1;
 const int UNCOMMITTED = 0;
 
 struct TraceHolder {
+    timespec tspec;
     std::atomic<int> is_committed;
     JVMPI_CallTrace trace;
     ThreadBucket *info;
@@ -49,6 +52,8 @@ public:
         for (int i = 0; i < Capacity; ++i)
             delete[] frame_buffer_[i];
     }
+
+    bool push(const timespec &ts, const JVMPI_CallTrace &item, ThreadBucket *info = nullptr);
 
     bool push(const JVMPI_CallTrace &item, ThreadBucket *info = nullptr);
 

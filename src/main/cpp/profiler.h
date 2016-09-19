@@ -146,6 +146,8 @@ private:
                                        jvmtiEnv *jvmti,
                                        MethodListener &logWriter);
 
+    static void current_utc_time(timespec *ts);
+
     void configure();
 
     bool __is_running();

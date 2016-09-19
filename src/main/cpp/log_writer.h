@@ -49,9 +49,11 @@ public:
             : output_(output), frameLookup_(frameLookup), jvmti_(jvmti) {
     }
 
-    virtual void record(const JVMPI_CallTrace &trace, ThreadBucket *info = nullptr);
+    virtual void record(const timespec &ts, const JVMPI_CallTrace &trace, ThreadBucket *info = nullptr);
 
-    void recordTraceStart(const jint num_frames, const map::HashType threadId);
+    void record(const JVMPI_CallTrace &trace, ThreadBucket *info = nullptr);
+
+    void recordTraceStart(const jint numFrames, map::HashType envHash, const timespec &ts, ThreadBucket *info);
 
     // method are unique pointers, use a long to standardise
     // between 32 and 64 bits

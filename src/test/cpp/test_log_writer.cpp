@@ -26,29 +26,39 @@ bool stubFrameInformation(const JVMPI_CallFrame &frame, jvmtiEnv *jvmti,
   ostreambuf<char> outputBuffer(buffer, sizeof(buffer));                       \
   ostream output(&outputBuffer);                                               \
   LogWriter logWriter(output, &stubFrameInformation, NULL);                    \
-  CircularQueue *queue = new CircularQueue(logWriter, DEFAULT_MAX_FRAMES_TO_CAPTURE);
+  CircularQueue *queue = new CircularQueue(logWriter, DEFAULT_MAX_FRAMES_TO_CAPTURE);  
 
 #define done() delete queue;
 
 TEST(RecordsStartOfStackTrace) {
   givenLogWriter();
+  ThreadBucket threadInfo(22, "Thr-222");
+  timespec tspec = {44, 55};
 
-  logWriter.recordTraceStart(2, 3);
+  logWriter.recordTraceStart(2, 3, tspec, &threadInfo);
+
   CHECK_EQUAL(TRACE_START, buffer[0]);
   CHECK_EQUAL(2, buffer[4]);
-  CHECK_EQUAL(3, buffer[12]);
+  CHECK_EQUAL(22, buffer[12]);
+  CHECK_EQUAL(44, buffer[20]);
+  CHECK_EQUAL(55, buffer[28]);
+  CHECK_EQUAL(strlen(threadInfo.name), buffer[32]);
+  CHECK_ARRAY_EQUAL(threadInfo.name, &buffer[33], strlen(threadInfo.name));
 
+  GCHelper::detach(threadInfo.localEpoch);
   done();
 }
 
 TEST(SupportsHighThreadId) {
   givenLogWriter();
+  timespec tspec = {44, 55};
 
   // LONG_MAX
   long bigNumber = std::numeric_limits<long>::max();
-  logWriter.recordTraceStart(2, bigNumber);
+  logWriter.recordTraceStart(2, (map::HashType)bigNumber, tspec, nullptr);
   CHECK_EQUAL(bigNumber & 0x000000ff, buffer[12]);
   CHECK_EQUAL(bigNumber & 0x0000ff00 >> 8, buffer[11]);
+  CHECK_EQUAL(0, buffer[32]);
 
   done();
 }
@@ -94,6 +104,9 @@ void thenACompleteLogIsOutput(char buffer[]) {
   CHECK_EQUAL(TRACE_START, buffer[index++]);
   CHECK_EQUAL(2, buffer[intThen]);
   CHECK_EQUAL(5, buffer[longThen]);
+  CHECK_EQUAL(44, buffer[longThen]);
+  CHECK_EQUAL(55, buffer[longThen]);
+  CHECK_EQUAL(0, buffer[intThen]);
 
   CHECK_EQUAL(FRAME_BCI_ONLY, buffer[index++]);
   CHECK_EQUAL(0, buffer[intThen]);
@@ -132,8 +145,9 @@ void thenACompleteLogIsOutput(char buffer[]) {
 TEST(ExtractsStackTraceInformation) {
   givenLogWriter();
   givenStackTrace();
+  timespec tspec = {44, 55};
 
-  logWriter.record(trace);
+  logWriter.record(tspec, trace);
 
   thenACompleteLogIsOutput(buffer);
 
