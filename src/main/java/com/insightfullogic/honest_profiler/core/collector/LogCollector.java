@@ -49,6 +49,7 @@ public class LogCollector implements LogEventListener
     private final CallCountAggregator<Long> callCountsByMethodId;
     private final CallCountAggregator<StackFrame> callCountsByFrame;
     private final Map<Long, NodeCollector> treesByThreadId;
+    private final Map<Long, ThreadMeta> metaByThreadId;
     private final Stack<StackFrame> reversalStack;
 
     private long currentThread;
@@ -62,6 +63,7 @@ public class LogCollector implements LogEventListener
         this.listener = listener;
 
         methodByMethodId = new HashMap<>();
+        metaByThreadId = new HashMap<>();
         callCountsByMethodId = new CallCountAggregator<>(methodByMethodId, id -> id);
         callCountsByFrame = new CallCountAggregator<>(methodByMethodId, StackFrame::getMethodId);
         treesByThreadId = new HashMap<>();
@@ -131,7 +133,7 @@ public class LogCollector implements LogEventListener
     @Override
     public void handle(ThreadMeta newThreadMeta)
     {
-        // just skip it for now
+        metaByThreadId.put(newThreadMeta.getThreadId(), newThreadMeta);
     }
 
     @Override
@@ -165,8 +167,12 @@ public class LogCollector implements LogEventListener
             .stream()
             .map(node -> {
                 final Long threadId = node.getKey();
+                final ThreadMeta meta = metaByThreadId.get(threadId);
                 final NodeCollector collector = node.getValue();
-                return new ProfileTree(threadId, collector.normalise(methodByMethodId::get), collector.getNumberOfVisits());
+                if (meta == null) {
+                    return new ProfileTree(threadId, collector.normalise(methodByMethodId::get), collector.getNumberOfVisits());
+                }
+                return new ProfileTree(meta, collector.normalise(methodByMethodId::get), collector.getNumberOfVisits());
             })
             .sorted(sortBySampleCount)
             .collect(toList());
