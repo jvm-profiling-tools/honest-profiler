@@ -30,6 +30,8 @@ public interface LogEventListener
 
     void handle(Method newMethod);
 
+    void handle(ThreadMeta newThreadMeta);
+
     void endOfLog();
 
 }

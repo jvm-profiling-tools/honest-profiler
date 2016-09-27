@@ -43,7 +43,7 @@ public class ProfileTreeTest
     @Test
     public void rendersSingleNode()
     {
-        collector.handle(new TraceStart(1, 1));
+        collector.handle(new TraceStart(1, 1, 0L, 0L));
         collector.handle(new StackFrame(20, ProfileFixtures.printlnId));
         collector.handle(ProfileFixtures.println);
         collector.endOfLog();
@@ -126,7 +126,7 @@ public class ProfileTreeTest
 
     private void printlnCallingPrintf(final int threadId)
     {
-        collector.handle(new TraceStart(2, threadId));
+        collector.handle(new TraceStart(2, threadId, 0, 0));
         collector.handle(new StackFrame(20, ProfileFixtures.printfId));
         collector.handle(ProfileFixtures.printf);
         collector.handle(new StackFrame(20, ProfileFixtures.printlnId));
@@ -134,7 +134,7 @@ public class ProfileTreeTest
 
     private void printlnCallingAppend(int threadId)
     {
-        collector.handle(new TraceStart(2, threadId));
+        collector.handle(new TraceStart(2, threadId, 0, 0));
         collector.handle(new StackFrame(20, ProfileFixtures.appendId));
         collector.handle(ProfileFixtures.append);
         collector.handle(new StackFrame(20, ProfileFixtures.printlnId));

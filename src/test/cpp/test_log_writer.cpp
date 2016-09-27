@@ -37,13 +37,19 @@ TEST(RecordsStartOfStackTrace) {
 
   logWriter.recordTraceStart(2, 3, tspec, &threadInfo);
 
-  CHECK_EQUAL(TRACE_START, buffer[0]);
-  CHECK_EQUAL(2, buffer[4]);
-  CHECK_EQUAL(22, buffer[12]);
-  CHECK_EQUAL(44, buffer[20]);
-  CHECK_EQUAL(55, buffer[28]);
-  CHECK_EQUAL(strlen(threadInfo.name), buffer[32]);
-  CHECK_ARRAY_EQUAL(threadInfo.name, &buffer[33], strlen(threadInfo.name));
+  int cnt = 0; 
+
+  CHECK_EQUAL(THREAD_META, buffer[cnt]);
+  CHECK_EQUAL(22, buffer[cnt+=8]);
+  CHECK_EQUAL(strlen(threadInfo.name), buffer[cnt+=4]);
+  CHECK_ARRAY_EQUAL(threadInfo.name, &buffer[++cnt], strlen(threadInfo.name));
+  cnt += strlen(threadInfo.name);
+
+  CHECK_EQUAL(TRACE_START, buffer[cnt]);
+  CHECK_EQUAL(2, buffer[cnt+=4]);
+  CHECK_EQUAL(22, buffer[cnt+=8]);
+  CHECK_EQUAL(44, buffer[cnt+=8]);
+  CHECK_EQUAL(55, buffer[cnt+=8]);
 
   GCHelper::detach(threadInfo.localEpoch);
   done();
@@ -56,9 +62,12 @@ TEST(SupportsHighThreadId) {
   // LONG_MAX
   long bigNumber = std::numeric_limits<long>::max();
   logWriter.recordTraceStart(2, (map::HashType)bigNumber, tspec, nullptr);
-  CHECK_EQUAL(bigNumber & 0x000000ff, buffer[12]);
-  CHECK_EQUAL(bigNumber & 0x0000ff00 >> 8, buffer[11]);
-  CHECK_EQUAL(0, buffer[32]);
+
+  CHECK_EQUAL(THREAD_META, buffer[0]);
+  CHECK_EQUAL(0, buffer[12]);
+
+  CHECK_EQUAL(1, buffer[25]);
+  CHECK_EQUAL(1 << 7, buffer[18]);
 
   done();
 }
@@ -101,12 +110,16 @@ TEST(RecordsMethodNames) {
 
 void thenACompleteLogIsOutput(char buffer[]) {
   int index = 0;
+
+  CHECK_EQUAL(THREAD_META, buffer[index++]);
+  CHECK_EQUAL(-5 & 0x000000ff, buffer[longThen]);
+  CHECK_EQUAL(0, buffer[intThen]);
+
   CHECK_EQUAL(TRACE_START, buffer[index++]);
   CHECK_EQUAL(2, buffer[intThen]);
-  CHECK_EQUAL(5, buffer[longThen]);
+  CHECK_EQUAL(-5 & 0x000000ff, buffer[longThen]);
   CHECK_EQUAL(44, buffer[longThen]);
   CHECK_EQUAL(55, buffer[longThen]);
-  CHECK_EQUAL(0, buffer[intThen]);
 
   CHECK_EQUAL(FRAME_BCI_ONLY, buffer[index++]);
   CHECK_EQUAL(0, buffer[intThen]);

@@ -48,7 +48,7 @@ public class ConductorTest
                 Conductor consumer = new Conductor(logger, Util.log0Source(), parser, false);
 
                 expect.that(consumer.poll()).is(true);
-                verify(listener).handle(new TraceStart(2, 5));
+                verify(listener).handle(new TraceStart(2, 5, 0, 0));
 
                 expect.that(consumer.poll()).is(true);
                 verify(listener).handle(new StackFrame(52, 1));

@@ -118,8 +118,7 @@ void LogWriter::inspectMethod(const method_id methodId,
     frameLookup_(frame, jvmti_, *this);
 }
 
-void LogWriter::recordTraceStart(const jint numFrames, map::HashType envHash, const timespec &ts, ThreadBucket *info) {
-    map::HashType threadId = envHash;
+void LogWriter::inspectThread(map::HashType &threadId, ThreadBucket *info) {
     char *threadName = (char*)"";
 
     if (info) {
@@ -127,12 +126,28 @@ void LogWriter::recordTraceStart(const jint numFrames, map::HashType envHash, co
         threadName = info->name;
     }
 
+    if (knownThreads.find(threadId) != knownThreads.end()) {
+        return;
+    }
+
+    knownThreads.insert(threadId);
+
+    output_.put(THREAD_META);
+    writeValue(threadId);
+    writeWithSize(threadName);
+    output_.flush();
+}
+
+void LogWriter::recordTraceStart(const jint numFrames, map::HashType envHash, const timespec &ts, ThreadBucket *info) {
+    map::HashType threadId = -envHash; // mark unrecognized threads with negative id's
+    
+    inspectThread(threadId, info);
+
     output_.put(TRACE_START);
     writeValue(numFrames);
     writeValue(threadId);
     writeValue((int64_t)ts.tv_sec);
     writeValue((int64_t)ts.tv_nsec);
-    writeWithSize(threadName);
     output_.flush();
 }
 

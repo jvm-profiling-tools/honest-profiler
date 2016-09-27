@@ -27,6 +27,7 @@ import com.insightfullogic.honest_profiler.core.parser.LogEventListener;
 import com.insightfullogic.honest_profiler.core.parser.Method;
 import com.insightfullogic.honest_profiler.core.parser.StackFrame;
 import com.insightfullogic.honest_profiler.core.parser.TraceStart;
+import com.insightfullogic.honest_profiler.core.parser.ThreadMeta;
 import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -112,6 +113,7 @@ public class ConsoleLogDumpApplication
 
             Map<String, Counter> errHistogram = new HashMap<>();
             Map<Long, BoundMethod> methodNames = new HashMap<>();
+            Map<Long, String> threadNames = new HashMap<>();
 
             @Override
             public void handle(Method method)
@@ -172,9 +174,25 @@ public class ConsoleLogDumpApplication
             public void handle(TraceStart traceStart)
             {
                 int frames = traceStart.getNumberOfFrames();
-                out.printf("TraceStart: [%d] tid=%d,frames=%d\n", traceidx, traceStart.getThreadId(), frames);
+                long tid = traceStart.getThreadId();
+                String tidString = tid >= 0 ? ("tid=" + tid) : "tid=unknown";
+                String name = threadNames.get(tid);
+                if (name == null || "".equals(name)) {
+                    name = "Unknown";
+                }
+                out.printf("TraceStart: [%d] %d.%d %s,%s,frames=%d\n", traceidx, 
+                    traceStart.getTraceEpoch(), traceStart.getTraceEpochNano(), name, tidString, frames);
                 indent = frames;
                 traceidx++;
+            }
+
+            @Override
+            public void handle(ThreadMeta newThreadMeta)
+            {
+                long tid = newThreadMeta.getThreadId();
+                String name = newThreadMeta.getThreadName();
+                out.printf("ThreadMeta: tid=%d,name=%s\n", tid, name);
+                threadNames.put(tid, name);
             }
 
             @Override

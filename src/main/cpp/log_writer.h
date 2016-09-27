@@ -34,6 +34,7 @@ const byte TRACE_START = 1;
 const byte FRAME_BCI_ONLY = 2;// maintain backward compatibility
 const byte FRAME_FULL = 21;
 const byte NEW_METHOD = 3;
+const byte THREAD_META = 4;
 // Error values for line number. If BCI is an error value we report the BCI error value.
 const jint ERR_NO_LINE_INFO = -100;
 const jint ERR_NO_LINE_FOUND= -101;
@@ -73,12 +74,16 @@ private:
 
     unordered_set<method_id> knownMethods;
 
+    unordered_set<map::HashType> knownThreads;
+
     template<typename T>
     void writeValue(const T &value);
 
     void writeWithSize(const char *value);
 
     void inspectMethod(const method_id methodId, const JVMPI_CallFrame &frame);
+
+    void inspectThread(map::HashType &threadId, ThreadBucket *info);
 
     jint getLineNo(jint bci, jmethodID methodId);
 

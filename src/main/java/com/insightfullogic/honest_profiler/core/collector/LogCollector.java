@@ -25,6 +25,7 @@ import com.insightfullogic.honest_profiler.core.parser.LogEventListener;
 import com.insightfullogic.honest_profiler.core.parser.Method;
 import com.insightfullogic.honest_profiler.core.parser.StackFrame;
 import com.insightfullogic.honest_profiler.core.parser.TraceStart;
+import com.insightfullogic.honest_profiler.core.parser.ThreadMeta;
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileTree;
@@ -125,6 +126,12 @@ public class LogCollector implements LogEventListener
     {
         methodByMethodId.put(newMethod.getMethodId(), newMethod);
         emitProfileIfNeeded();
+    }
+
+    @Override
+    public void handle(ThreadMeta newThreadMeta)
+    {
+        // just skip it for now
     }
 
     @Override
