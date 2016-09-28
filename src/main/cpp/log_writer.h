@@ -30,8 +30,9 @@ typedef bool (*GetFrameInformation)(const JVMPI_CallFrame &frame,
         jvmtiEnv *jvmti, MethodListener &logWriter);
 
 const size_t FIFO_SIZE = 10;
-const byte TRACE_START = 1;
-const byte FRAME_BCI_ONLY = 2;// maintain backward compatibility
+const byte TRACE_START = 1; // maintain backward compatibility
+const byte TRACE_WITH_TIME = 11; 
+const byte FRAME_BCI_ONLY = 2; // maintain backward compatibility
 const byte FRAME_FULL = 21;
 const byte NEW_METHOD = 3;
 const byte THREAD_META = 4;
@@ -53,6 +54,8 @@ public:
     virtual void record(const timespec &ts, const JVMPI_CallTrace &trace, ThreadBucket *info = nullptr);
 
     void record(const JVMPI_CallTrace &trace, ThreadBucket *info = nullptr);
+
+    void recordTraceStart(const jint numFrames, map::HashType envHash, ThreadBucket *info);
 
     void recordTraceStart(const jint numFrames, map::HashType envHash, const timespec &ts, ThreadBucket *info);
 

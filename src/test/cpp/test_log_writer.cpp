@@ -45,7 +45,7 @@ TEST(RecordsStartOfStackTrace) {
   CHECK_ARRAY_EQUAL(threadInfo.name, &buffer[++cnt], strlen(threadInfo.name));
   cnt += strlen(threadInfo.name);
 
-  CHECK_EQUAL(TRACE_START, buffer[cnt]);
+  CHECK_EQUAL(TRACE_WITH_TIME, buffer[cnt]);
   CHECK_EQUAL(2, buffer[cnt+=4]);
   CHECK_EQUAL(22, buffer[cnt+=8]);
   CHECK_EQUAL(44, buffer[cnt+=8]);
@@ -115,7 +115,7 @@ void thenACompleteLogIsOutput(char buffer[]) {
   CHECK_EQUAL(-5 & 0x000000ff, buffer[longThen]);
   CHECK_EQUAL(0, buffer[intThen]);
 
-  CHECK_EQUAL(TRACE_START, buffer[index++]);
+  CHECK_EQUAL(TRACE_WITH_TIME, buffer[index++]);
   CHECK_EQUAL(2, buffer[intThen]);
   CHECK_EQUAL(-5 & 0x000000ff, buffer[longThen]);
   CHECK_EQUAL(44, buffer[longThen]);

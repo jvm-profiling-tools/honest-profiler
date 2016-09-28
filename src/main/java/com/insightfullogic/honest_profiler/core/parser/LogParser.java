@@ -58,6 +58,7 @@ public class LogParser
             "Safepoint[ERR=-10]"};
     private static final int NOT_WRITTEN = 0;
     private static final int TRACE_START = 1;
+    private static final int TRACE_WITH_TIME = 11;
     private static final int STACK_FRAME_BCI_ONLY = 2;
     private static final int STACK_FRAME_FULL = 21;
     private static final int NEW_METHOD = 3;
@@ -102,7 +103,10 @@ public class LogParser
                     input.position(input.position() - 1);
                     return NOTHING;
                 case TRACE_START:
-                    readTraceStart(input);
+                    readTraceStart(input, false);
+                    return COMPLETE_RECORD;
+                case TRACE_WITH_TIME:
+                    readTraceStart(input, true);
                     return COMPLETE_RECORD;
                 case STACK_FRAME_BCI_ONLY:
                     readStackFrameBciOnly(input);
@@ -170,12 +174,17 @@ public class LogParser
         stackFrame.accept(listener);
     }
 
-    private void readTraceStart(ByteBuffer input)
+    private void readTraceStart(ByteBuffer input, boolean withTime)
     {
         int numberOfFrames = input.getInt();
         long threadId = input.getLong();
-        long timeSec = input.getLong();
-        long timeNano = input.getLong();
+        long timeSec = 0L;
+        long timeNano = 0L;
+
+        if (withTime) {
+            timeSec = input.getLong();
+            timeNano = input.getLong();
+        }
 
         // number of frames <= 0 -> error, so log a mock stack frame reflecting the error. Logging errors as frames makes
         // more sense when collecting profiles.

@@ -138,12 +138,23 @@ void LogWriter::inspectThread(map::HashType &threadId, ThreadBucket *info) {
     output_.flush();
 }
 
+void LogWriter::recordTraceStart(const jint numFrames, map::HashType envHash, ThreadBucket *info) {
+    map::HashType threadId = -envHash;
+
+    inspectThread(threadId, info);
+
+    output_.put(TRACE_START);
+    writeValue(numFrames);
+    writeValue(threadId);
+    output_.flush();
+}
+
 void LogWriter::recordTraceStart(const jint numFrames, map::HashType envHash, const timespec &ts, ThreadBucket *info) {
     map::HashType threadId = -envHash; // mark unrecognized threads with negative id's
     
     inspectThread(threadId, info);
 
-    output_.put(TRACE_START);
+    output_.put(TRACE_WITH_TIME);
     writeValue(numFrames);
     writeValue(threadId);
     writeValue((int64_t)ts.tv_sec);
