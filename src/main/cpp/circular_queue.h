@@ -11,7 +11,6 @@
 #include <time.h>
 #include <string.h>
 #include <cstddef>
-#include <time.h>
 
 const size_t Size = 1024;
 
