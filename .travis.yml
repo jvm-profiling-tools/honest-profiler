@@ -1,0 +1,17 @@
+language: cpp
+sudo: required
+compiler:
+  - clang
+  - gcc
+os:
+  - linux
+  - osx
+branches:
+  only:
+  - master
+  - stage
+before_install:
+  - if [ $TRAVIS_OS_NAME == linux ]; then sudo apt-get -qq update && sudo apt-get install -y libunittest++-dev; fi
+  - if [ $TRAVIS_OS_NAME == osx ]; then brew update && brew install unittest-cpp; fi
+install: cmake CMakeLists.txt
+script: make && build/unitTests
