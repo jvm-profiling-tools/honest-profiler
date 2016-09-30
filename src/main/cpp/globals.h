@@ -179,13 +179,12 @@ public:
 
 void bootstrapHandle(int signum, siginfo_t *info, void *context);
 
-class TimeUtils {
 #ifdef __MACH__
-  static clock_serv_t osx_clock;
+static clock_serv_t osx_clock;
 #endif
 
+class TimeUtils {
 public:
-
   static void init() {
 #ifdef __MACH__
     host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &osx_clock);
