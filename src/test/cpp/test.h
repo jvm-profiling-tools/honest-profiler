@@ -2,7 +2,7 @@
 #define HONEST_PROFILER_TEST_H
 
 #ifdef __APPLE__
-#include <UnitTest++/UnitTest++/UnitTest++.h>
+#include <UnitTest++/UnitTest++.h>
 #else
 #include <UnitTest++.h>
 #endif
