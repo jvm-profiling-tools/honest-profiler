@@ -58,9 +58,11 @@ public class LogParser
             "Safepoint[ERR=-10]"};
     private static final int NOT_WRITTEN = 0;
     private static final int TRACE_START = 1;
+    private static final int TRACE_WITH_TIME = 11;
     private static final int STACK_FRAME_BCI_ONLY = 2;
     private static final int STACK_FRAME_FULL = 21;
     private static final int NEW_METHOD = 3;
+    private static final int THREAD_META = 4;
 
     private final LogEventListener listener;
     private final Logger logger;
@@ -101,7 +103,10 @@ public class LogParser
                     input.position(input.position() - 1);
                     return NOTHING;
                 case TRACE_START:
-                    readTraceStart(input);
+                    readTraceStart(input, false);
+                    return COMPLETE_RECORD;
+                case TRACE_WITH_TIME:
+                    readTraceStart(input, true);
                     return COMPLETE_RECORD;
                 case STACK_FRAME_BCI_ONLY:
                     readStackFrameBciOnly(input);
@@ -111,6 +116,9 @@ public class LogParser
                     return COMPLETE_RECORD;
                 case NEW_METHOD:
                     readNewMethod(input);
+                    return COMPLETE_RECORD;
+                case THREAD_META:
+                    readNewThreadMeta(input);
                     return COMPLETE_RECORD;
             }
         }
@@ -166,10 +174,17 @@ public class LogParser
         stackFrame.accept(listener);
     }
 
-    private void readTraceStart(ByteBuffer input)
+    private void readTraceStart(ByteBuffer input, boolean withTime)
     {
         int numberOfFrames = input.getInt();
         long threadId = input.getLong();
+        long timeSec = 0L;
+        long timeNano = 0L;
+
+        if (withTime) {
+            timeSec = input.getLong();
+            timeNano = input.getLong();
+        }
 
         // number of frames <= 0 -> error, so log a mock stack frame reflecting the error. Logging errors as frames makes
         // more sense when collecting profiles.
@@ -182,15 +197,22 @@ public class LogParser
             }
 
             // we choose to report errors via frames, so pretend there's a single frame in the trace
-            new TraceStart(1, threadId).accept(listener);
+            new TraceStart(1, threadId, timeSec, timeNano).accept(listener);
             // we shift the err code by -1 to avoid using the valid NULL jmethodId
             new StackFrame(-1, numberOfFrames - 1).accept(listener);
         }
         else
         {
-            TraceStart traceStart = new TraceStart(numberOfFrames, threadId);
+            TraceStart traceStart = new TraceStart(numberOfFrames, threadId, timeSec, timeNano);
             traceStart.accept(listener);
         }
     }
 
+    private void readNewThreadMeta(ByteBuffer input) {
+        long threadId = input.getLong();
+        String threadName = readString(input);
+
+        ThreadMeta threadMeta = new ThreadMeta(threadId, threadName);
+        threadMeta.accept(listener);
+    }
 }

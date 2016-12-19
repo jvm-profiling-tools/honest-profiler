@@ -9,7 +9,6 @@
 
 int gettid();
 
-
 template <typename PType>
 struct PointerHasher {
 	/* Numerical Recipes, 3rd Edition */

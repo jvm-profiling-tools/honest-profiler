@@ -42,7 +42,7 @@ public class FlatProfileTest
     @Test
     public void looksUpMethodNames()
     {
-        collector.handle(new TraceStart(1, 1));
+        collector.handle(new TraceStart(1, 1, 1, 1));
         collector.handle(new StackFrame(20, 5));
         collector.handle(ProfileFixtures.println);
         collector.endOfLog();
@@ -66,7 +66,7 @@ public class FlatProfileTest
     @Test
     public void calculateMajorityFlatProfiles()
     {
-        TraceStart startTrace = new TraceStart(1, 1);
+        TraceStart startTrace = new TraceStart(1, 1, 1, 1);
         collector.handle(startTrace);
         collector.handle(new StackFrame(20, 5));
         collector.handle(ProfileFixtures.println);

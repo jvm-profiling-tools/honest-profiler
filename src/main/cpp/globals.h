@@ -4,7 +4,12 @@
 #include <jni.h>
 #include <stdint.h>
 #include <signal.h>
+#include <time.h>
 
+#ifdef __MACH__
+#   include <mach/clock.h>
+#   include <mach/mach.h>
+#endif
 
 #ifndef GLOBALS_H
 #define GLOBALS_H
@@ -173,5 +178,29 @@ public:
 };
 
 void bootstrapHandle(int signum, siginfo_t *info, void *context);
+
+#ifdef __MACH__
+static clock_serv_t osx_clock;
+#endif
+
+class TimeUtils {
+public:
+  static void init() {
+#ifdef __MACH__
+    host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &osx_clock);
+#endif
+  }
+
+  static void current_utc_time(timespec *ts) {
+#ifdef __MACH__
+    mach_timespec_t mts;
+    clock_get_time(osx_clock, &mts);
+    ts->tv_sec = mts.tv_sec;
+    ts->tv_nsec = mts.tv_nsec;
+#else
+    clock_gettime(CLOCK_REALTIME, ts);
+#endif
+  }
+};
 
 #endif // GLOBALS_H

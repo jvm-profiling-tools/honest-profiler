@@ -55,6 +55,9 @@ void CreateJMethodIDsForClass(jvmtiEnv *jvmti, jclass klass) {
 
 void JNICALL OnVMInit(jvmtiEnv *jvmti, JNIEnv *jniEnv, jthread thread) {
     IMPLICITLY_USE(thread);
+
+    TimeUtils::init(); // required to init OS X's clock service
+
     // Forces the creation of jmethodIDs of the classes that had already
     // been loaded (eg java.lang.Object, java.lang.ClassLoader) and
     // OnClassPrepare() misses.

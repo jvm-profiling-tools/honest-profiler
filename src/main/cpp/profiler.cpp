@@ -15,7 +15,6 @@ TRACE_DEFINE_BEGIN(Profiler, kTraceProfilerTotal)
     TRACE_DEFINE("stop succeeded")
 TRACE_DEFINE_END(Profiler, kTraceProfilerTotal);
 
-
 bool Profiler::lookupFrameInformation(const JVMPI_CallFrame &frame,
                                       jvmtiEnv *jvmti,
                                       MethodListener &logWriter) {
@@ -73,6 +72,7 @@ void Profiler::handle(int signum, siginfo_t *info, void *context) {
     IMPLICITLY_USE(info);
     SimpleSpinLockGuard<false> guard(ongoingConf); // sync buffer
     ThreadBucket *threadInfo;
+    timespec spec;
 
     // sample data structure
     STATIC_ARRAY(frames, JVMPI_CallFrame, configuration_->maxFramesToCapture, MAX_FRAMES_TO_CAPTURE);
@@ -80,6 +80,7 @@ void Profiler::handle(int signum, siginfo_t *info, void *context) {
     JVMPI_CallTrace trace;
     trace.frames = frames;
     JNIEnv *jniEnv = getJNIEnv(jvm_);
+    TimeUtils::current_utc_time(&spec); // sample current time
     if (jniEnv == NULL) {
         trace.num_frames = -3; // ticks_unknown_not_Java
         threadInfo = nullptr;
@@ -89,8 +90,9 @@ void Profiler::handle(int signum, siginfo_t *info, void *context) {
         (*asgct)(&trace, configuration_->maxFramesToCapture, context);
         threadInfo = tMap_.get(jniEnv);
     }
+
     // log all samples, failures included, let the post processing sift through the data
-    buffer->push(trace, threadInfo);
+    buffer->push(spec, trace, threadInfo);
 }
 
 bool Profiler::start(JNIEnv *jniEnv) {

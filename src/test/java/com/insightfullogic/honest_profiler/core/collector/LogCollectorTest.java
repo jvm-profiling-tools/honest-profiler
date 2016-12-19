@@ -51,7 +51,7 @@ public class LogCollectorTest
         assertTrue("methods don't cause profiles", found.isEmpty());
 
         int threadId = 0;
-        collector.handle(new TraceStart(2, ++threadId));
+        collector.handle(new TraceStart(2, ++threadId, 1, 1));
 
         assertTrue("nothing to profile still", found.isEmpty());
 
@@ -61,12 +61,12 @@ public class LogCollectorTest
         collector.handle(new StackFrame(LINE, 2));
 
         // normal method afterwards
-        collector.handle(new TraceStart(2, ++threadId));
+        collector.handle(new TraceStart(2, ++threadId, 1, 1));
         collector.handle(new StackFrame(LINE, 6));
         collector.handle(new StackFrame(LINE, 7));
 
         // and continuation
-        collector.handle(new TraceStart(20, ++threadId));
+        collector.handle(new TraceStart(20, ++threadId, 1, 1));
 
         assertArrayEquals(new long[]{2, 7}, idOfLastMethodInEachThread(found.getLast()));
     }
