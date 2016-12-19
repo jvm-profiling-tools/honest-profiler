@@ -27,7 +27,6 @@ import java.util.Objects;
 
 public final class Method implements LogEvent, Frame
 {
-
     private final long methodId;
     private final String fileName;
     private final String className;

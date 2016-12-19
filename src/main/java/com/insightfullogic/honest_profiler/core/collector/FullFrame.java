@@ -32,7 +32,7 @@ public class FullFrame implements Frame
     private final Method method;
     private final StackFrame frame;
 
-    public FullFrame(final Method method, final StackFrame frame)
+    FullFrame(final Method method, final StackFrame frame)
     {
         if (method == null || frame == null)
         {
@@ -85,10 +85,6 @@ public class FullFrame implements Frame
     @Override
     public boolean equals(Object obj)
     {
-        if (obj instanceof FullFrame)
-        {
-            return this.frame.equals(((FullFrame) obj).frame);
-        }
-        return false;
+        return obj instanceof FullFrame && this.frame.equals(((FullFrame) obj).frame);
     }
 }

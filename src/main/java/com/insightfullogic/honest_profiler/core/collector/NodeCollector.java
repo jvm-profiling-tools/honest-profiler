@@ -34,7 +34,8 @@ import static java.util.stream.Collectors.toList;
 public final class NodeCollector
 {
 
-    public static final Comparator<ProfileNode> bySelfTimeShare = comparing(ProfileNode::getTotalTimeShare).reversed();
+    private static final Comparator<ProfileNode> bySelfTimeShare =
+        comparing(ProfileNode::getTotalTimeShare).reversed();
 
     private final Map<Long, NodeCollector> childrenByMethodId;
 
@@ -42,12 +43,12 @@ public final class NodeCollector
 
     private int visits;
 
-    public NodeCollector(long methodId)
+    NodeCollector(long methodId)
     {
         this(methodId, 1);
     }
 
-    public NodeCollector(long methodId, int visits)
+    private NodeCollector(long methodId, int visits)
     {
         this.methodId = methodId;
         this.visits = visits;
@@ -64,7 +65,7 @@ public final class NodeCollector
         return new ArrayList<>(childrenByMethodId.values());
     }
 
-    public NodeCollector newChildCall(long methodId)
+    NodeCollector newChildCall(long methodId)
     {
         return childrenByMethodId.compute(methodId, (id, prev) ->
                 prev == null ? new NodeCollector(id)
@@ -72,7 +73,7 @@ public final class NodeCollector
         );
     }
 
-    public NodeCollector callAgain()
+    NodeCollector callAgain()
     {
         visits++;
         return this;
@@ -81,7 +82,7 @@ public final class NodeCollector
     /**
      * Only gets called on a root node.
      */
-    public ProfileNode normalise(LongFunction<Method> nameRegistry)
+    ProfileNode normalise(LongFunction<Method> nameRegistry)
     {
         return normaliseBy(visits, nameRegistry);
     }
@@ -103,7 +104,7 @@ public final class NodeCollector
     }
 
 
-    public int getNumberOfVisits()
+    int getNumberOfVisits()
     {
         return visits;
     }

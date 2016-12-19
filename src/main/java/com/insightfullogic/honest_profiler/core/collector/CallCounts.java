@@ -21,26 +21,26 @@
  **/
 package com.insightfullogic.honest_profiler.core.collector;
 
-public class CallCounts
+class CallCounts
 {
     private int timeAppeared;
     private int timeInvokingThis;
 
-    public CallCounts()
+    CallCounts()
     {
         this.timeAppeared = 0;
         this.timeInvokingThis = 0;
     }
 
-    public int getTimeAppeared(){
+    int getTimeAppeared(){
         return timeAppeared;
     }
 
-    public int getTimeInvokingThis(){
+    int getTimeInvokingThis(){
         return timeInvokingThis;
     }
 
-    public void onAppearance(final boolean endOfTrace)
+    void onAppearance(final boolean endOfTrace)
     {
         timeAppeared++;
         if (endOfTrace)

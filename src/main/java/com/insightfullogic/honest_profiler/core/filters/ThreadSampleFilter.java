@@ -30,12 +30,12 @@ final class ThreadSampleFilter implements Filter
 
     private final double minProportionOfSamples;
 
-    public ThreadSampleFilter()
+    ThreadSampleFilter()
     {
         this(DEFAULT_MIN_PROPORTION_OF_SAMPLES);
     }
 
-    public ThreadSampleFilter(double minProportionOfSamples)
+    private ThreadSampleFilter(double minProportionOfSamples)
     {
         this.minProportionOfSamples = minProportionOfSamples;
     }

@@ -43,14 +43,14 @@ public class CallCountAggregator<T>
     private final Map<Long, Method> methodByMethodId;
     private final Function<T, Long> getMethodId;
 
-    public CallCountAggregator(
+    CallCountAggregator(
         final Map<Long, Method> methodByMethodId, final Function<T, Long> getMethodId)
     {
         this.methodByMethodId = methodByMethodId;
         this.getMethodId = getMethodId;
     }
 
-    public void onFrameAppearance(final T key, final boolean endOfTrace)
+    void onFrameAppearance(final T key, final boolean endOfTrace)
     {
         callCountsByKey
             .computeIfAbsent(key, ignore -> new CallCounts())

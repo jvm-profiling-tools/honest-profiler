@@ -66,9 +66,7 @@ final class ClassNameFilter implements Filter
 
         ClassNameFilter that = (ClassNameFilter) o;
 
-        if (className != null ? !className.equals(that.className) : that.className != null) return false;
-
-        return true;
+        return className != null ? className.equals(that.className) : that.className == null;
     }
 
     @Override

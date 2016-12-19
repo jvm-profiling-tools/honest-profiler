@@ -63,7 +63,7 @@ public class JavaFXApplication extends Application
         pico.stop();
     }
 
-    void createStart(Stage stage)
+    private void createStart(Stage stage)
     {
         pico = registerComponents(stage);
         WindowViewModel stageModel = pico.getComponent(WindowViewModel.class);
@@ -76,7 +76,7 @@ public class JavaFXApplication extends Application
         return registerComponents().addComponent(stage);
     }
 
-    public static MutablePicoContainer registerComponents()
+    static MutablePicoContainer registerComponents()
     {
         MutablePicoContainer pico = new PicoBuilder()
             .withJavaEE5Lifecycle()

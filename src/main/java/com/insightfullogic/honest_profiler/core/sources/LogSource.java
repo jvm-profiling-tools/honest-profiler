@@ -26,10 +26,9 @@ import java.nio.ByteBuffer;
 
 public interface LogSource extends AutoCloseable
 {
-
     public ByteBuffer read();
 
     @Override
-    public void close() throws IOException;
+    void close() throws IOException;
 
 }

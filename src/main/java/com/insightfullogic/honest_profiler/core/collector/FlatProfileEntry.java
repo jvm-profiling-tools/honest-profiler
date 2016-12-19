@@ -60,9 +60,7 @@ public final class FlatProfileEntry
 
         if (Double.compare(that.selfTimeShare, selfTimeShare) != 0) return false;
         if (Double.compare(that.totalTimeShare, totalTimeShare) != 0) return false;
-        if (method != null ? !method.equals(that.method) : that.method != null) return false;
-
-        return true;
+        return method != null ? method.equals(that.method) : that.method == null;
     }
 
     @Override

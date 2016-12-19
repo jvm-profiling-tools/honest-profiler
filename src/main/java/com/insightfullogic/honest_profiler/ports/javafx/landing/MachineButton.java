@@ -30,14 +30,14 @@ import static javafx.geometry.NodeOrientation.LEFT_TO_RIGHT;
 import static javafx.scene.control.ContentDisplay.RIGHT;
 import static javafx.scene.text.TextAlignment.CENTER;
 
-public class MachineButton extends RadioButton
+class MachineButton extends RadioButton
 {
 
     private static final Font font = new Font("Bitstream Vera Sans Bold", 16);
 
     private final VirtualMachine jvm;
 
-    public MachineButton(VirtualMachine jvm)
+    MachineButton(VirtualMachine jvm)
     {
         super(jvm.getDisplayName() + " ("+jvm.getId()+")");
         this.jvm = jvm;

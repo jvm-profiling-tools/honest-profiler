@@ -25,7 +25,5 @@ import com.insightfullogic.honest_profiler.core.MachineListener;
 
 public interface MachineSource
 {
-
-    public void poll(MachineListener listener);
-
+    void poll(MachineListener listener);
 }

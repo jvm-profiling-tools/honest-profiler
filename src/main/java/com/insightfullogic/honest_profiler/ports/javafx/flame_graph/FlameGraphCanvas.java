@@ -45,9 +45,9 @@ import static com.insightfullogic.honest_profiler.ports.javafx.Rendering.renderS
 public class FlameGraphCanvas extends Canvas implements FlameGraphListener
 {
     private static final Color START_COLOR = Color.BISQUE.deriveColor(0, 1.2, 1.0, 1.0);
+    private static final int TEXT_WIDTH = 7;
+    private static final int ROW_WRAP = 4;
 
-    public static final int TEXT_WIDTH = 7;
-    public static final int ROW_WRAP = 4;
     private final Tooltip tooltip = new Tooltip();
     private Window window;
 
@@ -56,7 +56,7 @@ public class FlameGraphCanvas extends Canvas implements FlameGraphListener
     private List<MethodLocation> methodLocations;
     private FlameGraph graph;
 
-    public FlameGraphCanvas()
+    FlameGraphCanvas()
     {
         setOnMouseMoved(this::displayMethodName);
     }

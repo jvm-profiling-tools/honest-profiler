@@ -23,13 +23,12 @@ package com.insightfullogic.honest_profiler.core.filters;
 
 public final class FilterParseException extends RuntimeException
 {
-
-    public FilterParseException(String message)
+    FilterParseException(String message)
     {
         super(message);
     }
 
-    public FilterParseException(Exception e)
+    FilterParseException(Exception e)
     {
         super(e);
     }

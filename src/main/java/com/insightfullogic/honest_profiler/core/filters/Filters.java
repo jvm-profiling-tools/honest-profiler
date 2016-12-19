@@ -29,9 +29,9 @@ import java.util.function.Predicate;
 public class Filters
 {
 
-    public static final String TOTAL_TIME = "total time > ";
-    public static final String SELF_TIME = "self time > ";
-    public static final String CLASS_NAME = "class: ";
+    private static final String TOTAL_TIME = "total time > ";
+    private static final String SELF_TIME = "self time > ";
+    private static final String CLASS_NAME = "class: ";
 
     private final String description;
     private final List<Filter> filters;
