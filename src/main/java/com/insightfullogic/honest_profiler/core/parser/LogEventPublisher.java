@@ -58,6 +58,14 @@ public class LogEventPublisher implements LogEventListener
         }
     }
 
+    public void handle(final ThreadMeta newThreadMeta)
+    {
+        for (LogEventListener listener : listeners)
+        {
+            listener.handle(newThreadMeta);
+        }
+    }
+
     public void endOfLog()
     {
         for (LogEventListener listener : listeners)

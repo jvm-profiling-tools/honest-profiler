@@ -26,29 +26,48 @@ bool stubFrameInformation(const JVMPI_CallFrame &frame, jvmtiEnv *jvmti,
   ostreambuf<char> outputBuffer(buffer, sizeof(buffer));                       \
   ostream output(&outputBuffer);                                               \
   LogWriter logWriter(output, &stubFrameInformation, NULL);                    \
-  CircularQueue *queue = new CircularQueue(logWriter, DEFAULT_MAX_FRAMES_TO_CAPTURE);
+  CircularQueue *queue = new CircularQueue(logWriter, DEFAULT_MAX_FRAMES_TO_CAPTURE);  
 
 #define done() delete queue;
 
 TEST(RecordsStartOfStackTrace) {
   givenLogWriter();
+  ThreadBucket threadInfo(22, "Thr-222");
+  timespec tspec = {44, 55};
 
-  logWriter.recordTraceStart(2, 3);
-  CHECK_EQUAL(TRACE_START, buffer[0]);
-  CHECK_EQUAL(2, buffer[4]);
-  CHECK_EQUAL(3, buffer[12]);
+  logWriter.recordTraceStart(2, 3, tspec, &threadInfo);
 
+  int cnt = 0; 
+
+  CHECK_EQUAL(THREAD_META, buffer[cnt]);
+  CHECK_EQUAL(22, buffer[cnt+=8]);
+  CHECK_EQUAL(strlen(threadInfo.name), buffer[cnt+=4]);
+  CHECK_ARRAY_EQUAL(threadInfo.name, &buffer[++cnt], strlen(threadInfo.name));
+  cnt += strlen(threadInfo.name);
+
+  CHECK_EQUAL(TRACE_WITH_TIME, buffer[cnt]);
+  CHECK_EQUAL(2, buffer[cnt+=4]);
+  CHECK_EQUAL(22, buffer[cnt+=8]);
+  CHECK_EQUAL(44, buffer[cnt+=8]);
+  CHECK_EQUAL(55, buffer[cnt+=8]);
+
+  GCHelper::detach(threadInfo.localEpoch);
   done();
 }
 
 TEST(SupportsHighThreadId) {
   givenLogWriter();
+  timespec tspec = {44, 55};
 
   // LONG_MAX
   long bigNumber = std::numeric_limits<long>::max();
-  logWriter.recordTraceStart(2, bigNumber);
-  CHECK_EQUAL(bigNumber & 0x000000ff, buffer[12]);
-  CHECK_EQUAL(bigNumber & 0x0000ff00 >> 8, buffer[11]);
+  logWriter.recordTraceStart(2, (map::HashType)bigNumber, tspec, nullptr);
+
+  CHECK_EQUAL(THREAD_META, buffer[0]);
+  CHECK_EQUAL(0, buffer[12]);
+
+  CHECK_EQUAL(1, buffer[25]);
+  CHECK_EQUAL(1 << 7, buffer[18]);
 
   done();
 }
@@ -91,9 +110,16 @@ TEST(RecordsMethodNames) {
 
 void thenACompleteLogIsOutput(char buffer[]) {
   int index = 0;
-  CHECK_EQUAL(TRACE_START, buffer[index++]);
+
+  CHECK_EQUAL(THREAD_META, buffer[index++]);
+  CHECK_EQUAL(-5 & 0x000000ff, buffer[longThen]);
+  CHECK_EQUAL(0, buffer[intThen]);
+
+  CHECK_EQUAL(TRACE_WITH_TIME, buffer[index++]);
   CHECK_EQUAL(2, buffer[intThen]);
-  CHECK_EQUAL(5, buffer[longThen]);
+  CHECK_EQUAL(-5 & 0x000000ff, buffer[longThen]);
+  CHECK_EQUAL(44, buffer[longThen]);
+  CHECK_EQUAL(55, buffer[longThen]);
 
   CHECK_EQUAL(FRAME_BCI_ONLY, buffer[index++]);
   CHECK_EQUAL(0, buffer[intThen]);
@@ -132,8 +158,9 @@ void thenACompleteLogIsOutput(char buffer[]) {
 TEST(ExtractsStackTraceInformation) {
   givenLogWriter();
   givenStackTrace();
+  timespec tspec = {44, 55};
 
-  logWriter.record(trace);
+  logWriter.record(tspec, trace);
 
   thenACompleteLogIsOutput(buffer);
 

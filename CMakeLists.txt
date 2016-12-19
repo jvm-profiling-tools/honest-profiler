@@ -32,7 +32,7 @@ include_directories(${JAVA_INCLUDE_PATH2})
 
 if (DEFINED ENV{UNITTEST_INCLUDE_DIRS})
     message("User has configured " $ENV{UNITTEST_INCLUDE_DIRS} " as the unit test include directory")
-    include_directories($ENV{UNITTEST_INCLUDE_DIRS})
+    file(GLOB_RECURSE UNIT_TEST_H $ENV{UNITTEST_INCLUDE_DIRS}/*UnitTest++.h)
 else()
     if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         find_package(UnitTest++ REQUIRED NO_MODULE)
@@ -41,7 +41,11 @@ else()
         pkg_check_modules (unittest++ REQUIRED unittest++)
         include_directories(${unittest++_INCLUDE_DIRS})
     endif()
+    file(GLOB_RECURSE UNIT_TEST_H ${unittest++_INCLUDE_DIRS}/*UnitTest++.h)
 endif()
+
+get_filename_component(UNIT_TEST_INCL ${UNIT_TEST_H} DIRECTORY)
+include_directories(${UNIT_TEST_INCL})
 
 # include of gcc 4.8 headers specifically to work around
 # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=729933
@@ -75,6 +79,7 @@ set(SOURCE_FILES
 
 set(TEST_FILES
     ${SRC_TEST}/fixtures.h
+    ${SRC_TEST}/test_misc.cpp
     ${SRC_TEST}/test_circular_queue.cpp
     ${SRC_TEST}/test.cpp
     ${SRC_TEST}/test_log_writer.cpp
@@ -125,13 +130,15 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GLOBAL_WARNINGS} ${GLOBAL_COPTS} -pthr
 
 add_library(${OUTPUT} SHARED ${SOURCE_FILES})
 
-if ("${CMAKE_SYSTEM_NAME}" STREQUAL "FreeBSD")
-    target_link_libraries(${OUTPUT} ${JNI_LIBRARIES})
-else()
+if ("${CMAKE_SYSTEM_NAME}" STREQUAL "FreeBSD") 
+    target_link_libraries(${OUTPUT} ${JNI_LIBRARIES} rt)
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     target_link_libraries(${OUTPUT} ${JNI_LIBRARIES} dl)
+else()
+    target_link_libraries(${OUTPUT} ${JNI_LIBRARIES} dl rt)
 endif()
 
-add_executable(unitTests ${TEST_FILES})
+add_executable(unitTests ${UNIT_TEST_H} ${TEST_FILES})
 
 if (DEFINED ENV{UNITTEST_LIBRARIES})
     message("User has configured " $ENV{UNITTEST_LIBRARIES} " as the unit test libraries")

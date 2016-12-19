@@ -81,7 +81,19 @@ public class TreeTableViewModel implements ProfileListener
                     if (treeItem instanceof ThreadNodeAdapter)
                     {
                         ThreadNodeAdapter adapter = (ThreadNodeAdapter) treeItem;
-                        text = ("Thread " + adapter.getThreadId());
+                        String name = adapter.getThreadName();
+                        StringBuilder builder = new StringBuilder("Thread").append(' ');
+                        if (adapter.getThreadId() < 0) {
+                            builder.append("unknown id");
+                        } else {
+                            builder.append(adapter.getThreadId());
+                        }
+                        builder
+                            .append(' ')
+                            .append('[')
+                            .append((name == null || "".equals(name)) ? "Unknown" : name)
+                            .append(']');
+                        text = builder.toString();
                     }
                     else if (treeItem instanceof MethodNodeAdapter)
                     {
@@ -131,7 +143,7 @@ public class TreeTableViewModel implements ProfileListener
             {
                 long threadId = tree.getThreadId();
                 ThreadNodeAdapter thread = threadsById.computeIfAbsent(threadId, id -> {
-                    ThreadNodeAdapter adapter = new ThreadNodeAdapter(id);
+                    ThreadNodeAdapter adapter = new ThreadNodeAdapter(id, tree.getThreadName());
                     children.add(adapter);
                     return adapter;
                 });
@@ -144,11 +156,13 @@ public class TreeTableViewModel implements ProfileListener
     {
 
         private final long threadId;
+        private final String threadName;
         private final MethodNodeAdapter adapter;
 
-        public ThreadNodeAdapter(long threadId)
+        public ThreadNodeAdapter(long threadId, String threadName)
         {
             this.threadId = threadId;
+            this.threadName = threadName;
             adapter = new MethodNodeAdapter();
             setExpanded(true);
             getChildren().add(adapter);
@@ -163,11 +177,15 @@ public class TreeTableViewModel implements ProfileListener
         {
             return threadId;
         }
+
+        public String getThreadName()
+        {
+            return threadName;
+        }
     }
 
     static class MethodNodeAdapter extends TreeItem<ProfileNode>
     {
-
         private final Map<Long, MethodNodeAdapter> childrenByMethodId;
 
         private boolean firstUpdate;

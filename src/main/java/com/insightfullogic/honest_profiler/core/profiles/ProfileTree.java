@@ -21,16 +21,23 @@
  **/
 package com.insightfullogic.honest_profiler.core.profiles;
 
+import com.insightfullogic.honest_profiler.core.parser.ThreadMeta;
+
 public final class ProfileTree
 {
 
     private final int numberOfSamples;
-    private final long threadId;
+    private final ThreadMeta threadMeta;
     private final ProfileNode rootNode;
 
     public ProfileTree(long threadId, ProfileNode rootNode, int numberOfSamples)
     {
-        this.threadId = threadId;
+        this(new ThreadMeta(threadId, ""), rootNode, numberOfSamples);
+    }
+
+    public ProfileTree(ThreadMeta threadMeta, ProfileNode rootNode, int numberOfSamples)
+    {
+        this.threadMeta = threadMeta;
         this.rootNode = rootNode;
         this.numberOfSamples = numberOfSamples;
     }
@@ -47,7 +54,12 @@ public final class ProfileTree
 
     public long getThreadId()
     {
-        return threadId;
+        return threadMeta.getThreadId();
+    }
+
+    public String getThreadName()
+    {
+        return threadMeta.getThreadName();
     }
 
     @Override

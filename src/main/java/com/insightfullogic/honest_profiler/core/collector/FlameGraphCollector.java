@@ -27,6 +27,7 @@ import com.insightfullogic.honest_profiler.core.parser.LogEventListener;
 import com.insightfullogic.honest_profiler.core.parser.Method;
 import com.insightfullogic.honest_profiler.core.parser.StackFrame;
 import com.insightfullogic.honest_profiler.core.parser.TraceStart;
+import com.insightfullogic.honest_profiler.core.parser.ThreadMeta;
 import com.insightfullogic.honest_profiler.core.profiles.FlameGraph;
 import com.insightfullogic.honest_profiler.core.profiles.FlameGraphListener;
 import com.insightfullogic.honest_profiler.core.profiles.FlameTrace;
@@ -74,6 +75,11 @@ public class FlameGraphCollector implements LogEventListener
     public void handle(Method newMethod)
     {
         methods.put(newMethod.getMethodId(), newMethod);
+    }
+
+    @Override
+    public void handle(ThreadMeta newThreadMeta)
+    {
     }
 
     @Override

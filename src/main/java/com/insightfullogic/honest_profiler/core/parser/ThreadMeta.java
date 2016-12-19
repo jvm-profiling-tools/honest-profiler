@@ -21,28 +21,17 @@
  **/
 package com.insightfullogic.honest_profiler.core.parser;
 
-
 import java.util.Objects;
 
-public final class TraceStart implements LogEvent
+public final class ThreadMeta implements LogEvent
 {
-
-    private final int numberOfFrames;
     private final long threadId;
-    private final long timeSec;
-    private final long timeNano;
+    private final String threadName;
 
-    public TraceStart(int numberOfFrames, long threadId, long timeSec, long timeNano)
+    public ThreadMeta(long threadId, String name)
     {
-        this.numberOfFrames = numberOfFrames;
         this.threadId = threadId;
-        this.timeSec = timeSec;
-        this.timeNano = timeNano;
-    }
-
-    public int getNumberOfFrames()
-    {
-        return numberOfFrames;
+        this.threadName = name;
     }
 
     public long getThreadId()
@@ -50,14 +39,9 @@ public final class TraceStart implements LogEvent
         return threadId;
     }
 
-    public long getTraceEpoch()
+    public String getThreadName()
     {
-        return timeSec;
-    }
-
-    public long getTraceEpochNano()
-    {
-        return timeNano;
+        return threadName;
     }
 
     @Override
@@ -66,17 +50,15 @@ public final class TraceStart implements LogEvent
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        TraceStart that = (TraceStart) o;
-        return Objects.equals(numberOfFrames, that.numberOfFrames)
-            && Objects.equals(threadId, that.threadId)
-            && Objects.equals(timeSec, that.timeSec)
-            && Objects.equals(timeNano, that.timeNano);
+        ThreadMeta that = (ThreadMeta) o;
+        return Objects.equals(threadName, that.threadName)
+            && Objects.equals(threadId, that.threadId);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(numberOfFrames, threadId, timeSec, timeNano);
+        return Objects.hash(threadId, threadName);
     }
 
     @Override
@@ -88,11 +70,9 @@ public final class TraceStart implements LogEvent
     @Override
     public String toString()
     {
-        return "TraceStart{" +
-            "numberOfFrames=" + numberOfFrames +
-            ", threadId=" + threadId +
-            ", traceEpochSec=" + timeSec + 
-            ", traceEpochNano=" + timeNano + 
+        return "ThreadMeta{" +
+            "threadId=" + threadId +
+            ", threadName=" + threadName + 
             '}';
     }
 }

@@ -8,14 +8,14 @@
  * ConcurrentMap_Linear: https://github.com/preshing/junction/blob/master/junction/ConcurrentMap_Linear.h.
  */
 
-#if __GNUC__ == 4 && __GNUC_MINOR__ < 6 && !defined(__APPLE__) && !defined(__FreeBSD__)
+#if __GNUC__ == 4 && __GNUC_MINOR__ < 6 && !defined(__APPLE__) && !defined(__FreeBSD__) && !defined(__clang__)
 #	include <cstdatomic>
 #else
 #	include <atomic>
 #endif
 
 #include <vector>
-#include <condition_variable>
+#include <mutex>
 
 #include "trace.h"
 
@@ -375,26 +375,26 @@ struct Migration : public JobCoordinator::Job {
 		std::atomic_int index;
 	};
 
-	typedef typename std::vector<Source> TablesVec;
-	typedef typename TablesVec::iterator TablesIterator;
-
 	Map &map;
 	HashTable *dest;
-	TablesVec sources;
+	int nSources;
+	Source *sources;
 	std::atomic<bool> overflowed;
 	std::atomic<int> state; // odd means migration completed
 	std::atomic<int> unitsRemaining;
 	Migration<Map> *prev;
 
-	Migration(Map &self, int numSources) : map(self), sources(numSources),
-		overflowed(false), state(0), unitsRemaining(0), prev(nullptr) {}
+	Migration(Map &self, int numSources) : map(self), nSources(numSources),
+			  overflowed(false), state(0), unitsRemaining(0), prev(nullptr) {
+		sources = new Source[nSources];
+	}
 
 	virtual ~Migration() {
 		if (prev != nullptr) delete prev;
-		TablesIterator it = sources.begin();
-		for (it++; it != sources.end(); it++) {
-			if (it->table) delete it->table;
-		} // skip 1st
+		for (int i = 1; i < nSources; ++i) { // skip 0
+			if (sources[i].table) delete sources[i].table;
+		}
+		delete[] sources;
 	}
 
 	virtual void run() {
@@ -404,8 +404,8 @@ struct Migration : public JobCoordinator::Job {
 		}
 		state.fetch_add(2, std::memory_order_relaxed);
 
-		for (TablesIterator it = sources.begin(); it != sources.end(); it++) {
-			HashTable *table = it->table;
+		for (int it = 0; it < nSources; it++) {
+			HashTable *table = sources[it].table;
 
 			while (true) {
 				if (state.load(std::memory_order_relaxed) & 1) {
@@ -413,7 +413,7 @@ struct Migration : public JobCoordinator::Job {
 					goto end_migration;
 				}
 
-				int index = it->index.fetch_add(kMigrationChunkSize, std::memory_order_relaxed);
+				int index = sources[it].index.fetch_add(kMigrationChunkSize, std::memory_order_relaxed);
 				if (index > table->sizeMask) break; // migrate next source
 
 				bool rangeOverflow = migrateRange(table, index);
@@ -455,18 +455,18 @@ end_migration:
 			JobCoordinator::Job *startedMigration = origTable->coordinator.get();
 
 			if (startedMigration == this) { // make sure no new migrations started
-				Migration *m = new Migration(map, sources.size() + 1);
+				Migration *m = new Migration(map, nSources + 1);
 				m->dest = new HashTable((dest->sizeMask + 1) << 1);
-				int unitsRemaining = 0, i = 0;
-				for (TablesIterator it = sources.begin(); it != sources.end(); it++, i++) {
-					unitsRemaining += it->table->getMigrationSize();
-					m->sources[i].table = it->table;
-					m->sources[i].index.store(0, std::memory_order_relaxed);
-					it->table = nullptr;
+				int unitsRemaining = 0;
+				for (int it = 0; it < nSources; it++) {
+					unitsRemaining += sources[it].table->getMigrationSize();
+					m->sources[it].table = sources[it].table;
+					m->sources[it].index.store(0, std::memory_order_relaxed);
+					sources[it].table = nullptr;
 				}
 
-				m->sources[sources.size()].table = dest;
-				m->sources[sources.size()].index.store(0, std::memory_order_relaxed);
+				m->sources[nSources].table = dest;
+				m->sources[nSources].index.store(0, std::memory_order_relaxed);
 				m->unitsRemaining = unitsRemaining + dest->getMigrationSize();
 				m->prev = this;
 
