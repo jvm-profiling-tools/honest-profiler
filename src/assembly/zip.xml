@@ -29,6 +29,7 @@
             <directory>${basedir}/build</directory>
             <includes>
                 <include>liblagent.so</include>
+                <include>liblagent.dylib</include>
             </includes>
             <outputDirectory>/</outputDirectory>
         </fileSet>

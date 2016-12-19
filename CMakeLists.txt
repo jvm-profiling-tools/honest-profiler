@@ -35,11 +35,12 @@ if (DEFINED ENV{UNITTEST_INCLUDE_DIRS})
     include_directories($ENV{UNITTEST_INCLUDE_DIRS})
 else()
     if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-        pkg_check_modules (unittest++ REQUIRED UnitTest++)
+        find_package(UnitTest++ REQUIRED NO_MODULE)
+        include_directories(${UTPP_INCLUDE_DIRS})
     else()
         pkg_check_modules (unittest++ REQUIRED unittest++)
+        include_directories(${unittest++_INCLUDE_DIRS})
     endif()
-    include_directories(${unittest++_INCLUDE_DIRS})
 endif()
 
 # include of gcc 4.8 headers specifically to work around
@@ -96,7 +97,7 @@ set(GLOBAL_COPTS "${GLOBAL_COPTS} -funsigned-char -fno-asynchronous-unwind-table
 # Platform Specific
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(GLOBAL_COPTS "${GLOBAL_COPTS} -DTARGET_RT_MAC_CFM=0")
-    if("${CMAKE_SIZEOF_VOID_P}" EQUAL "8") 
+    if("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
         message("-- Detected 64 bit Mac")
         set(GLOBAL_COPTS "${GLOBAL_COPTS} -D__LP64__=1")
     endif()
@@ -124,7 +125,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GLOBAL_WARNINGS} ${GLOBAL_COPTS} -pthr
 
 add_library(${OUTPUT} SHARED ${SOURCE_FILES})
 
-if ("${CMAKE_SYSTEM_NAME}" STREQUAL "FreeBSD") 
+if ("${CMAKE_SYSTEM_NAME}" STREQUAL "FreeBSD")
     target_link_libraries(${OUTPUT} ${JNI_LIBRARIES})
 else()
     target_link_libraries(${OUTPUT} ${JNI_LIBRARIES} dl)
@@ -136,7 +137,11 @@ if (DEFINED ENV{UNITTEST_LIBRARIES})
     message("User has configured " $ENV{UNITTEST_LIBRARIES} " as the unit test libraries")
     target_link_libraries(unitTests ${OUTPUT} $ENV{UNITTEST_LIBRARIES})
 else()
-    target_link_libraries(unitTests ${OUTPUT} ${unittest++_LIBRARIES})
+    if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+        target_link_libraries(unitTests ${OUTPUT} UnitTest++)
+    else()
+        target_link_libraries(unitTests ${OUTPUT} ${unittest++_LIBRARIES})
+    endif()
 endif()
 
 # make test
