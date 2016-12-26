@@ -3,6 +3,9 @@
 build*
 target/
 
+# Gradle
+!build.gradle
+
 # vim
 *.swp
 
@@ -39,3 +42,4 @@ Testing
 /.project
 .settings
 
+/bin/
