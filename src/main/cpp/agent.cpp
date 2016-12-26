@@ -9,7 +9,7 @@
 #include "profiler.h"
 #include "controller.h"
 
-#if defined(__APPLE__) || defined(__FreeBSD__)
+#if defined(__APPLE__) || defined(__FreeBSD__) || defined(__linux)
 #define GETENV_NEW_THREAD_ASYNC_UNSAFE
 #endif
 
