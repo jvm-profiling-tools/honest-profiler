@@ -19,45 +19,26 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.ports.javafx;
+package com.insightfullogic.honest_profiler.ports.javafx.view.cell;
 
 import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.TableCell;
-import javafx.scene.paint.Color;
 
-import static javafx.scene.paint.Color.DARKRED;
-
-public class GraphicalShareTableCell extends TableCell<FlatProfileEntry, Double>
+public class MethodNameTableCell extends TableCell<FlatProfileEntry, String>
 {
 
-    private static final double HEIGHT = 29;
-    private static final Color TIME_TAKEN_COLOR = DARKRED;
-
-    private final double width;
-
-    public GraphicalShareTableCell(final double width)
-    {
-        this.width = width;
-    }
+    private static final String METHOD_NAME_STYLE =
+        "-fx-font-family: Courier New;" +
+            "-fx-font-weight: bold;";
 
     @Override
-    protected void updateItem(Double timeShare, boolean empty)
+    protected void updateItem(String value, boolean isEmpty)
     {
-        if (timeShare == null)
+        super.updateItem(value, isEmpty);
+        if (!isEmpty)
         {
-            setText("");
-        }
-        else
-        {
-            final double scaledShare = timeShare * width;
-
-            Canvas canvas = new Canvas(width, HEIGHT);
-            GraphicsContext context = canvas.getGraphicsContext2D();
-            context.setFill(TIME_TAKEN_COLOR);
-            context.fillRect(0, 0, scaledShare, HEIGHT);
-            setGraphic(canvas);
+            setText(value);
+            setStyle(METHOD_NAME_STYLE);
         }
     }
 

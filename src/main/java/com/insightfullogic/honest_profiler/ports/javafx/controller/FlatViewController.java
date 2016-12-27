@@ -24,10 +24,11 @@ package com.insightfullogic.honest_profiler.ports.javafx.controller;
 import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
-import com.insightfullogic.honest_profiler.ports.javafx.GraphicalShareTableCell;
-import com.insightfullogic.honest_profiler.ports.javafx.MethodNameTableCell;
-import com.insightfullogic.honest_profiler.ports.javafx.Rendering;
-import com.insightfullogic.honest_profiler.ports.javafx.TimeShareTableCell;
+import com.insightfullogic.honest_profiler.ports.javafx.view.Rendering;
+import com.insightfullogic.honest_profiler.ports.javafx.view.cell.GraphicalShareTableCell;
+import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTableCell;
+import com.insightfullogic.honest_profiler.ports.javafx.view.cell.TimeShareTableCell;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;

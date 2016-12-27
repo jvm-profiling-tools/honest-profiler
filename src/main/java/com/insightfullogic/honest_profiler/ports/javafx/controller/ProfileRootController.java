@@ -24,8 +24,8 @@ package com.insightfullogic.honest_profiler.ports.javafx.controller;
 import com.insightfullogic.honest_profiler.core.filters.FilterParseException;
 import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
 import com.insightfullogic.honest_profiler.ports.javafx.WindowViewModel;
-import com.insightfullogic.honest_profiler.ports.javafx.flame_graph.FlameGraphCanvas;
 import com.insightfullogic.honest_profiler.ports.javafx.profile.CachingProfileListener;
+import com.insightfullogic.honest_profiler.ports.javafx.view.FlameGraphCanvas;
 
 import javafx.application.Platform;
 import javafx.collections.ObservableList;

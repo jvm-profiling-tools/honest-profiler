@@ -26,7 +26,7 @@ import com.insightfullogic.honest_profiler.core.parser.Method;
 import com.insightfullogic.honest_profiler.core.profiles.FlameGraph;
 import com.insightfullogic.honest_profiler.core.profiles.FlameTrace;
 import com.insightfullogic.honest_profiler.core.sources.LogSource;
-import com.insightfullogic.honest_profiler.ports.javafx.Rendering;
+import com.insightfullogic.honest_profiler.ports.javafx.view.Rendering;
 import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
 
 import java.io.*;

@@ -23,7 +23,8 @@ package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
 import com.insightfullogic.honest_profiler.core.profiles.FlameGraph;
 import com.insightfullogic.honest_profiler.core.profiles.FlameGraphListener;
-import com.insightfullogic.honest_profiler.ports.javafx.flame_graph.FlameGraphCanvas;
+import com.insightfullogic.honest_profiler.ports.javafx.view.FlameGraphCanvas;
+
 import javafx.fxml.FXML;
 
 /**

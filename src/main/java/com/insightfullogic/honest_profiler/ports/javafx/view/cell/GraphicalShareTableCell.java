@@ -19,34 +19,45 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.ports.javafx;
+package com.insightfullogic.honest_profiler.ports.javafx.view.cell;
 
 import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.TableCell;
+import javafx.scene.paint.Color;
 
-import static com.insightfullogic.honest_profiler.ports.javafx.Rendering.renderTimeShare;
-import static javafx.geometry.Pos.CENTER_RIGHT;
-import static javafx.scene.text.TextAlignment.RIGHT;
+import static javafx.scene.paint.Color.DARKRED;
 
-public class TimeShareTableCell extends TableCell<FlatProfileEntry, Double>
+public class GraphicalShareTableCell extends TableCell<FlatProfileEntry, Double>
 {
 
-    public TimeShareTableCell()
+    private static final double HEIGHT = 29;
+    private static final Color TIME_TAKEN_COLOR = DARKRED;
+
+    private final double width;
+
+    public GraphicalShareTableCell(final double width)
     {
-        setTextAlignment(RIGHT);
-        setAlignment(CENTER_RIGHT);
+        this.width = width;
     }
 
     @Override
-    protected void updateItem(Double item, boolean isEmpty)
+    protected void updateItem(Double timeShare, boolean empty)
     {
-        if (isEmpty)
+        if (timeShare == null)
         {
             setText("");
         }
         else
         {
-            setText(renderTimeShare(item));
+            final double scaledShare = timeShare * width;
+
+            Canvas canvas = new Canvas(width, HEIGHT);
+            GraphicsContext context = canvas.getGraphicsContext2D();
+            context.setFill(TIME_TAKEN_COLOR);
+            context.fillRect(0, 0, scaledShare, HEIGHT);
+            setGraphic(canvas);
         }
     }
 

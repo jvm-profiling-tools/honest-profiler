@@ -19,26 +19,34 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.ports.javafx;
+package com.insightfullogic.honest_profiler.ports.javafx.view.cell;
 
 import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
 import javafx.scene.control.TableCell;
 
-public class MethodNameTableCell extends TableCell<FlatProfileEntry, String>
+import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderTimeShare;
+import static javafx.geometry.Pos.CENTER_RIGHT;
+import static javafx.scene.text.TextAlignment.RIGHT;
+
+public class TimeShareTableCell extends TableCell<FlatProfileEntry, Double>
 {
 
-    private static final String METHOD_NAME_STYLE =
-        "-fx-font-family: Courier New;" +
-            "-fx-font-weight: bold;";
+    public TimeShareTableCell()
+    {
+        setTextAlignment(RIGHT);
+        setAlignment(CENTER_RIGHT);
+    }
 
     @Override
-    protected void updateItem(String value, boolean isEmpty)
+    protected void updateItem(Double item, boolean isEmpty)
     {
-        super.updateItem(value, isEmpty);
-        if (!isEmpty)
+        if (isEmpty)
         {
-            setText(value);
-            setStyle(METHOD_NAME_STYLE);
+            setText("");
+        }
+        else
+        {
+            setText(renderTimeShare(item));
         }
     }
 

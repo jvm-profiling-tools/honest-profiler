@@ -19,7 +19,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.ports.javafx.flame_graph;
+package com.insightfullogic.honest_profiler.ports.javafx.view;
 
 import com.insightfullogic.honest_profiler.core.parser.Method;
 import com.insightfullogic.honest_profiler.core.profiles.FlameGraph;
@@ -34,12 +34,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Window;
 
+import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderMethod;
+import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderShortMethod;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import static com.insightfullogic.honest_profiler.ports.javafx.Rendering.renderMethod;
-import static com.insightfullogic.honest_profiler.ports.javafx.Rendering.renderShortMethod;
 
 // TODO: remove any flame graph calculation logic from the canvas.
 public class FlameGraphCanvas extends Canvas implements FlameGraphListener

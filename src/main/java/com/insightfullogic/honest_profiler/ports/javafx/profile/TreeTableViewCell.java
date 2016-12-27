@@ -21,7 +21,7 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.profile;
 
-import static com.insightfullogic.honest_profiler.ports.javafx.Rendering.renderTimeShare;
+import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderTimeShare;
 import static javafx.scene.paint.Color.RED;
 import static javafx.scene.paint.Color.WHEAT;
 

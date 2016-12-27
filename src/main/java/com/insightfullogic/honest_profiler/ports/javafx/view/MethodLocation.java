@@ -19,7 +19,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.ports.javafx.flame_graph;
+package com.insightfullogic.honest_profiler.ports.javafx.view;
 
 import com.insightfullogic.honest_profiler.core.parser.Method;
 import javafx.scene.shape.Rectangle;

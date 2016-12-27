@@ -21,7 +21,7 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
-import static com.insightfullogic.honest_profiler.ports.javafx.Rendering.renderMethod;
+import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderMethod;
 
 import java.util.HashMap;
 import java.util.List;
@@ -31,8 +31,8 @@ import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileTree;
-import com.insightfullogic.honest_profiler.ports.javafx.Rendering;
 import com.insightfullogic.honest_profiler.ports.javafx.profile.TreeTableViewCell;
+import com.insightfullogic.honest_profiler.ports.javafx.view.Rendering;
 
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.ObservableList;
