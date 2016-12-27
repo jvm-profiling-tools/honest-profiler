@@ -28,7 +28,10 @@ import com.insightfullogic.honest_profiler.core.profiles.Profile;
  */
 public interface Filter
 {
+    static enum Mode
+    {
+        CONTAINS, EQUALS, STARTS_WITH, ENDS_WITH, MATCHES, GT, LT, GE, LE
+    }
 
     void filter(Profile profile);
-
 }

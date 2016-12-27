@@ -20,16 +20,15 @@ package com.insightfullogic.honest_profiler.core.filters;
 
 import static com.insightfullogic.honest_profiler.core.filters.Filter.Mode.CONTAINS;
 
-public final class ClassNameFilter extends StringFilter
+public final class MethodNameFilter extends StringFilter
 {
-
-    ClassNameFilter(final String className)
+    MethodNameFilter(final String className)
     {
         this(CONTAINS, className);
     }
 
-    public ClassNameFilter(Mode mode, String input)
+    public MethodNameFilter(Mode mode, String input)
     {
-        super(mode, frame -> frame.getClassName(), input);
+        super(mode, frame -> frame.getMethodName(), input);
     }
 }
