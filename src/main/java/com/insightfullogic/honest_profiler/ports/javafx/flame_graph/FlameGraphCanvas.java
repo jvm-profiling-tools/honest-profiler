@@ -56,7 +56,7 @@ public class FlameGraphCanvas extends Canvas implements FlameGraphListener
     private List<MethodLocation> methodLocations;
     private FlameGraph graph;
 
-    FlameGraphCanvas()
+    public FlameGraphCanvas()
     {
         setOnMouseMoved(this::displayMethodName);
     }

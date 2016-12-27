@@ -26,6 +26,9 @@ import org.slf4j.Logger;
 import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
+import com.insightfullogic.honest_profiler.ports.javafx.controller.FlatViewModel;
+import com.insightfullogic.honest_profiler.ports.javafx.controller.TraceCountViewModel;
+import com.insightfullogic.honest_profiler.ports.javafx.controller.TreeTableViewModel;
 
 import javafx.application.Platform;
 

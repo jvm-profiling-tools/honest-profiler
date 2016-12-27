@@ -19,7 +19,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.ports.javafx.profile;
+package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
 import static com.insightfullogic.honest_profiler.ports.javafx.Rendering.renderMethod;
 
@@ -32,6 +32,7 @@ import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileTree;
 import com.insightfullogic.honest_profiler.ports.javafx.Rendering;
+import com.insightfullogic.honest_profiler.ports.javafx.profile.TreeTableViewCell;
 
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.ObservableList;
@@ -57,21 +58,21 @@ public class TreeTableViewModel implements ProfileListener
         treeView.setShowRoot(false);
         treeView.setRoot(rootNode);
         treeView.setEditable(false);
-        
+
         TreeTableColumn<ProfileNode, String> totalColumn = new TreeTableColumn<>("Total");
         totalColumn.setSortable(false);
         totalColumn.setCellValueFactory(
-            (TreeTableColumn.CellDataFeatures<ProfileNode, String> param) -> 
+            (TreeTableColumn.CellDataFeatures<ProfileNode, String> param) ->
             new ReadOnlyStringWrapper(param.getValue().getValue()!=null?Rendering.renderTimeShare(param.getValue().getValue().getTotalTimeShare()):"")
         );
 
         TreeTableColumn<ProfileNode, String> selfColumn = new TreeTableColumn<>("Self");
         selfColumn.setSortable(false);
         selfColumn.setCellValueFactory(
-            (TreeTableColumn.CellDataFeatures<ProfileNode, String> param) -> 
+            (TreeTableColumn.CellDataFeatures<ProfileNode, String> param) ->
             new ReadOnlyStringWrapper(param.getValue().getValue()!=null?Rendering.renderTimeShare(param.getValue().getValue().getSelfTimeShare()):"")
         );
-            
+
         TreeTableColumn<ProfileNode, String> methodColumn = new TreeTableColumn<>("Method");
         methodColumn.setSortable(false);
         methodColumn.setCellValueFactory(
@@ -102,7 +103,7 @@ public class TreeTableViewModel implements ProfileListener
 				return new ReadOnlyStringWrapper(text);
                 }
             );
-        
+
         TreeTableColumn<ProfileNode, ProfileNode> percentColumn = new TreeTableColumn<>("%");
         percentColumn.setPrefWidth(65);
         percentColumn.setSortable(false);
@@ -115,7 +116,7 @@ public class TreeTableViewModel implements ProfileListener
             	return new TreeTableViewCell();
             }}
         );
-        
+
         treeView.getColumns().setAll(methodColumn, percentColumn, totalColumn, selfColumn);
     }
 
@@ -125,7 +126,7 @@ public class TreeTableViewModel implements ProfileListener
         rootNode.update(profile.getTrees());
     }
 
-    static class RootNodeAdapter extends TreeItem<ProfileNode>
+    public static class RootNodeAdapter extends TreeItem<ProfileNode>
     {
 
         private final Map<Long, ThreadNodeAdapter> threadsById;
@@ -152,7 +153,7 @@ public class TreeTableViewModel implements ProfileListener
         }
     }
 
-    static class ThreadNodeAdapter extends TreeItem<ProfileNode>
+    public static class ThreadNodeAdapter extends TreeItem<ProfileNode>
     {
 
         private final long threadId;
@@ -184,7 +185,7 @@ public class TreeTableViewModel implements ProfileListener
         }
     }
 
-    static class MethodNodeAdapter extends TreeItem<ProfileNode>
+    public static class MethodNodeAdapter extends TreeItem<ProfileNode>
     {
         private final Map<Long, MethodNodeAdapter> childrenByMethodId;
 

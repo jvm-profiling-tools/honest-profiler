@@ -26,7 +26,7 @@ import static javafx.scene.paint.Color.RED;
 import static javafx.scene.paint.Color.WHEAT;
 
 import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
-import com.insightfullogic.honest_profiler.ports.javafx.profile.TreeTableViewModel.MethodNodeAdapter;
+import com.insightfullogic.honest_profiler.ports.javafx.controller.TreeTableViewModel.MethodNodeAdapter;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -50,7 +50,7 @@ public class TreeTableViewCell extends TreeTableCell<ProfileNode, ProfileNode>
     protected void updateItem(ProfileNode profileNode, boolean empty)
     {
         super.updateItem(profileNode, empty);
-        
+
         TreeItem<ProfileNode> treeItem = getTreeTableRow().getTreeItem();
 
         if (treeItem instanceof MethodNodeAdapter) {
