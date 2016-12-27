@@ -40,8 +40,8 @@ import static java.util.stream.Collectors.toList;
  */
 public class LogCollector implements LogEventListener
 {
-    private static final Comparator<ProfileTree> sortBySampleCount
-        = comparing(ProfileTree::getNumberOfSamples).reversed();
+    private static final Comparator<ProfileTree> sortBySampleCount = comparing(
+                    ProfileTree::getNumberOfSamples).reversed();
 
     private final ProfileListener listener;
 
@@ -110,14 +110,16 @@ public class LogCollector implements LogEventListener
         {
             // might be null if the method hasn't been seen before
             // if this is the case then the handle(Method) will patch it
-            currentTreeNode = treesByThreadId.compute(currentThread, (id, previous) -> {
+            currentTreeNode = treesByThreadId.compute(currentThread, (id, previous) ->
+            {
                 if (previous != null)
+                {
                     return previous.callAgain();
+                }
 
                 return new NodeCollector(methodId);
             });
-        }
-        else
+        } else
         {
             currentTreeNode = currentTreeNode.newChildCall(methodId);
         }
@@ -133,7 +135,8 @@ public class LogCollector implements LogEventListener
     @Override
     public void handle(ThreadMeta newThreadMeta)
     {
-        metaByThreadId.put(newThreadMeta.getThreadId(), newThreadMeta);
+        metaByThreadId.merge(newThreadMeta.getThreadId(), newThreadMeta,
+                        (oldMeta, newMeta) -> oldMeta.update(newMeta));
     }
 
     @Override
@@ -153,29 +156,24 @@ public class LogCollector implements LogEventListener
 
     private void emitProfile()
     {
-        listener.accept(
-            new Profile(
-                traceCount,
-                callCountsByMethodId.aggregate(traceCount),
-                callCountsByFrame.aggregate(traceCount),
-                buildTreeProfile()));
+        listener.accept(new Profile(traceCount, callCountsByMethodId.aggregate(traceCount),
+                        callCountsByFrame.aggregate(traceCount), buildTreeProfile()));
     }
 
     private List<ProfileTree> buildTreeProfile()
     {
-        return treesByThreadId.entrySet()
-            .stream()
-            .map(node -> {
-                final Long threadId = node.getKey();
-                final ThreadMeta meta = metaByThreadId.get(threadId);
-                final NodeCollector collector = node.getValue();
-                if (meta == null) {
-                    return new ProfileTree(threadId, collector.normalise(methodByMethodId::get), collector.getNumberOfVisits());
-                }
-                return new ProfileTree(meta, collector.normalise(methodByMethodId::get), collector.getNumberOfVisits());
-            })
-            .sorted(sortBySampleCount)
-            .collect(toList());
+        return treesByThreadId.entrySet().stream().map(node ->
+        {
+            final Long threadId = node.getKey();
+            final ThreadMeta meta = metaByThreadId.get(threadId);
+            final NodeCollector collector = node.getValue();
+            if (meta == null)
+            {
+                return new ProfileTree(threadId, collector.normalise(methodByMethodId::get),
+                                collector.getNumberOfVisits());
+            }
+            return new ProfileTree(meta, collector.normalise(methodByMethodId::get),
+                            collector.getNumberOfVisits());
+        }).sorted(sortBySampleCount).collect(toList());
     }
-
 }
