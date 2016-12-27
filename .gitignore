@@ -4,6 +4,7 @@ build*
 target/
 
 # Gradle
+.gradle
 !build.gradle
 
 # vim
