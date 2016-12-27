@@ -25,54 +25,67 @@ import java.util.Objects;
 
 public final class ThreadMeta implements LogEvent
 {
-    private final long threadId;
-    private final String threadName;
+	private final long threadId;
+	private String threadName;
 
-    public ThreadMeta(long threadId, String name)
-    {
-        this.threadId = threadId;
-        this.threadName = name;
-    }
+	public ThreadMeta(long threadId, String name)
+	{
+		this.threadId = threadId;
+		threadName = name;
+	}
 
-    public long getThreadId()
-    {
-        return threadId;
-    }
+	public long getThreadId()
+	{
+		return threadId;
+	}
 
-    public String getThreadName()
-    {
-        return threadName;
-    }
+	public String getThreadName()
+	{
+		return threadName;
+	}
 
-    @Override
-    public boolean equals(Object o)
-    {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o)
+		{
+			return true;
+		}
+		if (o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
 
-        ThreadMeta that = (ThreadMeta) o;
-        return Objects.equals(threadName, that.threadName)
-            && Objects.equals(threadId, that.threadId);
-    }
+		ThreadMeta that = (ThreadMeta) o;
+		return Objects.equals(threadName, that.threadName)
+						&& Objects.equals(threadId, that.threadId);
+	}
 
-    @Override
-    public int hashCode()
-    {
-        return Objects.hash(threadId, threadName);
-    }
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(threadId, threadName);
+	}
 
-    @Override
-    public void accept(LogEventListener listener)
-    {
-        listener.handle(this);
-    }
+	@Override
+	public void accept(LogEventListener listener)
+	{
+		listener.handle(this);
+	}
 
-    @Override
-    public String toString()
-    {
-        return "ThreadMeta{" +
-            "threadId=" + threadId +
-            ", threadName=" + threadName + 
-            '}';
-    }
+	public ThreadMeta update(ThreadMeta newMeta)
+	{
+		if (newMeta.threadName != null && !newMeta.threadName.isEmpty())
+		{
+			threadName = newMeta.threadName;
+		}
+
+		return this;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "ThreadMeta{" + "threadId=" + threadId + ", threadName=" + threadName + '}';
+	}
 }
