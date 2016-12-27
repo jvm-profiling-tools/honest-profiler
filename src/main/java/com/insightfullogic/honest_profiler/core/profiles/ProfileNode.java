@@ -26,6 +26,7 @@ import com.insightfullogic.honest_profiler.core.collector.Frame;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static java.lang.Math.max;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
@@ -86,6 +87,23 @@ public final class ProfileNode
     public Frame getFrameInfo()
     {
         return method;
+    }
+
+    // Calculate deepest stack depth in descendants. Return 0 if there are no
+    // children.
+    public int getDescendantDepth()
+    {
+        if (children.isEmpty())
+        {
+            return 0;
+        }
+
+        int depth = 0;
+        for (ProfileNode child : children)
+        {
+            depth = max(depth, child.getDescendantDepth() + 1);
+        }
+        return depth;
     }
 
     @Override
