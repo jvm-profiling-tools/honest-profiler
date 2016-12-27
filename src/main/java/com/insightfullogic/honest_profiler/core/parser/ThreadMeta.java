@@ -26,12 +26,12 @@ import java.util.Objects;
 public final class ThreadMeta implements LogEvent
 {
     private final long threadId;
-    private String threadName;
+    private final String threadName;
 
     public ThreadMeta(long threadId, String name)
     {
         this.threadId = threadId;
-        threadName = name;
+        this.threadName = name;
     }
 
     public long getThreadId()
@@ -47,18 +47,12 @@ public final class ThreadMeta implements LogEvent
     @Override
     public boolean equals(Object o)
     {
-        if (this == o)
-        {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass())
-        {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         ThreadMeta that = (ThreadMeta) o;
         return Objects.equals(threadName, that.threadName)
-                        && Objects.equals(threadId, that.threadId);
+            && Objects.equals(threadId, that.threadId);
     }
 
     @Override
@@ -73,19 +67,12 @@ public final class ThreadMeta implements LogEvent
         listener.handle(this);
     }
 
-    public ThreadMeta update(ThreadMeta newMeta)
-    {
-        if (newMeta.threadName != null && !newMeta.threadName.isEmpty())
-        {
-            threadName = newMeta.threadName;
-        }
-
-        return this;
-    }
-
     @Override
     public String toString()
     {
-        return "ThreadMeta{" + "threadId=" + threadId + ", threadName=" + threadName + '}';
+        return "ThreadMeta{" +
+            "threadId=" + threadId +
+            ", threadName=" + threadName + 
+            '}';
     }
 }
