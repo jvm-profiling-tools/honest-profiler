@@ -18,25 +18,41 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.view.cell;
 
-import static com.insightfullogic.honest_profiler.ports.javafx.util.StyleUtil.STYLE_METHOD_NAME;
+import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderPercentage;
+import static javafx.geometry.Pos.CENTER_RIGHT;
+import static javafx.scene.text.TextAlignment.RIGHT;
+
+import java.util.function.Function;
 
 import javafx.scene.control.TableCell;
 
-public class MethodNameTableCell<T> extends TableCell<T, String>
+public class PercentageTableCell<T> extends TableCell<T, Number>
 {
-    @Override
-    protected void updateItem(String value, boolean isEmpty)
-    {
-        super.updateItem(value, isEmpty);
+    private Function<Number, String> styleFunction;
 
-        if (isEmpty || value == null)
+    public PercentageTableCell()
+    {
+        setTextAlignment(RIGHT);
+        setAlignment(CENTER_RIGHT);
+    }
+
+    public PercentageTableCell(Function<Number, String> styleFunction)
+    {
+        this();
+        this.styleFunction = styleFunction;
+    }
+
+    @Override
+    protected void updateItem(Number item, boolean isEmpty)
+    {
+        if (isEmpty || item == null)
         {
             setText(null);
             setStyle(null);
             return;
         }
 
-        setText(value);
-        setStyle(STYLE_METHOD_NAME);
+        setText(renderPercentage(item.doubleValue()));
+        setStyle(this.styleFunction == null ? null : this.styleFunction.apply(item));
     }
 }

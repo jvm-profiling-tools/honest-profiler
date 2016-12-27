@@ -1,148 +1,154 @@
 /**
  * Copyright (c) 2014 Richard Warburton (richard.warburton@gmail.com)
  * <p>
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"),
- * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions:
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  * <p>
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  * <p>
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
-import com.insightfullogic.honest_profiler.core.filters.FilterParseException;
-import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
-import com.insightfullogic.honest_profiler.ports.javafx.WindowViewModel;
-import com.insightfullogic.honest_profiler.ports.javafx.profile.CachingProfileListener;
-import com.insightfullogic.honest_profiler.ports.javafx.view.FlameGraphCanvas;
+import static com.insightfullogic.honest_profiler.core.Monitor.pipe;
+import static com.insightfullogic.honest_profiler.core.Monitor.pipeFile;
+import static com.insightfullogic.honest_profiler.ports.javafx.ViewType.FLAME;
+import static com.insightfullogic.honest_profiler.ports.javafx.ViewType.FLAT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ConversionUtil.getStringConverterForType;
 
-import javafx.application.Platform;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
+import java.io.File;
+
+import com.insightfullogic.honest_profiler.core.collector.FlameGraphCollector;
+import com.insightfullogic.honest_profiler.core.collector.LogCollector;
+import com.insightfullogic.honest_profiler.core.parser.LogEventListener;
+import com.insightfullogic.honest_profiler.core.parser.LogEventPublisher;
+import com.insightfullogic.honest_profiler.core.profiles.Profile;
+import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
+import com.insightfullogic.honest_profiler.core.sources.CantReadFromSourceException;
+import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
+import com.insightfullogic.honest_profiler.ports.javafx.ViewType;
+import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
+import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
+
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.StackPane;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
+import javafx.scene.layout.AnchorPane;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
-
-import static com.insightfullogic.honest_profiler.ports.javafx.WindowViewModel.Window.LANDING;
-
-public class ProfileRootController implements Initializable
+public class ProfileRootController implements ProfileListener, ProfileController
 {
+    @FXML
+    private ChoiceBox<ViewType> viewChoice;
+    @FXML
+    private Label traceCount;
+    @FXML
+    private AnchorPane content;
+    @FXML
+    private FlatViewController flatController;
+    @FXML
+    private TreeViewController treeController;
+    @FXML
+    private FlameViewController flameController;
 
-    private final WindowViewModel windows;
-    private final ProfileFilter profileFilter;
-    private final CachingProfileListener profileListener;
-
-    private static final String[] VIEW_NAMES = {
-        "Tree View",
-        "Flame View",
-        "Flat View"
-    };
+    private ProfileContext profileContext;
 
     @FXML
-    private StackPane content;
-
-    @FXML
-    private TextField filterView;
-
-    // Workaround for canvasses not rendering correctly in stack panes.
-    private final List<Node> views = new ArrayList<>();
-
-    private int currentViewIndex = 0;
-
-    public ProfileRootController(WindowViewModel windows,
-                            ProfileFilter profileFilter,
-                            CachingProfileListener profileListener)
+    public void initialize()
     {
-        this.windows = windows;
-        this.profileFilter = profileFilter;
-        this.profileListener = profileListener;
+        profileContext = new ProfileContext();
+        profileContext.addListeners(this);
+
+        flatController.setProfileContext(profileContext);
+        treeController.setProfileContext(profileContext);
+
+        viewChoice.getSelectionModel().selectedItemProperty()
+            .addListener((property, oldValue, newValue) -> show(newValue));
+        viewChoice.setConverter(getStringConverterForType(ViewType.class));
+        viewChoice.getItems().addAll(ViewType.values());
+        viewChoice.getSelectionModel().select(FLAT);
     }
 
-    public void quit(ActionEvent event)
+    // Instance Accessors
+
+    @Override
+    public ProfileContext getProfileContext()
     {
-        Platform.exit();
+        return profileContext;
     }
 
-    public void flipView(ActionEvent event)
+    // ProfileListener Implementation
+
+    /**
+     * Not threadsafe: must be run on JavaFx thread.
+     */
+    @Override
+    public void accept(Profile profile)
     {
-        flipView();
-        flipButtonText(event);
-        flipContent();
+        traceCount.setText(profile.getTraceCount() + " samples");
     }
 
-    private void flipView()
+    // Profiling startup
+
+    public ProfileContext initializeProfile(Object source)
     {
-        currentViewIndex = (currentViewIndex + 1) % VIEW_NAMES.length;
-    }
-
-    private void flipContent()
-    {
-        final ObservableList<Node> children = content.getChildren();
-        children.clear();
-
-        final Node currentView = views.get(currentViewIndex);
-        children.add(currentView);
-
-        if (currentView instanceof FlameGraphCanvas)
+        if (source instanceof VirtualMachine)
         {
-            final FlameGraphCanvas flameGraphCanvas = (FlameGraphCanvas) currentView;
-            final Scene scene = flameGraphCanvas.getScene();
-            flameGraphCanvas.setHeight(scene.getHeight());
-            flameGraphCanvas.setWidth(scene.getHeight());
-            flameGraphCanvas.refresh();
+            VirtualMachine vm = (VirtualMachine) source;
+            profileContext.setName("Live - " + vm.getDisplayName() + " (" + vm.getId() + ")");
+            monitor((VirtualMachine) source);
         }
+        else
+        {
+            File file = (File) source;
+            profileContext.setName("File - " + file.getName());
+            openFile((File) source);
+        }
+        return profileContext;
     }
 
-    private void flipButtonText(final ActionEvent event)
+    private void openFile(File file)
     {
-        Button button = (Button) event.getSource();
-        button.setText(VIEW_NAMES[currentViewIndex]);
+        final LogEventListener collector = new LogEventPublisher()
+            .publishTo(new LogCollector(profileContext, false))
+            .publishTo(new FlameGraphCollector(flameController));
+        pipe(new FileLogSource(file), collector, false).run();
     }
 
-    public void back(ActionEvent actionEvent)
-    {
-        windows.display(LANDING);
-    }
-
-    public void updateFilter(ActionEvent actionEvent)
+    private void monitor(VirtualMachine machine)
     {
         try
         {
-            profileFilter.updateFilters(filterView.getText());
+            pipeFile(machine.getLogSource(), profileContext);
         }
-        catch (FilterParseException e)
+        catch (CantReadFromSourceException crfse)
         {
-            e.printStackTrace();
+            throw new RuntimeException(crfse.getMessage(), crfse);
         }
-        profileListener.reflushLastProfile();
     }
 
-    @Override
-    public void initialize(final URL url, final ResourceBundle resourceBundle)
+    // View Switch
+
+    private void show(ViewType viewType)
     {
-        final ObservableList<Node> children = content.getChildren();
-        views.addAll(children);
-        children.removeAll(views);
-        children.add(views.get(0));
+        for (int i = 0; i < ViewType.values().length; i++)
+        {
+            Node child = content.getChildren().get(i);
+            child.setManaged(viewType.ordinal() == i);
+            child.setVisible(viewType.ordinal() == i);
+        }
+
+        if (viewType == FLAME)
+        {
+            flameController.refreshFlameView();
+        }
     }
 }

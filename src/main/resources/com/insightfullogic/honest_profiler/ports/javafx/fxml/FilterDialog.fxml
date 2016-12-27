@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ButtonType?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.DialogPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.VBox?>
+
+<DialogPane maxHeight="500.0" maxWidth="400.0" minHeight="500.0" minWidth="400.0" prefHeight="500.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController">
+   <content>
+      <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="5.0">
+         <children>
+            <CheckBox fx:id="hideErrorThreads" mnemonicParsing="false" text="Hide Threads containing only errors" />
+            <TableView fx:id="filters" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+              <columns>
+                  <TableColumn fx:id="action" maxWidth="30.0" minWidth="30.0" prefWidth="30.0" />
+                <TableColumn fx:id="type" prefWidth="75.0" text="Filter Type" />
+                  <TableColumn fx:id="target" prefWidth="75.0" text="Target" />
+                <TableColumn fx:id="comparison" prefWidth="75.0" text="Comparison" />
+                  <TableColumn fx:id="value" prefWidth="75.0" text="Value" />
+              </columns>
+               <columnResizePolicy>
+                  <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+               </columnResizePolicy>
+            </TableView>
+         </children>
+      </VBox>
+   </content>
+   <buttonTypes>
+      <ButtonType fx:constant="OK" />
+   </buttonTypes>
+</DialogPane>

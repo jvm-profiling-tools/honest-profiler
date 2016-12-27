@@ -24,22 +24,33 @@ package com.insightfullogic.honest_profiler.core.filters;
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
 
-import java.util.Collections;
+import static com.insightfullogic.honest_profiler.core.filters.Filters.parse;
+import static java.util.Collections.emptyList;
+
 import java.util.List;
 
 public class ProfileFilter implements ProfileListener
 {
-
     private volatile List<Filter> filters;
 
     public ProfileFilter()
     {
-        filters = Collections.emptyList();
+        filters = emptyList();
+    }
+
+    public ProfileFilter(List<Filter> filters)
+    {
+        this.filters = filters;
     }
 
     public void updateFilters(String filterDescription)
     {
-        filters = Filters.parse(filterDescription);
+        filters = parse(filterDescription);
+    }
+
+    public void setFilters(List<Filter> filters)
+    {
+        this.filters = filters;
     }
 
     @Override
@@ -47,5 +58,4 @@ public class ProfileFilter implements ProfileListener
     {
         filters.forEach(filter -> filter.filter(profile));
     }
-
 }

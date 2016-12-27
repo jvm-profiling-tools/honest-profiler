@@ -1,27 +1,24 @@
 /**
  * Copyright (c) 2014 Richard Warburton (richard.warburton@gmail.com)
  * <p>
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"),
- * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions:
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  * <p>
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  * <p>
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.ports.javafx.profile;
+package com.insightfullogic.honest_profiler.ports.javafx.view.cell;
 
-import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderTimeShare;
+import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderPercentage;
 import static javafx.scene.paint.Color.RED;
 import static javafx.scene.paint.Color.WHEAT;
 
@@ -34,9 +31,8 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.paint.Color;
 
-public class TreeTableViewCell extends TreeTableCell<ProfileNode, ProfileNode>
+public class TreeViewCell extends TreeTableCell<ProfileNode, ProfileNode>
 {
-
     private static final int IMAGE_WIDTH = 50;
     private static final int IMAGE_HEIGHT = 15;
 
@@ -53,11 +49,13 @@ public class TreeTableViewCell extends TreeTableCell<ProfileNode, ProfileNode>
 
         TreeItem<ProfileNode> treeItem = getTreeTableRow().getTreeItem();
 
-        if (treeItem instanceof MethodNodeAdapter) {
+        if (treeItem instanceof MethodNodeAdapter)
+        {
             renderMethodNode(treeItem.getValue(), empty);
         }
-        else {
-        	setGraphic(null);
+        else
+        {
+            setGraphic(null);
         }
     }
 
@@ -76,9 +74,8 @@ public class TreeTableViewCell extends TreeTableCell<ProfileNode, ProfileNode>
 
         Color color = timeShare > 0.5 ? WHEAT : RED;
         context.setFill(color);
-        context.fillText(renderTimeShare(timeShare), TEXT_HORIZONTAL_INSET, TEXT_VERTICAL_INSET);
+        context.fillText(renderPercentage(timeShare), TEXT_HORIZONTAL_INSET, TEXT_VERTICAL_INSET);
 
         setGraphic(canvas);
     }
-
 }
