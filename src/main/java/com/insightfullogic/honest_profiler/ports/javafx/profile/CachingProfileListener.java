@@ -26,9 +26,9 @@ import org.slf4j.Logger;
 import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
-import com.insightfullogic.honest_profiler.ports.javafx.controller.FlatViewModel;
+import com.insightfullogic.honest_profiler.ports.javafx.controller.FlatViewController;
 import com.insightfullogic.honest_profiler.ports.javafx.controller.TraceCountViewModel;
-import com.insightfullogic.honest_profiler.ports.javafx.controller.TreeTableViewModel;
+import com.insightfullogic.honest_profiler.ports.javafx.controller.TreeViewController;
 
 import javafx.application.Platform;
 
@@ -36,8 +36,8 @@ public class CachingProfileListener implements ProfileListener
 {
 
     private final Logger logger;
-    private final FlatViewModel flatModel;
-    private final TreeTableViewModel treeModel;
+    private final FlatViewController flatModel;
+    private final TreeViewController treeModel;
     private final TraceCountViewModel countModel;
     private final ProfileFilter profileFilter;
 
@@ -45,8 +45,8 @@ public class CachingProfileListener implements ProfileListener
 
     public CachingProfileListener(
         final Logger logger,
-        final FlatViewModel flatModel,
-        final TreeTableViewModel treeModel,
+        final FlatViewController flatModel,
+        final TreeViewController treeModel,
         final TraceCountViewModel countModel,
         final ProfileFilter profileFilter)
     {

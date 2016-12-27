@@ -35,7 +35,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-public class FlatViewModel implements ProfileListener
+public class FlatViewController implements ProfileListener
 {
 
     private final ObservableList<FlatProfileEntry> flatProfile;
@@ -55,7 +55,7 @@ public class FlatViewModel implements ProfileListener
     @FXML
     private TableColumn<FlatProfileEntry, Double> totalTimeShare;
 
-    public FlatViewModel()
+    public FlatViewController()
     {
         flatProfile = FXCollections.observableArrayList();
     }

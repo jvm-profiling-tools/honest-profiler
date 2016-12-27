@@ -26,7 +26,7 @@ import static javafx.scene.paint.Color.RED;
 import static javafx.scene.paint.Color.WHEAT;
 
 import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
-import com.insightfullogic.honest_profiler.ports.javafx.controller.TreeTableViewModel.MethodNodeAdapter;
+import com.insightfullogic.honest_profiler.ports.javafx.controller.TreeViewController.MethodNodeAdapter;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;

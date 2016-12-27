@@ -27,11 +27,11 @@ import org.picocontainer.PicoBuilder;
 import com.insightfullogic.honest_profiler.core.Monitor;
 import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
 import com.insightfullogic.honest_profiler.ports.LoggerInjector;
-import com.insightfullogic.honest_profiler.ports.javafx.controller.FlameGraphViewModel;
-import com.insightfullogic.honest_profiler.ports.javafx.controller.FlatViewModel;
-import com.insightfullogic.honest_profiler.ports.javafx.controller.ProfileViewModel;
+import com.insightfullogic.honest_profiler.ports.javafx.controller.FlameViewController;
+import com.insightfullogic.honest_profiler.ports.javafx.controller.FlatViewController;
+import com.insightfullogic.honest_profiler.ports.javafx.controller.ProfileRootController;
 import com.insightfullogic.honest_profiler.ports.javafx.controller.TraceCountViewModel;
-import com.insightfullogic.honest_profiler.ports.javafx.controller.TreeTableViewModel;
+import com.insightfullogic.honest_profiler.ports.javafx.controller.TreeViewController;
 import com.insightfullogic.honest_profiler.ports.javafx.landing.LandingViewModel;
 import com.insightfullogic.honest_profiler.ports.javafx.profile.CachingProfileListener;
 import com.insightfullogic.honest_profiler.ports.javafx.profile.ProfileListenerProvider;
@@ -96,11 +96,11 @@ public class JavaFXApplication extends Application
 
                 // Delivery
             .addComponent(CachingProfileListener.class)
-            .addComponent(FlatViewModel.class)
-            .addComponent(TreeTableViewModel.class)
-            .addComponent(FlameGraphViewModel.class)
+            .addComponent(FlatViewController.class)
+            .addComponent(TreeViewController.class)
+            .addComponent(FlameViewController.class)
             .addComponent(TraceCountViewModel.class)
-            .addComponent(ProfileViewModel.class)
+            .addComponent(ProfileRootController.class)
             .addComponent(LandingViewModel.class)
             .addComponent(WindowViewModel.class)
             .addComponent(PicoFXLoader.class);

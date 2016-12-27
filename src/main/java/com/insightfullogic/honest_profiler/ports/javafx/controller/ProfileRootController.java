@@ -45,7 +45,7 @@ import java.util.ResourceBundle;
 
 import static com.insightfullogic.honest_profiler.ports.javafx.WindowViewModel.Window.LANDING;
 
-public class ProfileViewModel implements Initializable
+public class ProfileRootController implements Initializable
 {
 
     private final WindowViewModel windows;
@@ -69,7 +69,7 @@ public class ProfileViewModel implements Initializable
 
     private int currentViewIndex = 0;
 
-    public ProfileViewModel(WindowViewModel windows,
+    public ProfileRootController(WindowViewModel windows,
                             ProfileFilter profileFilter,
                             CachingProfileListener profileListener)
     {

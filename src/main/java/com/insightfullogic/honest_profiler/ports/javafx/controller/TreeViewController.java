@@ -43,7 +43,7 @@ import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.util.Callback;
 
-public class TreeTableViewModel implements ProfileListener
+public class TreeViewController implements ProfileListener
 {
     private static final double TIMESHARE_EXPAND_FACTOR = 0.2;
 

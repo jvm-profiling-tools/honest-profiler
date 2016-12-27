@@ -29,7 +29,7 @@ import javafx.fxml.FXML;
 /**
  * .
  */
-public class FlameGraphViewModel implements FlameGraphListener
+public class FlameViewController implements FlameGraphListener
 {
     @FXML
     private FlameGraphCanvas flameView;
