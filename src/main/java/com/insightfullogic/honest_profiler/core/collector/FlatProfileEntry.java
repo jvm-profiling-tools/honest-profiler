@@ -29,8 +29,10 @@ public final class FlatProfileEntry
     private final int selfCount;
     private final int traceCount;
 
-    public FlatProfileEntry(final Frame method, final int totalCount, final int selfCount,
-        final int traceCount)
+    public FlatProfileEntry(final Frame method,
+                            final int totalCount,
+                            final int selfCount,
+                            final int traceCount)
     {
         this.method = method;
 
@@ -46,27 +48,36 @@ public final class FlatProfileEntry
 
     public int getTotalCount()
     {
-        return this.totalCount;
+        return totalCount;
     }
 
     public int getSelfCount()
     {
-        return this.selfCount;
+        return selfCount;
     }
 
     public int getTraceCount()
     {
-        return this.traceCount;
+        return traceCount;
     }
 
     public double getTotalTimeShare()
     {
-        return this.totalCount / (double) this.traceCount;
+        return totalCount / (double) traceCount;
     }
 
     public double getSelfTimeShare()
     {
-        return this.selfCount / (double) this.traceCount;
+        return selfCount / (double) traceCount;
+    }
+
+    public FlatProfileEntry copy()
+    {
+        return new FlatProfileEntry(
+            method.copy(),
+            totalCount,
+            selfCount,
+            traceCount);
     }
 
     @Override
@@ -103,10 +114,10 @@ public final class FlatProfileEntry
     {
         int result;
 
-        result = this.method != null ? this.method.hashCode() : 0;
-        result = 31 * result + this.selfCount;
-        result = 31 * result + this.totalCount;
-        result = 31 * result + this.traceCount;
+        result = method != null ? method.hashCode() : 0;
+        result = 31 * result + selfCount;
+        result = 31 * result + totalCount;
+        result = 31 * result + traceCount;
 
         return result;
     }

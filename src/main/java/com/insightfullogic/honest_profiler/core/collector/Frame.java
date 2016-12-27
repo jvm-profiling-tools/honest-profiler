@@ -34,4 +34,6 @@ public interface Frame
     int getBci();
 
     int getLine();
+
+    Frame copy();
 }

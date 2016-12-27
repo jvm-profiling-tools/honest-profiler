@@ -27,10 +27,10 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
 
 public final class ProfileNode
 {
-
     private final List<ProfileNode> children;
     private final Frame method;
     private final double totalTimeShare;
@@ -51,6 +51,18 @@ public final class ProfileNode
             .sum();
     }
 
+    // For efficient copy()
+    private ProfileNode(Frame method,
+                        double totalTimeShare,
+                        double selfTimeShare,
+                        List<ProfileNode> children)
+    {
+        this.method = method;
+        this.children = children;
+        this.totalTimeShare = totalTimeShare;
+        this.selfTimeShare = selfTimeShare;
+    }
+
     public Stream<ProfileNode> children()
     {
         return children.stream();
@@ -66,6 +78,11 @@ public final class ProfileNode
         return totalTimeShare;
     }
 
+    public double getSelfTimeShare()
+    {
+        return selfTimeShare;
+    }
+
     public Frame getFrameInfo()
     {
         return method;
@@ -77,8 +94,12 @@ public final class ProfileNode
         return "PN{" + totalTimeShare + " " + method.getMethodName() + children + '}';
     }
 
-    public double getSelfTimeShare()
+    public ProfileNode copy()
     {
-        return selfTimeShare;
+        return new ProfileNode(
+            method.copy(),
+            totalTimeShare,
+            selfTimeShare,
+            children.stream().map(ProfileNode::copy).collect(toList()));
     }
 }

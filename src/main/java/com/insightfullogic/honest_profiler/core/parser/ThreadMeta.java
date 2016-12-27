@@ -88,4 +88,9 @@ public final class ThreadMeta implements LogEvent
     {
         return "ThreadMeta{threadId=" + threadId + ", threadName=" + threadName + '}';
     }
+
+    public ThreadMeta copy()
+    {
+        return new ThreadMeta(threadId, threadName);
+    }
 }

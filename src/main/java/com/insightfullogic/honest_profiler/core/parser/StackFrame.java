@@ -21,7 +21,6 @@
  **/
 package com.insightfullogic.honest_profiler.core.parser;
 
-
 import java.util.Objects;
 
 public final class StackFrame implements LogEvent
@@ -63,8 +62,14 @@ public final class StackFrame implements LogEvent
     @Override
     public boolean equals(Object o)
     {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+        {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass())
+        {
+            return false;
+        }
 
         StackFrame that = (StackFrame) o;
         return Objects.equals(bci, that.bci)
@@ -94,4 +99,8 @@ public final class StackFrame implements LogEvent
             '}';
     }
 
+    public StackFrame copy()
+    {
+        return new StackFrame(bci, lineNumber, methodId);
+    }
 }
