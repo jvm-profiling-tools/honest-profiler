@@ -40,141 +40,142 @@ import static java.util.stream.Collectors.toList;
  */
 public class LogCollector implements LogEventListener
 {
-	private static final Comparator<ProfileTree> sortBySampleCount = comparing(
-					ProfileTree::getNumberOfSamples).reversed();
+    private static final Comparator<ProfileTree> sortBySampleCount
+        = comparing(ProfileTree::getNumberOfSamples).reversed();
 
-	private final ProfileListener listener;
+    private final ProfileListener listener;
 
-	private final Map<Long, Method> methodByMethodId;
-	private final CallCountAggregator<Long> callCountsByMethodId;
-	private final CallCountAggregator<StackFrame> callCountsByFrame;
-	private final Map<Long, NodeCollector> treesByThreadId;
-	private final Map<Long, ThreadMeta> metaByThreadId;
-	private final Stack<StackFrame> reversalStack;
+    private final Map<Long, Method> methodByMethodId;
+    private final CallCountAggregator<Long> callCountsByMethodId;
+    private final CallCountAggregator<StackFrame> callCountsByFrame;
+    private final Map<Long, NodeCollector> treesByThreadId;
+    private final Map<Long, ThreadMeta> metaByThreadId;
+    private final Stack<StackFrame> reversalStack;
 
-	private long currentThread;
-	private NodeCollector currentTreeNode;
+    private long currentThread;
+    private NodeCollector currentTreeNode;
 
-	private int traceCount;
-	private boolean immediatelyEmitProfile;
+    private int traceCount;
+    private boolean immediatelyEmitProfile;
 
-	public LogCollector(final ProfileListener listener, final boolean immediatelyEmitProfile)
-	{
-		this.listener = listener;
+    public LogCollector(final ProfileListener listener, final boolean immediatelyEmitProfile)
+    {
+        this.listener = listener;
 
-		methodByMethodId = new HashMap<>();
-		metaByThreadId = new HashMap<>();
-		callCountsByMethodId = new CallCountAggregator<>(methodByMethodId, id -> id);
-		callCountsByFrame = new CallCountAggregator<>(methodByMethodId, StackFrame::getMethodId);
-		treesByThreadId = new HashMap<>();
-		reversalStack = new Stack<>();
+        methodByMethodId = new HashMap<>();
+        metaByThreadId = new HashMap<>();
+        callCountsByMethodId = new CallCountAggregator<>(methodByMethodId, id -> id);
+        callCountsByFrame = new CallCountAggregator<>(methodByMethodId, StackFrame::getMethodId);
+        treesByThreadId = new HashMap<>();
+        reversalStack = new Stack<>();
 
-		this.immediatelyEmitProfile = immediatelyEmitProfile;
-		traceCount = 0;
-		currentTreeNode = null;
-	}
+        this.immediatelyEmitProfile = immediatelyEmitProfile;
+        traceCount = 0;
+        currentTreeNode = null;
+    }
 
-	@Override
-	public void handle(TraceStart traceStart)
-	{
-		collectThreadDump();
-		emitProfileIfNeeded();
-		traceCount++;
-		reversalStack.clear();
-		currentThread = traceStart.getThreadId();
-		currentTreeNode = null;
-	}
+    @Override
+    public void handle(TraceStart traceStart)
+    {
+        collectThreadDump();
+        emitProfileIfNeeded();
+        traceCount++;
+        reversalStack.clear();
+        currentThread = traceStart.getThreadId();
+        currentTreeNode = null;
+    }
 
-	@Override
-	public void handle(StackFrame stackFrame)
-	{
-		reversalStack.push(stackFrame);
-	}
+    @Override
+    public void handle(StackFrame stackFrame)
+    {
+        reversalStack.push(stackFrame);
+    }
 
-	private void collectThreadDump()
-	{
-		while (!reversalStack.empty())
-		{
-			collectStackFrame(reversalStack.size() == 1, reversalStack.pop());
-		}
-	}
+    private void collectThreadDump()
+    {
+        while (!reversalStack.empty())
+        {
+            collectStackFrame(reversalStack.size() == 1, reversalStack.pop());
+        }
+    }
 
-	private void collectStackFrame(boolean endOfTrace, StackFrame stackFrame)
-	{
-		long methodId = stackFrame.getMethodId();
+    private void collectStackFrame(boolean endOfTrace, StackFrame stackFrame)
+    {
+        long methodId = stackFrame.getMethodId();
 
-		callCountsByMethodId.onFrameAppearance(methodId, endOfTrace);
-		callCountsByFrame.onFrameAppearance(stackFrame, endOfTrace);
+        callCountsByMethodId.onFrameAppearance(methodId, endOfTrace);
+        callCountsByFrame.onFrameAppearance(stackFrame, endOfTrace);
 
-		if (currentTreeNode == null)
-		{
-			// might be null if the method hasn't been seen before
-			// if this is the case then the handle(Method) will patch it
-			currentTreeNode = treesByThreadId.compute(currentThread, (id, previous) ->
-			{
-				if (previous != null)
-				{
-					return previous.callAgain();
-				}
+        if (currentTreeNode == null)
+        {
+            // might be null if the method hasn't been seen before
+            // if this is the case then the handle(Method) will patch it
+            currentTreeNode = treesByThreadId.compute(currentThread, (id, previous) -> {
+                if (previous != null)
+                    return previous.callAgain();
 
-				return new NodeCollector(methodId);
-			});
-		} else
-		{
-			currentTreeNode = currentTreeNode.newChildCall(methodId);
-		}
-	}
+                return new NodeCollector(methodId);
+            });
+        }
+        else
+        {
+            currentTreeNode = currentTreeNode.newChildCall(methodId);
+        }
+    }
 
-	@Override
-	public void handle(Method newMethod)
-	{
-		methodByMethodId.put(newMethod.getMethodId(), newMethod);
-		emitProfileIfNeeded();
-	}
+    @Override
+    public void handle(Method newMethod)
+    {
+        methodByMethodId.put(newMethod.getMethodId(), newMethod);
+        emitProfileIfNeeded();
+    }
 
-	@Override
-	public void handle(ThreadMeta newThreadMeta)
-	{
-		metaByThreadId.merge(newThreadMeta.getThreadId(), newThreadMeta,
-						(oldMeta, newMeta) -> oldMeta.update(newMeta));
-	}
+    @Override
+    public void handle(ThreadMeta newThreadMeta)
+    {
+        metaByThreadId.put(newThreadMeta.getThreadId(), newThreadMeta);
+    }
 
-	@Override
-	public void endOfLog()
-	{
-		collectThreadDump();
-		emitProfile();
-	}
+    @Override
+    public void endOfLog()
+    {
+        collectThreadDump();
+        emitProfile();
+    }
 
-	private void emitProfileIfNeeded()
-	{
-		if (traceCount > 0 && immediatelyEmitProfile)
-		{
-			emitProfile();
-		}
-	}
+    private void emitProfileIfNeeded()
+    {
+        if (traceCount > 0 && immediatelyEmitProfile)
+        {
+            emitProfile();
+        }
+    }
 
-	private void emitProfile()
-	{
-		listener.accept(new Profile(traceCount, callCountsByMethodId.aggregate(traceCount),
-						callCountsByFrame.aggregate(traceCount), buildTreeProfile()));
-	}
+    private void emitProfile()
+    {
+        listener.accept(
+            new Profile(
+                traceCount,
+                callCountsByMethodId.aggregate(traceCount),
+                callCountsByFrame.aggregate(traceCount),
+                buildTreeProfile()));
+    }
 
-	private List<ProfileTree> buildTreeProfile()
-	{
-		return treesByThreadId.entrySet().stream().map(node ->
-		{
-			final Long threadId = node.getKey();
-			final ThreadMeta meta = metaByThreadId.get(threadId);
-			final NodeCollector collector = node.getValue();
-			if (meta == null)
-			{
-				return new ProfileTree(threadId, collector.normalise(methodByMethodId::get),
-								collector.getNumberOfVisits());
-			}
-			return new ProfileTree(meta, collector.normalise(methodByMethodId::get),
-							collector.getNumberOfVisits());
-		}).sorted(sortBySampleCount).collect(toList());
-	}
+    private List<ProfileTree> buildTreeProfile()
+    {
+        return treesByThreadId.entrySet()
+            .stream()
+            .map(node -> {
+                final Long threadId = node.getKey();
+                final ThreadMeta meta = metaByThreadId.get(threadId);
+                final NodeCollector collector = node.getValue();
+                if (meta == null) {
+                    return new ProfileTree(threadId, collector.normalise(methodByMethodId::get), collector.getNumberOfVisits());
+                }
+                return new ProfileTree(meta, collector.normalise(methodByMethodId::get), collector.getNumberOfVisits());
+            })
+            .sorted(sortBySampleCount)
+            .collect(toList());
+    }
 
 }
