@@ -32,8 +32,8 @@ public class WindowViewModel
 
     public enum Window
     {
-        LANDING("Landing"),
-        PROFILE("Profile");
+        LANDING("fxml/Landing"),
+        PROFILE("fxml/Profile");
 
         private final String fxmlPrefix;
 
