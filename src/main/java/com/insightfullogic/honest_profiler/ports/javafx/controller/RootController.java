@@ -1,17 +1,31 @@
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
+import static com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext.ProfileMode.LOG;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.selectLogFile;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.FXML_FLAT_DIFF_VIEW;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.FXML_PROFILE_ROOT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.addColoredLabel;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.loaderFor;
+import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.LIVE_16;
+import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.LOG_16;
+import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor;
 import static javafx.application.Platform.exit;
 import static javafx.application.Platform.runLater;
+import static javafx.geometry.Pos.CENTER_LEFT;
+import static javafx.scene.paint.Color.BEIGE;
+import static javafx.scene.paint.Color.CHARTREUSE;
+import static javafx.scene.paint.Color.CYAN;
+import static javafx.scene.paint.Color.GOLD;
+import static javafx.scene.paint.Color.LIGHTBLUE;
+import static javafx.scene.paint.Color.LIGHTGREEN;
+import static javafx.scene.paint.Color.LIGHTGREY;
+import static javafx.scene.paint.Color.LIGHTPINK;
+import static javafx.scene.paint.Color.LIGHTSTEELBLUE;
+import static javafx.scene.paint.Color.ORANGE;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.File;
 import java.io.IOException;
-
-import org.omg.PortableInterceptor.ServerRequestInfo;
 
 import com.insightfullogic.honest_profiler.core.MachineListener;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
@@ -22,16 +36,25 @@ import com.insightfullogic.honest_profiler.ports.sources.LocalMachineSource;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 
 public class RootController extends AbstractController implements MachineListener
 {
+
+    private static final Color[] LABEL_PALETTE = new Color[]
+    {
+        LIGHTSTEELBLUE, LIGHTGREEN, ORANGE, LIGHTBLUE, BEIGE, GOLD, LIGHTGREY, LIGHTPINK, CYAN,
+        CHARTREUSE
+    };
+
     @FXML
     private MenuBar menuBar;
     @FXML
@@ -52,6 +75,7 @@ public class RootController extends AbstractController implements MachineListene
     @FXML
     public void initialize()
     {
+
         setApplicationContext(new ApplicationContext(this));
         info.textProperty().bind(appCtx().getInfo());
 
@@ -135,49 +159,68 @@ public class RootController extends AbstractController implements MachineListene
 
     private void generateProfileTab(Object source)
     {
-        try
-        {
-            FXMLLoader loader = loaderFor(this, FXML_PROFILE_ROOT);
-            Node root = loader.load();
-            ProfileRootController controller = loader.getController();
-            controller.setApplicationContext(appCtx());
+        Tab tab = new Tab();
+        ProfileRootController controller = loadViewIntoTab(FXML_PROFILE_ROOT, tab);
 
-            ProfileContext profileContext = controller.initializeProfile(appCtx(), source);
+        ProfileContext profileContext = controller.initializeProfile(appCtx(), source);
 
-            Tab tab = new Tab(profileContext.getName());
-            tab.setGraphic(new Label(profileContext.getName()));
-            info(tab, "Shows profiles " + profileContext.getName());
+        Pane tabInfo = createTabInfoPane();
+        tab.setGraphic(tabInfo);
+        info(tab, "Shows profile " + profileContext.getName());
 
-            tab.setContent(root);
-            profileTabs.getTabs().add(tab);
-            profileTabs.getSelectionModel().select(tab);
-        }
-        catch (IOException ioe)
-        {
-            throw new UserInterfaceConfigurationException(ioe);
-        }
+        addColoredLabel(
+            tabInfo,
+            Integer.toString(profileContext.getId()),
+            LABEL_PALETTE[profileContext.getId() % LABEL_PALETTE.length]);
+        tabInfo.getChildren().add(viewFor(profileContext.getMode() == LOG ? LOG_16 : LIVE_16));
+        tabInfo.getChildren().add(new Label(profileContext.getName()));
     }
 
     public void generateDiffTab(String baseName, String newName)
     {
+        Tab tab = new Tab();
+        FlatDiffViewController controller = loadViewIntoTab(FXML_FLAT_DIFF_VIEW, tab);
+
+        ProfileContext baseCtx = appCtx().getProfileContext(baseName);
+        ProfileContext newCtx = appCtx().getProfileContext(newName);
+        controller.setProfileContexts(baseCtx, newCtx);
+
+        Pane tabInfo = createTabInfoPane();
+        tab.setGraphic(tabInfo);
+        info(tab, "Shows the difference between profiles " + baseName + " and " + newName);
+
+        profileTabs.getTabs().add(tab);
+
+        addColoredLabel(
+            tabInfo,
+            Integer.toString(baseCtx.getId()),
+            LABEL_PALETTE[baseCtx.getId() % LABEL_PALETTE.length]);
+        tabInfo.getChildren().add(new Label("<->"));
+        addColoredLabel(
+            tabInfo,
+            Integer.toString(newCtx.getId()),
+            LABEL_PALETTE[newCtx.getId() % LABEL_PALETTE.length]);
+    }
+
+    private Pane createTabInfoPane()
+    {
+        HBox tabInfo = new HBox();
+        tabInfo.setAlignment(CENTER_LEFT);
+        tabInfo.setSpacing(5);
+        return tabInfo;
+    }
+
+    private <T extends AbstractController> T loadViewIntoTab(String fxml, Tab tab)
+    {
         try
         {
-            FXMLLoader loader = loaderFor(this, FXML_FLAT_DIFF_VIEW);
-            Node root = loader.load();
-            FlatDiffViewController controller = loader.getController();
+            FXMLLoader loader = loaderFor(this, fxml);
+            tab.setContent(loader.load());
+            T controller = loader.getController();
             controller.setApplicationContext(appCtx());
-
-            controller.setProfileContexts(
-                appCtx().getProfileContext(baseName),
-                appCtx().getProfileContext(newName)
-                );
-
-            Tab tab = new Tab();
-            tab.setGraphic(new Label("Diff : " + baseName + " <-> " + newName));
-            info(tab, "Shows the difference between profiles " + baseName + " and " + newName);
-            tab.setContent(root);
             profileTabs.getTabs().add(tab);
             profileTabs.getSelectionModel().select(tab);
+            return controller;
         }
         catch (IOException ioe)
         {

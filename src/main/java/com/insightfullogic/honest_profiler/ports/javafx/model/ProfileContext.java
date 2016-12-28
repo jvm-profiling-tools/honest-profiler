@@ -20,9 +20,18 @@ import javafx.beans.property.StringProperty;
 
 public class ProfileContext implements ProfileListener
 {
+    public static enum ProfileMode
+    {
+        LIVE,
+        LOG
+    }
+
     private final Logger logger;
 
+    private int id;
+
     private SimpleStringProperty name;
+    private ProfileMode mode;
     private SimpleObjectProperty<Profile> profile;
     private List<ProfileListener> listeners;
 
@@ -35,6 +44,16 @@ public class ProfileContext implements ProfileListener
         listeners = new ArrayList<>();
     }
 
+    public int getId()
+    {
+        return id;
+    }
+
+    public void setId(int id)
+    {
+        this.id = id;
+    }
+
     public String getName()
     {
         return name.get();
@@ -43,6 +62,16 @@ public class ProfileContext implements ProfileListener
     public void setName(String name)
     {
         this.name.set(name);
+    }
+
+    public ProfileMode getMode()
+    {
+        return mode;
+    }
+
+    public void setMode(ProfileMode mode)
+    {
+        this.mode = mode;
     }
 
     public Profile getProfile()

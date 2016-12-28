@@ -20,6 +20,9 @@ public final class Icon
 
     public static final Image EXPORT_16 = toImage(ICON_16_DIR + "document-import.png");
 
+    public static final Image LIVE_16 = toImage(ICON_16_DIR + "monitor.png");
+    public static final Image LOG_16 = toImage(ICON_16_DIR + "document-binary.png");
+
     private static Image toImage(String resource)
     {
         return new Image(Icon.class.getResourceAsStream(resource));

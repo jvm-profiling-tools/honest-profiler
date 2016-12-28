@@ -19,7 +19,7 @@ public class ApplicationContext
 
     public ApplicationContext(RootController rootController)
     {
-        this.info = new SimpleStringProperty();
+        info = new SimpleStringProperty();
         this.rootController = rootController;
         profileContextMap = new HashMap<String, ProfileContext>();
     }
@@ -42,6 +42,7 @@ public class ApplicationContext
     public void registerProfileContext(ProfileContext context)
     {
         profileContextMap.put(context.getName(), context);
+        context.setId(profileContextMap.size());
     }
 
     public List<String> getOpenProfileNames()
