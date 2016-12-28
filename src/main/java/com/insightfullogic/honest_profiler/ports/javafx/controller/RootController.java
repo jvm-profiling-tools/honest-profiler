@@ -117,10 +117,12 @@ public class RootController extends AbstractController implements MachineListene
 
     // Machine-related Helper Methods
 
-    private void addToMachineMenu(final VirtualMachine machine)
+    private void addToMachineMenu(final VirtualMachine vm)
     {
-        final String machineId = machine.getDisplayName() + " (" + machine.getId() + ")";
-        MenuItem machineItem = new MenuItem(machineId);
+        String vmName = vm.getDisplayName();
+        final String vmId = (vmName.contains(" ") ? vmName.substring(0, vmName.indexOf(" "))
+            : vmName) + " (" + vm.getId() + ")";
+        MenuItem machineItem = new MenuItem(vmId);
 
         // The following oesn't work properly. Not setting a text might work,
         // except the graphic for an unselected disabled item is not shown, so
@@ -135,9 +137,9 @@ public class RootController extends AbstractController implements MachineListene
         // Agent attached to it.");
         // machineItem.setGraphic(label);
 
-        machineItem.setId(machine.getId());
-        machineItem.setDisable(!machine.isAgentLoaded());
-        machineItem.setOnAction(event -> generateProfileTab(machine));
+        machineItem.setId(vm.getId());
+        machineItem.setDisable(!vm.isAgentLoaded());
+        machineItem.setOnAction(event -> generateProfileTab(vm));
 
         if (monitorMenu != null)
         {

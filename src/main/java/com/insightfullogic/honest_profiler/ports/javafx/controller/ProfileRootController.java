@@ -122,7 +122,12 @@ public class ProfileRootController extends AbstractController
         if (source instanceof VirtualMachine)
         {
             VirtualMachine vm = (VirtualMachine) source;
-            profileContext.setName(vm.getDisplayName() + " (" + vm.getId() + ")");
+            String vmName = vm.getDisplayName();
+            profileContext.setName(
+                (vmName.contains(" ") ? vmName.substring(0, vmName.indexOf(" ")) : vmName)
+                    + " ("
+                    + vm.getId()
+                    + ")");
             profileContext.setMode(LIVE);
             monitor((VirtualMachine) source);
         }
