@@ -152,6 +152,11 @@ public class RootController extends AbstractController implements MachineListene
 
     private void generateProfileTab(Object source, boolean live)
     {
+        if (source == null)
+        {
+            return;
+        }
+
         Tab tab = new Tab();
         ProfileRootController controller = loadViewIntoTab(FXML_PROFILE_ROOT, tab);
 
