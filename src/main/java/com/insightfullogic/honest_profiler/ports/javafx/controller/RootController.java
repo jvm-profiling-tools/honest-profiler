@@ -24,7 +24,6 @@ import static javafx.scene.paint.Color.LIGHTSTEELBLUE;
 import static javafx.scene.paint.Color.ORANGE;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.io.File;
 import java.io.IOException;
 
 import com.insightfullogic.honest_profiler.core.MachineListener;
@@ -62,6 +61,8 @@ public class RootController extends AbstractController implements MachineListene
     @FXML
     private MenuItem openLogItem;
     @FXML
+    private MenuItem openLiveItem;
+    @FXML
     private MenuItem quitItem;
     @FXML
     private Menu monitorMenu;
@@ -83,22 +84,12 @@ public class RootController extends AbstractController implements MachineListene
             menuBar,
             "The File menu allows you to open existing log files. The Monitor menu allows you to select a running JVM and profile it. JVMs not running the Honest Profiler agent are greyed out.");
 
-        openLogItem.setOnAction(event -> selectFile());
+        openLogItem.setOnAction(event -> generateProfileTab(selectLogFile(), false));
+        openLiveItem.setOnAction(event -> generateProfileTab(selectLogFile(), true));
         quitItem.setOnAction(event -> exit());
 
         machineSource = new LocalMachineSource(getLogger(getClass()), this);
         machineSource.start();
-    }
-
-    // File-related Helper Methods
-
-    private void selectFile()
-    {
-        File file = selectLogFile();
-        if (file != null)
-        {
-            generateProfileTab(file);
-        }
     }
 
     // MachineListener Implementation
@@ -139,7 +130,7 @@ public class RootController extends AbstractController implements MachineListene
 
         machineItem.setId(vm.getId());
         machineItem.setDisable(!vm.isAgentLoaded());
-        machineItem.setOnAction(event -> generateProfileTab(vm));
+        machineItem.setOnAction(event -> generateProfileTab(vm, true));
 
         if (monitorMenu != null)
         {
@@ -159,12 +150,12 @@ public class RootController extends AbstractController implements MachineListene
 
     // Profile-related Helper Methods
 
-    private void generateProfileTab(Object source)
+    private void generateProfileTab(Object source, boolean live)
     {
         Tab tab = new Tab();
         ProfileRootController controller = loadViewIntoTab(FXML_PROFILE_ROOT, tab);
 
-        ProfileContext profileContext = controller.initializeProfile(appCtx(), source);
+        ProfileContext profileContext = controller.initializeProfile(appCtx(), source, live);
 
         Pane tabInfo = createTabInfoPane();
         tab.setGraphic(tabInfo);

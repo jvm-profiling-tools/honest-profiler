@@ -116,7 +116,8 @@ public class ProfileRootController extends AbstractController
 
     // Profiling startup
 
-    public ProfileContext initializeProfile(ApplicationContext applicationContext, Object source)
+    public ProfileContext initializeProfile(ApplicationContext applicationContext, Object source,
+        boolean live)
     {
 
         if (source instanceof VirtualMachine)
@@ -130,6 +131,13 @@ public class ProfileRootController extends AbstractController
                     + ")");
             profileContext.setMode(LIVE);
             monitor((VirtualMachine) source);
+        }
+        else if (live)
+        {
+            File file = (File) source;
+            profileContext.setName(file.getName());
+            profileContext.setMode(LIVE);
+            monitor(file);
         }
         else
         {
@@ -148,6 +156,18 @@ public class ProfileRootController extends AbstractController
             .publishTo(new LogCollector(profileContext, false))
             .publishTo(new FlameGraphCollector(flameController));
         pipe(new FileLogSource(file), collector, false).run();
+    }
+
+    private void monitor(File file)
+    {
+        try
+        {
+            pipeFile(new FileLogSource(file), profileContext);
+        }
+        catch (CantReadFromSourceException crfse)
+        {
+            throw new RuntimeException(crfse.getMessage(), crfse);
+        }
     }
 
     private void monitor(VirtualMachine machine)
