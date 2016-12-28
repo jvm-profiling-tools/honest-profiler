@@ -57,10 +57,7 @@ public class FlatProfileDiff
                         flatEntryDiff.addBaseTotalCount(entry.getTotalCount());
                         flatEntryDiff.addBaseSelfCount(entry.getSelfCount());
 
-                        if (flatEntryDiff.getBaseTraceCount() == 0)
-                        {
-                            flatEntryDiff.setBaseTraceCount(entry.getTraceCount());
-                        }
+                        flatEntryDiff.setBaseTraceCount(entry.getTraceCount());
                         return flatEntryDiff;
                     }
                 }));
@@ -93,10 +90,7 @@ public class FlatProfileDiff
                         flatEntryDiff.addNewTotalCount(entry.getTotalCount());
                         flatEntryDiff.addNewSelfCount(entry.getSelfCount());
 
-                        if (flatEntryDiff.getNewTraceCount() == 0)
-                        {
-                            flatEntryDiff.setNewTraceCount(entry.getTraceCount());
-                        }
+                        flatEntryDiff.setNewTraceCount(entry.getTraceCount());
                         return flatEntryDiff;
                     }
                 }));
