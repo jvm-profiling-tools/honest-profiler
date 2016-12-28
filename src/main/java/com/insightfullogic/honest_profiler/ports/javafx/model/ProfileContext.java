@@ -22,8 +22,6 @@ public class ProfileContext implements ProfileListener
 {
     private final Logger logger;
 
-    private ApplicationContext applicationContext;
-
     private SimpleStringProperty name;
     private SimpleObjectProperty<Profile> profile;
     private List<ProfileListener> listeners;
@@ -35,16 +33,6 @@ public class ProfileContext implements ProfileListener
         name = new SimpleStringProperty();
         profile = new SimpleObjectProperty<>();
         listeners = new ArrayList<>();
-    }
-
-    public ApplicationContext getApplicationContext()
-    {
-        return applicationContext;
-    }
-
-    public void setApplicationContext(ApplicationContext applicationContext)
-    {
-        this.applicationContext = applicationContext;
     }
 
     public String getName()

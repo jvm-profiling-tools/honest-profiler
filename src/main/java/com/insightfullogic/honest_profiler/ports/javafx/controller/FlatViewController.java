@@ -60,7 +60,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 
-public class FlatViewController
+public class FlatViewController extends AbstractController
 {
     @FXML
     private Button filterButton;
@@ -98,6 +98,11 @@ public class FlatViewController
     @FXML
     private void initialize()
     {
+        info(filterButton, "Specify filters restricting the visible entries");
+        info(compareButton, "Click to select another open profile to compare this profile against");
+        info(exportButton, "Export the visible entries to a CSV file");
+        info(flatProfileView, "Shows methods and their Self and Total usage percentages");
+
         currentFilter = new ProfileFilter();
         flatProfile = flatProfileView.getItems();
 
@@ -117,6 +122,14 @@ public class FlatViewController
     }
 
     // Instance Accessors
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext)
+    {
+
+        super.setApplicationContext(applicationContext);
+        filterDialogController.setApplicationContext(appCtx());
+    }
 
     public void setProfileContext(ProfileContext profileContext)
     {
@@ -216,8 +229,7 @@ public class FlatViewController
     {
         menu.getItems().clear();
 
-        ApplicationContext ac = profileContext.getApplicationContext();
-        List<String> profileNames = ac.getOpenProfileNames();
+        List<String> profileNames = appCtx().getOpenProfileNames();
 
         profileNames.forEach(name ->
         {
@@ -228,8 +240,7 @@ public class FlatViewController
 
             MenuItem item = new MenuItem(name);
             item.setOnAction(
-                event -> profileContext.getApplicationContext()
-                    .createDiffView(profileContext.getName(), name));
+                event -> appCtx().createDiffView(profileContext.getName(), name));
             menu.getItems().add(item);
         });
     }

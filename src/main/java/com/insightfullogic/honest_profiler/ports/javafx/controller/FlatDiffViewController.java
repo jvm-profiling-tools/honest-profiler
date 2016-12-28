@@ -36,6 +36,7 @@ import java.util.function.Function;
 import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController;
+import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.diff.FlatEntryDiff;
 import com.insightfullogic.honest_profiler.ports.javafx.model.diff.FlatProfileDiff;
@@ -61,7 +62,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Callback;
 
-public class FlatDiffViewController
+public class FlatDiffViewController extends AbstractController
 {
     @FXML
     private Button filterButton;
@@ -118,6 +119,9 @@ public class FlatDiffViewController
     @FXML
     private void initialize()
     {
+        info(filterButton, "Specify filters restricting the visible entries");
+        info(exportButton, "Export the visible entries to a CSV file");
+
         diff = new FlatProfileDiff(diffTable.getItems());
 
         currentFilter = new ProfileFilter();
@@ -190,6 +194,13 @@ public class FlatDiffViewController
             data -> new ReadOnlyIntegerWrapper(
                 data.getValue().getNewTraceCount() - data.getValue().getBaseTraceCount()),
             intDiffStyler);
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext)
+    {
+        super.setApplicationContext(applicationContext);
+        filterDialogController.setApplicationContext(appCtx());
     }
 
     public void setProfileContexts(ProfileContext baseContext, ProfileContext newContext)

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import com.insightfullogic.honest_profiler.ports.javafx.controller.dialog.AbstractDialogController;
+import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.filter.ComparisonType;
 import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterItem;
 import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterSpecification;
@@ -54,6 +55,13 @@ public class FilterDialogController extends AbstractDialogController<FilterSpeci
     @FXML
     public void initialize()
     {
+        info(
+            hideErrorThreads,
+            "When checked, all threads which contain only errors will be filtered out.");
+        info(
+            filters,
+            "The list of currently defined filters. Only profile entries satisfying all of the filter conditions will be shown.");
+
         action.setCellFactory(column -> new ActionCell<>());
         action.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue()));
 
@@ -86,6 +94,13 @@ public class FilterDialogController extends AbstractDialogController<FilterSpeci
         // where to put the "Add
         // Filter" (plus) button
         filters.getItems().add(null);
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext)
+    {
+        super.setApplicationContext(applicationContext);
+        filterCreationController.setApplicationContext(applicationContext);
     }
 
     public void addAllowedFilterTypes(FilterType... filterType)
@@ -147,6 +162,9 @@ public class FilterDialogController extends AbstractDialogController<FilterSpeci
                 return;
             }
             setGraphic(createActionButton(item));
+            info(
+                super.getGraphic(),
+                item == null ? "Click to add a new filter" : "Click to remove the filter");
         }
     }
 

@@ -35,6 +35,7 @@ import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
 import com.insightfullogic.honest_profiler.core.sources.CantReadFromSourceException;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.insightfullogic.honest_profiler.ports.javafx.ViewType;
+import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
 
@@ -44,7 +45,8 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 
-public class ProfileRootController implements ProfileListener, ProfileController
+public class ProfileRootController extends AbstractController
+    implements ProfileListener, ProfileController
 {
     @FXML
     private ChoiceBox<ViewType> viewChoice;
@@ -64,11 +66,13 @@ public class ProfileRootController implements ProfileListener, ProfileController
     @FXML
     public void initialize()
     {
+        info(
+            viewChoice,
+            "Select the View : Flat View lists all methods as a list; Tree View shows the stack trees per thread; Flame View shows the Flame Graph");
+        info(traceCount, "Shows the number of samples in the profile");
+
         profileContext = new ProfileContext();
         profileContext.addListeners(this);
-
-        flatController.setProfileContext(profileContext);
-        treeController.setProfileContext(profileContext);
 
         viewChoice.getSelectionModel().selectedItemProperty()
             .addListener((property, oldValue, newValue) -> show(newValue));
@@ -78,6 +82,15 @@ public class ProfileRootController implements ProfileListener, ProfileController
     }
 
     // Instance Accessors
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext)
+    {
+        super.setApplicationContext(applicationContext);
+        flatController.setApplicationContext(applicationContext);
+        treeController.setApplicationContext(applicationContext);
+        flameController.setApplicationContext(applicationContext);
+    }
 
     @Override
     public ProfileContext getProfileContext()
@@ -98,8 +111,11 @@ public class ProfileRootController implements ProfileListener, ProfileController
 
     // Profiling startup
 
-    public ProfileContext initializeProfile(Object source)
+    public ProfileContext initializeProfile(ApplicationContext applicationContext, Object source)
     {
+        flatController.setProfileContext(profileContext);
+        treeController.setProfileContext(profileContext);
+
         if (source instanceof VirtualMachine)
         {
             VirtualMachine vm = (VirtualMachine) source;
@@ -112,6 +128,7 @@ public class ProfileRootController implements ProfileListener, ProfileController
             profileContext.setName("File - " + file.getName());
             openFile((File) source);
         }
+        applicationContext.registerProfileContext(profileContext);
         return profileContext;
     }
 

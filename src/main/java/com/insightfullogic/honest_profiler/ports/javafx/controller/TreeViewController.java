@@ -41,6 +41,7 @@ import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileTree;
 import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController;
+import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterSpecification;
 import com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil;
@@ -59,7 +60,7 @@ import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 
-public class TreeViewController
+public class TreeViewController extends AbstractController
 {
     private static final double TIMESHARE_EXPAND_FACTOR = 0.2;
 
@@ -92,6 +93,13 @@ public class TreeViewController
     @FXML
     private void initialize()
     {
+        info(filterButton, "Specify filters restricting the visible entries");
+        info(expandAllButton, "Expand all trees");
+        info(collapseAllButton, "Collapse all trees");
+        info(
+            treeView,
+            "Shows the Threads in the profiled application. Right-click any node for expand/collapse and export options.");
+
         currentFilter = new ProfileFilter();
 
         filterSpec = new SimpleObjectProperty<>(new FilterSpecification());
@@ -172,6 +180,13 @@ public class TreeViewController
         });
 
         percentColumn.setCellFactory(param -> new TreeViewCell());
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext)
+    {
+        super.setApplicationContext(applicationContext);
+        filterDialogController.setApplicationContext(appCtx());
     }
 
     public void setProfileContext(ProfileContext profileContext)

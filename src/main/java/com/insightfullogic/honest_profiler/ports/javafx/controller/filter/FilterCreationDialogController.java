@@ -51,6 +51,11 @@ public class FilterCreationDialogController extends AbstractDialogController<Fil
     @FXML
     public void initialize()
     {
+        info(type, "Select the type of the filter");
+        info(target, "For a particular type of filter, select the target field to which the filter should be applied");
+        info(comparison, "Select the comparison operator for the filter");
+        info(value, "Specify the value the filter will use for comparison");
+
         // Validator Map Population
         Button okButton = (Button) dialogPane.lookupButton(OK);
         validatorMap.put(THREAD_SAMPLE, new ValidateDoubleListener(value, 0.0, 100.0, okButton));

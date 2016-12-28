@@ -10,6 +10,7 @@ import java.io.StringWriter;
 import java.util.function.Consumer;
 
 import com.insightfullogic.honest_profiler.ports.javafx.controller.dialog.DialogController;
+import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

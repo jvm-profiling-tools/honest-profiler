@@ -8,15 +8,30 @@ import java.util.Map;
 
 import com.insightfullogic.honest_profiler.ports.javafx.controller.RootController;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableStringValue;
+
 public class ApplicationContext
 {
+    private SimpleStringProperty info;
     private Map<String, ProfileContext> profileContextMap;
     private RootController rootController;
 
     public ApplicationContext(RootController rootController)
     {
+        this.info = new SimpleStringProperty();
         this.rootController = rootController;
         profileContextMap = new HashMap<String, ProfileContext>();
+    }
+
+    public void setInfo(String message)
+    {
+        info.set(message);
+    }
+
+    public ObservableStringValue getInfo()
+    {
+        return info;
     }
 
     public ProfileContext getProfileContext(String name)
@@ -26,7 +41,6 @@ public class ApplicationContext
 
     public void registerProfileContext(ProfileContext context)
     {
-        context.setApplicationContext(this);
         profileContextMap.put(context.getName(), context);
     }
 

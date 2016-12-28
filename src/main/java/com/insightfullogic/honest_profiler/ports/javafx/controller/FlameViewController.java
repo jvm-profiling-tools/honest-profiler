@@ -25,7 +25,7 @@ import com.insightfullogic.honest_profiler.ports.javafx.view.FlameGraphCanvas;
 import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
 
-public class FlameViewController implements FlameGraphListener
+public class FlameViewController extends AbstractController implements FlameGraphListener
 {
     @FXML
     private VBox rootContainer;
