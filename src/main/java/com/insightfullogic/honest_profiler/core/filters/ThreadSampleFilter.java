@@ -108,7 +108,7 @@ public final class ThreadSampleFilter implements Filter
         ThreadSampleFilter that = (ThreadSampleFilter) o;
 
         return (mode == that.mode)
-            && (Double.compare(that.minProportionOfSamples, minProportionOfSamples) != 0);
+            && (Double.compare(that.minProportionOfSamples, minProportionOfSamples) == 0);
     }
 
     @Override

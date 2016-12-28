@@ -133,7 +133,7 @@ abstract class TimeShareFilter implements Filter
 
         TimeShareFilter that = (TimeShareFilter) o;
 
-        return (mode == that.mode) && (Double.compare(that.minShare, minShare) != 0);
+        return (mode == that.mode) && (Double.compare(that.minShare, minShare) == 0);
     }
 
     @Override

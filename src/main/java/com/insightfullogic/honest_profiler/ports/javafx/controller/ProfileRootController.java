@@ -174,7 +174,8 @@ public class ProfileRootController extends AbstractController
     {
         try
         {
-            pipeFile(machine.getLogSource(), profileContext);
+            pipeFile(machine.getLogSourceFromVmArgs(), profileContext);
+            // pipeFile(machine.getLogSource(), profileContext);
         }
         catch (CantReadFromSourceException crfse)
         {
