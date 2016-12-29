@@ -19,7 +19,6 @@
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.STRING;
-import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.TIME_SHARE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.FILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.showExportDialog;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.refreshTable;
@@ -128,7 +127,7 @@ public class FlatDiffViewController extends AbstractController
 
         filterDialogController = (FilterDialogController) DialogUtil
             .<FilterSpecification>createDialog(FILTER, "Specify Filters", false);
-        filterDialogController.addAllowedFilterTypes(STRING, TIME_SHARE);
+        filterDialogController.addAllowedFilterTypes(STRING);
 
         exportButton.setGraphic(viewFor(EXPORT_16));
         exportButton.setTooltip(new Tooltip("Export the current view to a file"));
@@ -227,11 +226,11 @@ public class FlatDiffViewController extends AbstractController
         currentFilter.accept(copy);
         if (base)
         {
-            diff.updateBase(copy.getFlatByFrameProfile());
+            diff.updateBase(copy.getFlatByMethodProfile());
         }
         else
         {
-            diff.updateNew(copy.getFlatByFrameProfile());
+            diff.updateNew(copy.getFlatByMethodProfile());
         }
 
         refreshTable(diffTable);
