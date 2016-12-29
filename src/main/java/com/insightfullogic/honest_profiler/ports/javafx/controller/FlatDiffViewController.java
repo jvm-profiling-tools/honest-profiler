@@ -21,6 +21,8 @@ package com.insightfullogic.honest_profiler.ports.javafx.controller;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.STRING;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.FILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.showExportDialog;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.addProfileNr;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.createColoredLabelContainer;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.refreshTable;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.StyleUtil.doubleDiffStyler;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.StyleUtil.intDiffStyler;
@@ -29,6 +31,7 @@ import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.EXPORT_
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_ACTIVE_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor;
+import static javafx.geometry.Pos.CENTER;
 
 import java.util.function.Function;
 
@@ -52,6 +55,7 @@ import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -59,6 +63,8 @@ import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
+import javafx.scene.text.Text;
 import javafx.util.Callback;
 
 public class FlatDiffViewController extends AbstractController
@@ -160,39 +166,6 @@ public class FlatDiffViewController extends AbstractController
             .setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getFullName()));
         method.setCellFactory(col -> new MethodNameTableCell<FlatEntryDiff>());
 
-        configureTimeShareColumn(baseSelfTime, "baseSelfTimeShare", null);
-        configureTimeShareColumn(newSelfTime, "newSelfTimeShare", null);
-
-        configureTimeShareColumn(baseTotalTime, "baseTotalTimeShare", null);
-        configureTimeShareColumn(newTotalTime, "newTotalTimeShare", null);
-
-        configureTimeShareColumn(selfTimeDiff, "pctSelfChange", doubleDiffStyler);
-        configureTimeShareColumn(totalTimeDiff, "pctTotalChange", doubleDiffStyler);
-
-        configureCountColumn(baseSelfCount, "baseSelfCount", null);
-        configureCountColumn(newSelfCount, "newSelfCount", null);
-
-        configureCountColumn(baseTotalCount, "baseTotalCount", null);
-        configureCountColumn(newTotalCount, "newTotalCount", null);
-
-        configureCountColumn(baseTraceCount, "baseTraceCount", null);
-        configureCountColumn(newTraceCount, "newTraceCount", null);
-
-        configureCountDiffColumn(
-            selfCountDiff,
-            data -> new ReadOnlyIntegerWrapper(
-                data.getValue().getNewSelfCount() - data.getValue().getBaseSelfCount()),
-            intDiffStyler);
-        configureCountDiffColumn(
-            totalCountDiff,
-            data -> new ReadOnlyIntegerWrapper(
-                data.getValue().getNewTotalCount() - data.getValue().getBaseTotalCount()),
-            intDiffStyler);
-        configureCountDiffColumn(
-            traceCountDiff,
-            data -> new ReadOnlyIntegerWrapper(
-                data.getValue().getNewTraceCount() - data.getValue().getBaseTraceCount()),
-            intDiffStyler);
     }
 
     @Override
@@ -210,8 +183,45 @@ public class FlatDiffViewController extends AbstractController
         baseSourceLabel.setText(baseContext.getName());
         newSourceLabel.setText(newContext.getName());
 
+        configurePercentColumn(baseSelfTime, "baseSelfTimeShare", baseProfileContext, "Self %");
+        configurePercentColumn(newSelfTime, "newSelfTimeShare", newProfileContext, "Self %");
+        configurePercentColumn(selfTimeDiff, "pctSelfChange", doubleDiffStyler, "Self % Diff");
+
+        configurePercentColumn(baseTotalTime, "baseTotalTimeShare", baseProfileContext, "Total %");
+        configurePercentColumn(newTotalTime, "newTotalTimeShare", newProfileContext, "Total %");
+        configurePercentColumn(totalTimeDiff, "pctTotalChange", doubleDiffStyler, "Total % Diff");
+
+        configureCountColumn(baseSelfCount, "baseSelfCount", baseProfileContext, "Self #");
+        configureCountColumn(newSelfCount, "newSelfCount", newProfileContext, "Self #");
+        configureCountDiffColumn(
+            selfCountDiff,
+            data -> new ReadOnlyIntegerWrapper(
+                data.getValue().getNewSelfCount() - data.getValue().getBaseSelfCount()),
+            intDiffStyler,
+            "Self # Diff");
+
+        configureCountColumn(baseTotalCount, "baseTotalCount", baseProfileContext, "Total #");
+        configureCountColumn(newTotalCount, "newTotalCount", newProfileContext, "Total #");
+        configureCountDiffColumn(
+            totalCountDiff,
+            data -> new ReadOnlyIntegerWrapper(
+                data.getValue().getNewTotalCount() - data.getValue().getBaseTotalCount()),
+            intDiffStyler,
+            "Total # Diff");
+
+        configureCountColumn(baseTraceCount, "baseTraceCount", baseProfileContext, "Trace #");
+        configureCountColumn(newTraceCount, "newTraceCount", baseProfileContext, "Trace #");
+        configureCountDiffColumn(
+            traceCountDiff,
+            data -> new ReadOnlyIntegerWrapper(
+                data.getValue().getNewTraceCount() - data.getValue().getBaseTraceCount()),
+            intDiffStyler,
+            "Trace # Diff");
+
         updateDiff(baseContext.getProfile(), true);
         updateDiff(newContext.getProfile(), false);
+
+        // diffTable.refresh();
 
         baseProfileContext.profileProperty()
             .addListener((property, oldValue, newValue) -> updateDiff(newValue, true));
@@ -236,25 +246,72 @@ public class FlatDiffViewController extends AbstractController
         refreshTable(diffTable);
     }
 
-    private void configureTimeShareColumn(TableColumn<FlatEntryDiff, Number> column,
-        String propertyName, Function<Number, String> styler)
+    private void configurePercentColumn(TableColumn<FlatEntryDiff, Number> column,
+        String propertyName, ProfileContext profileContext, String title)
+    {
+        column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
+        column.setCellFactory(col -> new PercentageTableCell<>());
+        setColumnHeader(column, title, profileContext);
+    }
+
+    private void configurePercentColumn(TableColumn<FlatEntryDiff, Number> column,
+        String propertyName, Function<Number, String> styler, String title)
     {
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
         column.setCellFactory(col -> new PercentageTableCell<FlatEntryDiff>(styler));
+        setColumnHeader(column, title, null);
     }
 
     private void configureCountColumn(TableColumn<FlatEntryDiff, Number> column,
-        String propertyName, Function<Number, String> styler)
+        String propertyName,
+        ProfileContext profileContext, String title)
     {
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new CountTableCell<FlatEntryDiff>(styler));
+        column.setCellFactory(col -> new CountTableCell<FlatEntryDiff>());
+        setColumnHeader(column, title, profileContext);
     }
 
     private void configureCountDiffColumn(TableColumn<FlatEntryDiff, Number> column,
         Callback<CellDataFeatures<FlatEntryDiff, Number>, ObservableValue<Number>> callback,
-        Function<Number, String> styler)
+        Function<Number, String> styler, String title)
     {
         column.setCellValueFactory(callback);
         column.setCellFactory(col -> new CountTableCell<FlatEntryDiff>(styler));
+        setColumnHeader(column, title, null);
+    }
+
+    private void setColumnHeader(TableColumn<?, ?> column, String title,
+        ProfileContext profileContext)
+    {
+        HBox header = createColoredLabelContainer(CENTER);
+
+        column.setText(null);
+        column.setGraphic(header);
+
+        if (profileContext != null)
+        {
+            addProfileNr(header, profileContext);
+        }
+
+        header.getChildren().add(new Text(title));
+
+        // Somehow it's hard to get a TableColumn to resize properly.
+        // Therefore, we calculate a fair width ourselves.
+        double newWidth = calculateWidth(header);
+        column.setMinWidth(newWidth);
+        column.setPrefWidth(newWidth + 5); // some extra margin
+        diffTable.refresh();
+    }
+
+    private double calculateWidth(HBox box)
+    {
+        double width = 0;
+        for (Node node : box.getChildren())
+        {
+            width += node.getBoundsInLocal().getWidth();
+        }
+        width += box.getSpacing() * (box.getChildren().size() - 1);
+        width += box.getPadding().getLeft() + box.getPadding().getRight();
+        return width;
     }
 }

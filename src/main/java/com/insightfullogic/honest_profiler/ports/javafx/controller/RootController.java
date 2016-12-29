@@ -4,24 +4,14 @@ import static com.insightfullogic.honest_profiler.ports.javafx.model.ProfileCont
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.selectLogFile;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.FXML_FLAT_DIFF_VIEW;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.FXML_PROFILE_ROOT;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.addColoredLabel;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.addProfileNr;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.createColoredLabelContainer;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.loaderFor;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.LIVE_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.LOG_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor;
 import static javafx.application.Platform.exit;
 import static javafx.application.Platform.runLater;
-import static javafx.geometry.Pos.CENTER_LEFT;
-import static javafx.scene.paint.Color.BEIGE;
-import static javafx.scene.paint.Color.CHARTREUSE;
-import static javafx.scene.paint.Color.CYAN;
-import static javafx.scene.paint.Color.GOLD;
-import static javafx.scene.paint.Color.LIGHTBLUE;
-import static javafx.scene.paint.Color.LIGHTGREEN;
-import static javafx.scene.paint.Color.LIGHTGREY;
-import static javafx.scene.paint.Color.LIGHTPINK;
-import static javafx.scene.paint.Color.LIGHTSTEELBLUE;
-import static javafx.scene.paint.Color.ORANGE;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
@@ -41,18 +31,10 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 
 public class RootController extends AbstractController implements MachineListener
 {
-
-    private static final Color[] LABEL_PALETTE = new Color[]
-    {
-        LIGHTSTEELBLUE, LIGHTGREEN, ORANGE, LIGHTBLUE, BEIGE, GOLD, LIGHTGREY, LIGHTPINK, CYAN,
-        CHARTREUSE
-    };
 
     @FXML
     private MenuBar menuBar;
@@ -162,16 +144,13 @@ public class RootController extends AbstractController implements MachineListene
 
         ProfileContext profileContext = controller.initializeProfile(appCtx(), source, live);
 
-        Pane tabInfo = createTabInfoPane();
+        Pane tabInfo = createColoredLabelContainer();
         tab.setGraphic(tabInfo);
-        info(tab, "Shows profile " + profileContext.getName());
-
-        addColoredLabel(
-            tabInfo,
-            Integer.toString(profileContext.getId()),
-            LABEL_PALETTE[profileContext.getId() % LABEL_PALETTE.length]);
+        addProfileNr(tabInfo, profileContext);
         tabInfo.getChildren().add(viewFor(profileContext.getMode() == LOG ? LOG_16 : LIVE_16));
         tabInfo.getChildren().add(new Label(profileContext.getName()));
+
+        info(tab, "Shows profile " + profileContext.getName());
     }
 
     public void generateDiffTab(String baseName, String newName)
@@ -183,29 +162,15 @@ public class RootController extends AbstractController implements MachineListene
         ProfileContext newCtx = appCtx().getProfileContext(newName);
         controller.setProfileContexts(baseCtx, newCtx);
 
-        Pane tabInfo = createTabInfoPane();
+        Pane tabInfo = createColoredLabelContainer();
         tab.setGraphic(tabInfo);
         info(tab, "Shows the difference between profiles " + baseName + " and " + newName);
 
         profileTabs.getTabs().add(tab);
 
-        addColoredLabel(
-            tabInfo,
-            Integer.toString(baseCtx.getId()),
-            LABEL_PALETTE[baseCtx.getId() % LABEL_PALETTE.length]);
+        addProfileNr(tabInfo, baseCtx);
         tabInfo.getChildren().add(new Label("<->"));
-        addColoredLabel(
-            tabInfo,
-            Integer.toString(newCtx.getId()),
-            LABEL_PALETTE[newCtx.getId() % LABEL_PALETTE.length]);
-    }
-
-    private Pane createTabInfoPane()
-    {
-        HBox tabInfo = new HBox();
-        tabInfo.setAlignment(CENTER_LEFT);
-        tabInfo.setSpacing(5);
-        return tabInfo;
+        addProfileNr(tabInfo, newCtx);
     }
 
     private <T extends AbstractController> T loadViewIntoTab(String fxml, Tab tab)
