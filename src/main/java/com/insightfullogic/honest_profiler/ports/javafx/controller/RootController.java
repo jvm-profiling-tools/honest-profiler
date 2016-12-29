@@ -14,7 +14,9 @@ import static javafx.application.Platform.exit;
 import static javafx.application.Platform.runLater;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.function.Consumer;
 
 import com.insightfullogic.honest_profiler.core.MachineListener;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
@@ -23,12 +25,14 @@ import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.sources.LocalMachineSource;
 
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.Pane;
@@ -58,7 +62,6 @@ public class RootController extends AbstractController implements MachineListene
     @FXML
     public void initialize()
     {
-
         setApplicationContext(new ApplicationContext(this));
         info.textProperty().bind(appCtx().getInfo());
 
@@ -66,8 +69,9 @@ public class RootController extends AbstractController implements MachineListene
             menuBar,
             "The File menu allows you to open existing log files. The Monitor menu allows you to select a running JVM and profile it. JVMs not running the Honest Profiler agent are greyed out.");
 
-        openLogItem.setOnAction(event -> generateProfileTab(selectLogFile(), false));
-        openLiveItem.setOnAction(event -> generateProfileTab(selectLogFile(), true));
+        openLogItem.setOnAction(event -> doWithFile(file -> generateProfileTab(file, false)));
+        openLiveItem.setOnAction(event -> doWithFile(file -> generateProfileTab(file, true)));
+
         quitItem.setOnAction(event -> exit());
 
         machineSource = new LocalMachineSource(getLogger(getClass()), this);
@@ -97,19 +101,6 @@ public class RootController extends AbstractController implements MachineListene
             : vmName) + " (" + vm.getId() + ")";
         MenuItem machineItem = new MenuItem(vmId);
 
-        // The following oesn't work properly. Not setting a text might work,
-        // except the graphic for an unselected disabled item is not shown, so
-        // the menu looks empty. No workaround found yet.
-
-        // Label label = new Label(machineId);
-        // info(
-        // label,
-        // machine.isAgentLoaded() ? "Open profiling window for JVM " +
-        // machine.getId()
-        // : "This JVM cannot be profiled, it does not have the Honest Profiler
-        // Agent attached to it.");
-        // machineItem.setGraphic(label);
-
         machineItem.setId(vm.getId());
         machineItem.setDisable(!vm.isAgentLoaded());
         machineItem.setOnAction(event -> generateProfileTab(vm, true));
@@ -134,16 +125,50 @@ public class RootController extends AbstractController implements MachineListene
 
     private void generateProfileTab(Object source, boolean live)
     {
-        if (source == null)
-        {
-            return;
-        }
-
-        Tab tab = new Tab();
+        Tab tab = newLoadingTab();
         ProfileRootController controller = loadViewIntoTab(FXML_PROFILE_ROOT, tab);
+        tab.getContent().setVisible(false);
 
-        ProfileContext profileContext = controller.initializeProfile(appCtx(), source, live);
+        ProfileContext profileContext = controller.getProfileContext();
+        Task<Void> task = controller.getProfileInitializationTask(source, live);
 
+        task.setOnSucceeded(event ->
+        {
+            initializeProfileTabTitle(tab, profileContext);
+            tab.getContent().setVisible(true);
+        });
+
+        task.setOnFailed(event -> profileTabs.getTabs().remove(tab));
+        task.setOnCancelled(event -> profileTabs.getTabs().remove(tab));
+
+        appCtx().getExecutorService().submit(task);
+    }
+
+    public void generateDiffTab(String baseName, String newName)
+    {
+        Tab tab = newLoadingTab();
+        FlatDiffViewController controller = loadViewIntoTab(FXML_FLAT_DIFF_VIEW, tab);
+        tab.getContent().setVisible(false);
+
+        ProfileContext baseCtx = appCtx().getProfileContext(baseName);
+        ProfileContext newCtx = appCtx().getProfileContext(newName);
+        controller.setProfileContexts(baseCtx, newCtx);
+
+        tab.setText(null);
+        Pane tabInfo = createColoredLabelContainer();
+        tab.setGraphic(tabInfo);
+        info(tab, "Shows the difference between profiles " + baseName + " and " + newName);
+
+        addProfileNr(tabInfo, baseCtx);
+        tabInfo.getChildren().add(new Label("<->"));
+        addProfileNr(tabInfo, newCtx);
+
+        runLater(() -> tab.getContent().setVisible(true));
+    }
+
+    private void initializeProfileTabTitle(Tab tab, ProfileContext profileContext)
+    {
+        tab.setText(null);
         Pane tabInfo = createColoredLabelContainer();
         tab.setGraphic(tabInfo);
         addProfileNr(tabInfo, profileContext);
@@ -151,26 +176,6 @@ public class RootController extends AbstractController implements MachineListene
         tabInfo.getChildren().add(new Label(profileContext.getName()));
 
         info(tab, "Shows profile " + profileContext.getName());
-    }
-
-    public void generateDiffTab(String baseName, String newName)
-    {
-        Tab tab = new Tab();
-        FlatDiffViewController controller = loadViewIntoTab(FXML_FLAT_DIFF_VIEW, tab);
-
-        ProfileContext baseCtx = appCtx().getProfileContext(baseName);
-        ProfileContext newCtx = appCtx().getProfileContext(newName);
-        controller.setProfileContexts(baseCtx, newCtx);
-
-        Pane tabInfo = createColoredLabelContainer();
-        tab.setGraphic(tabInfo);
-        info(tab, "Shows the difference between profiles " + baseName + " and " + newName);
-
-        profileTabs.getTabs().add(tab);
-
-        addProfileNr(tabInfo, baseCtx);
-        tabInfo.getChildren().add(new Label("<->"));
-        addProfileNr(tabInfo, newCtx);
     }
 
     private <T extends AbstractController> T loadViewIntoTab(String fxml, Tab tab)
@@ -189,5 +194,35 @@ public class RootController extends AbstractController implements MachineListene
         {
             throw new UserInterfaceConfigurationException(ioe);
         }
+    }
+
+    // UI State Helper Methods
+
+    private Tab newLoadingTab()
+    {
+        Tab tab = new Tab("Loading...");
+        ProgressIndicator progress = new ProgressIndicator();
+        progress.setMaxSize(15, 15);
+        tab.setGraphic(progress);
+        return tab;
+    }
+
+    private void doWithFile(Consumer<File> fileBasedAction)
+    {
+
+        setRootDisabled(true);
+        File file = selectLogFile();
+        setRootDisabled(false);
+
+        if (file != null)
+        {
+            fileBasedAction.accept(file);
+        }
+    }
+
+    private void setRootDisabled(boolean disable)
+    {
+        menuBar.setDisable(disable);
+        profileTabs.setDisable(disable);
     }
 }

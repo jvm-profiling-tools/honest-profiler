@@ -1,10 +1,12 @@
 package com.insightfullogic.honest_profiler.ports.javafx.model;
 
+import static java.util.concurrent.Executors.newCachedThreadPool;
 import static java.util.stream.Collectors.toList;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 import com.insightfullogic.honest_profiler.ports.javafx.controller.RootController;
 
@@ -16,6 +18,8 @@ public class ApplicationContext
     private SimpleStringProperty info;
     private Map<String, ProfileContext> profileContextMap;
     private RootController rootController;
+
+    private ExecutorService executorService = newCachedThreadPool();
 
     public ApplicationContext(RootController rootController)
     {
@@ -48,6 +52,11 @@ public class ApplicationContext
     public List<String> getOpenProfileNames()
     {
         return profileContextMap.keySet().stream().sorted().collect(toList());
+    }
+
+    public ExecutorService getExecutorService()
+    {
+        return executorService;
     }
 
     public void createDiffView(String baseName, String newName)
