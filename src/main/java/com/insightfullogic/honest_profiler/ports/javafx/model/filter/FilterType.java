@@ -23,7 +23,7 @@ import com.insightfullogic.honest_profiler.ports.javafx.model.DisplayableType;
 public enum FilterType implements DisplayableType<FilterType>
 {
     TIME_SHARE("Time Share", asList(GE, LE, GT, LT, EQUALS), asList(SELF_TIME, TOTAL_TIME)),
-    THREAD_SAMPLE("Thread Sample Propertion", asList(GE, LE, GT, LT, EQUALS), asList(THREAD)),
+    THREAD_SAMPLE("Thread Sample Proportion", asList(GE, LE, GT, LT, EQUALS), asList(THREAD)),
     STRING("String", asList(CONTAINS, EQUALS, STARTS_WITH, ENDS_WITH, MATCHES),
         asList(CLASS_NAME, METHOD_NAME));
 
