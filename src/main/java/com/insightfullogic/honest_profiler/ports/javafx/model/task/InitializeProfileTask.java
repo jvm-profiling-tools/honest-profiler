@@ -13,81 +13,67 @@ import com.insightfullogic.honest_profiler.core.parser.LogEventListener;
 import com.insightfullogic.honest_profiler.core.parser.LogEventPublisher;
 import com.insightfullogic.honest_profiler.core.sources.CantReadFromSourceException;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
-import com.insightfullogic.honest_profiler.ports.javafx.controller.FlameViewController;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
 
 import javafx.concurrent.Task;
 
-public class InitializeProfileTask extends Task<Void>
+public class InitializeProfileTask extends Task<ProfileContext>
 {
     private final ApplicationContext applicationContext;
-    private final ProfileContext profileContext;
     private final Object source;
     private final boolean live;
-    private final FlameViewController flameController;
 
-    public InitializeProfileTask(ApplicationContext applicationContext,
-                                 ProfileContext profileContext,
-                                 Object source,
-                                 boolean live,
-                                 FlameViewController flameController)
+    public InitializeProfileTask(ApplicationContext applicationContext, Object source, boolean live)
     {
         super();
         this.applicationContext = applicationContext;
-        this.profileContext = profileContext;
         this.source = source;
         this.live = live;
-        this.flameController = flameController;
     }
 
     @Override
-    protected Void call() throws Exception
+    protected ProfileContext call() throws Exception
     {
+        ProfileContext profileContext;
+
         if (source instanceof VirtualMachine)
         {
             VirtualMachine vm = (VirtualMachine) source;
-            String vmName = vm.getDisplayName();
-            profileContext.setName(
-                (vmName.contains(" ") ? vmName.substring(0, vmName.indexOf(" ")) : vmName)
-                    + " ("
-                    + vm.getId()
-                    + ")");
-            profileContext.setMode(LIVE);
-            monitor((VirtualMachine) source);
+            profileContext = new ProfileContext(convertVmName(vm), LIVE);
+            monitor(profileContext, (VirtualMachine) source);
         }
         else if (live)
         {
             File file = (File) source;
-            profileContext.setName(file.getName());
-            profileContext.setMode(LIVE);
-            monitor(file);
+            profileContext = new ProfileContext(file.getName(), LIVE);
+            monitor(profileContext, file);
         }
         else
         {
             File file = (File) source;
-            profileContext.setName(file.getName());
-            profileContext.setMode(LOG);
-            openFile((File) source);
+            profileContext = new ProfileContext(file.getName(), LOG);
+            openFile(profileContext, (File) source);
         }
+
         applicationContext.registerProfileContext(profileContext);
-        return null;
+        return profileContext;
     }
 
-    private void openFile(File file)
+    private void openFile(ProfileContext profileContext, File file)
     {
         final LogEventListener collector = new LogEventPublisher()
-            .publishTo(new LogCollector(profileContext, false))
-            .publishTo(new FlameGraphCollector(flameController));
+            .publishTo(new LogCollector(profileContext.getProfileListener(), false))
+            .publishTo(new FlameGraphCollector(profileContext.getFlameGraphListener()));
         pipe(new FileLogSource(file), collector, false).run();
     }
 
-    private void monitor(File file)
+    private void monitor(ProfileContext profileContext, File file)
     {
         try
         {
-            pipeFile(new FileLogSource(file), profileContext);
+            pipeFile(new FileLogSource(file), profileContext.getProfileListener());
         }
         catch (CantReadFromSourceException crfse)
         {
@@ -95,15 +81,25 @@ public class InitializeProfileTask extends Task<Void>
         }
     }
 
-    private void monitor(VirtualMachine machine)
+    private void monitor(ProfileContext profileContext, VirtualMachine machine)
     {
         try
         {
-            pipeFile(machine.getLogSourceFromVmArgs(), profileContext);
+            pipeFile(machine.getLogSourceFromVmArgs(), profileContext.getProfileListener());
         }
         catch (CantReadFromSourceException crfse)
         {
             throw new RuntimeException(crfse.getMessage(), crfse);
         }
+    }
+
+    private String convertVmName(VirtualMachine vm)
+    {
+        String name = vm.getDisplayName();
+
+        StringBuilder result = new StringBuilder();
+        result.append((name.contains(" ")) ? name.substring(0, name.indexOf(" ")) : name);
+        result.append(" (").append(vm.getId()).append(")");
+        return result.toString();
     }
 }

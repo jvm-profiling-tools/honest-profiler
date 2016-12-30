@@ -37,7 +37,6 @@ import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
-import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterSpecification;
 import com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil;
@@ -60,7 +59,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 
-public class FlatViewController extends AbstractController
+public class FlatViewController extends ProfileViewController<Profile>
 {
     @FXML
     private Button filterButton;
@@ -91,13 +90,13 @@ public class FlatViewController extends AbstractController
     private FilterDialogController filterDialogController;
     private ObjectProperty<FilterSpecification> filterSpec;
 
-    private ProfileContext profileContext;
-
     private ProfileFilter currentFilter;
 
     @FXML
-    private void initialize()
+    protected void initialize()
     {
+        super.initialize(profileContext -> profileContext.profileProperty());
+
         info(filterButton, "Specify filters restricting the visible entries");
         info(compareButton, "Click to select another open profile to compare this profile against");
         info(exportButton, "Export the visible entries to a CSV file");
@@ -126,16 +125,8 @@ public class FlatViewController extends AbstractController
     @Override
     public void setApplicationContext(ApplicationContext applicationContext)
     {
-
         super.setApplicationContext(applicationContext);
         filterDialogController.setApplicationContext(appCtx());
-    }
-
-    public void setProfileContext(ProfileContext profileContext)
-    {
-        this.profileContext = profileContext;
-        profileContext.profileProperty()
-            .addListener((property, oldValue, newValue) -> refresh(newValue));
     }
 
     // Initialization Helper Methods
@@ -143,8 +134,7 @@ public class FlatViewController extends AbstractController
     private void initializeComparison()
     {
         compareButton.setGraphic(viewFor(COMPARE_16));
-        compareButton
-            .setTooltip(new Tooltip("Compare this profile with another open profile"));
+        compareButton.setTooltip(new Tooltip("Compare this profile with another open profile"));
         compareButton.setOnMousePressed(new EventHandler<MouseEvent>()
         {
             @Override
@@ -178,7 +168,7 @@ public class FlatViewController extends AbstractController
                 newValue == null || !newValue.isFiltering() ? viewFor(FUNNEL_16)
                     : viewFor(FUNNEL_ACTIVE_16));
             currentFilter = new ProfileFilter(newValue.getFilters());
-            refresh(profileContext.getProfile());
+            refresh(getTarget());
         });
 
         filterButton.setGraphic(viewFor(FUNNEL_16));
@@ -212,8 +202,14 @@ public class FlatViewController extends AbstractController
 
     // Refresh Methods
 
-    private void refresh(Profile profile)
+    @Override
+    protected void refresh(Profile profile)
     {
+        if (profile == null)
+        {
+            return;
+        }
+
         Profile newProfile = profile.copy();
         currentFilter.accept(newProfile);
 
@@ -233,14 +229,14 @@ public class FlatViewController extends AbstractController
 
         profileNames.forEach(name ->
         {
-            if (name.equals(profileContext.getName()))
+            if (name.equals(prContext().getName()))
             {
                 return;
             }
 
             MenuItem item = new MenuItem(name);
             item.setOnAction(
-                event -> appCtx().createDiffView(profileContext.getName(), name));
+                event -> appCtx().createDiffView(prContext().getName(), name));
             menu.getItems().add(item);
         });
     }

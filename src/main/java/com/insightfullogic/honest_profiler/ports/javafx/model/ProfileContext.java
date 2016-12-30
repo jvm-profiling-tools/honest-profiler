@@ -1,15 +1,10 @@
 package com.insightfullogic.honest_profiler.ports.javafx.model;
 
-import static java.util.Arrays.asList;
 import static javafx.application.Platform.isFxApplicationThread;
 import static javafx.application.Platform.runLater;
-import static org.slf4j.LoggerFactory.getLogger;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.slf4j.Logger;
-
+import com.insightfullogic.honest_profiler.core.profiles.FlameGraph;
+import com.insightfullogic.honest_profiler.core.profiles.FlameGraphListener;
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
 
@@ -18,30 +13,26 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-public class ProfileContext implements ProfileListener
+public class ProfileContext
 {
     public static enum ProfileMode
     {
-        LIVE,
-        LOG
+        LIVE, LOG
     }
-
-    private final Logger logger;
 
     private int id;
 
-    private SimpleStringProperty name;
-    private ProfileMode mode;
-    private SimpleObjectProperty<Profile> profile;
-    private List<ProfileListener> listeners;
+    private final SimpleStringProperty name;
+    private final ProfileMode mode;
+    private final SimpleObjectProperty<Profile> profile;
+    private final SimpleObjectProperty<FlameGraph> flameGraph;
 
-    public ProfileContext()
+    public ProfileContext(String name, ProfileMode mode)
     {
-        logger = getLogger(ProfileContext.class);
-
-        name = new SimpleStringProperty();
+        this.name = new SimpleStringProperty(name);
+        this.mode = mode;
         profile = new SimpleObjectProperty<>();
-        listeners = new ArrayList<>();
+        flameGraph = new SimpleObjectProperty<>();
     }
 
     public int getId()
@@ -59,19 +50,9 @@ public class ProfileContext implements ProfileListener
         return name.get();
     }
 
-    public void setName(String name)
-    {
-        this.name.set(name);
-    }
-
     public ProfileMode getMode()
     {
         return mode;
-    }
-
-    public void setMode(ProfileMode mode)
-    {
-        this.mode = mode;
     }
 
     public Profile getProfile()
@@ -89,51 +70,46 @@ public class ProfileContext implements ProfileListener
         return profile;
     }
 
-    public void setProfile(Profile profile)
+    public ObjectProperty<FlameGraph> flameGraphProperty()
     {
-        this.profile.set(profile);
+        return flameGraph;
     }
 
-    public void addListener(ProfileListener listener)
+    public ProfileListener getProfileListener()
     {
-        listeners.add(listener);
-    }
-
-    public void addListeners(ProfileListener... listeners)
-    {
-        this.listeners.addAll(asList(listeners));
-    }
-
-    @Override
-    public void accept(Profile profile)
-    {
-        // All UI updates must go through here.
-        onFxThread(() ->
+        return new ProfileListener()
         {
-            this.profile.set(profile);
-
-            try
+            @Override
+            public void accept(Profile t)
             {
-                listeners.forEach(listener -> listener.accept(profile));
+                if (isFxApplicationThread())
+                {
+                    profile.set(t);
+                }
+                else
+                {
+                    runLater(() -> profile.set(t));
+                }
             }
-            catch (Throwable t)
-            {
-                logger.error(t.getMessage(), t);
-            }
-        });
+        };
     }
 
-    // Controllers can happily update the UI without worrying about threading
-    // implications
-    private void onFxThread(final Runnable block)
+    public FlameGraphListener getFlameGraphListener()
     {
-        if (isFxApplicationThread())
+        return new FlameGraphListener()
         {
-            block.run();
-        }
-        else
-        {
-            runLater(block);
-        }
+            @Override
+            public void accept(FlameGraph t)
+            {
+                if (isFxApplicationThread())
+                {
+                    flameGraph.set(t);
+                }
+                else
+                {
+                    runLater(() -> flameGraph.set(t));
+                }
+            }
+        };
     }
 }

@@ -19,13 +19,12 @@
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
 import com.insightfullogic.honest_profiler.core.profiles.FlameGraph;
-import com.insightfullogic.honest_profiler.core.profiles.FlameGraphListener;
 import com.insightfullogic.honest_profiler.ports.javafx.view.FlameGraphCanvas;
 
 import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
 
-public class FlameViewController extends AbstractController implements FlameGraphListener
+public class FlameViewController extends ProfileViewController<FlameGraph>
 {
     @FXML
     private VBox rootContainer;
@@ -33,8 +32,10 @@ public class FlameViewController extends AbstractController implements FlameGrap
     private FlameGraphCanvas flameView;
 
     @FXML
-    public void initialize()
+    protected void initialize()
     {
+        super.initialize(profileContext -> profileContext.flameGraphProperty());
+
         flameView = new FlameGraphCanvas();
         rootContainer.getChildren().add(flameView);
     }
@@ -63,8 +64,13 @@ public class FlameViewController extends AbstractController implements FlameGrap
     }
 
     @Override
-    public void accept(final FlameGraph flameGraph)
+    protected void refresh(FlameGraph flameGraph)
     {
+        if (flameGraph == null)
+        {
+            return;
+        }
+
         flameView.accept(flameGraph);
     }
 }

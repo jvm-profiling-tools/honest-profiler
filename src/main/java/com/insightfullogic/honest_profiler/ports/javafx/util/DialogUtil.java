@@ -100,7 +100,6 @@ public final class DialogUtil
             catch (IOException ioe)
             {
                 showExceptionDialog(
-                    window,
                     "I/O Issue",
                     "File could not be written",
                     "An issue occurred trying to export data to file "
@@ -111,8 +110,18 @@ public final class DialogUtil
         }
     }
 
-    public static void showExceptionDialog(Window window, String title, String headerText,
-        String contentText,
+    public static void showErrorDialog(String title, String header, String content)
+    {
+
+        Alert alert = new Alert(ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+
+        alert.showAndWait();
+    }
+
+    public static void showExceptionDialog(String title, String headerText, String contentText,
         Throwable t)
     {
         Alert alert = new Alert(ERROR);

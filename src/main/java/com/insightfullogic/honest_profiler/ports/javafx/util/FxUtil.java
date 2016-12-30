@@ -19,6 +19,7 @@ import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.HBox;
@@ -37,10 +38,8 @@ public final class FxUtil
     public static String FXML_FLAT_DIFF_VIEW = FXML_DIR + "FlatDiffView.fxml";
 
     private static Color[] LABEL_PALETTE = new Color[]
-    {
-        LIGHTSTEELBLUE, LIGHTGREEN, ORANGE, LIGHTBLUE, BEIGE, GOLD, LIGHTGREY, LIGHTPINK, CYAN,
-        CHARTREUSE
-    };
+    { LIGHTSTEELBLUE, LIGHTGREEN, ORANGE, LIGHTBLUE, BEIGE, GOLD, LIGHTGREY, LIGHTPINK, CYAN,
+        CHARTREUSE };
 
     public static FXMLLoader loaderFor(Object originator, String resource)
     {
@@ -115,6 +114,13 @@ public final class FxUtil
             table.getColumns().get(0).setVisible(false);
             table.getColumns().get(0).setVisible(true);
         });
+    }
+
+    public static ProgressIndicator getProgressIndicator(double maxWidth, double maxHeight)
+    {
+        ProgressIndicator progress = new ProgressIndicator();
+        progress.setMaxSize(maxWidth, maxHeight);
+        return progress;
     }
 
     private FxUtil()

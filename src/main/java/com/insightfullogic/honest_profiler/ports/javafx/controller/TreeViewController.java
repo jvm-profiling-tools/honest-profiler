@@ -29,12 +29,13 @@ import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderMethod;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderPercentage;
 
+import java.util.function.Function;
+
 import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
 import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
-import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterSpecification;
 import com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil;
@@ -47,14 +48,16 @@ import com.insightfullogic.honest_profiler.ports.javafx.view.tree.ThreadNodeAdap
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.TreeTableColumn.CellDataFeatures;
 import javafx.scene.control.TreeTableView;
 
-public class TreeViewController extends AbstractController
+public class TreeViewController extends ProfileViewController<Profile>
 {
     @FXML
     private Button filterButton;
@@ -77,7 +80,6 @@ public class TreeViewController extends AbstractController
     private FilterDialogController filterDialogController;
     private ObjectProperty<FilterSpecification> filterSpec;
 
-    private ProfileContext profileContext;
     private ProfileFilter currentFilter;
 
     private RootNodeAdapter rootNode;
@@ -85,6 +87,8 @@ public class TreeViewController extends AbstractController
     @FXML
     private void initialize()
     {
+        super.initialize(profileContext -> profileContext.profileProperty());
+
         info(filterButton, "Specify filters restricting the visible entries");
         info(expandAllButton, "Expand all trees");
         info(collapseAllButton, "Collapse all trees");
@@ -101,7 +105,7 @@ public class TreeViewController extends AbstractController
                 newValue == null || !newValue.isFiltering() ? viewFor(FUNNEL_16)
                     : viewFor(FUNNEL_ACTIVE_16));
             currentFilter = new ProfileFilter(newValue.getFilters());
-            refresh(profileContext.getProfile());
+            refresh(getTarget());
         });
 
         rootNode = new RootNodeAdapter(filterSpec);
@@ -112,8 +116,8 @@ public class TreeViewController extends AbstractController
 
         filterButton.setGraphic(viewFor(FUNNEL_16));
         filterButton.setTooltip(new Tooltip("Specify filters"));
-        filterButton.setOnAction(
-            event -> filterSpec.set(filterDialogController.showAndWait().get()));
+        filterButton
+            .setOnAction(event -> filterSpec.set(filterDialogController.showAndWait().get()));
 
         expandAllButton.setGraphic(viewFor(EXPAND_16));
         expandAllButton.setTooltip(new Tooltip("Expand all threads"));
@@ -123,58 +127,20 @@ public class TreeViewController extends AbstractController
         collapseAllButton.setGraphic(viewFor(COLLAPSE_16));
         collapseAllButton.setTooltip(new Tooltip("Collapse all threads"));
         collapseAllButton.setOnAction(
-            event -> treeView.getRoot().getChildren().stream()
-                .forEach(TreeUtil::collapseFully));
+            event -> treeView.getRoot().getChildren().stream().forEach(TreeUtil::collapseFully));
 
         treeView.setRoot(rootNode);
 
-        totalColumn.setCellValueFactory(
-            param -> new ReadOnlyStringWrapper(
-                param.getValue().getValue() != null
-                    ? renderPercentage(param.getValue().getValue().getTotalTimeShare()) : ""));
-        selfColumn.setCellValueFactory(
-            param -> new ReadOnlyStringWrapper(
-                param.getValue().getValue() != null
-                    ? renderPercentage(param.getValue().getValue().getSelfTimeShare()) : ""));
+        totalColumn.setCellValueFactory(data -> wrapDouble(data, ProfileNode::getTotalTimeShare));
+        selfColumn.setCellValueFactory(data -> wrapDouble(data, ProfileNode::getSelfTimeShare));
 
         methodColumn.setCellFactory(column -> new ProfileNodeTreeTableCell());
-        methodColumn.setCellValueFactory(param ->
-        {
-            TreeItem<ProfileNode> treeItem = param.getValue();
-            String text = "";
-
-            if (treeItem instanceof ThreadNodeAdapter)
-            {
-                ThreadNodeAdapter adapter = (ThreadNodeAdapter) treeItem;
-                String name = adapter.getThreadName();
-
-                StringBuilder builder = new StringBuilder("Thread").append(' ');
-                if (adapter.getThreadId() < 0)
-                {
-                    builder.append("Unknown [" + adapter.getThreadId() + "]");
-                }
-                else
-                {
-                    builder.append(adapter.getThreadId());
-                }
-
-                builder.append(' ')
-                    .append((name == null || name.isEmpty()) ? "Unknown" : "[" + name + "]")
-                    .append(" (depth = ").append(adapter.getDepth()).append(", # samples = ")
-                    .append(adapter.getNrOfSamples()).append(")");
-
-                text = builder.toString();
-            }
-            else if (treeItem instanceof MethodNodeAdapter)
-            {
-                text = renderMethod(treeItem.getValue().getFrameInfo());
-            }
-
-            return new ReadOnlyStringWrapper(text);
-        });
+        methodColumn.setCellValueFactory(data -> buildProfileNodeCell(data.getValue()));
 
         percentColumn.setCellFactory(param -> new TreeViewCell());
     }
+
+    // Instance Accessors
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext)
@@ -183,17 +149,53 @@ public class TreeViewController extends AbstractController
         filterDialogController.setApplicationContext(appCtx());
     }
 
-    public void setProfileContext(ProfileContext profileContext)
-    {
-        this.profileContext = profileContext;
-        profileContext.profileProperty()
-            .addListener((property, oldValue, newValue) -> refresh(newValue));
-    }
-
     // Helper Methods
 
-    private void refresh(Profile profile)
+    private StringProperty buildProfileNodeCell(TreeItem<ProfileNode> treeItem)
     {
+        String text = "";
+
+        if (treeItem instanceof ThreadNodeAdapter)
+        {
+            ThreadNodeAdapter adapter = (ThreadNodeAdapter) treeItem;
+            String name = adapter.getThreadName();
+
+            StringBuilder builder = new StringBuilder("Thread").append(' ');
+            builder.append(
+                (adapter.getThreadId() < 0) ? "Unknown [" + adapter.getThreadId() + "]"
+                    : adapter.getThreadId());
+
+            builder.append(' ')
+                .append((name == null || name.isEmpty()) ? "Unknown" : "[" + name + "]")
+                .append(" (depth = ").append(adapter.getDepth()).append(", # samples = ")
+                .append(adapter.getNrOfSamples()).append(")");
+
+            text = builder.toString();
+        }
+        else if (treeItem instanceof MethodNodeAdapter)
+        {
+            text = renderMethod(treeItem.getValue().getFrameInfo());
+        }
+
+        return new ReadOnlyStringWrapper(text);
+    }
+
+    private StringProperty wrapDouble(CellDataFeatures<ProfileNode, String> data,
+        Function<ProfileNode, Double> accessor)
+    {
+        return new ReadOnlyStringWrapper(
+            data.getValue().getValue() != null
+                ? renderPercentage(accessor.apply(data.getValue().getValue())) : "");
+    }
+
+    @Override
+    protected void refresh(Profile profile)
+    {
+        if (profile == null)
+        {
+            return;
+        }
+
         Profile newProfile = profile.copy();
         currentFilter.accept(newProfile);
         rootNode.update(newProfile.getTrees());

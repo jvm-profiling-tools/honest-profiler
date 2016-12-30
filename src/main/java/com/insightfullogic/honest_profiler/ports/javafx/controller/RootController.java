@@ -2,6 +2,8 @@ package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
 import static com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext.ProfileMode.LOG;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.selectLogFile;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.showErrorDialog;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.showExceptionDialog;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.FXML_FLAT_DIFF_VIEW;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.FXML_PROFILE_ROOT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.addProfileNr;
@@ -23,6 +25,8 @@ import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.insightfullogic.honest_profiler.ports.javafx.UserInterfaceConfigurationException;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
+import com.insightfullogic.honest_profiler.ports.javafx.model.task.InitializeProfileTask;
+import com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil;
 import com.insightfullogic.honest_profiler.ports.sources.LocalMachineSource;
 
 import javafx.concurrent.Task;
@@ -32,7 +36,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.Pane;
@@ -69,8 +72,8 @@ public class RootController extends AbstractController implements MachineListene
             menuBar,
             "The File menu allows you to open existing log files. The Monitor menu allows you to select a running JVM and profile it. JVMs not running the Honest Profiler agent are greyed out.");
 
-        openLogItem.setOnAction(event -> doWithFile(file -> generateProfileTab(file, false)));
-        openLiveItem.setOnAction(event -> doWithFile(file -> generateProfileTab(file, true)));
+        openLogItem.setOnAction(event -> doWithFile(file -> createNewProfile(file, false)));
+        openLiveItem.setOnAction(event -> doWithFile(file -> createNewProfile(file, true)));
 
         quitItem.setOnAction(event -> exit());
 
@@ -99,21 +102,21 @@ public class RootController extends AbstractController implements MachineListene
         String vmName = vm.getDisplayName();
         final String vmId = (vmName.contains(" ") ? vmName.substring(0, vmName.indexOf(" "))
             : vmName) + " (" + vm.getId() + ")";
-        MenuItem machineItem = new MenuItem(vmId);
+        MenuItem vmItem = new MenuItem(vmId);
 
-        machineItem.setId(vm.getId());
-        machineItem.setDisable(!vm.isAgentLoaded());
-        machineItem.setOnAction(event -> generateProfileTab(vm, true));
+        vmItem.setId(vm.getId());
+        vmItem.setDisable(!vm.isAgentLoaded());
+        vmItem.setOnAction(event -> createNewProfile(vm, true));
 
         if (monitorMenu != null)
         {
-            monitorMenu.getItems().add(machineItem);
+            monitorMenu.getItems().add(vmItem);
         }
     }
 
-    private void removeFromMachineMenu(final VirtualMachine machine)
+    private void removeFromMachineMenu(final VirtualMachine vm)
     {
-        monitorMenu.getItems().removeIf(node -> machine.getId().equals(node.getId()));
+        monitorMenu.getItems().removeIf(node -> vm.getId().equals(node.getId()));
     }
 
     public void close()
@@ -123,25 +126,60 @@ public class RootController extends AbstractController implements MachineListene
 
     // Profile-related Helper Methods
 
-    private void generateProfileTab(Object source, boolean live)
+    private void createNewProfile(Object source, boolean live)
     {
         Tab tab = newLoadingTab();
         ProfileRootController controller = loadViewIntoTab(FXML_PROFILE_ROOT, tab);
         tab.getContent().setVisible(false);
 
-        ProfileContext profileContext = controller.getProfileContext();
-        Task<Void> task = controller.getProfileInitializationTask(source, live);
+        Task<ProfileContext> task = new InitializeProfileTask(appCtx(), source, live);
 
         task.setOnSucceeded(event ->
         {
-            initializeProfileTabTitle(tab, profileContext);
-            tab.getContent().setVisible(true);
+            try
+            {
+                handleNewProfile(tab, controller, task.get());
+            }
+            catch (Throwable t)
+            {
+                showExceptionDialog(
+                    "Profile Error",
+                    "Profile not opened",
+                    "An exception occurred trying to open the profile.",
+                    t);
+            }
         });
 
-        task.setOnFailed(event -> profileTabs.getTabs().remove(tab));
-        task.setOnCancelled(event -> profileTabs.getTabs().remove(tab));
+        task.setOnFailed(
+            event ->
+            {
+                profileTabs.getTabs().remove(tab);
+                showErrorDialog(
+                    "Profile Error",
+                    "Profile not opened",
+                    "The profile could not be opened.");
+            });
+        task.setOnCancelled(
+            event ->
+            {
+                profileTabs.getTabs().remove(tab);
+                showErrorDialog(
+                    "Profile Error",
+                    "Profile not opened",
+                    "The task for opening the profile was canceled.");
+            });
 
         appCtx().getExecutorService().submit(task);
+    }
+
+    private void handleNewProfile(Tab tab, ProfileRootController controller,
+        ProfileContext profileContext)
+    {
+        controller.setApplicationContext(appCtx());
+        controller.setProfileContext(profileContext);
+        initializeProfileTabTitle(tab, profileContext);
+
+        tab.getContent().setVisible(true);
     }
 
     public void generateDiffTab(String baseName, String newName)
@@ -185,7 +223,6 @@ public class RootController extends AbstractController implements MachineListene
             FXMLLoader loader = loaderFor(this, fxml);
             tab.setContent(loader.load());
             T controller = loader.getController();
-            controller.setApplicationContext(appCtx());
             profileTabs.getTabs().add(tab);
             profileTabs.getSelectionModel().select(tab);
             return controller;
@@ -201,9 +238,7 @@ public class RootController extends AbstractController implements MachineListene
     private Tab newLoadingTab()
     {
         Tab tab = new Tab("Loading...");
-        ProgressIndicator progress = new ProgressIndicator();
-        progress.setMaxSize(15, 15);
-        tab.setGraphic(progress);
+        tab.setGraphic(FxUtil.getProgressIndicator(15, 15));
         return tab;
     }
 

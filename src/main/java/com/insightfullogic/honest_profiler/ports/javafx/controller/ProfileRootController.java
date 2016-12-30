@@ -18,18 +18,13 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
-import static com.insightfullogic.honest_profiler.ports.javafx.ViewType.FLAME;
 import static com.insightfullogic.honest_profiler.ports.javafx.ViewType.FLAT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ConversionUtil.getStringConverterForType;
 
-import com.insightfullogic.honest_profiler.core.profiles.Profile;
-import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
 import com.insightfullogic.honest_profiler.ports.javafx.ViewType;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
-import com.insightfullogic.honest_profiler.ports.javafx.model.task.InitializeProfileTask;
 
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.ChoiceBox;
@@ -37,7 +32,6 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 
 public class ProfileRootController extends AbstractController
-    implements ProfileListener, ProfileController
 {
     @FXML
     private ChoiceBox<ViewType> viewChoice;
@@ -52,8 +46,6 @@ public class ProfileRootController extends AbstractController
     @FXML
     private FlameViewController flameController;
 
-    private ProfileContext profileContext;
-
     @FXML
     public void initialize()
     {
@@ -61,18 +53,6 @@ public class ProfileRootController extends AbstractController
             viewChoice,
             "Select the View : Flat View lists all methods as a list; Tree View shows the stack trees per thread; Flame View shows the Flame Graph");
         info(traceCount, "Shows the number of samples in the profile");
-
-        profileContext = new ProfileContext();
-        profileContext.addListeners(this);
-
-        flatController.setProfileContext(profileContext);
-        treeController.setProfileContext(profileContext);
-
-        viewChoice.getSelectionModel().selectedItemProperty()
-            .addListener((property, oldValue, newValue) -> show(newValue));
-        viewChoice.setConverter(getStringConverterForType(ViewType.class));
-        viewChoice.getItems().addAll(ViewType.values());
-        viewChoice.getSelectionModel().select(FLAT);
     }
 
     // Instance Accessors
@@ -86,28 +66,22 @@ public class ProfileRootController extends AbstractController
         flameController.setApplicationContext(applicationContext);
     }
 
-    @Override
-    public ProfileContext getProfileContext()
+    public void setProfileContext(ProfileContext profileContext)
     {
-        return profileContext;
-    }
+        flatController.setProfileContext(profileContext);
+        treeController.setProfileContext(profileContext);
+        flameController.setProfileContext(profileContext);
 
-    // ProfileListener Implementation
+        traceCount.setText(profileContext.getProfile().getTraceCount() + " samples");
+        profileContext.profileProperty().addListener(
+            (property, oldValue, newValue) -> traceCount
+                .setText(newValue == null ? null : newValue.getTraceCount() + " samples"));
 
-    /**
-     * Not threadsafe: must be run on JavaFx thread.
-     */
-    @Override
-    public void accept(Profile profile)
-    {
-        traceCount.setText(profile.getTraceCount() + " samples");
-    }
-
-    // Profiling startup
-
-    public Task<Void> getProfileInitializationTask(Object source, boolean live)
-    {
-        return new InitializeProfileTask(appCtx(), profileContext, source, live, flameController);
+        viewChoice.setConverter(getStringConverterForType(ViewType.class));
+        viewChoice.getItems().addAll(ViewType.values());
+        viewChoice.getSelectionModel().selectedItemProperty()
+            .addListener((property, oldValue, newValue) -> show(newValue));
+        viewChoice.getSelectionModel().select(FLAT);
     }
 
     // View Switch
@@ -121,9 +95,25 @@ public class ProfileRootController extends AbstractController
             child.setVisible(viewType.ordinal() == i);
         }
 
-        if (viewType == FLAME)
+        switch (viewType)
         {
-            flameController.refreshFlameView();
+            case FLAT:
+                treeController.deactivate();
+                flameController.deactivate();
+                flatController.activate();
+                break;
+            case TREE:
+                flatController.deactivate();
+                flameController.deactivate();
+                treeController.activate();
+                break;
+            case FLAME:
+                flameController.activate();
+                flameController.refreshFlameView();
+                flatController.deactivate();
+                treeController.deactivate();
+                break;
+            default:
         }
     }
 }
