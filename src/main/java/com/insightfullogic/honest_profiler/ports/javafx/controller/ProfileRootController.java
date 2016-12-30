@@ -72,10 +72,14 @@ public class ProfileRootController extends AbstractController
         treeController.setProfileContext(profileContext);
         flameController.setProfileContext(profileContext);
 
-        traceCount.setText(profileContext.getProfile().getTraceCount() + " samples");
         profileContext.profileProperty().addListener(
             (property, oldValue, newValue) -> traceCount
                 .setText(newValue == null ? null : newValue.getTraceCount() + " samples"));
+
+        if (profileContext.getProfile() != null)
+        {
+            traceCount.setText(profileContext.getProfile().getTraceCount() + " samples");
+        }
 
         viewChoice.setConverter(getStringConverterForType(ViewType.class));
         viewChoice.getItems().addAll(ViewType.values());

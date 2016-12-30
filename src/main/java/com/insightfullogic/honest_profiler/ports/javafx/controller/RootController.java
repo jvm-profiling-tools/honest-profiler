@@ -154,11 +154,13 @@ public class RootController extends AbstractController implements MachineListene
             event ->
             {
                 profileTabs.getTabs().remove(tab);
-                showErrorDialog(
+                showExceptionDialog(
                     "Profile Error",
                     "Profile not opened",
-                    "The profile could not be opened.");
+                    "The profile could not be opened.",
+                    task.getException());
             });
+
         task.setOnCancelled(
             event ->
             {

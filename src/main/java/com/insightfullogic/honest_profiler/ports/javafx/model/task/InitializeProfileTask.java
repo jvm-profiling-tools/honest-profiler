@@ -70,27 +70,14 @@ public class InitializeProfileTask extends Task<ProfileContext>
     }
 
     private void monitor(ProfileContext profileContext, File file)
+        throws CantReadFromSourceException
     {
-        try
-        {
-            pipeFile(new FileLogSource(file), profileContext.getProfileListener());
-        }
-        catch (CantReadFromSourceException crfse)
-        {
-            throw new RuntimeException(crfse.getMessage(), crfse);
-        }
+        pipeFile(new FileLogSource(file), profileContext.getProfileListener());
     }
 
     private void monitor(ProfileContext profileContext, VirtualMachine machine)
     {
-        try
-        {
-            pipeFile(machine.getLogSourceFromVmArgs(), profileContext.getProfileListener());
-        }
-        catch (CantReadFromSourceException crfse)
-        {
-            throw new RuntimeException(crfse.getMessage(), crfse);
-        }
+        pipeFile(machine.getLogSourceFromVmArgs(), profileContext.getProfileListener());
     }
 
     private String convertVmName(VirtualMachine vm)
