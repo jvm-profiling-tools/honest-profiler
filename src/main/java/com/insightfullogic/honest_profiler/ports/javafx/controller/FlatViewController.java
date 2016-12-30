@@ -18,6 +18,7 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
+import static com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext.ProfileMode.LIVE;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.STRING;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.TIME_SHARE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.FILTER;
@@ -37,6 +38,7 @@ import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
+import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterSpecification;
 import com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil;
@@ -118,6 +120,16 @@ public class FlatViewController extends ProfileViewController<Profile>
         initializeComparison();
         initializeFilter();
         initializeTable();
+    }
+
+    @Override
+    public void setProfileContext(ProfileContext profileContext)
+    {
+        if (profileContext.getMode() == LIVE)
+        {
+            flatProfileView.getColumns().forEach(column -> column.setSortable(false));
+        }
+        super.setProfileContext(profileContext);
     }
 
     // Instance Accessors
