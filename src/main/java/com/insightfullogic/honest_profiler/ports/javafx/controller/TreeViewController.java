@@ -20,7 +20,6 @@ package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.THREAD_SAMPLE;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.TIME_SHARE;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.ContextMenuUtil.bindContextMenuForTreeCell;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.FILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.COLLAPSE_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.EXPAND_16;
@@ -30,40 +29,33 @@ import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderMethod;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderPercentage;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
-import com.insightfullogic.honest_profiler.core.profiles.ProfileTree;
 import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterSpecification;
 import com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil;
+import com.insightfullogic.honest_profiler.ports.javafx.view.cell.ProfileNodeTreeTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.TreeViewCell;
+import com.insightfullogic.honest_profiler.ports.javafx.view.tree.MethodNodeAdapter;
+import com.insightfullogic.honest_profiler.ports.javafx.view.tree.RootNodeAdapter;
+import com.insightfullogic.honest_profiler.ports.javafx.view.tree.ThreadNodeAdapter;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 
 public class TreeViewController extends AbstractController
 {
-    private static final double TIMESHARE_EXPAND_FACTOR = 0.2;
-
     @FXML
     private Button filterButton;
     @FXML
@@ -88,7 +80,7 @@ public class TreeViewController extends AbstractController
     private ProfileContext profileContext;
     private ProfileFilter currentFilter;
 
-    private final RootNodeAdapter rootNode = new RootNodeAdapter();
+    private RootNodeAdapter rootNode;
 
     @FXML
     private void initialize()
@@ -111,6 +103,8 @@ public class TreeViewController extends AbstractController
             currentFilter = new ProfileFilter(newValue.getFilters());
             refresh(profileContext.getProfile());
         });
+
+        rootNode = new RootNodeAdapter(filterSpec);
 
         filterDialogController = (FilterDialogController) DialogUtil
             .<FilterSpecification>createDialog(FILTER, "Specify Filters", false);
@@ -143,7 +137,7 @@ public class TreeViewController extends AbstractController
                 param.getValue().getValue() != null
                     ? renderPercentage(param.getValue().getValue().getSelfTimeShare()) : ""));
 
-        methodColumn.setCellFactory(column -> new ProfileNodeCell());
+        methodColumn.setCellFactory(column -> new ProfileNodeTreeTableCell());
         methodColumn.setCellValueFactory(param ->
         {
             TreeItem<ProfileNode> treeItem = param.getValue();
@@ -203,170 +197,5 @@ public class TreeViewController extends AbstractController
         Profile newProfile = profile.copy();
         currentFilter.accept(newProfile);
         rootNode.update(newProfile.getTrees());
-    }
-
-    // Helper Classes
-
-    private class ProfileNodeCell extends TreeTableCell<ProfileNode, String>
-    {
-        public ProfileNodeCell()
-        {
-            super();
-            bindContextMenuForTreeCell(this);
-        }
-
-        @Override
-        protected void updateItem(String item, boolean empty)
-        {
-            super.updateItem(item, empty);
-
-            setStyle(null);
-            if (empty)
-            {
-                setText(null);
-                setGraphic(null);
-                return;
-            }
-            setText(item);
-        }
-    }
-
-    private class RootNodeAdapter extends TreeItem<ProfileNode>
-    {
-        private final Map<Long, ThreadNodeAdapter> threadsById;
-
-        public RootNodeAdapter()
-        {
-            threadsById = new HashMap<>();
-            setExpanded(true);
-        }
-
-        public void update(List<ProfileTree> trees)
-        {
-            ObservableList<TreeItem<ProfileNode>> children = getChildren();
-
-            boolean hideErrorThreads = filterSpec.get()
-                .isHideErrorThreads();
-
-            Set<Long> present = new HashSet<>();
-            for (ProfileTree tree : trees)
-            {
-                if (hideErrorThreads
-                    && tree.getRootNode().getFrameInfo().getMethodId() < 0
-                    && tree.getRootNode().getChildren().isEmpty())
-                {
-                    continue; // Skip. Won't be marked as present either.
-                }
-
-                present.add(tree.getThreadId());
-
-                long threadId = tree.getThreadId();
-                ThreadNodeAdapter thread = threadsById.computeIfAbsent(threadId, id ->
-                {
-                    ThreadNodeAdapter adapter = new ThreadNodeAdapter(
-                        id,
-                        tree.getThreadName(),
-                        tree.getNumberOfSamples());
-                    children.add(adapter);
-                    return adapter;
-                });
-
-                thread.update(tree);
-            }
-
-            threadsById.keySet().stream().filter(key -> !present.contains(key))
-                .forEach(key -> children.remove(threadsById.get(key)));
-            threadsById.keySet().retainAll(present);
-        }
-    }
-
-    private static class ThreadNodeAdapter extends TreeItem<ProfileNode>
-    {
-        private final long threadId;
-        private final String threadName;
-        private final MethodNodeAdapter adapter;
-        private long nrOfSamples;
-
-        public ThreadNodeAdapter(long threadId, String threadName, long nrOfSamples)
-        {
-            this.threadId = threadId;
-            this.threadName = threadName;
-            this.nrOfSamples = nrOfSamples;
-            adapter = new MethodNodeAdapter();
-            setExpanded(true);
-            getChildren().add(adapter);
-        }
-
-        public void update(ProfileTree tree)
-        {
-            nrOfSamples = tree.getNumberOfSamples();
-            adapter.update(tree.getRootNode());
-        }
-
-        public long getThreadId()
-        {
-            return threadId;
-        }
-
-        public String getThreadName()
-        {
-            return threadName;
-        }
-
-        public long getNrOfSamples()
-        {
-            return nrOfSamples;
-        }
-
-        public int getDepth()
-        {
-            return adapter.getDepth() + 1;
-        }
-    }
-
-    public static class MethodNodeAdapter extends TreeItem<ProfileNode>
-    {
-        private final Map<Long, MethodNodeAdapter> childrenByMethodId;
-
-        private boolean firstUpdate;
-
-        public MethodNodeAdapter()
-        {
-            childrenByMethodId = new HashMap<>();
-            firstUpdate = true;
-        }
-
-        public void update(ProfileNode profileNode)
-        {
-            setValue(profileNode);
-
-            if (firstUpdate && getParent().isExpanded())
-            {
-                firstUpdate = false;
-                setExpanded(profileNode.getTotalTimeShare() >= TIMESHARE_EXPAND_FACTOR);
-            }
-
-            ObservableList<TreeItem<ProfileNode>> children = getChildren();
-
-            profileNode.getChildren().forEach(child ->
-            {
-                long methodId = child.getFrameInfo().getMethodId();
-
-                MethodNodeAdapter childAdapter = childrenByMethodId
-                    .computeIfAbsent(methodId, id ->
-                    {
-                        MethodNodeAdapter adapter = new MethodNodeAdapter();
-                        children.add(adapter);
-                        return adapter;
-                    });
-
-                childAdapter.update(child);
-            });
-        }
-
-        public int getDepth()
-        {
-            return getValue() == null ? 0 : getValue().getDescendantDepth();
-        }
     }
 }
