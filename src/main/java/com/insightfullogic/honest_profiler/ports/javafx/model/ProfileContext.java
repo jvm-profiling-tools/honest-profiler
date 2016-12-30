@@ -3,6 +3,8 @@ package com.insightfullogic.honest_profiler.ports.javafx.model;
 import static javafx.application.Platform.isFxApplicationThread;
 import static javafx.application.Platform.runLater;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import com.insightfullogic.honest_profiler.core.profiles.FlameGraph;
 import com.insightfullogic.honest_profiler.core.profiles.FlameGraphListener;
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
@@ -20,7 +22,9 @@ public class ProfileContext
         LIVE, LOG
     }
 
-    private int id;
+    private static final AtomicInteger counter = new AtomicInteger();
+
+    private final int id;
 
     private final SimpleStringProperty name;
     private final ProfileMode mode;
@@ -29,6 +33,7 @@ public class ProfileContext
 
     public ProfileContext(String name, ProfileMode mode)
     {
+        id = counter.incrementAndGet();
         this.name = new SimpleStringProperty(name);
         this.mode = mode;
         profile = new SimpleObjectProperty<>();
@@ -38,11 +43,6 @@ public class ProfileContext
     public int getId()
     {
         return id;
-    }
-
-    public void setId(int id)
-    {
-        this.id = id;
     }
 
     public String getName()

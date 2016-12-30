@@ -46,7 +46,6 @@ public class ApplicationContext
     public void registerProfileContext(ProfileContext context)
     {
         profileContextMap.put(context.getName(), context);
-        context.setId(profileContextMap.size());
     }
 
     public List<String> getOpenProfileNames()
