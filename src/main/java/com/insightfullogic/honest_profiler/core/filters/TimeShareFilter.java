@@ -47,8 +47,7 @@ abstract class TimeShareFilter implements Filter
 
         if (minShare > 1.0)
         {
-            throw new FilterParseException(
-                "Time share must be between 0.0 and 1.0, but is " + minShare);
+            throw new FilterParseException("Time share must be between 0.0 and 1.0, but is " + minShare);
         }
 
         this.mode = mode;
@@ -111,8 +110,7 @@ abstract class TimeShareFilter implements Filter
 
     private void filterFlatProfile(Profile profile)
     {
-        profile.getFlatByMethodProfile()
-            .removeIf(entry -> filterMethod.test(flatField(entry), minShare));
+        profile.getFlatByMethodProfile().removeIf(entry -> filterMethod.test(flatField(entry), minShare));
     }
 
     protected abstract double flatField(FlatProfileEntry entry);
@@ -122,14 +120,8 @@ abstract class TimeShareFilter implements Filter
     @Override
     public boolean equals(Object o)
     {
-        if (this == o)
-        {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass())
-        {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         TimeShareFilter that = (TimeShareFilter) o;
 

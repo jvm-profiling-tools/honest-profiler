@@ -84,8 +84,7 @@ public final class ThreadSampleFilter implements Filter
     public void filter(Profile profile)
     {
         final double minimumNumberOfSamples = getMinimumNumberOfSamples(profile);
-        profile.getTrees().removeIf(
-            tree -> filterMethod.test(tree.getNumberOfSamples(), minimumNumberOfSamples));
+        profile.getTrees().removeIf(tree -> filterMethod.test(tree.getNumberOfSamples(), minimumNumberOfSamples));
     }
 
     private double getMinimumNumberOfSamples(Profile profile)
@@ -96,14 +95,8 @@ public final class ThreadSampleFilter implements Filter
     @Override
     public boolean equals(Object o)
     {
-        if (this == o)
-        {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass())
-        {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         ThreadSampleFilter that = (ThreadSampleFilter) o;
 

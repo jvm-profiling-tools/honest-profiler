@@ -42,11 +42,7 @@ public class VirtualMachine implements Comparable<VirtualMachine>
     private final String userDir;
     private final String vmArgs;
 
-    public VirtualMachine(String id,
-                          String displayName,
-                          boolean agentLoaded,
-                          String userDir,
-                          String vmArgs)
+    public VirtualMachine(String id, String displayName, boolean agentLoaded, String userDir, String vmArgs)
     {
         this.id = id;
         this.displayName = displayName;
@@ -110,14 +106,8 @@ public class VirtualMachine implements Comparable<VirtualMachine>
     @Override
     public boolean equals(Object other)
     {
-        if (this == other)
-        {
-            return true;
-        }
-        if (other == null || getClass() != other.getClass())
-        {
-            return false;
-        }
+        if (this == other) return true;
+        if (other == null || getClass() != other.getClass()) return false;
 
         return Objects.equals(id, ((VirtualMachine) other).id);
     }
@@ -131,23 +121,11 @@ public class VirtualMachine implements Comparable<VirtualMachine>
     @Override
     public String toString()
     {
-        return "VirtualMachine{"
-            +
-            "userDir='"
-            + userDir
-            + '\''
-            +
-            ", agentLoaded="
-            + agentLoaded
-            +
-            ", displayName='"
-            + displayName
-            + '\''
-            +
-            ", id='"
-            + id
-            + '\''
-            +
+        return "VirtualMachine{" +
+            "userDir='" + userDir + '\'' +
+            ", agentLoaded=" + agentLoaded +
+            ", displayName='" + displayName + '\'' +
+            ", id='" + id + '\'' +
             '}';
     }
 

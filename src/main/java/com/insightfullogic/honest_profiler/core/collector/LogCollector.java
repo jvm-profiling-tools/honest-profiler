@@ -21,27 +21,31 @@
  **/
 package com.insightfullogic.honest_profiler.core.collector;
 
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
+
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
+
 import com.insightfullogic.honest_profiler.core.parser.LogEventListener;
 import com.insightfullogic.honest_profiler.core.parser.Method;
 import com.insightfullogic.honest_profiler.core.parser.StackFrame;
-import com.insightfullogic.honest_profiler.core.parser.TraceStart;
 import com.insightfullogic.honest_profiler.core.parser.ThreadMeta;
+import com.insightfullogic.honest_profiler.core.parser.TraceStart;
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileTree;
-
-import java.util.*;
-
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
 
 /**
  * NB: Stack trace elements come in the opposite way to the profile
  */
 public class LogCollector implements LogEventListener
 {
-    private static final Comparator<ProfileTree> sortBySampleCount = comparing(
-        ProfileTree::getNumberOfSamples).reversed();
+    private static final Comparator<ProfileTree> sortBySampleCount
+        = comparing(ProfileTree::getNumberOfSamples).reversed();
 
     private final ProfileListener listener;
 
@@ -110,12 +114,9 @@ public class LogCollector implements LogEventListener
         {
             // might be null if the method hasn't been seen before
             // if this is the case then the handle(Method) will patch it
-            currentTreeNode = treesByThreadId.compute(currentThread, (id, previous) ->
-            {
+            currentTreeNode = treesByThreadId.compute(currentThread, (id, previous) -> {
                 if (previous != null)
-                {
                     return previous.callAgain();
-                }
 
                 return new NodeCollector(methodId);
             });
@@ -136,7 +137,9 @@ public class LogCollector implements LogEventListener
     @Override
     public void handle(ThreadMeta newThreadMeta)
     {
-        metaByThreadId.merge(newThreadMeta.getThreadId(), newThreadMeta,
+        metaByThreadId.merge(
+            newThreadMeta.getThreadId(),
+            newThreadMeta,
             (oldMeta, newMeta) -> oldMeta.update(newMeta));
     }
 
@@ -167,23 +170,19 @@ public class LogCollector implements LogEventListener
 
     private List<ProfileTree> buildTreeProfile()
     {
-        return treesByThreadId.entrySet().stream().map(node ->
-        {
-            final Long threadId = node.getKey();
-            final ThreadMeta meta = metaByThreadId.get(threadId);
-            final NodeCollector collector = node.getValue();
-            if (meta == null)
-            {
-                return new ProfileTree(
-                    threadId,
-                    collector.normalise(methodByMethodId::get),
-                    collector.getNumberOfVisits());
-            }
-            return new ProfileTree(
-                meta,
-                collector.normalise(methodByMethodId::get),
-                collector.getNumberOfVisits());
-        }).sorted(sortBySampleCount).collect(toList());
+        return treesByThreadId.entrySet()
+            .stream()
+            .map(node -> {
+                final Long threadId = node.getKey();
+                final ThreadMeta meta = metaByThreadId.get(threadId);
+                final NodeCollector collector = node.getValue();
+                if (meta == null) {
+                    return new ProfileTree(threadId, collector.normalise(methodByMethodId::get), collector.getNumberOfVisits());
+                }
+                return new ProfileTree(meta, collector.normalise(methodByMethodId::get), collector.getNumberOfVisits());
+            })
+            .sorted(sortBySampleCount)
+            .collect(toList());
     }
 
 }

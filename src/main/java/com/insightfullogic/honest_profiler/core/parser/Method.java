@@ -21,9 +21,9 @@
  **/
 package com.insightfullogic.honest_profiler.core.parser;
 
-import com.insightfullogic.honest_profiler.core.collector.Frame;
-
 import java.util.Objects;
+
+import com.insightfullogic.honest_profiler.core.collector.Frame;
 
 public final class Method implements LogEvent, Frame
 {
@@ -96,14 +96,8 @@ public final class Method implements LogEvent, Frame
     @Override
     public boolean equals(Object o)
     {
-        if (this == o)
-        {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass())
-        {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         Method method = (Method) o;
         return methodId == method.methodId;

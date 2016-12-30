@@ -47,14 +47,8 @@ public final class ThreadMeta implements LogEvent
     @Override
     public boolean equals(Object o)
     {
-        if (this == o)
-        {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass())
-        {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         ThreadMeta that = (ThreadMeta) o;
         return Objects.equals(threadName, that.threadName)
@@ -86,7 +80,10 @@ public final class ThreadMeta implements LogEvent
     @Override
     public String toString()
     {
-        return "ThreadMeta{threadId=" + threadId + ", threadName=" + threadName + '}';
+        return "ThreadMeta{" +
+            "threadId=" + threadId +
+            ", threadName=" + threadName +
+            '}';
     }
 
     public ThreadMeta copy()
