@@ -21,10 +21,19 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.view;
 
+import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderMethod;
+import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderShortMethod;
+import static javafx.application.Platform.runLater;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 import com.insightfullogic.honest_profiler.core.parser.Method;
 import com.insightfullogic.honest_profiler.core.profiles.FlameGraph;
 import com.insightfullogic.honest_profiler.core.profiles.FlameGraphListener;
 import com.insightfullogic.honest_profiler.core.profiles.FlameTrace;
+
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -33,13 +42,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Window;
-
-import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderMethod;
-import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderShortMethod;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 // TODO: remove any flame graph calculation logic from the canvas.
 public class FlameGraphCanvas extends Canvas implements FlameGraphListener
@@ -66,11 +68,10 @@ public class FlameGraphCanvas extends Canvas implements FlameGraphListener
         final double x = mouseEvent.getX();
         final double y = mouseEvent.getY();
 
-        final Optional<MethodLocation> methodLocation =
-            methodLocations
-                .stream()
-                .filter(location -> location.contains(x, y))
-                .findFirst();
+        final Optional<MethodLocation> methodLocation = methodLocations
+            .stream()
+            .filter(location -> location.contains(x, y))
+            .findFirst();
 
         if (methodLocation.isPresent())
         {
@@ -87,7 +88,7 @@ public class FlameGraphCanvas extends Canvas implements FlameGraphListener
     {
         if (graph != null)
         {
-            accept(graph);
+            runLater(() -> accept(graph));
         }
     }
 
@@ -109,8 +110,8 @@ public class FlameGraphCanvas extends Canvas implements FlameGraphListener
             methodLocations = new ArrayList<>();
 
             final GraphicsContext graphics = getGraphicsContext2D();
-            //graphics.clearRect();
-            //graphics.setFill(Color.GRAY);
+            // graphics.clearRect();
+            // graphics.setFill(Color.GRAY);
             graphics.clearRect(0, 0, getWidth(), getHeight());
 
             graphics.setStroke(Color.WHITE);
@@ -129,13 +130,16 @@ public class FlameGraphCanvas extends Canvas implements FlameGraphListener
                 double y = initialY - (row * rowHeight);
                 final Color colour = colorAt(row);
 
-                for (int col = 0; col < traces.size(); )
+                for (int col = 0; col < traces.size();)
                 {
                     FlameTrace stack = traces.get(col);
                     final double stackWidth = stack.getWeight() * columnWidth;
 
                     Method method = stack.at(row);
-                    final int numberOfConsecutiveTraces = numberOfConsecutiveTracesWith(method, col, row);
+                    final int numberOfConsecutiveTraces = numberOfConsecutiveTracesWith(
+                        method,
+                        col,
+                        row);
                     double methodWidth = stackWidth * numberOfConsecutiveTraces;
 
                     if (method != null)
@@ -143,7 +147,10 @@ public class FlameGraphCanvas extends Canvas implements FlameGraphListener
                         final double x = col * stackWidth;
                         graphics.setFill(colour);
                         graphics.fillRect(x, y, methodWidth, rowHeight);
-                        methodLocations.add(new MethodLocation(new Rectangle(x, y, methodWidth, rowHeight), method));
+                        methodLocations.add(
+                            new MethodLocation(
+                                new Rectangle(x, y, methodWidth, rowHeight),
+                                method));
 
                         final String title = renderShortMethod(method);
                         if (!renderText(graphics, x, y, methodWidth, title))
@@ -164,9 +171,9 @@ public class FlameGraphCanvas extends Canvas implements FlameGraphListener
     }
 
     private boolean renderText(final GraphicsContext graphics,
-                               final double x, final double y,
-                               final double methodWidth,
-                               final String title)
+        final double x, final double y,
+        final double methodWidth,
+        final String title)
     {
         if (title.length() * TEXT_WIDTH < methodWidth)
         {
@@ -194,5 +201,4 @@ public class FlameGraphCanvas extends Canvas implements FlameGraphListener
     {
         return tooltip;
     }
-
 }
