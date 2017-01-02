@@ -21,9 +21,9 @@
  **/
 package com.insightfullogic.honest_profiler.core.parser;
 
-import java.util.Objects;
-
 import com.insightfullogic.honest_profiler.core.collector.Frame;
+
+import java.util.Objects;
 
 public final class Method implements LogEvent, Frame
 {

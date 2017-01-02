@@ -21,23 +21,19 @@
  **/
 package com.insightfullogic.honest_profiler.core.collector;
 
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
-
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
-
 import com.insightfullogic.honest_profiler.core.parser.LogEventListener;
 import com.insightfullogic.honest_profiler.core.parser.Method;
 import com.insightfullogic.honest_profiler.core.parser.StackFrame;
-import com.insightfullogic.honest_profiler.core.parser.ThreadMeta;
 import com.insightfullogic.honest_profiler.core.parser.TraceStart;
+import com.insightfullogic.honest_profiler.core.parser.ThreadMeta;
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileTree;
+
+import java.util.*;
+
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 
 /**
  * NB: Stack trace elements come in the opposite way to the profile
