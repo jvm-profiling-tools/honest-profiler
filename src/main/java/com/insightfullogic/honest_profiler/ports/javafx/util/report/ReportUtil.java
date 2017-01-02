@@ -205,18 +205,18 @@ public final class ReportUtil
             out.write(entry.getFullName());
 
             mode.middle(out);
-            out.printf("%.2f", entry.baseSelfTimeShareProperty().get());
+            out.printf("%.4f", entry.baseSelfTimeShareProperty().get());
             mode.middle(out);
-            out.printf("%.2f", entry.newSelfTimeShareProperty().get());
+            out.printf("%.4f", entry.newSelfTimeShareProperty().get());
             mode.middle(out);
-            out.printf("%.2f", entry.pctSelfChangeProperty().get());
+            out.printf("%.4f", entry.pctSelfChangeProperty().get());
 
             mode.middle(out);
-            out.printf("%.2f", entry.baseTotalTimeShareProperty().get());
+            out.printf("%.4f", entry.baseTotalTimeShareProperty().get());
             mode.middle(out);
-            out.printf("%.2f", entry.newTotalTimeShareProperty().get());
+            out.printf("%.4f", entry.newTotalTimeShareProperty().get());
             mode.middle(out);
-            out.printf("%.2f", entry.pctTotalChangeProperty().get());
+            out.printf("%.4f", entry.pctTotalChangeProperty().get());
 
             mode.middle(out);
             out.printf("%d", entry.baseSelfCountProperty().get());
