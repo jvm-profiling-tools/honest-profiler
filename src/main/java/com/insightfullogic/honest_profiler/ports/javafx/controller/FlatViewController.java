@@ -31,10 +31,13 @@ import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_ACTIVE_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
+import com.insightfullogic.honest_profiler.core.filters.Filter;
 import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
+import com.insightfullogic.honest_profiler.core.filters.StringFilter;
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
@@ -58,6 +61,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
@@ -70,7 +74,10 @@ public class FlatViewController extends ProfileViewController<Profile>
     private Button compareButton;
     @FXML
     private Button exportButton;
-
+    @FXML
+    private TextField quickFilterText;
+    @FXML
+    private Button quickFilterButton;
     @FXML
     private TableView<FlatProfileEntry> flatProfileView;
     @FXML
@@ -94,6 +101,7 @@ public class FlatViewController extends ProfileViewController<Profile>
     private ObjectProperty<FilterSpecification> filterSpec;
 
     private ProfileFilter currentFilter;
+    private StringFilter quickFilter;
 
     @FXML
     protected void initialize()
@@ -103,6 +111,8 @@ public class FlatViewController extends ProfileViewController<Profile>
         info(filterButton, "Specify filters restricting the visible entries");
         info(compareButton, "Click to select another open profile to compare this profile against");
         info(exportButton, "Export the visible entries to a CSV file");
+        info(quickFilterText, "Specify text for quickly filtering the Fully Qualified Method Name (= <fully_qualified_class_name>.<method_name>)");
+        info(quickFilterButton, "Apply the Quick Filter");
         info(flatProfileView, "Shows methods and their Self and Total usage percentages");
 
         currentFilter = new ProfileFilter();
@@ -188,6 +198,22 @@ public class FlatViewController extends ProfileViewController<Profile>
         filterButton.setTooltip(new Tooltip("Specify filters"));
         filterButton
             .setOnAction(event -> filterSpec.set(filterDialogController.showAndWait().get()));
+
+        quickFilterButton.setGraphic(viewFor(FUNNEL_16));
+        quickFilterButton
+            .setTooltip(new Tooltip("Specify quick filter on classname + method name"));
+        quickFilterButton.setOnAction(event -> applyQuickFilter());
+    }
+
+    private void applyQuickFilter()
+    {
+        String input = quickFilterText.getText();
+        this.quickFilter = input.isEmpty() ? null
+            : new StringFilter(
+                Filter.Mode.CONTAINS,
+                frame -> frame.getClassName() + "." + frame.getMethodName(),
+                input);
+        refresh(getTarget());
     }
 
     private void initializeTable()
@@ -223,7 +249,7 @@ public class FlatViewController extends ProfileViewController<Profile>
             return;
         }
 
-        CopyAndFilterProfile task = new CopyAndFilterProfile(profile, currentFilter);
+        CopyAndFilterProfile task = new CopyAndFilterProfile(profile, getAdjustedProfileFilter());
         task.setOnSucceeded(state ->
         {
             flatProfile.clear();
@@ -231,6 +257,20 @@ public class FlatViewController extends ProfileViewController<Profile>
             refreshTable(flatProfileView);
         });
         appCtx().getExecutorService().execute(task);
+    }
+
+    private ProfileFilter getAdjustedProfileFilter()
+    {
+        if (quickFilter == null)
+        {
+            return currentFilter;
+        }
+        else
+        {
+            List<Filter> filters = new ArrayList<>();
+            filters.add(quickFilter);
+            return new ProfileFilter(filters);
+        }
     }
 
     // Compare Helper Methods

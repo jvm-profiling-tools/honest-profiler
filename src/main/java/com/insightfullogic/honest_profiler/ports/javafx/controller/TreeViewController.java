@@ -30,9 +30,13 @@ import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderMethod;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderPercentage;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
+import com.insightfullogic.honest_profiler.core.filters.Filter;
 import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
+import com.insightfullogic.honest_profiler.core.filters.StringFilter;
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
 import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController;
@@ -53,6 +57,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
@@ -67,6 +72,10 @@ public class TreeViewController extends ProfileViewController<Profile>
     private Button expandAllButton;
     @FXML
     private Button collapseAllButton;
+    @FXML
+    private TextField quickFilterText;
+    @FXML
+    private Button quickFilterButton;
 
     @FXML
     private TreeTableView<ProfileNode> treeView;
@@ -83,6 +92,7 @@ public class TreeViewController extends ProfileViewController<Profile>
     private ObjectProperty<FilterSpecification> filterSpec;
 
     private ProfileFilter currentFilter;
+    private StringFilter quickFilter;
 
     private RootNodeAdapter rootNode;
 
@@ -94,6 +104,10 @@ public class TreeViewController extends ProfileViewController<Profile>
         info(filterButton, "Specify filters restricting the visible entries");
         info(expandAllButton, "Expand all trees");
         info(collapseAllButton, "Collapse all trees");
+        info(
+            quickFilterText,
+            "Specify text for quickly filtering the Fully Qualified Method Name (= <fully_qualified_class_name>.<method_name>)");
+        info(quickFilterButton, "Apply the Quick Filter");
         info(
             treeView,
             "Shows the Threads in the profiled application. Right-click any node for expand/collapse and export options.");
@@ -130,6 +144,11 @@ public class TreeViewController extends ProfileViewController<Profile>
         collapseAllButton.setTooltip(new Tooltip("Collapse all threads"));
         collapseAllButton.setOnAction(
             event -> treeView.getRoot().getChildren().stream().forEach(TreeUtil::collapseFully));
+
+        quickFilterButton.setGraphic(viewFor(FUNNEL_16));
+        quickFilterButton
+            .setTooltip(new Tooltip("Specify quick filter on classname + method name"));
+        quickFilterButton.setOnAction(event -> applyQuickFilter());
 
         treeView.setRoot(rootNode);
 
@@ -190,6 +209,17 @@ public class TreeViewController extends ProfileViewController<Profile>
                 ? renderPercentage(accessor.apply(data.getValue().getValue())) : "");
     }
 
+    private void applyQuickFilter()
+    {
+        String input = quickFilterText.getText();
+        this.quickFilter = input.isEmpty() ? null
+            : new StringFilter(
+                Filter.Mode.CONTAINS,
+                frame -> frame.getClassName() + "." + frame.getMethodName(),
+                input);
+        refresh(getTarget());
+    }
+
     @Override
     protected void refresh(Profile profile)
     {
@@ -198,8 +228,22 @@ public class TreeViewController extends ProfileViewController<Profile>
             return;
         }
 
-        CopyAndFilterProfile task = new CopyAndFilterProfile(profile, currentFilter);
+        CopyAndFilterProfile task = new CopyAndFilterProfile(profile, getAdjustedProfileFilter());
         task.setOnSucceeded(state -> rootNode.update(task.getValue().getTrees()));
         appCtx().getExecutorService().execute(task);
+    }
+
+    private ProfileFilter getAdjustedProfileFilter()
+    {
+        if (quickFilter == null)
+        {
+            return currentFilter;
+        }
+        else
+        {
+            List<Filter> filters = new ArrayList<>();
+            filters.add(quickFilter);
+            return new ProfileFilter(filters);
+        }
     }
 }
