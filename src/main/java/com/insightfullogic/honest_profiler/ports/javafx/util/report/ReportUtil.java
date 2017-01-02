@@ -141,9 +141,9 @@ public final class ReportUtil
             out.print(entry.getFrameInfo().getMethodName());
 
             mode.middle(out);
-            out.printf("%.2f", entry.getSelfTimeShare());
+            out.printf("%.4f", entry.getSelfTimeShare());
             mode.middle(out);
-            out.printf("%.2f", entry.getTotalTimeShare());
+            out.printf("%.4f", entry.getTotalTimeShare());
 
             mode.middle(out);
             out.printf("%d", entry.getSelfCount());
