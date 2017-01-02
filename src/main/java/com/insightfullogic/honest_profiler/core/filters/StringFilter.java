@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 
 import com.insightfullogic.honest_profiler.core.collector.Frame;
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
+import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
 
 public class StringFilter implements Filter
 {
@@ -49,24 +50,24 @@ public class StringFilter implements Filter
     {
         switch (mode)
         {
-        case CONTAINS:
-            filterMethod = string -> string.contains(input);
-            break;
-        case EQUALS:
-            filterMethod = string -> string.equals(input);
-            break;
-        case ENDS_WITH:
-            filterMethod = string -> string.endsWith(input);
-            break;
-        case STARTS_WITH:
-            filterMethod = string -> string.startsWith(input);
-            break;
-        case MATCHES:
-            Pattern pattern = Pattern.compile(input);
-            filterMethod = string -> pattern.matcher(string).matches();
-        default:
-            throw new RuntimeException(
-                "Filter Mode " + mode + " not supported in ClassNameFilter.");
+            case CONTAINS:
+                filterMethod = string -> string.contains(input);
+                break;
+            case EQUALS:
+                filterMethod = string -> string.equals(input);
+                break;
+            case ENDS_WITH:
+                filterMethod = string -> string.endsWith(input);
+                break;
+            case STARTS_WITH:
+                filterMethod = string -> string.startsWith(input);
+                break;
+            case MATCHES:
+                Pattern pattern = Pattern.compile(input);
+                filterMethod = string -> pattern.matcher(string).matches();
+            default:
+                throw new RuntimeException(
+                    "Filter Mode " + mode + " not supported in ClassNameFilter.");
         }
     }
 
@@ -74,11 +75,29 @@ public class StringFilter implements Filter
     public void filter(Profile profile)
     {
         filterFlatProfile(profile);
+        filterTreeProfile(profile);
     }
 
     private void filterFlatProfile(Profile profile)
     {
         profile.getFlatByMethodProfile().removeIf(entry -> !classNameMatches(entry.getFrameInfo()));
+    }
+
+    private void filterTreeProfile(Profile profile)
+    {
+        profile.getTrees().removeIf(tree -> filterNode(tree.getRootNode()));
+    }
+
+    private boolean filterNode(ProfileNode node)
+    {
+
+        if (classNameMatches(node.getFrameInfo()))
+        {
+            return false;
+        }
+
+        node.getChildren().removeIf(this::filterNode);
+        return node.getChildren().isEmpty();
     }
 
     private boolean classNameMatches(Frame sampleFrameInfo)

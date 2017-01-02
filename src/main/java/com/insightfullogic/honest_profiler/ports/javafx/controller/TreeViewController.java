@@ -18,6 +18,7 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
+import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.STRING;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.THREAD_SAMPLE;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.TIME_SHARE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.FILTER;
@@ -112,7 +113,7 @@ public class TreeViewController extends ProfileViewController<Profile>
 
         filterDialogController = (FilterDialogController) DialogUtil
             .<FilterSpecification>createDialog(FILTER, "Specify Filters", false);
-        filterDialogController.addAllowedFilterTypes(THREAD_SAMPLE, TIME_SHARE);
+        filterDialogController.addAllowedFilterTypes(STRING, THREAD_SAMPLE, TIME_SHARE);
 
         filterButton.setGraphic(viewFor(FUNNEL_16));
         filterButton.setTooltip(new Tooltip("Specify filters"));

@@ -31,6 +31,7 @@ public class RootNodeAdapter extends TreeItem<ProfileNode>
     public void update(List<ProfileTree> trees)
     {
         ObservableList<TreeItem<ProfileNode>> children = getChildren();
+        children.clear();
 
         boolean hideErrorThreads = filterSpec.get().isHideErrorThreads();
 
@@ -44,24 +45,24 @@ public class RootNodeAdapter extends TreeItem<ProfileNode>
                 continue; // Skip. Won't be marked as present either.
             }
 
-            present.add(tree.getThreadId());
-
             long threadId = tree.getThreadId();
+            present.add(threadId);
+
             ThreadNodeAdapter thread = threadsById.computeIfAbsent(threadId, id ->
             {
                 ThreadNodeAdapter adapter = new ThreadNodeAdapter(
                     id,
                     tree.getThreadName(),
                     tree.getNumberOfSamples());
-                children.add(adapter);
                 return adapter;
             });
 
+            children.add(thread);
             thread.update(tree);
         }
 
         threadsById.keySet().stream().filter(key -> !present.contains(key))
             .forEach(key -> children.remove(threadsById.get(key)));
-        threadsById.keySet().retainAll(present);
+        // threadsById.keySet().retainAll(present);
     }
 }

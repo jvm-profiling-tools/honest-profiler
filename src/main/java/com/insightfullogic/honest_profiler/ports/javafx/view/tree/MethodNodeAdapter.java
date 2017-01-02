@@ -1,7 +1,9 @@
 package com.insightfullogic.honest_profiler.ports.javafx.view.tree;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
 
@@ -34,22 +36,29 @@ public class MethodNodeAdapter extends TreeItem<ProfileNode>
             setExpanded(profileNode.getTotalTimeShare() >= TIMESHARE_EXPAND_FACTOR);
         }
 
+        Set<Long> present = new HashSet<>();
+
         ObservableList<TreeItem<ProfileNode>> children = getChildren();
+        children.clear();
 
         profileNode.getChildren().forEach(child ->
         {
             long methodId = child.getFrameInfo().getMethodId();
+            present.add(methodId);
 
             MethodNodeAdapter childAdapter = childrenByMethodId
                 .computeIfAbsent(methodId, id ->
                 {
                     MethodNodeAdapter adapter = new MethodNodeAdapter();
-                    children.add(adapter);
                     return adapter;
                 });
 
+            children.add(childAdapter);
             childAdapter.update(child);
         });
+
+        childrenByMethodId.keySet().stream().filter(key -> !present.contains(key))
+            .forEach(key -> children.remove(childrenByMethodId.get(key)));
     }
 
     public int getDepth()
