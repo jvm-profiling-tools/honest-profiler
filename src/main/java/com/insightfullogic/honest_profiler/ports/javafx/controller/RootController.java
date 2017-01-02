@@ -190,6 +190,7 @@ public class RootController extends AbstractController implements MachineListene
         FlatDiffViewController controller = loadViewIntoTab(FXML_FLAT_DIFF_VIEW, tab);
         tab.getContent().setVisible(false);
 
+        controller.setApplicationContext(appCtx());
         ProfileContext baseCtx = appCtx().getProfileContext(baseName);
         ProfileContext newCtx = appCtx().getProfileContext(newName);
         controller.setProfileContexts(baseCtx, newCtx);
