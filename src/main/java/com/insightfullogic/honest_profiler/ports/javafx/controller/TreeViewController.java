@@ -38,6 +38,7 @@ import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
 import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterSpecification;
+import com.insightfullogic.honest_profiler.ports.javafx.model.task.CopyAndFilterProfile;
 import com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.ProfileNodeTreeTableCell;
@@ -197,8 +198,8 @@ public class TreeViewController extends ProfileViewController<Profile>
             return;
         }
 
-        Profile newProfile = profile.copy();
-        currentFilter.accept(newProfile);
-        rootNode.update(newProfile.getTrees());
+        CopyAndFilterProfile task = new CopyAndFilterProfile(profile, currentFilter);
+        task.setOnSucceeded(state -> rootNode.update(task.getValue().getTrees()));
+        appCtx().getExecutorService().execute(task);
     }
 }

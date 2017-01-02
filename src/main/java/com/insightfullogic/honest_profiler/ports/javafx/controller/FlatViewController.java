@@ -40,6 +40,7 @@ import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.Filter
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterSpecification;
+import com.insightfullogic.honest_profiler.ports.javafx.model.task.CopyAndFilterProfile;
 import com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.Rendering;
@@ -222,13 +223,14 @@ public class FlatViewController extends ProfileViewController<Profile>
             return;
         }
 
-        Profile newProfile = profile.copy();
-        currentFilter.accept(newProfile);
-
-        flatProfile.clear();
-        newProfile.flatByMethodProfile().forEach(flatProfile::add);
-
-        refreshTable(flatProfileView);
+        CopyAndFilterProfile task = new CopyAndFilterProfile(profile, currentFilter);
+        task.setOnSucceeded(state ->
+        {
+            flatProfile.clear();
+            task.getValue().flatByMethodProfile().forEach(flatProfile::add);
+            refreshTable(flatProfileView);
+        });
+        appCtx().getExecutorService().execute(task);
     }
 
     // Compare Helper Methods

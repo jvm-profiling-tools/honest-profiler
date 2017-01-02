@@ -43,6 +43,7 @@ import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.diff.FlatEntryDiff;
 import com.insightfullogic.honest_profiler.ports.javafx.model.diff.FlatProfileDiff;
 import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterSpecification;
+import com.insightfullogic.honest_profiler.ports.javafx.model.task.CopyAndFilterProfile;
 import com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.CountTableCell;
@@ -137,9 +138,7 @@ public class FlatDiffViewController extends AbstractController
 
         exportButton.setGraphic(viewFor(EXPORT_16));
         exportButton.setTooltip(new Tooltip("Export the current view to a file"));
-        exportButton.setOnAction(event ->
-
-        showExportDialog(
+        exportButton.setOnAction(event -> showExportDialog(
             exportButton.getScene().getWindow(),
             "flat_diff_profile.csv",
             out -> writeFlatProfileDiffCsv(out, diff, ReportUtil.Mode.CSV)
@@ -232,18 +231,21 @@ public class FlatDiffViewController extends AbstractController
 
     private void updateDiff(Profile profile, boolean base)
     {
-        Profile copy = profile.copy();
-        currentFilter.accept(copy);
-        if (base)
+        CopyAndFilterProfile task = new CopyAndFilterProfile(profile, currentFilter);
+        task.setOnSucceeded(state ->
         {
-            diff.updateBase(copy.getFlatByMethodProfile());
-        }
-        else
-        {
-            diff.updateNew(copy.getFlatByMethodProfile());
-        }
+            if (base)
+            {
+                diff.updateBase(task.getValue().getFlatByMethodProfile());
+            }
+            else
+            {
+                diff.updateNew(task.getValue().getFlatByMethodProfile());
+            }
 
-        refreshTable(diffTable);
+            refreshTable(diffTable);
+        });
+        appCtx().getExecutorService().execute(task);
     }
 
     private void configurePercentColumn(TableColumn<FlatEntryDiff, Number> column,
