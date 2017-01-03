@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -12,6 +13,7 @@
       <HBox alignment="CENTER_LEFT" maxHeight="35.0" minHeight="35.0" prefHeight="35.0" prefWidth="200.0" spacing="5.0" VBox.vgrow="NEVER">
          <children>
         <ChoiceBox fx:id="viewChoice" maxHeight="25.0" minHeight="25.0" prefHeight="25.0" />
+            <Button fx:id="freezeButton" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" />
             <Label fx:id="traceCount" prefHeight="15.0" prefWidth="104.0" />
          </children>
          <VBox.margin>

@@ -31,6 +31,10 @@ public class ProfileContext
     private final SimpleObjectProperty<Profile> profile;
     private final SimpleObjectProperty<FlameGraph> flameGraph;
 
+    private boolean frozen;
+    private Profile frozenProfile;
+    private FlameGraph frozenFlameGraph;
+
     public ProfileContext(String name, ProfileMode mode)
     {
         id = counter.incrementAndGet();
@@ -75,6 +79,31 @@ public class ProfileContext
         return flameGraph;
     }
 
+    public boolean isFrozen()
+    {
+        return frozen;
+    }
+
+    // Call only on FX Thread !
+    public void setFrozen(boolean frozen)
+    {
+        if (!frozen)
+        {
+            if (frozenProfile != null)
+            {
+                update(frozenProfile);
+                frozenProfile = null;
+            }
+
+            if (frozenFlameGraph != null)
+            {
+                update(frozenFlameGraph);
+                frozenFlameGraph = null;
+            }
+        }
+        this.frozen = frozen;
+    }
+
     public ProfileListener getProfileListener()
     {
         return new ProfileListener()
@@ -84,11 +113,11 @@ public class ProfileContext
             {
                 if (isFxApplicationThread())
                 {
-                    profile.set(t);
+                    update(t);
                 }
                 else
                 {
-                    runLater(() -> profile.set(t));
+                    runLater(() -> update(t));
                 }
             }
         };
@@ -103,13 +132,38 @@ public class ProfileContext
             {
                 if (isFxApplicationThread())
                 {
-                    flameGraph.set(t);
+                    update(t);
                 }
                 else
                 {
-                    runLater(() -> flameGraph.set(t));
+                    runLater(() -> update(t));
                 }
             }
         };
+    }
+
+    // Call only on FX Thread !
+    private void update(Profile t)
+    {
+        if (frozen)
+        {
+            frozenProfile = t;
+        }
+        else
+        {
+            profile.set(t);
+        }
+    }
+
+    private void update(FlameGraph t)
+    {
+        if (frozen)
+        {
+            frozenFlameGraph = t;
+        }
+        else
+        {
+            flameGraph.set(t);
+        }
     }
 }

@@ -27,8 +27,10 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.refre
 import static com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil.writeFlatProfileCsv;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.COMPARE_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.EXPORT_16;
+import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FREEZE_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_ACTIVE_16;
+import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.UNFREEZE_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor;
 
 import java.util.ArrayList;
@@ -46,6 +48,7 @@ import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterSpeci
 import com.insightfullogic.honest_profiler.ports.javafx.model.task.CopyAndFilterProfile;
 import com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil;
+import com.insightfullogic.honest_profiler.ports.javafx.view.Icon;
 import com.insightfullogic.honest_profiler.ports.javafx.view.Rendering;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.GraphicalShareTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTableCell;
@@ -111,7 +114,9 @@ public class FlatViewController extends ProfileViewController<Profile>
         info(filterButton, "Specify filters restricting the visible entries");
         info(compareButton, "Click to select another open profile to compare this profile against");
         info(exportButton, "Export the visible entries to a CSV file");
-        info(quickFilterText, "Specify text for quickly filtering the Fully Qualified Method Name (= <fully_qualified_class_name>.<method_name>)");
+        info(
+            quickFilterText,
+            "Specify text for quickly filtering the Fully Qualified Method Name (= <fully_qualified_class_name>.<method_name>)");
         info(quickFilterButton, "Apply the Quick Filter");
         info(flatProfileView, "Shows methods and their Self and Total usage percentages");
 
@@ -120,13 +125,12 @@ public class FlatViewController extends ProfileViewController<Profile>
 
         exportButton.setGraphic(viewFor(EXPORT_16));
         exportButton.setTooltip(new Tooltip("Export the current view to a file"));
-        exportButton.setOnAction(event ->
-
-        showExportDialog(
+        exportButton.setOnAction(event -> showExportDialog(
             exportButton.getScene().getWindow(),
             "flat_profile.csv",
             out -> writeFlatProfileCsv(out, flatProfile, ReportUtil.Mode.CSV)
         ));
+
 
         initializeComparison();
         initializeFilter();

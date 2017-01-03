@@ -19,22 +19,32 @@
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
 import static com.insightfullogic.honest_profiler.ports.javafx.ViewType.FLAT;
+import static com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext.ProfileMode.LIVE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ConversionUtil.getStringConverterForType;
+import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FREEZE_16;
+import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.UNFREEZE_16;
+import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor;
 
 import com.insightfullogic.honest_profiler.ports.javafx.ViewType;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
+import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext.ProfileMode;
+import com.insightfullogic.honest_profiler.ports.javafx.view.Icon;
 
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 
 public class ProfileRootController extends AbstractController
 {
     @FXML
     private ChoiceBox<ViewType> viewChoice;
+    @FXML
+    private Button freezeButton;
     @FXML
     private Label traceCount;
     @FXML
@@ -46,13 +56,47 @@ public class ProfileRootController extends AbstractController
     @FXML
     private FlameViewController flameController;
 
+    private ProfileContext profileContext;
+
     @FXML
     public void initialize()
     {
         info(
             viewChoice,
             "Select the View : Flat View lists all methods as a list; Tree View shows the stack trees per thread; Flame View shows the Flame Graph");
+        info(
+            freezeButton,
+            "Freeze a live profile. The view will not update when new profiling information is available.");
         info(traceCount, "Shows the number of samples in the profile");
+
+        freezeButton.setGraphic(viewFor(FREEZE_16));
+        freezeButton.setDisable(true);
+        freezeButton.setTooltip(new Tooltip("Freeze the live profile."));
+        info(
+            freezeButton,
+            "Freeze the live profile. The view will not update when new profiling information is available.");
+
+        freezeButton.setOnAction(event ->
+        {
+            if (profileContext.isFrozen())
+            {
+                profileContext.setFrozen(false);
+                freezeButton.setGraphic(viewFor(FREEZE_16));
+                freezeButton.setTooltip(new Tooltip("Freeze the live profile"));
+                info(
+                    freezeButton,
+                    "Freeze the live profile. The view will not update when new profiling information is available.");
+            }
+            else
+            {
+                profileContext.setFrozen(true);
+                freezeButton.setGraphic(viewFor(UNFREEZE_16));
+                freezeButton.setTooltip(new Tooltip("Unfreeze the live profile"));
+                info(
+                    freezeButton,
+                    "Unfreeze the live profile. The view will update again when new profiling information is available.");
+            }
+        });
     }
 
     // Instance Accessors
@@ -68,6 +112,8 @@ public class ProfileRootController extends AbstractController
 
     public void setProfileContext(ProfileContext profileContext)
     {
+        this.profileContext = profileContext;
+
         flatController.setProfileContext(profileContext);
         treeController.setProfileContext(profileContext);
         flameController.setProfileContext(profileContext);
@@ -86,6 +132,8 @@ public class ProfileRootController extends AbstractController
         viewChoice.getSelectionModel().selectedItemProperty()
             .addListener((property, oldValue, newValue) -> show(newValue));
         viewChoice.getSelectionModel().select(FLAT);
+
+        freezeButton.setDisable(profileContext.getMode() != LIVE);
     }
 
     // View Switch

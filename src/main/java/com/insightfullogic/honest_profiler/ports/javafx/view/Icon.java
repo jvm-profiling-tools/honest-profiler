@@ -23,6 +23,9 @@ public final class Icon
     public static final Image LIVE_16 = toImage(ICON_16_DIR + "monitor.png");
     public static final Image LOG_16 = toImage(ICON_16_DIR + "document-binary.png");
 
+    public static final Image FREEZE_16 = toImage(ICON_16_DIR + "clock.png");
+    public static final Image UNFREEZE_16 = toImage(ICON_16_DIR + "clock--exclamation.png");
+
     private static Image toImage(String resource)
     {
         return new Image(Icon.class.getResourceAsStream(resource));
