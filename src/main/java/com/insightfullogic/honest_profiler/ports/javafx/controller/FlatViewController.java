@@ -269,6 +269,7 @@ public class FlatViewController extends ProfileViewController<Profile>
         {
             List<Filter> filters = new ArrayList<>();
             filters.add(quickFilter);
+            filters.addAll(currentFilter.getFilters());
             return new ProfileFilter(filters);
         }
     }

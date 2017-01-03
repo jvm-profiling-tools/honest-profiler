@@ -33,9 +33,13 @@ import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor;
 import static javafx.geometry.Pos.CENTER;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
+import com.insightfullogic.honest_profiler.core.filters.Filter;
 import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
+import com.insightfullogic.honest_profiler.core.filters.StringFilter;
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
@@ -62,6 +66,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
@@ -74,6 +79,10 @@ public class FlatDiffViewController extends AbstractController
     private Button filterButton;
     @FXML
     private Button exportButton;
+    @FXML
+    private TextField quickFilterText;
+    @FXML
+    private Button quickFilterButton;
     @FXML
     private Label baseSourceLabel;
     @FXML
@@ -120,13 +129,19 @@ public class FlatDiffViewController extends AbstractController
     private ObjectProperty<FilterSpecification> filterSpec;
 
     private FlatProfileDiff diff;
+
     private ProfileFilter currentFilter;
+    private StringFilter quickFilter;
 
     @FXML
     private void initialize()
     {
         info(filterButton, "Specify filters restricting the visible entries");
         info(exportButton, "Export the visible entries to a CSV file");
+        info(
+            quickFilterText,
+            "Specify text for quickly filtering the Fully Qualified Method Name (= <fully_qualified_class_name>.<method_name>)");
+        info(quickFilterButton, "Apply the Quick Filter");
 
         diff = new FlatProfileDiff(diffTable.getItems());
 
@@ -144,6 +159,11 @@ public class FlatDiffViewController extends AbstractController
             out -> writeFlatProfileDiffCsv(out, diff, ReportUtil.Mode.CSV)
         ));
 
+        quickFilterButton.setGraphic(viewFor(FUNNEL_16));
+        quickFilterButton
+            .setTooltip(new Tooltip("Specify quick filter on classname + method name"));
+        quickFilterButton.setOnAction(event -> applyQuickFilter());
+
         filterSpec = new SimpleObjectProperty<>(null);
         filterSpec.addListener((property, oldValue, newValue) ->
         {
@@ -151,10 +171,7 @@ public class FlatDiffViewController extends AbstractController
                 newValue == null || !newValue.isFiltering() ? viewFor(FUNNEL_16)
                     : viewFor(FUNNEL_ACTIVE_16));
             currentFilter = new ProfileFilter(newValue.getFilters());
-
-            diff.clear();
-            updateDiff(baseProfileContext.getProfile(), true);
-            updateDiff(newProfileContext.getProfile(), false);
+            refresh();
         });
 
         filterButton.setGraphic(viewFor(FUNNEL_16));
@@ -229,9 +246,16 @@ public class FlatDiffViewController extends AbstractController
             .addListener((property, oldValue, newValue) -> updateDiff(newValue, false));
     }
 
+    private void refresh()
+    {
+        diff.clear();
+        updateDiff(baseProfileContext.getProfile(), true);
+        updateDiff(newProfileContext.getProfile(), false);
+    }
+
     private void updateDiff(Profile profile, boolean base)
     {
-        CopyAndFilterProfile task = new CopyAndFilterProfile(profile, currentFilter);
+        CopyAndFilterProfile task = new CopyAndFilterProfile(profile, getAdjustedProfileFilter());
         task.setOnSucceeded(state ->
         {
             if (base)
@@ -315,5 +339,31 @@ public class FlatDiffViewController extends AbstractController
         width += box.getSpacing() * (box.getChildren().size() - 1);
         width += box.getPadding().getLeft() + box.getPadding().getRight();
         return width;
+    }
+
+    private void applyQuickFilter()
+    {
+        String input = quickFilterText.getText();
+        this.quickFilter = input.isEmpty() ? null
+            : new StringFilter(
+                Filter.Mode.CONTAINS,
+                frame -> frame.getClassName() + "." + frame.getMethodName(),
+                input);
+        refresh();
+    }
+
+    private ProfileFilter getAdjustedProfileFilter()
+    {
+        if (quickFilter == null)
+        {
+            return currentFilter;
+        }
+        else
+        {
+            List<Filter> filters = new ArrayList<>();
+            filters.add(quickFilter);
+            filters.addAll(currentFilter.getFilters());
+            return new ProfileFilter(filters);
+        }
     }
 }
