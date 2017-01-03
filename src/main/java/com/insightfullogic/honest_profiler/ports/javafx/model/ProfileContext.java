@@ -32,8 +32,10 @@ public class ProfileContext
     private final SimpleObjectProperty<FlameGraph> flameGraph;
 
     private boolean frozen;
-    private Profile frozenProfile;
-    private FlameGraph frozenFlameGraph;
+    // While frozen, incoming profiles/graphs are cached in the following 2
+    // instance properties.
+    private Profile cachedProfile;
+    private FlameGraph cachedFlameGraph;
 
     public ProfileContext(String name, ProfileMode mode)
     {
@@ -85,23 +87,23 @@ public class ProfileContext
     }
 
     // Call only on FX Thread !
-    public void setFrozen(boolean frozen)
+    public void setFrozen(boolean freeze)
     {
-        if (!frozen)
+        this.frozen = freeze;
+        if (!freeze)
         {
-            if (frozenProfile != null)
+            if (cachedProfile != null)
             {
-                update(frozenProfile);
-                frozenProfile = null;
+                update(cachedProfile);
+                cachedProfile = null;
             }
 
-            if (frozenFlameGraph != null)
+            if (cachedFlameGraph != null)
             {
-                update(frozenFlameGraph);
-                frozenFlameGraph = null;
+                update(cachedFlameGraph);
+                cachedFlameGraph = null;
             }
         }
-        this.frozen = frozen;
     }
 
     public ProfileListener getProfileListener()
@@ -147,7 +149,7 @@ public class ProfileContext
     {
         if (frozen)
         {
-            frozenProfile = t;
+            cachedProfile = t;
         }
         else
         {
@@ -159,7 +161,7 @@ public class ProfileContext
     {
         if (frozen)
         {
-            frozenFlameGraph = t;
+            cachedFlameGraph = t;
         }
         else
         {
