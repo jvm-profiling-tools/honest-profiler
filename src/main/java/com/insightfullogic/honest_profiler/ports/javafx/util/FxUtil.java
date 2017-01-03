@@ -1,5 +1,6 @@
 package com.insightfullogic.honest_profiler.ports.javafx.util;
 
+import static java.lang.Math.max;
 import static javafx.application.Platform.runLater;
 import static javafx.geometry.Pos.CENTER;
 import static javafx.geometry.Pos.CENTER_LEFT;
@@ -68,7 +69,11 @@ public final class FxUtil
         // Render the text, and use the resulting image size to resize the
         // rectangle
         WritableImage image = text.snapshot(null, null);
-        rectangle.setWidth(image.getWidth() + 2);
+
+        double width = image.getWidth() + 2;
+        double height = image.getHeight() + 2;
+
+        rectangle.setWidth(max(width, height));
         rectangle.setHeight(image.getHeight() + 2);
 
         return pane;
