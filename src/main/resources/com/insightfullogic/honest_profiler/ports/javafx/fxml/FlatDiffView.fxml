@@ -23,7 +23,6 @@
                 <ColumnConstraints halignment="CENTER" hgrow="NEVER" maxWidth="25.0" minWidth="25.0" prefWidth="25.0" />
                   <ColumnConstraints halignment="CENTER" hgrow="NEVER" maxWidth="25.0" minWidth="25.0" prefWidth="25.0" />
                   <ColumnConstraints halignment="CENTER" hgrow="NEVER" maxWidth="200.0" minWidth="25.0" prefWidth="200.0" />
-                  <ColumnConstraints halignment="CENTER" hgrow="NEVER" maxWidth="25.0" minWidth="25.0" prefWidth="100.0" />
               </columnConstraints>
               <rowConstraints>
                 <RowConstraints maxHeight="25.0" minHeight="25.0" prefHeight="25.0" vgrow="SOMETIMES" />
