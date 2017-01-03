@@ -28,8 +28,6 @@ import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor
 import com.insightfullogic.honest_profiler.ports.javafx.ViewType;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
-import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext.ProfileMode;
-import com.insightfullogic.honest_profiler.ports.javafx.view.Icon;
 
 import javafx.fxml.FXML;
 import javafx.scene.Node;
