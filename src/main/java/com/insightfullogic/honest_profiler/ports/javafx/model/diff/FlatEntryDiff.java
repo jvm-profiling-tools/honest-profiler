@@ -1,5 +1,7 @@
 package com.insightfullogic.honest_profiler.ports.javafx.model.diff;
 
+import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
+
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
@@ -13,49 +15,44 @@ public class FlatEntryDiff
     private final String methodName;
     private final String fullName;
 
-    private final IntegerProperty baseTotalCount;
-    private final IntegerProperty baseSelfCount;
+    private final IntegerProperty baseTotalCount = new SimpleIntegerProperty();
+    private final IntegerProperty baseSelfCount = new SimpleIntegerProperty();
     private final IntegerProperty baseTraceCount = new SimpleIntegerProperty();
 
-    private final IntegerProperty newTotalCount;
-    private final IntegerProperty newSelfCount;
+    private final IntegerProperty newTotalCount = new SimpleIntegerProperty();
+    private final IntegerProperty newSelfCount = new SimpleIntegerProperty();
     private final IntegerProperty newTraceCount = new SimpleIntegerProperty();
 
-    private final DoubleProperty baseTotalTimeShare = new SimpleDoubleProperty(0);
-    private final DoubleProperty baseSelfTimeShare = new SimpleDoubleProperty(0);
+    private final DoubleProperty baseTotalTimeShare = new SimpleDoubleProperty();
+    private final DoubleProperty baseSelfTimeShare = new SimpleDoubleProperty();
 
-    private final DoubleProperty newTotalTimeShare = new SimpleDoubleProperty(0);
-    private final DoubleProperty newSelfTimeShare = new SimpleDoubleProperty(0);
+    private final DoubleProperty newTotalTimeShare = new SimpleDoubleProperty();
+    private final DoubleProperty newSelfTimeShare = new SimpleDoubleProperty();
 
-    private final DoubleProperty pctTotalChange = new SimpleDoubleProperty(0);
-    private final DoubleProperty pctSelfChange = new SimpleDoubleProperty(0);
+    private final DoubleProperty pctTotalChange = new SimpleDoubleProperty();
+    private final DoubleProperty pctSelfChange = new SimpleDoubleProperty();
 
-    public FlatEntryDiff(String className,
-                         String methodName,
-                         int baseTotalCount,
-                         int baseSelfCount,
-                         int baseTraceCount,
-                         int newTotalCount,
-                         int newSelfCount,
-                         int newTraceCount)
+    public FlatEntryDiff(FlatProfileEntry baseEntry, FlatProfileEntry newEntry)
     {
-        super();
-
-        this.className = className;
-        this.methodName = methodName;
-        fullName = new StringBuilder(this.className).append(".").append(this.methodName)
-            .toString();
-
-        this.baseTotalCount = new SimpleIntegerProperty(baseTotalCount);
-        this.baseSelfCount = new SimpleIntegerProperty(baseSelfCount);
-        this.newTotalCount = new SimpleIntegerProperty(newTotalCount);
-        this.newSelfCount = new SimpleIntegerProperty(newSelfCount);
-
-        setBaseTraceCount(baseTraceCount);
-        setNewTraceCount(newTraceCount);
-
         pctTotalChange.bind(newTotalTimeShare.subtract(baseTotalTimeShare));
         pctSelfChange.bind(newSelfTimeShare.subtract(baseSelfTimeShare));
+
+        this.className = newEntry == null ? baseEntry.getFrameInfo().getClassName()
+            : newEntry.getFrameInfo().getClassName();
+        this.methodName = newEntry == null ? baseEntry.getFrameInfo().getMethodName()
+            : newEntry.getFrameInfo().getMethodName();
+        this.fullName = newEntry == null ? baseEntry.getFrameInfo().getFullName()
+            : newEntry.getFrameInfo().getFullName();
+
+        if (baseEntry != null)
+        {
+            updateForBase(baseEntry);
+        }
+
+        if (newEntry != null)
+        {
+            updateForNew(newEntry);
+        }
     }
 
     public String getClassName()
@@ -98,28 +95,9 @@ public class FlatEntryDiff
         return baseTraceCount.get();
     }
 
-    public void setBaseTraceCount(int value)
-    {
-        if (value > 0)
-        {
-            baseTraceCount.set(value);
-
-            if (!baseTotalTimeShare.isBound())
-            {
-                baseTotalTimeShare.bind(baseTotalCount.divide(getCastBinding(baseTraceCount)));
-                baseSelfTimeShare.bind(baseSelfCount.divide(getCastBinding(baseTraceCount)));
-            }
-        }
-    }
-
     public int getNewTotalCount()
     {
         return newTotalCount.get();
-    }
-
-    public void addNewTotalCount(int value)
-    {
-        increment(newTotalCount, value);
     }
 
     public int getNewSelfCount()
@@ -127,28 +105,9 @@ public class FlatEntryDiff
         return newSelfCount.get();
     }
 
-    public void addNewSelfCount(int value)
-    {
-        increment(newSelfCount, value);
-    }
-
     public int getNewTraceCount()
     {
         return newTraceCount.get();
-    }
-
-    public void setNewTraceCount(int value)
-    {
-        if (value > 0)
-        {
-            newTraceCount.set(value);
-
-            if (!newTotalTimeShare.isBound())
-            {
-                newTotalTimeShare.bind(newTotalCount.divide(getCastBinding(newTraceCount)));
-                newSelfTimeShare.bind(newSelfCount.divide(getCastBinding(newTraceCount)));
-            }
-        }
     }
 
     public IntegerProperty baseTotalCountProperty()
@@ -251,5 +210,41 @@ public class FlatEntryDiff
                 return intProperty.doubleValue();
             }
         };
+    }
+
+    public FlatEntryDiff updateForBase(FlatProfileEntry entry)
+    {
+        baseSelfCount.set(entry.getSelfCount());
+        baseTotalCount.set(entry.getTotalCount());
+        baseTraceCount.set(entry.getTraceCount());
+
+        if (entry.getTraceCount() > 0)
+        {
+            if (!baseTotalTimeShare.isBound())
+            {
+                baseTotalTimeShare.bind(baseTotalCount.divide(getCastBinding(baseTraceCount)));
+                baseSelfTimeShare.bind(baseSelfCount.divide(getCastBinding(baseTraceCount)));
+            }
+        }
+
+        return this;
+    }
+
+    public FlatEntryDiff updateForNew(FlatProfileEntry entry)
+    {
+        newSelfCount.set(entry.getSelfCount());
+        newTotalCount.set(entry.getTotalCount());
+        newTraceCount.set(entry.getTraceCount());
+
+        if (entry.getTraceCount() > 0)
+        {
+            if (!newTotalTimeShare.isBound())
+            {
+                newTotalTimeShare.bind(newTotalCount.divide(getCastBinding(newTraceCount)));
+                newSelfTimeShare.bind(newSelfCount.divide(getCastBinding(newTraceCount)));
+            }
+        }
+
+        return this;
     }
 }

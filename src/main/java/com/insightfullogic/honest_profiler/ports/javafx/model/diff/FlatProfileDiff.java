@@ -34,65 +34,25 @@ public class FlatProfileDiff
     {
         baseProfile.forEach(
             entry -> entriesByMethodName.compute(
-                entry.getFrameInfo().getClassName() + "." + entry.getFrameInfo().getMethodName(),
-
-                (String methodName, FlatEntryDiff flatEntryDiff) ->
-                {
-                    if (flatEntryDiff == null)
-                    {
-                        FlatEntryDiff newEntry = new FlatEntryDiff(
-                            entry.getFrameInfo().getClassName(),
-                            entry.getFrameInfo().getMethodName(),
-                            entry.getTotalCount(),
-                            entry.getSelfCount(),
-                            entry.getTraceCount(),
-                            0,
-                            0,
-                            0);
-                        entries.add(newEntry);
-                        return newEntry;
-                    }
-                    else
-                    {
-                        flatEntryDiff.addBaseTotalCount(entry.getTotalCount());
-                        flatEntryDiff.addBaseSelfCount(entry.getSelfCount());
-
-                        flatEntryDiff.setBaseTraceCount(entry.getTraceCount());
-                        return flatEntryDiff;
-                    }
-                }));
+                entry.getFrameInfo().getFullName(),
+                (methodName, diff) -> diff == null
+                    ? newDiff(entry, true) : diff.updateForBase(entry)));
     }
 
     public void updateNew(List<FlatProfileEntry> newProfile)
     {
         newProfile.forEach(
             entry -> entriesByMethodName.compute(
-                entry.getFrameInfo().getClassName() + "." + entry.getFrameInfo().getMethodName(),
+                entry.getFrameInfo().getFullName(),
+                (methodName, diff) -> diff == null
+                    ? newDiff(entry, false) : diff.updateForNew(entry)));
+    }
 
-                (String methodName, FlatEntryDiff flatEntryDiff) ->
-                {
-                    if (flatEntryDiff == null)
-                    {
-                        FlatEntryDiff newEntry = new FlatEntryDiff(
-                            entry.getFrameInfo().getClassName(),
-                            entry.getFrameInfo().getMethodName(),
-                            0,
-                            0,
-                            0,
-                            entry.getTotalCount(),
-                            entry.getSelfCount(),
-                            entry.getTraceCount());
-                        entries.add(newEntry);
-                        return newEntry;
-                    }
-                    else
-                    {
-                        flatEntryDiff.addNewTotalCount(entry.getTotalCount());
-                        flatEntryDiff.addNewSelfCount(entry.getSelfCount());
-
-                        flatEntryDiff.setNewTraceCount(entry.getTraceCount());
-                        return flatEntryDiff;
-                    }
-                }));
+    private FlatEntryDiff newDiff(FlatProfileEntry entry, boolean base)
+    {
+        FlatEntryDiff diff = base ? new FlatEntryDiff(entry, null)
+            : new FlatEntryDiff(null, entry);
+        entries.add(diff);
+        return diff;
     }
 }

@@ -240,10 +240,10 @@ public class FlatDiffViewController extends AbstractController
         // diffTable.refresh();
 
         baseProfileContext.profileProperty()
-            .addListener((property, oldValue, newValue) -> updateDiff(newValue, true));
+            .addListener((property, oldValue, newValue) -> refresh());
 
         newProfileContext.profileProperty()
-            .addListener((property, oldValue, newValue) -> updateDiff(newValue, false));
+            .addListener((property, oldValue, newValue) -> refresh());
     }
 
     private void refresh()
@@ -258,6 +258,11 @@ public class FlatDiffViewController extends AbstractController
         CopyAndFilterProfile task = new CopyAndFilterProfile(profile, getAdjustedProfileFilter());
         task.setOnSucceeded(state ->
         {
+            // No need to worry about concurrency here, since this (the code for
+            // onSucceeded()) will be executed on the FX thread. So even though
+            // in the diff 2 tasks might execute concurrently during refresh(),
+            // the resulting update calls in this if-statement won't execute
+            // concurrently.
             if (base)
             {
                 diff.updateBase(task.getValue().getFlatByMethodProfile());
