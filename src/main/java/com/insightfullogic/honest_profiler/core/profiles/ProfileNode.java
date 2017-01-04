@@ -34,34 +34,38 @@ public final class ProfileNode
 {
     private final List<ProfileNode> children;
     private final Frame method;
-    private final double totalTimeShare;
-    private final double selfTimeShare;
+    private final int totalCount;
+    private final int selfCount;
+    private final int parentCount;
 
-    public ProfileNode(Frame method, double totalTimeShare)
+    public ProfileNode(Frame method, int totalCount, int parentCount)
     {
-        this(method, totalTimeShare, emptyList());
+        this(method, totalCount, parentCount, emptyList());
     }
 
-    public ProfileNode(Frame method, double totalTimeShare, List<ProfileNode> children)
+    public ProfileNode(Frame method, int totalCount, int parentCount, List<ProfileNode> children)
     {
         this.method = method;
         this.children = children;
-        this.totalTimeShare = totalTimeShare;
-        this.selfTimeShare = totalTimeShare - children.stream()
-            .mapToDouble(ProfileNode::getTotalTimeShare)
+        this.totalCount = totalCount;
+        this.selfCount = totalCount - children.stream()
+            .mapToInt(ProfileNode::getTotalCount)
             .sum();
+        this.parentCount = parentCount;
     }
 
     // For efficient copy()
     private ProfileNode(Frame method,
-                        double totalTimeShare,
-                        double selfTimeShare,
+                        int totalCount,
+                        int selfCount,
+                        int parentCount,
                         List<ProfileNode> children)
     {
         this.method = method;
         this.children = children;
-        this.totalTimeShare = totalTimeShare;
-        this.selfTimeShare = selfTimeShare;
+        this.totalCount = totalCount;
+        this.selfCount = selfCount;
+        this.parentCount = parentCount;
     }
 
     public Stream<ProfileNode> children()
@@ -74,14 +78,29 @@ public final class ProfileNode
         return children;
     }
 
+    public int getTotalCount()
+    {
+        return totalCount;
+    }
+    
+    public int getSelfCount()
+    {
+        return selfCount;
+    }
+    
+    public int getParentCount()
+    {
+        return parentCount;
+    }
+    
     public double getTotalTimeShare()
     {
-        return totalTimeShare;
+        return totalCount / (double) parentCount;
     }
 
     public double getSelfTimeShare()
     {
-        return selfTimeShare;
+        return selfCount / (double) parentCount;
     }
 
     public Frame getFrameInfo()
@@ -109,15 +128,16 @@ public final class ProfileNode
     @Override
     public String toString()
     {
-        return "PN{" + totalTimeShare + " " + method.getMethodName() + children + '}';
+        return "PN{" + totalCount + " " + parentCount+ " " + method.getMethodName() + children + '}';
     }
 
     public ProfileNode copy()
     {
         return new ProfileNode(
             method.copy(),
-            totalTimeShare,
-            selfTimeShare,
+            totalCount,
+            selfCount,
+            parentCount,
             children.stream().map(ProfileNode::copy).collect(toList()));
     }
 }

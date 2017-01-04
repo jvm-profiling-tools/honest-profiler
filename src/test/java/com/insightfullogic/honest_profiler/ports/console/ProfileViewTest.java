@@ -41,7 +41,7 @@ public class ProfileViewTest
     @Test
     public void rendersSingleMethod()
     {
-        ProfileNode root = new ProfileNode(ProfileFixtures.printf, 1.0);
+        ProfileNode root = new ProfileNode(ProfileFixtures.printf, 1, 1);
         Profile profile = new Profile(2, asList(new FlatProfileEntry(ProfileFixtures.printf, 1, 0, 1)), asList(new FlatProfileEntry(ProfileFixtures.printf, 1, 0, 1)), toTrees(root));
 
         ui.accept(profile);
@@ -59,9 +59,9 @@ public class ProfileViewTest
     @Test
     public void rendersMultiBranchProfile()
     {
-        ProfileNode left = new ProfileNode(ProfileFixtures.println, 0.5);
-        ProfileNode right = new ProfileNode(ProfileFixtures.append, 0.5);
-        ProfileNode root = new ProfileNode(ProfileFixtures.printf, 1, asList(left, right));
+        ProfileNode left = new ProfileNode(ProfileFixtures.println, 1, 2);
+        ProfileNode right = new ProfileNode(ProfileFixtures.append, 1, 2);
+        ProfileNode root = new ProfileNode(ProfileFixtures.printf, 1, 1, asList(left, right));
         Profile profile = new Profile(2, asList(new FlatProfileEntry(ProfileFixtures.printf, 1, 0 , 1)), asList(new FlatProfileEntry(ProfileFixtures.printf, 1, 0 , 1)), toTrees(root));
 
         ui.accept(profile);
