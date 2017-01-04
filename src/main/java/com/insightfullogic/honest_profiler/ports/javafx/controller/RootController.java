@@ -4,7 +4,7 @@ import static com.insightfullogic.honest_profiler.ports.javafx.model.ProfileCont
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.selectLogFile;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.showErrorDialog;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.showExceptionDialog;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.FXML_FLAT_DIFF_VIEW;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.FXML_PROFILE_DIFF_ROOT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.FXML_PROFILE_ROOT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.addProfileNr;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.createColoredLabelContainer;
@@ -187,7 +187,7 @@ public class RootController extends AbstractController implements MachineListene
     public void generateDiffTab(String baseName, String newName)
     {
         Tab tab = newLoadingTab();
-        FlatDiffViewController controller = loadViewIntoTab(FXML_FLAT_DIFF_VIEW, tab);
+        ProfileDiffRootController controller = loadViewIntoTab(FXML_PROFILE_DIFF_ROOT, tab);
         tab.getContent().setVisible(false);
 
         controller.setApplicationContext(appCtx());

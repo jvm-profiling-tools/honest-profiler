@@ -26,6 +26,15 @@ public final class TreeUtil
         }
     }
 
+    public static void expandPartial(TreeItem<?> treeItem, int depth)
+    {
+        if (depth > 0)
+        {
+            treeItem.setExpanded(true);
+            treeItem.getChildren().forEach(item -> expandPartial(item, depth - 1));
+        }
+    }
+
     public static void collapseFully(TreeItem<?> treeItem)
     {
         treeItem.setExpanded(false);

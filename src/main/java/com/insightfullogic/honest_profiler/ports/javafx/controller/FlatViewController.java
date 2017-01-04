@@ -25,7 +25,6 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.F
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.showExportDialog;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.refreshTable;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil.writeFlatProfileCsv;
-import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.COMPARE_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.EXPORT_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_ACTIVE_16;
@@ -54,24 +53,18 @@ import com.insightfullogic.honest_profiler.ports.javafx.view.cell.PercentageTabl
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.MouseEvent;
 
 public class FlatViewController extends ProfileViewController<Profile>
 {
     @FXML
     private Button filterButton;
-    @FXML
-    private Button compareButton;
     @FXML
     private Button exportButton;
     @FXML
@@ -109,7 +102,6 @@ public class FlatViewController extends ProfileViewController<Profile>
         super.initialize(profileContext -> profileContext.profileProperty());
 
         info(filterButton, "Specify filters restricting the visible entries");
-        info(compareButton, "Click to select another open profile to compare this profile against");
         info(exportButton, "Export the visible entries to a CSV file");
         info(
             quickFilterText,
@@ -128,7 +120,6 @@ public class FlatViewController extends ProfileViewController<Profile>
             out -> writeFlatProfileCsv(out, flatProfile, ReportUtil.Mode.CSV)
         ));
 
-        initializeComparison();
         initializeFilter();
         initializeTable();
     }
@@ -153,30 +144,6 @@ public class FlatViewController extends ProfileViewController<Profile>
     }
 
     // Initialization Helper Methods
-
-    private void initializeComparison()
-    {
-        compareButton.setGraphic(viewFor(COMPARE_16));
-        compareButton.setTooltip(new Tooltip("Compare this profile with another open profile"));
-        compareButton.setOnMousePressed(new EventHandler<MouseEvent>()
-        {
-            @Override
-            public void handle(MouseEvent event)
-            {
-                ContextMenu ctxMenu = compareButton.getContextMenu();
-                if (ctxMenu == null)
-                {
-                    ctxMenu = new ContextMenu();
-                    compareButton.setContextMenu(ctxMenu);
-                }
-                refreshContextMenu(compareButton.getContextMenu());
-                compareButton.getContextMenu().show(
-                    compareButton,
-                    event.getScreenX(),
-                    event.getScreenY());
-            }
-        });
-    }
 
     private void initializeFilter()
     {
@@ -272,27 +239,5 @@ public class FlatViewController extends ProfileViewController<Profile>
             filters.addAll(currentFilter.getFilters());
             return new ProfileFilter(filters);
         }
-    }
-
-    // Compare Helper Methods
-
-    private void refreshContextMenu(ContextMenu menu)
-    {
-        menu.getItems().clear();
-
-        List<String> profileNames = appCtx().getOpenProfileNames();
-
-        profileNames.forEach(name ->
-        {
-            if (name.equals(prContext().getName()))
-            {
-                return;
-            }
-
-            MenuItem item = new MenuItem(name);
-            item.setOnAction(
-                event -> appCtx().createDiffView(prContext().getName(), name));
-            menu.getItems().add(item);
-        });
     }
 }

@@ -214,8 +214,8 @@ public class FlatEntryDiff
 
     public FlatEntryDiff updateForBase(FlatProfileEntry entry)
     {
-        baseSelfCount.set(entry.getSelfCount());
-        baseTotalCount.set(entry.getTotalCount());
+        baseSelfCount.set(baseSelfCount.get() + entry.getSelfCount());
+        baseTotalCount.set(baseTotalCount.get() + entry.getTotalCount());
         baseTraceCount.set(entry.getTraceCount());
 
         if (entry.getTraceCount() > 0)
@@ -232,8 +232,8 @@ public class FlatEntryDiff
 
     public FlatEntryDiff updateForNew(FlatProfileEntry entry)
     {
-        newSelfCount.set(entry.getSelfCount());
-        newTotalCount.set(entry.getTotalCount());
+        newSelfCount.set(newSelfCount.get() + entry.getSelfCount());
+        newTotalCount.set(newSelfCount.get() + entry.getTotalCount());
         newTraceCount.set(entry.getTraceCount());
 
         if (entry.getTraceCount() > 0)

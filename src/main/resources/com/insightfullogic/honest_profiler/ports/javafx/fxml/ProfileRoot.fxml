@@ -14,6 +14,7 @@
          <children>
         <ChoiceBox fx:id="viewChoice" maxHeight="25.0" minHeight="25.0" prefHeight="25.0" />
             <Button fx:id="freezeButton" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" />
+            <Button fx:id="compareButton" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" />
             <Label fx:id="traceCount" prefHeight="15.0" prefWidth="104.0" />
          </children>
          <VBox.margin>

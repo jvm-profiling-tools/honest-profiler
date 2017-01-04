@@ -18,7 +18,6 @@
             <GridPane>
               <columnConstraints>
                 <ColumnConstraints halignment="CENTER" hgrow="NEVER" maxWidth="25.0" minWidth="25.0" prefWidth="25.0" />
-                <ColumnConstraints halignment="CENTER" hgrow="NEVER" maxWidth="25.0" minWidth="25.0" prefWidth="25.0" />
                   <ColumnConstraints halignment="CENTER" hgrow="NEVER" maxWidth="25.0" minWidth="25.0" prefWidth="25.0" />
                   <ColumnConstraints halignment="CENTER" hgrow="NEVER" maxWidth="25.0" minWidth="25.0" prefWidth="100.0" />
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="200.0" minWidth="25.0" prefWidth="200.0" />
@@ -28,9 +27,8 @@
               </rowConstraints>
                <children>
                   <Button fx:id="filterButton" alignment="CENTER" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" />
-                  <Button fx:id="compareButton" alignment="CENTER" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" GridPane.columnIndex="1" />
-                  <Button fx:id="exportButton" alignment="CENTER" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" GridPane.columnIndex="2" />
-                  <HBox maxHeight="20.0" minHeight="20.0" prefHeight="20.0" GridPane.columnIndex="4" GridPane.vgrow="NEVER">
+                  <Button fx:id="exportButton" alignment="CENTER" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" GridPane.columnIndex="1" />
+                  <HBox maxHeight="20.0" minHeight="20.0" prefHeight="20.0" GridPane.columnIndex="3" GridPane.vgrow="NEVER">
                      <children>
                         <TextField fx:id="quickFilterText" maxHeight="20.0" maxWidth="1.7976931348623157E308" minHeight="20.0" prefHeight="20.0" promptText="Quick FQMN Filter" HBox.hgrow="ALWAYS" />
                         <Button fx:id="quickFilterButton" alignment="CENTER" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" HBox.hgrow="NEVER" />

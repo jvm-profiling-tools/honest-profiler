@@ -62,7 +62,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
@@ -73,7 +72,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.util.Callback;
 
-public class FlatDiffViewController extends AbstractController
+public class FlatDiffViewController extends ProfileDiffViewController<Profile>
 {
     @FXML
     private Button filterButton;
@@ -83,10 +82,6 @@ public class FlatDiffViewController extends AbstractController
     private TextField quickFilterText;
     @FXML
     private Button quickFilterButton;
-    @FXML
-    private Label baseSourceLabel;
-    @FXML
-    private Label newSourceLabel;
     @FXML
     private TableView<FlatEntryDiff> diffTable;
     @FXML
@@ -122,9 +117,6 @@ public class FlatDiffViewController extends AbstractController
     @FXML
     private TableColumn<FlatEntryDiff, Number> traceCountDiff;
 
-    private ProfileContext baseProfileContext;
-    private ProfileContext newProfileContext;
-
     private FilterDialogController filterDialogController;
     private ObjectProperty<FilterSpecification> filterSpec;
 
@@ -136,6 +128,8 @@ public class FlatDiffViewController extends AbstractController
     @FXML
     private void initialize()
     {
+        super.initialize(profileContext -> profileContext.profileProperty());
+
         info(filterButton, "Specify filters restricting the visible entries");
         info(exportButton, "Export the visible entries to a CSV file");
         info(
@@ -191,24 +185,21 @@ public class FlatDiffViewController extends AbstractController
         filterDialogController.setApplicationContext(appCtx());
     }
 
+    @Override
     public void setProfileContexts(ProfileContext baseContext, ProfileContext newContext)
     {
-        baseProfileContext = baseContext;
-        newProfileContext = newContext;
+        super.setProfileContexts(baseContext, newContext);
 
-        baseSourceLabel.setText(baseContext.getName());
-        newSourceLabel.setText(newContext.getName());
-
-        configurePercentColumn(baseSelfTime, "baseSelfTimeShare", baseProfileContext, "Self %");
-        configurePercentColumn(newSelfTime, "newSelfTimeShare", newProfileContext, "Self %");
+        configurePercentColumn(baseSelfTime, "baseSelfTimeShare", baseContext(), "Self %");
+        configurePercentColumn(newSelfTime, "newSelfTimeShare", newContext(), "Self %");
         configurePercentColumn(selfTimeDiff, "pctSelfChange", doubleDiffStyler, "Self % Diff");
 
-        configurePercentColumn(baseTotalTime, "baseTotalTimeShare", baseProfileContext, "Total %");
-        configurePercentColumn(newTotalTime, "newTotalTimeShare", newProfileContext, "Total %");
+        configurePercentColumn(baseTotalTime, "baseTotalTimeShare", baseContext(), "Total %");
+        configurePercentColumn(newTotalTime, "newTotalTimeShare", newContext(), "Total %");
         configurePercentColumn(totalTimeDiff, "pctTotalChange", doubleDiffStyler, "Total % Diff");
 
-        configureCountColumn(baseSelfCount, "baseSelfCount", baseProfileContext, "Self #");
-        configureCountColumn(newSelfCount, "newSelfCount", newProfileContext, "Self #");
+        configureCountColumn(baseSelfCount, "baseSelfCount", baseContext(), "Self #");
+        configureCountColumn(newSelfCount, "newSelfCount", newContext(), "Self #");
         configureCountDiffColumn(
             selfCountDiff,
             data -> new ReadOnlyIntegerWrapper(
@@ -216,8 +207,8 @@ public class FlatDiffViewController extends AbstractController
             intDiffStyler,
             "Self # Diff");
 
-        configureCountColumn(baseTotalCount, "baseTotalCount", baseProfileContext, "Total #");
-        configureCountColumn(newTotalCount, "newTotalCount", newProfileContext, "Total #");
+        configureCountColumn(baseTotalCount, "baseTotalCount", baseContext(), "Total #");
+        configureCountColumn(newTotalCount, "newTotalCount", newContext(), "Total #");
         configureCountDiffColumn(
             totalCountDiff,
             data -> new ReadOnlyIntegerWrapper(
@@ -225,32 +216,22 @@ public class FlatDiffViewController extends AbstractController
             intDiffStyler,
             "Total # Diff");
 
-        configureCountColumn(baseTraceCount, "baseTraceCount", baseProfileContext, "Trace #");
-        configureCountColumn(newTraceCount, "newTraceCount", baseProfileContext, "Trace #");
+        configureCountColumn(baseTraceCount, "baseTraceCount", baseContext(), "Trace #");
+        configureCountColumn(newTraceCount, "newTraceCount", newContext(), "Trace #");
         configureCountDiffColumn(
             traceCountDiff,
             data -> new ReadOnlyIntegerWrapper(
                 data.getValue().getNewTraceCount() - data.getValue().getBaseTraceCount()),
             intDiffStyler,
             "Trace # Diff");
-
-        updateDiff(baseContext.getProfile(), true);
-        updateDiff(newContext.getProfile(), false);
-
-        // diffTable.refresh();
-
-        baseProfileContext.profileProperty()
-            .addListener((property, oldValue, newValue) -> refresh());
-
-        newProfileContext.profileProperty()
-            .addListener((property, oldValue, newValue) -> refresh());
     }
 
-    private void refresh()
+    @Override
+    protected void refresh()
     {
         diff.clear();
-        updateDiff(baseProfileContext.getProfile(), true);
-        updateDiff(newProfileContext.getProfile(), false);
+        updateDiff(getBaseTarget(), true);
+        updateDiff(getNewTarget(), false);
     }
 
     private void updateDiff(Profile profile, boolean base)

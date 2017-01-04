@@ -36,7 +36,7 @@ public final class FxUtil
 
     public static String FXML_ROOT = FXML_DIR + "Root.fxml";
     public static String FXML_PROFILE_ROOT = FXML_DIR + "ProfileRoot.fxml";
-    public static String FXML_FLAT_DIFF_VIEW = FXML_DIR + "FlatDiffView.fxml";
+    public static String FXML_PROFILE_DIFF_ROOT = FXML_DIR + "ProfileDiffRoot.fxml";
 
     private static Color[] LABEL_PALETTE = new Color[]
     { LIGHTSTEELBLUE, LIGHTGREEN, ORANGE, LIGHTBLUE, BEIGE, GOLD, LIGHTGREY, LIGHTPINK, CYAN,

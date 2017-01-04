@@ -38,18 +38,6 @@
                   </HBox>
                </children>
             </GridPane>
-            <Label text="Baseline : ">
-               <font>
-                  <Font name="System Bold" size="12.0" />
-               </font>
-            </Label>
-            <Label fx:id="baseSourceLabel" text="&lt;none&gt;" />
-            <Label text="New :">
-               <font>
-                  <Font name="System Bold" size="12.0" />
-               </font>
-            </Label>
-            <Label fx:id="newSourceLabel" text="&lt;none&gt;" />
          </children>
          <padding>
             <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />

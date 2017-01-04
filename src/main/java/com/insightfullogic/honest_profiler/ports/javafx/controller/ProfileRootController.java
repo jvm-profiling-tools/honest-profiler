@@ -21,20 +21,27 @@ package com.insightfullogic.honest_profiler.ports.javafx.controller;
 import static com.insightfullogic.honest_profiler.ports.javafx.ViewType.FLAT;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext.ProfileMode.LIVE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ConversionUtil.getStringConverterForType;
+import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.COMPARE_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FREEZE_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.UNFREEZE_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor;
+
+import java.util.List;
 
 import com.insightfullogic.honest_profiler.ports.javafx.ViewType;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 
 public class ProfileRootController extends AbstractController
@@ -43,6 +50,8 @@ public class ProfileRootController extends AbstractController
     private ChoiceBox<ViewType> viewChoice;
     @FXML
     private Button freezeButton;
+    @FXML
+    private Button compareButton;
     @FXML
     private Label traceCount;
     @FXML
@@ -62,10 +71,13 @@ public class ProfileRootController extends AbstractController
         info(
             viewChoice,
             "Select the View : Flat View lists all methods as a list; Tree View shows the stack trees per thread; Flame View shows the Flame Graph");
+        info(compareButton, "Click to select another open profile to compare this profile against");
         info(
             freezeButton,
             "Freeze a live profile. The view will not update when new profiling information is available.");
         info(traceCount, "Shows the number of samples in the profile");
+
+        initializeComparison();
 
         freezeButton.setGraphic(viewFor(FREEZE_16));
         freezeButton.setDisable(true);
@@ -134,11 +146,34 @@ public class ProfileRootController extends AbstractController
         freezeButton.setDisable(profileContext.getMode() != LIVE);
     }
 
+    private void initializeComparison()
+    {
+        compareButton.setGraphic(viewFor(COMPARE_16));
+        compareButton.setTooltip(new Tooltip("Compare this profile with another open profile"));
+        compareButton.setOnMousePressed(new EventHandler<MouseEvent>()
+        {
+            @Override
+            public void handle(MouseEvent event)
+            {
+                ContextMenu ctxMenu = compareButton.getContextMenu();
+                if (ctxMenu == null)
+                {
+                    ctxMenu = new ContextMenu();
+                    compareButton.setContextMenu(ctxMenu);
+                }
+                refreshContextMenu(compareButton.getContextMenu());
+                compareButton.getContextMenu().show(
+                    compareButton,
+                    event.getScreenX(),
+                    event.getScreenY());
+            }
+        });
+    }
     // View Switch
 
     private void show(ViewType viewType)
     {
-        for (int i = 0; i < ViewType.values().length; i++)
+        for (int i = 0; i < viewChoice.getItems().size(); i++)
         {
             Node child = content.getChildren().get(i);
             child.setManaged(viewType.ordinal() == i);
@@ -165,5 +200,27 @@ public class ProfileRootController extends AbstractController
                 break;
             default:
         }
+    }
+
+    // Compare Helper Methods
+
+    private void refreshContextMenu(ContextMenu menu)
+    {
+        menu.getItems().clear();
+
+        List<String> profileNames = appCtx().getOpenProfileNames();
+
+        profileNames.forEach(name ->
+        {
+            if (name.equals(profileContext.getName()))
+            {
+                return;
+            }
+
+            MenuItem item = new MenuItem(name);
+            item.setOnAction(
+                event -> appCtx().createDiffView(profileContext.getName(), name));
+            menu.getItems().add(item);
+        });
     }
 }

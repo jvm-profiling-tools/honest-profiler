@@ -212,11 +212,10 @@ public class TreeViewController extends ProfileViewController<Profile>
     private void applyQuickFilter()
     {
         String input = quickFilterText.getText();
-        this.quickFilter = input.isEmpty() ? null
-            : new StringFilter(
-                Filter.Mode.CONTAINS,
-                frame -> frame.getClassName() + "." + frame.getMethodName(),
-                input);
+        this.quickFilter = input.isEmpty() ? null : new StringFilter(
+            Filter.Mode.CONTAINS,
+            frame -> frame.getClassName() + "." + frame.getMethodName(),
+            input);
         refresh(getTarget());
     }
 
