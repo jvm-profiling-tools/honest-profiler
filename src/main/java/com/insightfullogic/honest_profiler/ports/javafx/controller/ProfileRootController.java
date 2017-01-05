@@ -28,7 +28,6 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_LABEL_PROFILESAMPLECOUNT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.TOOLTIP_BUTTON_FREEZE_FROZEN;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.TOOLTIP_BUTTON_FREEZE_UNFROZEN;
-import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.COMPARE_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FREEZE_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor;
 
@@ -80,9 +79,6 @@ public class ProfileRootController extends AbstractController
         super.initialize();
 
         initializeComparison();
-
-        freezeButton.setGraphic(viewFor(FREEZE_16));
-        freezeButton.setDisable(true);
 
         freezeButton.setOnAction(event ->
         {
@@ -141,7 +137,6 @@ public class ProfileRootController extends AbstractController
 
     private void initializeComparison()
     {
-        compareButton.setGraphic(viewFor(COMPARE_16));
         compareButton.setOnMousePressed(new EventHandler<MouseEvent>()
         {
             @Override

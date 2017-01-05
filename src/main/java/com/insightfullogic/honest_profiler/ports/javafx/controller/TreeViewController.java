@@ -28,8 +28,6 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_QUICKFILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_INPUT_QUICKFILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TABLE_TREE;
-import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.COLLAPSE_16;
-import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.EXPAND_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_ACTIVE_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor;
@@ -125,19 +123,15 @@ public class TreeViewController extends ProfileViewController<Profile>
             .<FilterSpecification>createDialog(FILTER, "Specify Filters", false);
         filterDialogController.addAllowedFilterTypes(STRING, THREAD_SAMPLE, TIME_SHARE);
 
-        filterButton.setGraphic(viewFor(FUNNEL_16));
         filterButton
             .setOnAction(event -> filterSpec.set(filterDialogController.showAndWait().get()));
 
-        expandAllButton.setGraphic(viewFor(EXPAND_16));
         expandAllButton.setOnAction(
             event -> treeView.getRoot().getChildren().stream().forEach(TreeUtil::expandFully));
 
-        collapseAllButton.setGraphic(viewFor(COLLAPSE_16));
         collapseAllButton.setOnAction(
             event -> treeView.getRoot().getChildren().stream().forEach(TreeUtil::collapseFully));
 
-        quickFilterButton.setGraphic(viewFor(FUNNEL_16));
         quickFilterButton.setOnAction(event -> applyQuickFilter());
 
         treeView.setRoot(rootNode);

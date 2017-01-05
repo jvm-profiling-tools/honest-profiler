@@ -5,6 +5,8 @@
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -20,11 +22,25 @@
             <Button fx:id="freezeButton" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0">
                <tooltip>
                   <Tooltip fx:id="freezeTooltip" text="%button.freeze.unfrozen.tooltip" />
-               </tooltip></Button>
+               </tooltip>
+               <graphic>
+                  <ImageView disable="true" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../icon/icon16/clock.png" />
+                     </image>
+                  </ImageView>
+               </graphic></Button>
             <Button fx:id="compareButton" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0">
                <tooltip>
                   <Tooltip text="%button.compare.tooltip" />
-               </tooltip></Button>
+               </tooltip>
+               <graphic>
+                  <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../icon/icon16/balance-unbalance.png" />
+                     </image>
+                  </ImageView>
+               </graphic></Button>
             <Label fx:id="profileSampleCount" prefHeight="15.0" prefWidth="104.0">
                <tooltip>
                   <Tooltip text="%label.profileSampleCount.tooltip" />

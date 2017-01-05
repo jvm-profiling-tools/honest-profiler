@@ -30,7 +30,6 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_INPUT_QUICKFILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TABLE_FLAT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil.writeFlatProfileCsv;
-import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.EXPORT_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_ACTIVE_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor;
@@ -100,6 +99,7 @@ public class FlatViewController extends ProfileViewController<Profile>
     private ProfileFilter currentFilter;
     private StringFilter quickFilter;
 
+    @Override
     @FXML
     protected void initialize()
     {
@@ -108,7 +108,6 @@ public class FlatViewController extends ProfileViewController<Profile>
         currentFilter = new ProfileFilter();
         flatProfile = flatProfileView.getItems();
 
-        exportButton.setGraphic(viewFor(EXPORT_16));
         exportButton.setOnAction(event -> showExportDialog(
             exportButton.getScene().getWindow(),
             "flat_profile.csv",
@@ -156,11 +155,9 @@ public class FlatViewController extends ProfileViewController<Profile>
             refresh(getTarget());
         });
 
-        filterButton.setGraphic(viewFor(FUNNEL_16));
         filterButton
             .setOnAction(event -> filterSpec.set(filterDialogController.showAndWait().get()));
 
-        quickFilterButton.setGraphic(viewFor(FUNNEL_16));
         quickFilterButton.setOnAction(event -> applyQuickFilter());
     }
 

@@ -42,7 +42,6 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.StyleUtil.doubleDiffStyler;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.StyleUtil.intDiffStyler;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil.writeFlatProfileDiffCsv;
-import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.EXPORT_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_ACTIVE_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor;
@@ -153,14 +152,12 @@ public class FlatDiffViewController extends ProfileDiffViewController<Profile>
             .<FilterSpecification>createDialog(FILTER, "Specify Filters", false);
         filterDialogController.addAllowedFilterTypes(STRING);
 
-        exportButton.setGraphic(viewFor(EXPORT_16));
         exportButton.setOnAction(event -> showExportDialog(
             exportButton.getScene().getWindow(),
             "flat_diff_profile.csv",
             out -> writeFlatProfileDiffCsv(out, diff, ReportUtil.Mode.CSV)
         ));
 
-        quickFilterButton.setGraphic(viewFor(FUNNEL_16));
         quickFilterButton.setOnAction(event -> applyQuickFilter());
 
         filterSpec = new SimpleObjectProperty<>(null);
@@ -173,7 +170,6 @@ public class FlatDiffViewController extends ProfileDiffViewController<Profile>
             refresh();
         });
 
-        filterButton.setGraphic(viewFor(FUNNEL_16));
         filterButton.setOnAction(
             event -> filterSpec.set(filterDialogController.showAndWait().get()));
 

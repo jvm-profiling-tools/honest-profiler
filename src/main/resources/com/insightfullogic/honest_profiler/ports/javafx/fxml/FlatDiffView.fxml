@@ -6,6 +6,8 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
@@ -30,11 +32,25 @@
                   <Button fx:id="filterButton" alignment="CENTER" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0">
                      <tooltip>
                         <Tooltip text="%button.filter.tooltip" />
-                     </tooltip></Button>
+                     </tooltip>
+                     <graphic>
+                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../icon/icon16/funnel.png" />
+                           </image>
+                        </ImageView>
+                     </graphic></Button>
                   <Button fx:id="exportButton" alignment="CENTER" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" GridPane.columnIndex="1">
                      <tooltip>
                         <Tooltip text="%button.flat.export.tooltip" />
-                     </tooltip></Button>
+                     </tooltip>
+                     <graphic>
+                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../icon/icon16/document-import.png" />
+                           </image>
+                        </ImageView>
+                     </graphic></Button>
                   <HBox maxHeight="20.0" minHeight="20.0" prefHeight="20.0" GridPane.columnIndex="3">
                      <children>
                         <TextField fx:id="quickFilterText" maxHeight="20.0" maxWidth="1.7976931348623157E308" minHeight="20.0" prefHeight="20.0" promptText="%input.quickFilter.prompt" HBox.hgrow="ALWAYS">
@@ -44,7 +60,14 @@
                         <Button fx:id="quickFilterButton" alignment="CENTER" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" HBox.hgrow="NEVER">
                            <tooltip>
                               <Tooltip text="%button.quickFilter.tooltip" />
-                           </tooltip></Button>
+                           </tooltip>
+                           <graphic>
+                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../icon/icon16/funnel.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic></Button>
                      </children>
                   </HBox>
                </children>

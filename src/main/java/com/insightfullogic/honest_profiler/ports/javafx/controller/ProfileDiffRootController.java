@@ -110,7 +110,6 @@ public class ProfileDiffRootController extends AbstractController
     @Override
     protected void initializeInfoText()
     {
-        System.err.println("Initing text for DiffRoot");
         info(viewChoice, INFO_CHOICE_VIEWTYPE);
         info(baseSourceLabel, INFO_LABEL_BASESOURCE);
         info(newSourceLabel, INFO_LABEL_NEWSOURCE);
