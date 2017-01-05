@@ -21,33 +21,21 @@ package com.insightfullogic.honest_profiler.ports.javafx.controller;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.STRING;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.THREAD_SAMPLE;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.TIME_SHARE;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.FILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_COLLAPSEALLALL;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_EXPANDALL;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_FILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_QUICKFILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_INPUT_QUICKFILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TABLE_TREE;
-import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_16;
-import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_ACTIVE_16;
-import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderMethod;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderPercentage;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Function;
 
-import com.insightfullogic.honest_profiler.core.filters.Filter;
-import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
-import com.insightfullogic.honest_profiler.core.filters.StringFilter;
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
-import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController;
-import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
-import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterSpecification;
+import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType;
 import com.insightfullogic.honest_profiler.ports.javafx.model.task.CopyAndFilterProfile;
-import com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.ProfileNodeTreeTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.TreeViewCell;
@@ -55,9 +43,7 @@ import com.insightfullogic.honest_profiler.ports.javafx.view.tree.MethodNodeAdap
 import com.insightfullogic.honest_profiler.ports.javafx.view.tree.RootNodeAdapter;
 import com.insightfullogic.honest_profiler.ports.javafx.view.tree.ThreadNodeAdapter;
 
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -91,48 +77,25 @@ public class TreeViewController extends ProfileViewController<Profile>
     @FXML
     private TreeTableColumn<ProfileNode, String> selfColumn;
 
-    private FilterDialogController filterDialogController;
-    private ObjectProperty<FilterSpecification> filterSpec;
-
-    private ProfileFilter currentFilter;
-    private StringFilter quickFilter;
-
     private RootNodeAdapter rootNode;
 
     @Override
     @FXML
     protected void initialize()
     {
-        super.initialize(profileContext -> profileContext.profileProperty());
+        super.initialize(
+            profileContext -> profileContext.profileProperty(),
+            filterButton,
+            quickFilterButton,
+            quickFilterText);
 
-        currentFilter = new ProfileFilter();
-
-        filterSpec = new SimpleObjectProperty<>(new FilterSpecification());
-        filterSpec.addListener((property, oldValue, newValue) ->
-        {
-            filterButton.setGraphic(
-                newValue == null || !newValue.isFiltering() ? viewFor(FUNNEL_16)
-                    : viewFor(FUNNEL_ACTIVE_16));
-            currentFilter = new ProfileFilter(newValue.getFilters());
-            refresh(getTarget());
-        });
-
-        rootNode = new RootNodeAdapter(filterSpec);
-
-        filterDialogController = (FilterDialogController) DialogUtil
-            .<FilterSpecification>createDialog(FILTER, "Specify Filters", false);
-        filterDialogController.addAllowedFilterTypes(STRING, THREAD_SAMPLE, TIME_SHARE);
-
-        filterButton
-            .setOnAction(event -> filterSpec.set(filterDialogController.showAndWait().get()));
+        rootNode = new RootNodeAdapter(getFilterSpecification());
 
         expandAllButton.setOnAction(
             event -> treeView.getRoot().getChildren().stream().forEach(TreeUtil::expandFully));
 
         collapseAllButton.setOnAction(
             event -> treeView.getRoot().getChildren().stream().forEach(TreeUtil::collapseFully));
-
-        quickFilterButton.setOnAction(event -> applyQuickFilter());
 
         treeView.setRoot(rootNode);
 
@@ -143,15 +106,6 @@ public class TreeViewController extends ProfileViewController<Profile>
         methodColumn.setCellValueFactory(data -> buildProfileNodeCell(data.getValue()));
 
         percentColumn.setCellFactory(param -> new TreeViewCell());
-    }
-
-    // Instance Accessors
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext)
-    {
-        super.setApplicationContext(applicationContext);
-        filterDialogController.setApplicationContext(appCtx());
     }
 
     // Helper Methods
@@ -193,43 +147,7 @@ public class TreeViewController extends ProfileViewController<Profile>
                 ? renderPercentage(accessor.apply(data.getValue().getValue())) : "");
     }
 
-    private void applyQuickFilter()
-    {
-        String input = quickFilterText.getText();
-        quickFilter = input.isEmpty() ? null : new StringFilter(
-            Filter.Mode.CONTAINS,
-            frame -> frame.getClassName() + "." + frame.getMethodName(),
-            input);
-        refresh(getTarget());
-    }
-
-    @Override
-    protected void refresh(Profile profile)
-    {
-        if (profile == null)
-        {
-            return;
-        }
-
-        CopyAndFilterProfile task = new CopyAndFilterProfile(profile, getAdjustedProfileFilter());
-        task.setOnSucceeded(state -> rootNode.update(task.getValue().getTrees()));
-        appCtx().getExecutorService().execute(task);
-    }
-
-    private ProfileFilter getAdjustedProfileFilter()
-    {
-        if (quickFilter == null)
-        {
-            return currentFilter;
-        }
-        else
-        {
-            List<Filter> filters = new ArrayList<>();
-            filters.add(quickFilter);
-            filters.addAll(currentFilter.getFilters());
-            return new ProfileFilter(filters);
-        }
-    }
+    // AbstractController Implementation
 
     @Override
     protected void initializeInfoText()
@@ -240,5 +158,24 @@ public class TreeViewController extends ProfileViewController<Profile>
         info(quickFilterText, INFO_INPUT_QUICKFILTER);
         info(quickFilterButton, INFO_BUTTON_QUICKFILTER);
         info(treeView, INFO_TABLE_TREE);
+    }
+
+    // AbstractViewController Implementation
+
+    @Override
+    protected void refresh()
+    {
+        CopyAndFilterProfile task = new CopyAndFilterProfile(
+            getTarget(),
+            getAdjustedProfileFilter());
+        task.setOnSucceeded(state -> rootNode.update(task.getValue().getTrees()));
+        appCtx().getExecutorService().execute(task);
+    }
+
+    @Override
+    protected FilterType[] getAllowedFilterTypes()
+    {
+        return new FilterType[]
+        { STRING, THREAD_SAMPLE, TIME_SHARE };
     }
 }

@@ -1,7 +1,6 @@
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.STRING;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.FILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.addProfileNr;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.createColoredLabelContainer;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_PCT;
@@ -12,36 +11,23 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_INPUT_QUICKFILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TABLE_TREEDIFF;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil.expandPartial;
-import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_16;
-import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_ACTIVE_16;
-import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderPercentage;
 import static javafx.geometry.Pos.CENTER;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Function;
 
-import com.insightfullogic.honest_profiler.core.filters.Filter;
-import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
-import com.insightfullogic.honest_profiler.core.filters.StringFilter;
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
-import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController;
-import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.diff.MethodNodeDiff;
 import com.insightfullogic.honest_profiler.ports.javafx.model.diff.TreeNodeDiff;
 import com.insightfullogic.honest_profiler.ports.javafx.model.diff.TreeProfileDiff;
-import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterSpecification;
+import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType;
 import com.insightfullogic.honest_profiler.ports.javafx.model.task.CopyAndFilterProfile;
-import com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.TreeDiffViewCell;
 
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -101,58 +87,25 @@ public class TreeDiffViewController extends ProfileDiffViewController<Profile>
     @FXML
     private TreeTableColumn<TreeNodeDiff, String> parentCountDiff;
 
-    private FilterDialogController filterDialogController;
-    private ObjectProperty<FilterSpecification> filterSpec;
-
     private TreeProfileDiff diff;
-
-    private ProfileFilter currentFilter;
-    private StringFilter quickFilter;
 
     @Override
     @FXML
     protected void initialize()
     {
-        super.initialize(profileContext -> profileContext.profileProperty());
+        super.initialize(
+            profileContext -> profileContext.profileProperty(),
+            filterButton,
+            quickFilterButton,
+            quickFilterText);
 
         diff = new TreeProfileDiff();
-
-        currentFilter = new ProfileFilter();
-
-        filterDialogController = (FilterDialogController) DialogUtil
-            .<FilterSpecification>createDialog(FILTER, "Specify Filters", false);
-        filterDialogController.addAllowedFilterTypes(STRING);
-
-        filterButton
-            .setOnAction(event -> filterSpec.set(filterDialogController.showAndWait().get()));
 
         expandAllButton.setOnAction(
             event -> diffTree.getRoot().getChildren().stream().forEach(TreeUtil::expandFully));
 
         collapseAllButton.setOnAction(
             event -> diffTree.getRoot().getChildren().stream().forEach(TreeUtil::collapseFully));
-
-        quickFilterButton.setOnAction(event -> applyQuickFilter());
-
-        filterSpec = new SimpleObjectProperty<>(null);
-        filterSpec.addListener((property, oldValue, newValue) ->
-        {
-            filterButton.setGraphic(
-                newValue == null || !newValue.isFiltering() ? viewFor(FUNNEL_16)
-                    : viewFor(FUNNEL_ACTIVE_16));
-            currentFilter = new ProfileFilter(newValue.getFilters());
-            refresh();
-        });
-
-        filterButton.setOnAction(
-            event -> filterSpec.set(filterDialogController.showAndWait().get()));
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext)
-    {
-        super.setApplicationContext(applicationContext);
-        filterDialogController.setApplicationContext(appCtx());
     }
 
     @Override
@@ -341,31 +294,6 @@ public class TreeDiffViewController extends ProfileDiffViewController<Profile>
         return width;
     }
 
-    private void applyQuickFilter()
-    {
-        String input = quickFilterText.getText();
-        quickFilter = input.isEmpty() ? null : new StringFilter(
-            Filter.Mode.CONTAINS,
-            frame -> frame.getClassName() + "." + frame.getMethodName(),
-            input);
-        refresh();
-    }
-
-    private ProfileFilter getAdjustedProfileFilter()
-    {
-        if (quickFilter == null)
-        {
-            return currentFilter;
-        }
-        else
-        {
-            List<Filter> filters = new ArrayList<>();
-            filters.add(quickFilter);
-            filters.addAll(currentFilter.getFilters());
-            return new ProfileFilter(filters);
-        }
-    }
-
     private StringProperty wrapDouble(CellDataFeatures<TreeNodeDiff, String> data,
         Function<TreeNodeDiff, Double> accessor)
     {
@@ -384,6 +312,8 @@ public class TreeDiffViewController extends ProfileDiffViewController<Profile>
                     ? Integer.toString(accessor.apply(data.getValue().getValue())) : "");
     }
 
+    // AbstractController Implementation
+
     @Override
     protected void initializeInfoText()
     {
@@ -394,6 +324,17 @@ public class TreeDiffViewController extends ProfileDiffViewController<Profile>
         info(quickFilterButton, INFO_BUTTON_QUICKFILTER);
         info(diffTree, INFO_TABLE_TREEDIFF);
     }
+
+    // AbstractViewController Implementation
+
+    @Override
+    protected FilterType[] getAllowedFilterTypes()
+    {
+        return new FilterType[]
+        { STRING };
+    }
+
+    // Helper Classes
 
     private class DiffTreeItem extends TreeItem<TreeNodeDiff>
     {

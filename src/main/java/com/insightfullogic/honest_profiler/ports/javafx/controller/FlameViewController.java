@@ -19,6 +19,7 @@
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
 import com.insightfullogic.honest_profiler.core.profiles.FlameGraph;
+import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType;
 import com.insightfullogic.honest_profiler.ports.javafx.view.FlameGraphCanvas;
 
 import javafx.fxml.FXML;
@@ -31,10 +32,11 @@ public class FlameViewController extends ProfileViewController<FlameGraph>
 
     private FlameGraphCanvas flameView;
 
+    @Override
     @FXML
     protected void initialize()
     {
-        super.initialize(profileContext -> profileContext.flameGraphProperty());
+        super.initialize(profileContext -> profileContext.flameGraphProperty(), null, null, null);
 
         flameView = new FlameGraphCanvas();
         rootContainer.getChildren().add(flameView);
@@ -63,20 +65,25 @@ public class FlameViewController extends ProfileViewController<FlameGraph>
         }
     }
 
-    @Override
-    protected void refresh(FlameGraph flameGraph)
-    {
-        if (flameGraph == null)
-        {
-            return;
-        }
-
-        flameView.accept(flameGraph);
-    }
+    // AbstractController Implementation
 
     @Override
     protected void initializeInfoText()
     {
         // NOOP
+    }
+
+    // AbstractViewController Implementation
+
+    @Override
+    protected void refresh()
+    {
+        flameView.accept(getTarget());
+    }
+
+    @Override
+    protected FilterType[] getAllowedFilterTypes()
+    {
+        return null;
     }
 }

@@ -30,8 +30,7 @@ public final class DialogUtil
 
     private static File CACHED_PARENT_DIR;
 
-    public static <T> DialogController<T> createDialog(String fxml, String title,
-        boolean resetOnShow)
+    public static <T> DialogController<T> newDialog(String fxml, String title, boolean resetOnShow)
     {
         try
         {

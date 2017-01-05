@@ -68,6 +68,8 @@ public final class ResourceUtil
     public static final String COLUMN_PARENT_CNT_DIFF = "column.parentSampleCountDiff";
     public static final String COLUMN_PROFILE_CNT_DIFF = "column.profileSampleCountDiff";
 
+    public static final String TITLE_DIALOG_SPECIFYFILTERS = "dialog.specifyFilters.title";
+
     private static final Locale DEFAULT_LOCALE = ENGLISH;
     private static final String BUNDLE_BASE = "com.insightfullogic.honest_profiler.ports.javafx.i18n.HPUIBundle";
     private static final ResourceBundle DEFAULT_BUNDLE = getBundle(BUNDLE_BASE, DEFAULT_LOCALE);

@@ -19,7 +19,6 @@
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.STRING;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.FILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.showExportDialog;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.addProfileNr;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.createColoredLabelContainer;
@@ -42,36 +41,23 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.StyleUtil.doubleDiffStyler;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.StyleUtil.intDiffStyler;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil.writeFlatProfileDiffCsv;
-import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_16;
-import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_ACTIVE_16;
-import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor;
 import static javafx.geometry.Pos.CENTER;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Function;
 
-import com.insightfullogic.honest_profiler.core.filters.Filter;
-import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
-import com.insightfullogic.honest_profiler.core.filters.StringFilter;
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
-import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController;
-import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.diff.FlatEntryDiff;
 import com.insightfullogic.honest_profiler.ports.javafx.model.diff.FlatProfileDiff;
-import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterSpecification;
+import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType;
 import com.insightfullogic.honest_profiler.ports.javafx.model.task.CopyAndFilterProfile;
-import com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.CountTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.PercentageTableCell;
 
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -130,27 +116,19 @@ public class FlatDiffViewController extends ProfileDiffViewController<Profile>
     @FXML
     private TableColumn<FlatEntryDiff, Number> traceCountDiff;
 
-    private FilterDialogController filterDialogController;
-    private ObjectProperty<FilterSpecification> filterSpec;
-
     private FlatProfileDiff diff;
-
-    private ProfileFilter currentFilter;
-    private StringFilter quickFilter;
 
     @Override
     @FXML
     protected void initialize()
     {
-        super.initialize(profileContext -> profileContext.profileProperty());
+        super.initialize(
+            profileContext -> profileContext.profileProperty(),
+            filterButton,
+            quickFilterButton,
+            quickFilterText);
 
         diff = new FlatProfileDiff(diffTable.getItems());
-
-        currentFilter = new ProfileFilter();
-
-        filterDialogController = (FilterDialogController) DialogUtil
-            .<FilterSpecification>createDialog(FILTER, "Specify Filters", false);
-        filterDialogController.addAllowedFilterTypes(STRING);
 
         exportButton.setOnAction(event -> showExportDialog(
             exportButton.getScene().getWindow(),
@@ -158,32 +136,10 @@ public class FlatDiffViewController extends ProfileDiffViewController<Profile>
             out -> writeFlatProfileDiffCsv(out, diff, ReportUtil.Mode.CSV)
         ));
 
-        quickFilterButton.setOnAction(event -> applyQuickFilter());
-
-        filterSpec = new SimpleObjectProperty<>(null);
-        filterSpec.addListener((property, oldValue, newValue) ->
-        {
-            filterButton.setGraphic(
-                newValue == null || !newValue.isFiltering() ? viewFor(FUNNEL_16)
-                    : viewFor(FUNNEL_ACTIVE_16));
-            currentFilter = new ProfileFilter(newValue.getFilters());
-            refresh();
-        });
-
-        filterButton.setOnAction(
-            event -> filterSpec.set(filterDialogController.showAndWait().get()));
-
         method
             .setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getFullName()));
         method.setCellFactory(col -> new MethodNameTableCell<FlatEntryDiff>());
 
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext)
-    {
-        super.setApplicationContext(applicationContext);
-        filterDialogController.setApplicationContext(appCtx());
     }
 
     @Override
@@ -371,30 +327,7 @@ public class FlatDiffViewController extends ProfileDiffViewController<Profile>
         return width;
     }
 
-    private void applyQuickFilter()
-    {
-        String input = quickFilterText.getText();
-        quickFilter = input.isEmpty() ? null : new StringFilter(
-            Filter.Mode.CONTAINS,
-            frame -> frame.getClassName() + "." + frame.getMethodName(),
-            input);
-        refresh();
-    }
-
-    private ProfileFilter getAdjustedProfileFilter()
-    {
-        if (quickFilter == null)
-        {
-            return currentFilter;
-        }
-        else
-        {
-            List<Filter> filters = new ArrayList<>();
-            filters.add(quickFilter);
-            filters.addAll(currentFilter.getFilters());
-            return new ProfileFilter(filters);
-        }
-    }
+    // AbstractController Implementation
 
     @Override
     protected void initializeInfoText()
@@ -404,5 +337,14 @@ public class FlatDiffViewController extends ProfileDiffViewController<Profile>
         info(quickFilterText, INFO_INPUT_QUICKFILTER);
         info(quickFilterButton, INFO_BUTTON_QUICKFILTER);
         info(diffTable, INFO_TABLE_FLATDIFF);
+    }
+
+    // AbstractViewController Implementation
+
+    @Override
+    protected FilterType[] getAllowedFilterTypes()
+    {
+        return new FilterType[]
+        { STRING };
     }
 }

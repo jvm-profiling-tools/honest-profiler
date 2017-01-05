@@ -88,7 +88,7 @@ public class FilterDialogController extends AbstractDialogController<FilterSpeci
                 data.getValue() == null ? null : data.getValue().getValue()));
 
         filterCreationController = (FilterCreationDialogController) DialogUtil
-            .<FilterItem>createDialog(FILTER_CREATION, "Specify Filter", true);
+            .<FilterItem>newDialog(FILTER_CREATION, "Specify Filter", true);
 
         // The NULL item is always in the last row, and is used to figure out
         // where to put the "Add

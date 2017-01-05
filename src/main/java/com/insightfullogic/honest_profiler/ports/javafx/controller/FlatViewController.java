@@ -21,7 +21,6 @@ package com.insightfullogic.honest_profiler.ports.javafx.controller;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext.ProfileMode.LIVE;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.STRING;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.TIME_SHARE;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.FILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.showExportDialog;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.refreshTable;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_EXPORT;
@@ -30,32 +29,18 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_INPUT_QUICKFILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TABLE_FLAT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil.writeFlatProfileCsv;
-import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_16;
-import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_ACTIVE_16;
-import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
-import com.insightfullogic.honest_profiler.core.filters.Filter;
-import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
-import com.insightfullogic.honest_profiler.core.filters.StringFilter;
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
-import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController;
-import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
-import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterSpecification;
+import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType;
 import com.insightfullogic.honest_profiler.ports.javafx.model.task.CopyAndFilterProfile;
-import com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.Rendering;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.GraphicalShareTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.PercentageTableCell;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -93,19 +78,16 @@ public class FlatViewController extends ProfileViewController<Profile>
 
     private ObservableList<FlatProfileEntry> flatProfile;
 
-    private FilterDialogController filterDialogController;
-    private ObjectProperty<FilterSpecification> filterSpec;
-
-    private ProfileFilter currentFilter;
-    private StringFilter quickFilter;
-
     @Override
     @FXML
     protected void initialize()
     {
-        super.initialize(profileContext -> profileContext.profileProperty());
+        super.initialize(
+            profileContext -> profileContext.profileProperty(),
+            filterButton,
+            quickFilterButton,
+            quickFilterText);
 
-        currentFilter = new ProfileFilter();
         flatProfile = flatProfileView.getItems();
 
         exportButton.setOnAction(event -> showExportDialog(
@@ -114,7 +96,6 @@ public class FlatViewController extends ProfileViewController<Profile>
             out -> writeFlatProfileCsv(out, flatProfile, ReportUtil.Mode.CSV)
         ));
 
-        initializeFilter();
         initializeTable();
     }
 
@@ -128,48 +109,7 @@ public class FlatViewController extends ProfileViewController<Profile>
         super.setProfileContext(profileContext);
     }
 
-    // Instance Accessors
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext)
-    {
-        super.setApplicationContext(applicationContext);
-        filterDialogController.setApplicationContext(appCtx());
-    }
-
     // Initialization Helper Methods
-
-    private void initializeFilter()
-    {
-        filterDialogController = (FilterDialogController) DialogUtil
-            .<FilterSpecification>createDialog(FILTER, "Specify Filters", false);
-        filterDialogController.addAllowedFilterTypes(STRING, TIME_SHARE);
-
-        filterSpec = new SimpleObjectProperty<>(null);
-        filterSpec.addListener((property, oldValue, newValue) ->
-        {
-            filterButton.setGraphic(
-                newValue == null || !newValue.isFiltering() ? viewFor(FUNNEL_16)
-                    : viewFor(FUNNEL_ACTIVE_16));
-            currentFilter = new ProfileFilter(newValue.getFilters());
-            refresh(getTarget());
-        });
-
-        filterButton
-            .setOnAction(event -> filterSpec.set(filterDialogController.showAndWait().get()));
-
-        quickFilterButton.setOnAction(event -> applyQuickFilter());
-    }
-
-    private void applyQuickFilter()
-    {
-        String input = quickFilterText.getText();
-        quickFilter = input.isEmpty() ? null : new StringFilter(
-            Filter.Mode.CONTAINS,
-            frame -> frame.getClassName() + "." + frame.getMethodName(),
-            input);
-        refresh(getTarget());
-    }
 
     private void initializeTable()
     {
@@ -194,40 +134,7 @@ public class FlatViewController extends ProfileViewController<Profile>
         column.setCellFactory(col -> new PercentageTableCell<FlatProfileEntry>());
     }
 
-    // Refresh Methods
-
-    @Override
-    protected void refresh(Profile profile)
-    {
-        if (profile == null)
-        {
-            return;
-        }
-
-        CopyAndFilterProfile task = new CopyAndFilterProfile(profile, getAdjustedProfileFilter());
-        task.setOnSucceeded(state ->
-        {
-            flatProfile.clear();
-            task.getValue().flatByMethodProfile().forEach(flatProfile::add);
-            refreshTable(flatProfileView);
-        });
-        appCtx().getExecutorService().execute(task);
-    }
-
-    private ProfileFilter getAdjustedProfileFilter()
-    {
-        if (quickFilter == null)
-        {
-            return currentFilter;
-        }
-        else
-        {
-            List<Filter> filters = new ArrayList<>();
-            filters.add(quickFilter);
-            filters.addAll(currentFilter.getFilters());
-            return new ProfileFilter(filters);
-        }
-    }
+    // AbstractController Implementation
 
     @Override
     protected void initializeInfoText()
@@ -237,5 +144,29 @@ public class FlatViewController extends ProfileViewController<Profile>
         info(quickFilterText, INFO_INPUT_QUICKFILTER);
         info(quickFilterButton, INFO_BUTTON_QUICKFILTER);
         info(flatProfileView, INFO_TABLE_FLAT);
+    }
+
+    // AbstractViewController Implementation
+
+    @Override
+    protected void refresh()
+    {
+        CopyAndFilterProfile task = new CopyAndFilterProfile(
+            getTarget(),
+            getAdjustedProfileFilter());
+        task.setOnSucceeded(state ->
+        {
+            flatProfile.clear();
+            task.getValue().flatByMethodProfile().forEach(flatProfile::add);
+            refreshTable(flatProfileView);
+        });
+        appCtx().getExecutorService().execute(task);
+    }
+
+    @Override
+    protected FilterType[] getAllowedFilterTypes()
+    {
+        return new FilterType[]
+        { STRING, TIME_SHARE };
     }
 }

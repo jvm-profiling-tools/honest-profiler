@@ -7,8 +7,10 @@ import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 
-public abstract class ProfileDiffViewController<T> extends AbstractController
+public abstract class ProfileDiffViewController<T> extends AbstractViewController
 {
     private ProfileContext baseContext;
     private ProfileContext newContext;
@@ -17,9 +19,10 @@ public abstract class ProfileDiffViewController<T> extends AbstractController
     private ObjectProperty<T> newTarget;
     private Function<ProfileContext, ObservableValue<T>> targetExtractor;
 
-    protected void initialize(Function<ProfileContext, ObservableValue<T>> targetExtractor)
+    protected void initialize(Function<ProfileContext, ObservableValue<T>> targetExtractor,
+        Button filterButton, Button quickFilterButton, TextField quickFilterText)
     {
-        super.initialize();
+        super.initialize(filterButton, quickFilterButton, quickFilterText);
 
         this.targetExtractor = targetExtractor;
         baseTarget = new SimpleObjectProperty<>();
@@ -67,6 +70,4 @@ public abstract class ProfileDiffViewController<T> extends AbstractController
         baseTarget.unbind();
         newTarget.unbind();
     }
-
-    protected abstract void refresh();
 }
