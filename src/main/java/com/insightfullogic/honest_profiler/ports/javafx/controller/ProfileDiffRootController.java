@@ -107,11 +107,19 @@ public class ProfileDiffRootController extends AbstractController
         }
     }
 
+    // AbstractController Implementation
+
     @Override
     protected void initializeInfoText()
     {
         info(viewChoice, INFO_CHOICE_VIEWTYPE);
         info(baseSourceLabel, INFO_LABEL_BASESOURCE);
         info(newSourceLabel, INFO_LABEL_NEWSOURCE);
+    }
+
+    @Override
+    protected void initializeHandlers()
+    {
+        // NOOP
     }
 }

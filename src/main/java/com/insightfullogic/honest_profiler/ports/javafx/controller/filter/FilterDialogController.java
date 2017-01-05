@@ -147,12 +147,21 @@ public class FilterDialogController extends AbstractDialogController<FilterSpeci
         return button;
     }
 
+    // AbstractController Implementation
+
     @Override
     protected void initializeInfoText()
     {
         info(hideErrorThreads, INFO_CHECK_HIDEERRORTHREADS);
         info(filters, INFO_LIST_FILTERS);
     }
+
+    @Override
+    protected void initializeHandlers()
+    {
+    }
+
+    // Helper Classes
 
     private class ActionCell<T> extends TableCell<FilterItem, FilterItem>
     {

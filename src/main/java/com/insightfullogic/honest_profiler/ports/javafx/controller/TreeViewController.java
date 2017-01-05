@@ -27,6 +27,7 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_QUICKFILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_INPUT_QUICKFILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TABLE_TREE;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil.expandFully;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderMethod;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderPercentage;
 
@@ -91,12 +92,6 @@ public class TreeViewController extends ProfileViewController<Profile>
 
         rootNode = new RootNodeAdapter(getFilterSpecification());
 
-        expandAllButton.setOnAction(
-            event -> treeView.getRoot().getChildren().stream().forEach(TreeUtil::expandFully));
-
-        collapseAllButton.setOnAction(
-            event -> treeView.getRoot().getChildren().stream().forEach(TreeUtil::collapseFully));
-
         treeView.setRoot(rootNode);
 
         totalColumn.setCellValueFactory(data -> wrapDouble(data, ProfileNode::getTotalTimeShare));
@@ -158,6 +153,15 @@ public class TreeViewController extends ProfileViewController<Profile>
         info(quickFilterText, INFO_INPUT_QUICKFILTER);
         info(quickFilterButton, INFO_BUTTON_QUICKFILTER);
         info(treeView, INFO_TABLE_TREE);
+    }
+
+    @Override
+    protected void initializeHandlers()
+    {
+        expandAllButton.setOnAction(event -> expandFully(treeView.getRoot()));
+
+        collapseAllButton.setOnAction(
+            event -> treeView.getRoot().getChildren().stream().forEach(TreeUtil::collapseFully));
     }
 
     // AbstractViewController Implementation

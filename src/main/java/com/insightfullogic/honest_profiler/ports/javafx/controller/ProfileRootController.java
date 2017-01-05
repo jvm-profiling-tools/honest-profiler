@@ -21,6 +21,7 @@ package com.insightfullogic.honest_profiler.ports.javafx.controller;
 import static com.insightfullogic.honest_profiler.ports.javafx.ViewType.FLAT;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext.ProfileMode.LIVE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ConversionUtil.getStringConverterForType;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.CONTENT_LABEL_PROFILESAMPLECOUNT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_COMPARE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_FREEZE_FROZEN;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_FREEZE_UNFROZEN;
@@ -37,7 +38,7 @@ import com.insightfullogic.honest_profiler.ports.javafx.ViewType;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 
-import javafx.event.EventHandler;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -77,25 +78,6 @@ public class ProfileRootController extends AbstractController
     public void initialize()
     {
         super.initialize();
-
-        initializeComparison();
-
-        freezeButton.setOnAction(event ->
-        {
-            if (profileContext.isFrozen())
-            {
-                profileContext.setFrozen(false);
-                freezeButton.setGraphic(viewFor(FREEZE_16));
-                freezeTooltip.setText(appCtx().textFor(TOOLTIP_BUTTON_FREEZE_UNFROZEN));
-                info(freezeButton, INFO_BUTTON_FREEZE_UNFROZEN);
-            }
-            else
-            {
-                profileContext.setFrozen(true);
-                freezeTooltip.setText(appCtx().textFor(TOOLTIP_BUTTON_FREEZE_FROZEN));
-                info(freezeButton, INFO_BUTTON_FREEZE_FROZEN);
-            }
-        });
     }
 
     // Instance Accessors
@@ -118,12 +100,16 @@ public class ProfileRootController extends AbstractController
         flameController.setProfileContext(profileContext);
 
         profileContext.profileProperty().addListener(
-            (property, oldValue, newValue) -> profileSampleCount
-                .setText(newValue == null ? null : newValue.getTraceCount() + " samples"));
+            (property, oldValue, newValue) -> profileSampleCount.setText(
+                newValue == null ? null
+                    : getText(CONTENT_LABEL_PROFILESAMPLECOUNT, newValue.getTraceCount())));
 
         if (profileContext.getProfile() != null)
         {
-            profileSampleCount.setText(profileContext.getProfile().getTraceCount() + " samples");
+            profileSampleCount.setText(
+                getText(
+                    CONTENT_LABEL_PROFILESAMPLECOUNT,
+                    profileContext.getProfile().getTraceCount()));
         }
 
         viewChoice.setConverter(getStringConverterForType(ViewType.class));
@@ -135,27 +121,6 @@ public class ProfileRootController extends AbstractController
         freezeButton.setDisable(profileContext.getMode() != LIVE);
     }
 
-    private void initializeComparison()
-    {
-        compareButton.setOnMousePressed(new EventHandler<MouseEvent>()
-        {
-            @Override
-            public void handle(MouseEvent event)
-            {
-                ContextMenu ctxMenu = compareButton.getContextMenu();
-                if (ctxMenu == null)
-                {
-                    ctxMenu = new ContextMenu();
-                    compareButton.setContextMenu(ctxMenu);
-                }
-                refreshContextMenu(compareButton.getContextMenu());
-                compareButton.getContextMenu().show(
-                    compareButton,
-                    event.getScreenX(),
-                    event.getScreenY());
-            }
-        });
-    }
     // View Switch
 
     private void show(ViewType viewType)
@@ -189,26 +154,7 @@ public class ProfileRootController extends AbstractController
         }
     }
 
-    // Compare Helper Methods
-
-    private void refreshContextMenu(ContextMenu menu)
-    {
-        menu.getItems().clear();
-
-        List<String> profileNames = appCtx().getOpenProfileNames();
-
-        profileNames.forEach(name ->
-        {
-            if (name.equals(profileContext.getName()))
-            {
-                return;
-            }
-
-            MenuItem item = new MenuItem(name);
-            item.setOnAction(event -> appCtx().createDiffView(profileContext.getName(), name));
-            menu.getItems().add(item);
-        });
-    }
+    // AbstractController Implementation
 
     @Override
     protected void initializeInfoText()
@@ -217,5 +163,69 @@ public class ProfileRootController extends AbstractController
         info(compareButton, INFO_BUTTON_COMPARE);
         info(freezeButton, INFO_BUTTON_FREEZE_UNFROZEN);
         info(profileSampleCount, INFO_LABEL_PROFILESAMPLECOUNT);
+    }
+
+    @Override
+    protected void initializeHandlers()
+    {
+        compareButton.setOnMousePressed(this::showCompareMenu);
+        freezeButton.setOnAction(this::handleFreezeAction);
+    }
+
+    // Handler-related Helper Methods
+
+    private void showCompareMenu(MouseEvent event)
+    {
+        ContextMenu ctxMenu = compareButton.getContextMenu();
+        if (ctxMenu == null)
+        {
+            ctxMenu = new ContextMenu();
+            compareButton.setContextMenu(ctxMenu);
+        }
+        refreshContextMenu(compareButton.getContextMenu());
+        compareButton.getContextMenu().show(compareButton, event.getScreenX(), event.getScreenY());
+    }
+
+    private void refreshContextMenu(ContextMenu menu)
+    {
+        menu.getItems().clear();
+        List<String> profileNames = appCtx().getOpenProfileNames();
+
+        profileNames.forEach(name ->
+        {
+            if (!name.equals(profileContext.getName()))
+            {
+                MenuItem item = new MenuItem(name);
+                item.setOnAction(event -> appCtx().createDiffView(profileContext.getName(), name));
+                menu.getItems().add(item);
+            }
+        });
+    }
+
+    private void handleFreezeAction(ActionEvent event)
+    {
+        if (profileContext.isFrozen())
+        {
+            unfreeze();
+        }
+        else
+        {
+            freeze();
+        }
+    }
+
+    private void freeze()
+    {
+        profileContext.setFrozen(true);
+        freezeTooltip.setText(appCtx().textFor(TOOLTIP_BUTTON_FREEZE_FROZEN));
+        info(freezeButton, INFO_BUTTON_FREEZE_FROZEN);
+    }
+
+    private void unfreeze()
+    {
+        profileContext.setFrozen(false);
+        freezeButton.setGraphic(viewFor(FREEZE_16));
+        freezeTooltip.setText(appCtx().textFor(TOOLTIP_BUTTON_FREEZE_UNFROZEN));
+        info(freezeButton, INFO_BUTTON_FREEZE_UNFROZEN);
     }
 }

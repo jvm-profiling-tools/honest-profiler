@@ -74,11 +74,6 @@ public class RootController extends AbstractController implements MachineListene
         setApplicationContext(new ApplicationContext(this));
         info.textProperty().bind(appCtx().getInfo());
 
-        openLogItem.setOnAction(event -> doWithFile(file -> createNewProfile(file, false)));
-        openLiveItem.setOnAction(event -> doWithFile(file -> createNewProfile(file, true)));
-
-        quitItem.setOnAction(event -> exit());
-
         machineSource = new LocalMachineSource(getLogger(getClass()), this);
         machineSource.start();
     }
@@ -266,9 +261,19 @@ public class RootController extends AbstractController implements MachineListene
         profileTabs.setDisable(disable);
     }
 
+    // AbstractController Implementation
+
     @Override
     protected void initializeInfoText()
     {
         info(menuBar, INFO_MENU_ROOT);
+    }
+
+    @Override
+    protected void initializeHandlers()
+    {
+        openLogItem.setOnAction(event -> doWithFile(file -> createNewProfile(file, false)));
+        openLiveItem.setOnAction(event -> doWithFile(file -> createNewProfile(file, true)));
+        quitItem.setOnAction(event -> exit());
     }
 }

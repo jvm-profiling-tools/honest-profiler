@@ -1,5 +1,6 @@
 package com.insightfullogic.honest_profiler.ports.javafx.model;
 
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.format;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.getDefaultBundle;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.getDefaultLocale;
 import static java.util.concurrent.Executors.newCachedThreadPool;
@@ -13,7 +14,6 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 
 import com.insightfullogic.honest_profiler.ports.javafx.controller.RootController;
-import com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableStringValue;
@@ -43,6 +43,11 @@ public final class ApplicationContext
         return currentBundle.getString(key);
     }
 
+    public String textFor(String key, Object... args)
+    {
+        return format(currentLocale, currentBundle, key, args);
+    }
+
     public void setInfoFromBundle(String key)
     {
         info.set(textFor(key));
@@ -50,7 +55,7 @@ public final class ApplicationContext
 
     public void setInfoFromBundle(String key, Object... args)
     {
-        info.set(ResourceUtil.format(currentLocale, currentBundle, key, args));
+        info.set(textFor(key, args));
     }
 
     public void setInfo(String message)

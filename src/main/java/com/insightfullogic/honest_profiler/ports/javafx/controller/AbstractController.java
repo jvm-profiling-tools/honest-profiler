@@ -24,6 +24,11 @@ public abstract class AbstractController
         return applicationContext.textFor(key);
     }
 
+    protected final String getText(String key, Object... args)
+    {
+        return applicationContext.textFor(key, args);
+    }
+
     protected final void info(String message)
     {
         applicationContext.setInfo(message);
@@ -69,7 +74,10 @@ public abstract class AbstractController
     protected void initialize()
     {
         initializeInfoText();
+        initializeHandlers();
     }
 
     protected abstract void initializeInfoText();
+
+    protected abstract void initializeHandlers();
 }

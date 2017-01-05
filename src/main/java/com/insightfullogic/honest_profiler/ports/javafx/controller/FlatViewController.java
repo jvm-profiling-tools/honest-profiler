@@ -90,12 +90,6 @@ public class FlatViewController extends ProfileViewController<Profile>
 
         flatProfile = flatProfileView.getItems();
 
-        exportButton.setOnAction(event -> showExportDialog(
-            exportButton.getScene().getWindow(),
-            "flat_profile.csv",
-            out -> writeFlatProfileCsv(out, flatProfile, ReportUtil.Mode.CSV)
-        ));
-
         initializeTable();
     }
 
@@ -144,6 +138,16 @@ public class FlatViewController extends ProfileViewController<Profile>
         info(quickFilterText, INFO_INPUT_QUICKFILTER);
         info(quickFilterButton, INFO_BUTTON_QUICKFILTER);
         info(flatProfileView, INFO_TABLE_FLAT);
+    }
+
+    @Override
+    protected void initializeHandlers()
+    {
+        exportButton.setOnAction(event -> showExportDialog(
+            exportButton.getScene().getWindow(),
+            "flat_profile.csv",
+            out -> writeFlatProfileCsv(out, flatProfile, ReportUtil.Mode.CSV)
+        ));
     }
 
     // AbstractViewController Implementation

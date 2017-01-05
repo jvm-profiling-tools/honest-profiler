@@ -129,23 +129,16 @@ public class FlatDiffViewController extends ProfileDiffViewController<Profile>
             quickFilterText);
 
         diff = new FlatProfileDiff(diffTable.getItems());
-
-        exportButton.setOnAction(event -> showExportDialog(
-            exportButton.getScene().getWindow(),
-            "flat_diff_profile.csv",
-            out -> writeFlatProfileDiffCsv(out, diff, ReportUtil.Mode.CSV)
-        ));
-
-        method
-            .setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getFullName()));
-        method.setCellFactory(col -> new MethodNameTableCell<FlatEntryDiff>());
-
     }
 
     @Override
     public void setProfileContexts(ProfileContext baseContext, ProfileContext newContext)
     {
         super.setProfileContexts(baseContext, newContext);
+
+        method
+            .setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getFullName()));
+        method.setCellFactory(col -> new MethodNameTableCell<FlatEntryDiff>());
 
         configurePercentColumn(
             baseSelfTime,
@@ -337,6 +330,16 @@ public class FlatDiffViewController extends ProfileDiffViewController<Profile>
         info(quickFilterText, INFO_INPUT_QUICKFILTER);
         info(quickFilterButton, INFO_BUTTON_QUICKFILTER);
         info(diffTable, INFO_TABLE_FLATDIFF);
+    }
+
+    @Override
+    protected void initializeHandlers()
+    {
+        exportButton.setOnAction(event -> showExportDialog(
+            exportButton.getScene().getWindow(),
+            "flat_diff_profile.csv",
+            out -> writeFlatProfileDiffCsv(out, diff, ReportUtil.Mode.CSV)
+            ));
     }
 
     // AbstractViewController Implementation

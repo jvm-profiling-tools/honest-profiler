@@ -30,7 +30,7 @@ public class FlameViewController extends ProfileViewController<FlameGraph>
     @FXML
     private VBox rootContainer;
 
-    private FlameGraphCanvas flameView;
+    private FlameGraphCanvas flameView = new FlameGraphCanvas();
 
     @Override
     @FXML
@@ -38,7 +38,6 @@ public class FlameViewController extends ProfileViewController<FlameGraph>
     {
         super.initialize(profileContext -> profileContext.flameGraphProperty(), null, null, null);
 
-        flameView = new FlameGraphCanvas();
         rootContainer.getChildren().add(flameView);
     }
 
@@ -69,6 +68,12 @@ public class FlameViewController extends ProfileViewController<FlameGraph>
 
     @Override
     protected void initializeInfoText()
+    {
+        // NOOP
+    }
+
+    @Override
+    protected void initializeHandlers()
     {
         // NOOP
     }

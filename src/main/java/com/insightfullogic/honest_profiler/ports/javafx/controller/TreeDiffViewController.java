@@ -10,6 +10,7 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_QUICKFILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_INPUT_QUICKFILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TABLE_TREEDIFF;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil.expandFully;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil.expandPartial;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderPercentage;
 import static javafx.geometry.Pos.CENTER;
@@ -100,12 +101,6 @@ public class TreeDiffViewController extends ProfileDiffViewController<Profile>
             quickFilterText);
 
         diff = new TreeProfileDiff();
-
-        expandAllButton.setOnAction(
-            event -> diffTree.getRoot().getChildren().stream().forEach(TreeUtil::expandFully));
-
-        collapseAllButton.setOnAction(
-            event -> diffTree.getRoot().getChildren().stream().forEach(TreeUtil::collapseFully));
     }
 
     @Override
@@ -323,6 +318,15 @@ public class TreeDiffViewController extends ProfileDiffViewController<Profile>
         info(quickFilterText, INFO_INPUT_QUICKFILTER);
         info(quickFilterButton, INFO_BUTTON_QUICKFILTER);
         info(diffTree, INFO_TABLE_TREEDIFF);
+    }
+
+    @Override
+    protected void initializeHandlers()
+    {
+
+        expandAllButton.setOnAction(event -> expandFully(diffTree.getRoot()));
+        collapseAllButton.setOnAction(
+            event -> diffTree.getRoot().getChildren().stream().forEach(TreeUtil::collapseFully));
     }
 
     // AbstractViewController Implementation

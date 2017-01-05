@@ -68,10 +68,6 @@ public class FilterCreationDialogController extends AbstractDialogController<Fil
         type.setConverter(getStringConverterForType(FilterType.class));
         target.setConverter(getStringConverterForType(TargetType.class));
         comparison.setConverter(getStringConverterForType(ComparisonType.class));
-
-        // Choice Interaction
-        type.getSelectionModel().selectedItemProperty()
-            .addListener((property, oldValue, newValue) -> switchFilterType(newValue));
     }
 
     public void addAllowedFilterTypes(FilterType... filterType)
@@ -130,6 +126,8 @@ public class FilterCreationDialogController extends AbstractDialogController<Fil
         currentListenerHandle = validatorMap.get(filterType).attach(value.textProperty(), value);
     }
 
+    // AbstractController Implementation
+
     @Override
     protected void initializeInfoText()
     {
@@ -137,5 +135,12 @@ public class FilterCreationDialogController extends AbstractDialogController<Fil
         info(target, INFO_CHOICE_FILTERTARGET);
         info(comparison, INFO_CHOICE_COMPARISONOPERATOR);
         info(value, INFO_INPUT_FILTERVALUE);
+    }
+
+    @Override
+    protected void initializeHandlers()
+    {
+        type.getSelectionModel().selectedItemProperty()
+            .addListener((property, oldValue, newValue) -> switchFilterType(newValue));
     }
 }
