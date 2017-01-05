@@ -5,7 +5,7 @@ import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
 
-public class AbstractController
+public abstract class AbstractController
 {
     private ApplicationContext applicationContext;
 
@@ -19,20 +19,57 @@ public class AbstractController
         return applicationContext;
     }
 
+    protected final String getText(String key)
+    {
+        return applicationContext.textFor(key);
+    }
+
     protected final void info(String message)
     {
         applicationContext.setInfo(message);
     }
 
-    protected void info(Node node, final String message)
+    protected final void infoFromBundle(String key)
     {
-        node.onMouseEnteredProperty().set(event -> info(message));
-        node.onMouseExitedProperty().set(event -> info(""));
+        applicationContext.setInfoFromBundle(key);
     }
 
-    protected void info(Tab tab, final String message)
+    protected final void infoFromBundle(String key, Object... args)
     {
-        tab.getGraphic().onMouseEnteredProperty().set(event -> info(message));
-        tab.getGraphic().onMouseExitedProperty().set(event -> info(""));
+        applicationContext.setInfoFromBundle(key, args);
     }
+
+    protected final void clearInfo()
+    {
+        applicationContext.setInfo("");
+    }
+
+    protected void info(Node node, final String key)
+    {
+        node.onMouseEnteredProperty().set(event -> infoFromBundle(key));
+        node.onMouseExitedProperty().set(event -> clearInfo());
+    }
+
+    protected void info(Node node, final String key, Object... args)
+    {
+        node.onMouseEnteredProperty().set(event -> infoFromBundle(key, args));
+        node.onMouseExitedProperty().set(event -> clearInfo());
+    }
+
+    protected void info(Tab tab, final String key)
+    {
+        info(tab.getGraphic(), key);
+    }
+
+    protected void info(Tab tab, final String key, Object... args)
+    {
+        info(tab.getGraphic(), key, args);
+    }
+
+    protected void initialize()
+    {
+        initializeInfoText();
+    }
+
+    protected abstract void initializeInfoText();
 }

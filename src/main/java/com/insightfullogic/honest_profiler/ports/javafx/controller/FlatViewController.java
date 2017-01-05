@@ -24,6 +24,11 @@ import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.Filt
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.FILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.showExportDialog;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.refreshTable;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_EXPORT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_FILTER;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_QUICKFILTER;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_INPUT_QUICKFILTER;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TABLE_FLAT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil.writeFlatProfileCsv;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.EXPORT_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_16;
@@ -58,7 +63,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 public class FlatViewController extends ProfileViewController<Profile>
@@ -101,19 +105,10 @@ public class FlatViewController extends ProfileViewController<Profile>
     {
         super.initialize(profileContext -> profileContext.profileProperty());
 
-        info(filterButton, "Specify filters restricting the visible entries");
-        info(exportButton, "Export the visible entries to a CSV file");
-        info(
-            quickFilterText,
-            "Specify text for quickly filtering the Fully Qualified Method Name (= <fully_qualified_class_name>.<method_name>)");
-        info(quickFilterButton, "Apply the Quick Filter");
-        info(flatProfileView, "Shows methods and their Self and Total usage percentages");
-
         currentFilter = new ProfileFilter();
         flatProfile = flatProfileView.getItems();
 
         exportButton.setGraphic(viewFor(EXPORT_16));
-        exportButton.setTooltip(new Tooltip("Export the current view to a file"));
         exportButton.setOnAction(event -> showExportDialog(
             exportButton.getScene().getWindow(),
             "flat_profile.csv",
@@ -162,24 +157,20 @@ public class FlatViewController extends ProfileViewController<Profile>
         });
 
         filterButton.setGraphic(viewFor(FUNNEL_16));
-        filterButton.setTooltip(new Tooltip("Specify filters"));
         filterButton
             .setOnAction(event -> filterSpec.set(filterDialogController.showAndWait().get()));
 
         quickFilterButton.setGraphic(viewFor(FUNNEL_16));
-        quickFilterButton
-            .setTooltip(new Tooltip("Specify quick filter on classname + method name"));
         quickFilterButton.setOnAction(event -> applyQuickFilter());
     }
 
     private void applyQuickFilter()
     {
         String input = quickFilterText.getText();
-        this.quickFilter = input.isEmpty() ? null
-            : new StringFilter(
-                Filter.Mode.CONTAINS,
-                frame -> frame.getClassName() + "." + frame.getMethodName(),
-                input);
+        quickFilter = input.isEmpty() ? null : new StringFilter(
+            Filter.Mode.CONTAINS,
+            frame -> frame.getClassName() + "." + frame.getMethodName(),
+            input);
         refresh(getTarget());
     }
 
@@ -239,5 +230,15 @@ public class FlatViewController extends ProfileViewController<Profile>
             filters.addAll(currentFilter.getFilters());
             return new ProfileFilter(filters);
         }
+    }
+
+    @Override
+    protected void initializeInfoText()
+    {
+        info(filterButton, INFO_BUTTON_FILTER);
+        info(exportButton, INFO_BUTTON_EXPORT);
+        info(quickFilterText, INFO_INPUT_QUICKFILTER);
+        info(quickFilterButton, INFO_BUTTON_QUICKFILTER);
+        info(flatProfileView, INFO_TABLE_FLAT);
     }
 }

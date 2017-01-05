@@ -2,18 +2,17 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
 
-<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.insightfullogic.honest_profiler.ports.javafx.controller.FlatDiffViewController">
+<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.insightfullogic.honest_profiler.ports.javafx.controller.FlatDiffViewController">
    <children>
       <HBox alignment="CENTER_LEFT" maxHeight="25.0" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" spacing="5.0" VBox.vgrow="NEVER">
          <children>
@@ -28,12 +27,24 @@
                 <RowConstraints maxHeight="25.0" minHeight="25.0" prefHeight="25.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Button fx:id="filterButton" alignment="CENTER" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" />
-                  <Button fx:id="exportButton" alignment="CENTER" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" GridPane.columnIndex="1" />
+                  <Button fx:id="filterButton" alignment="CENTER" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0">
+                     <tooltip>
+                        <Tooltip text="%button.filter.tooltip" />
+                     </tooltip></Button>
+                  <Button fx:id="exportButton" alignment="CENTER" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" GridPane.columnIndex="1">
+                     <tooltip>
+                        <Tooltip text="%button.flat.export.tooltip" />
+                     </tooltip></Button>
                   <HBox maxHeight="20.0" minHeight="20.0" prefHeight="20.0" GridPane.columnIndex="3">
                      <children>
-                        <TextField fx:id="quickFilterText" maxHeight="20.0" maxWidth="1.7976931348623157E308" minHeight="20.0" prefHeight="20.0" promptText="Quick FQMN Filter" HBox.hgrow="ALWAYS" />
-                        <Button fx:id="quickFilterButton" alignment="CENTER" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" HBox.hgrow="NEVER" />
+                        <TextField fx:id="quickFilterText" maxHeight="20.0" maxWidth="1.7976931348623157E308" minHeight="20.0" prefHeight="20.0" promptText="%input.quickFilter.prompt" HBox.hgrow="ALWAYS">
+                           <tooltip>
+                              <Tooltip text="%input.quickFilter.tooltip" />
+                           </tooltip></TextField>
+                        <Button fx:id="quickFilterButton" alignment="CENTER" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" HBox.hgrow="NEVER">
+                           <tooltip>
+                              <Tooltip text="%button.quickFilter.tooltip" />
+                           </tooltip></Button>
                      </children>
                   </HBox>
                </children>
@@ -45,23 +56,26 @@
       </HBox>
       <TableView fx:id="diffTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
           <columns>
-            <TableColumn fx:id="method" prefWidth="492.0" text="Method" />
-            <TableColumn fx:id="baseSelfTime" prefWidth="100.0" text="Base Self %" />
-            <TableColumn fx:id="newSelfTime" prefWidth="100.0" text="New Self %" />
-            <TableColumn fx:id="selfTimeDiff" prefWidth="100.0" text="Self % Diff" />
-            <TableColumn fx:id="baseTotalTime" prefWidth="100.0" text="Base Total %" />
-            <TableColumn fx:id="newTotalTime" prefWidth="100.0" text="New Total %" />
-            <TableColumn fx:id="totalTimeDiff" prefWidth="100.0" text="Total % Diff" />
-            <TableColumn fx:id="baseSelfCount" prefWidth="100.0" text="Base Self #" />
-            <TableColumn fx:id="newSelfCount" prefWidth="100.0" text="New Self #" />
-            <TableColumn fx:id="selfCountDiff" prefWidth="100.0" text="Self # Diff" />
-            <TableColumn fx:id="baseTotalCount" prefWidth="100.0" text="Base Total #" />
-            <TableColumn fx:id="newTotalCount" prefWidth="100.0" text="New Total #" />
-            <TableColumn fx:id="totalCountDiff" prefWidth="100.0" text="Total # Diff" />
-            <TableColumn fx:id="baseTraceCount" prefWidth="100.0" text="Base Trace #" />
-            <TableColumn fx:id="newTraceCount" prefWidth="100.0" text="New Trace #" />
-            <TableColumn fx:id="traceCountDiff" prefWidth="100.0" text="Trace # Diff" />
+            <TableColumn fx:id="method" prefWidth="492.0" text="%column.method" />
+            <TableColumn fx:id="baseSelfTime" prefWidth="100.0" text="%column.selfSamplePercent" />
+            <TableColumn fx:id="newSelfTime" prefWidth="100.0" text="%column.selfSamplePercent" />
+            <TableColumn fx:id="selfTimeDiff" prefWidth="100.0" text="%column.selfSamplePercentDiff" />
+            <TableColumn fx:id="baseTotalTime" prefWidth="100.0" text="%column.totalSamplePercent" />
+            <TableColumn fx:id="newTotalTime" prefWidth="100.0" text="%column.totalSamplePercent" />
+            <TableColumn fx:id="totalTimeDiff" prefWidth="100.0" text="%column.totalSamplePercentDiff" />
+            <TableColumn fx:id="baseSelfCount" prefWidth="100.0" text="%column.selfSampleCount" />
+            <TableColumn fx:id="newSelfCount" prefWidth="100.0" text="%column.selfSampleCount" />
+            <TableColumn fx:id="selfCountDiff" prefWidth="100.0" text="%column.selfSampleCountDiff" />
+            <TableColumn fx:id="baseTotalCount" prefWidth="100.0" text="%column.totalSampleCount" />
+            <TableColumn fx:id="newTotalCount" prefWidth="100.0" text="%column.totalSampleCount" />
+            <TableColumn fx:id="totalCountDiff" prefWidth="100.0" text="%column.totalSampleCountDiff" />
+            <TableColumn fx:id="baseTraceCount" prefWidth="100.0" text="%column.profileSampleCount" />
+            <TableColumn fx:id="newTraceCount" prefWidth="100.0" text="%column.profileSampleCount" />
+            <TableColumn fx:id="traceCountDiff" prefWidth="100.0" text="%column.profileSampleCountDiff" />
           </columns>
+         <tooltip>
+            <Tooltip text="%table.flatDiff.tooltip" />
+         </tooltip>
       </TableView>
    </children>
 </VBox>

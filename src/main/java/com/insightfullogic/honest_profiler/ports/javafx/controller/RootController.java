@@ -8,7 +8,11 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.FXML_
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.FXML_PROFILE_ROOT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.addProfileNr;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.createColoredLabelContainer;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.getProgressIndicator;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.loaderFor;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_MENU_ROOT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TAB_PROFILE;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TAB_PROFILEDIFF;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.LIVE_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.LOG_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor;
@@ -26,7 +30,6 @@ import com.insightfullogic.honest_profiler.ports.javafx.UserInterfaceConfigurati
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.task.InitializeProfileTask;
-import com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil;
 import com.insightfullogic.honest_profiler.ports.sources.LocalMachineSource;
 
 import javafx.concurrent.Task;
@@ -62,15 +65,14 @@ public class RootController extends AbstractController implements MachineListene
 
     private LocalMachineSource machineSource;
 
+    @Override
     @FXML
     public void initialize()
     {
+        super.initialize();
+
         setApplicationContext(new ApplicationContext(this));
         info.textProperty().bind(appCtx().getInfo());
-
-        info(
-            menuBar,
-            "The File menu allows you to open existing log files. The Monitor menu allows you to select a running JVM and profile it. JVMs not running the Honest Profiler agent are greyed out.");
 
         openLogItem.setOnAction(event -> doWithFile(file -> createNewProfile(file, false)));
         openLiveItem.setOnAction(event -> doWithFile(file -> createNewProfile(file, true)));
@@ -198,7 +200,7 @@ public class RootController extends AbstractController implements MachineListene
         tab.setText(null);
         Pane tabInfo = createColoredLabelContainer();
         tab.setGraphic(tabInfo);
-        info(tab, "Shows the difference between profiles " + baseName + " and " + newName);
+        info(tab, INFO_TAB_PROFILEDIFF, baseName, newName);
 
         addProfileNr(tabInfo, baseCtx);
         tabInfo.getChildren().add(new Label("<->"));
@@ -216,7 +218,7 @@ public class RootController extends AbstractController implements MachineListene
         tabInfo.getChildren().add(viewFor(profileContext.getMode() == LOG ? LOG_16 : LIVE_16));
         tabInfo.getChildren().add(new Label(profileContext.getName()));
 
-        info(tab, "Shows profile " + profileContext.getName());
+        info(tab, INFO_TAB_PROFILE, profileContext.getName());
     }
 
     private <T extends AbstractController> T loadViewIntoTab(String fxml, Tab tab)
@@ -241,7 +243,7 @@ public class RootController extends AbstractController implements MachineListene
     private Tab newLoadingTab()
     {
         Tab tab = new Tab("Loading...");
-        tab.setGraphic(FxUtil.getProgressIndicator(15, 15));
+        tab.setGraphic(getProgressIndicator(15, 15));
         return tab;
     }
 
@@ -262,5 +264,11 @@ public class RootController extends AbstractController implements MachineListene
     {
         menuBar.setDisable(disable);
         profileTabs.setDisable(disable);
+    }
+
+    @Override
+    protected void initializeInfoText()
+    {
+        info(menuBar, INFO_MENU_ROOT);
     }
 }

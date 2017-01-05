@@ -21,6 +21,9 @@ package com.insightfullogic.honest_profiler.ports.javafx.controller;
 import static com.insightfullogic.honest_profiler.ports.javafx.ViewType.FLAT;
 import static com.insightfullogic.honest_profiler.ports.javafx.ViewType.TREE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ConversionUtil.getStringConverterForType;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_CHOICE_VIEWTYPE;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_LABEL_BASESOURCE;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_LABEL_NEWSOURCE;
 
 import com.insightfullogic.honest_profiler.ports.javafx.ViewType;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
@@ -47,11 +50,11 @@ public class ProfileDiffRootController extends AbstractController
     @FXML
     private TreeDiffViewController treeController;
 
+    @Override
+    @FXML
     protected void initialize()
     {
-        info(
-            viewChoice,
-            "Select the View : Flat View lists all methods as a list; Tree View shows the stack trees per thread; Flame View shows the Flame Graph");
+        super.initialize();
     }
 
     // Instance Accessors
@@ -102,5 +105,14 @@ public class ProfileDiffRootController extends AbstractController
                 break;
             default:
         }
+    }
+
+    @Override
+    protected void initializeInfoText()
+    {
+        System.err.println("Initing text for DiffRoot");
+        info(viewChoice, INFO_CHOICE_VIEWTYPE);
+        info(baseSourceLabel, INFO_LABEL_BASESOURCE);
+        info(newSourceLabel, INFO_LABEL_NEWSOURCE);
     }
 }

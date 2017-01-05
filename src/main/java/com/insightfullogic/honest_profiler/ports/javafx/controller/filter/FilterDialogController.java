@@ -2,6 +2,10 @@ package com.insightfullogic.honest_profiler.ports.javafx.controller.filter;
 
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.FILTER_CREATION;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.refreshTable;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_ADDFILTER;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_REMOVEFILTER;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_CHECK_HIDEERRORTHREADS;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_LIST_FILTERS;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.MINUS_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.PLUS_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor;
@@ -52,15 +56,11 @@ public class FilterDialogController extends AbstractDialogController<FilterSpeci
 
     private FilterCreationDialogController filterCreationController;
 
+    @Override
     @FXML
     public void initialize()
     {
-        info(
-            hideErrorThreads,
-            "When checked, all threads which contain only errors will be filtered out.");
-        info(
-            filters,
-            "The list of currently defined filters. Only profile entries satisfying all of the filter conditions will be shown.");
+        super.initialize();
 
         action.setCellFactory(column -> new ActionCell<>());
         action.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue()));
@@ -125,8 +125,7 @@ public class FilterDialogController extends AbstractDialogController<FilterSpeci
     private void addFilter()
     {
         List<FilterItem> items = filters.getItems();
-        filterCreationController.showAndWait()
-            .ifPresent(item -> items.add(items.size() - 1, item));
+        filterCreationController.showAndWait().ifPresent(item -> items.add(items.size() - 1, item));
         refreshTable(filters);
     }
 
@@ -148,6 +147,13 @@ public class FilterDialogController extends AbstractDialogController<FilterSpeci
         return button;
     }
 
+    @Override
+    protected void initializeInfoText()
+    {
+        info(hideErrorThreads, INFO_CHECK_HIDEERRORTHREADS);
+        info(filters, INFO_LIST_FILTERS);
+    }
+
     private class ActionCell<T> extends TableCell<FilterItem, FilterItem>
     {
         @Override
@@ -164,7 +170,7 @@ public class FilterDialogController extends AbstractDialogController<FilterSpeci
             setGraphic(createActionButton(item));
             info(
                 super.getGraphic(),
-                item == null ? "Click to add a new filter" : "Click to remove the filter");
+                item == null ? INFO_BUTTON_ADDFILTER : INFO_BUTTON_REMOVEFILTER);
         }
     }
 

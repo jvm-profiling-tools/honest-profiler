@@ -1,5 +1,6 @@
 package com.insightfullogic.honest_profiler.ports.javafx.util;
 
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.getDefaultBundle;
 import static java.lang.Math.max;
 import static javafx.application.Platform.runLater;
 import static javafx.geometry.Pos.CENTER;
@@ -44,7 +45,7 @@ public final class FxUtil
 
     public static FXMLLoader loaderFor(Object originator, String resource)
     {
-        return new FXMLLoader(originator.getClass().getResource(resource));
+        return new FXMLLoader(originator.getClass().getResource(resource), getDefaultBundle());
     }
 
     // Utility methods for adding "coloured labels".

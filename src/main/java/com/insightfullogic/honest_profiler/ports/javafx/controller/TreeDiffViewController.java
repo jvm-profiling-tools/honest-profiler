@@ -4,6 +4,13 @@ import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.Filt
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.FILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.addProfileNr;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.createColoredLabelContainer;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_PCT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_COLLAPSEALLALL;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_EXPANDALL;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_FILTER;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_QUICKFILTER;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_INPUT_QUICKFILTER;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TABLE_TREEDIFF;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil.expandPartial;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.COLLAPSE_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.EXPAND_16;
@@ -30,6 +37,7 @@ import com.insightfullogic.honest_profiler.ports.javafx.model.diff.TreeProfileDi
 import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterSpecification;
 import com.insightfullogic.honest_profiler.ports.javafx.model.task.CopyAndFilterProfile;
 import com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil;
+import com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.TreeDiffViewCell;
 
@@ -41,7 +49,6 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableColumn.CellDataFeatures;
@@ -104,18 +111,11 @@ public class TreeDiffViewController extends ProfileDiffViewController<Profile>
     private ProfileFilter currentFilter;
     private StringFilter quickFilter;
 
+    @Override
     @FXML
-    private void initialize()
+    protected void initialize()
     {
         super.initialize(profileContext -> profileContext.profileProperty());
-
-        info(filterButton, "Specify filters restricting the visible entries");
-        info(expandAllButton, "Expand all trees");
-        info(collapseAllButton, "Collapse all trees");
-        info(
-            quickFilterText,
-            "Specify text for quickly filtering the Fully Qualified Method Name (= <fully_qualified_class_name>.<method_name>)");
-        info(quickFilterButton, "Apply the Quick Filter");
 
         diff = new TreeProfileDiff();
 
@@ -126,23 +126,18 @@ public class TreeDiffViewController extends ProfileDiffViewController<Profile>
         filterDialogController.addAllowedFilterTypes(STRING);
 
         filterButton.setGraphic(viewFor(FUNNEL_16));
-        filterButton.setTooltip(new Tooltip("Specify filters"));
         filterButton
             .setOnAction(event -> filterSpec.set(filterDialogController.showAndWait().get()));
 
         expandAllButton.setGraphic(viewFor(EXPAND_16));
-        expandAllButton.setTooltip(new Tooltip("Expand all threads"));
         expandAllButton.setOnAction(
             event -> diffTree.getRoot().getChildren().stream().forEach(TreeUtil::expandFully));
 
         collapseAllButton.setGraphic(viewFor(COLLAPSE_16));
-        collapseAllButton.setTooltip(new Tooltip("Collapse all threads"));
         collapseAllButton.setOnAction(
             event -> diffTree.getRoot().getChildren().stream().forEach(TreeUtil::collapseFully));
 
         quickFilterButton.setGraphic(viewFor(FUNNEL_16));
-        quickFilterButton
-            .setTooltip(new Tooltip("Specify quick filter on classname + method name"));
         quickFilterButton.setOnAction(event -> applyQuickFilter());
 
         filterSpec = new SimpleObjectProperty<>(null);
@@ -181,76 +176,76 @@ public class TreeDiffViewController extends ProfileDiffViewController<Profile>
             baseSelfPct,
             TreeNodeDiff::getBaseSelfPct,
             baseContext(),
-            "Self %");
+            getText(COLUMN_SELF_PCT));
         configurePctColumn(
             newSelfPct,
             TreeNodeDiff::getNewSelfPct,
             newContext(),
-            "Self %");
+            getText(COLUMN_SELF_PCT));
         configurePctColumn(
             selfPctDiff,
             TreeNodeDiff::getSelfPctDiff,
-            "Self % Diff");
+            getText(ResourceUtil.COLUMN_SELF_PCT_DIFF));
 
         configurePctColumn(
             baseTotalPct,
             TreeNodeDiff::getBaseTotalPct,
             baseContext(),
-            "Total %");
+            getText(ResourceUtil.COLUMN_TOTAL_PCT));
         configurePctColumn(
             newTotalPct,
             TreeNodeDiff::getNewTotalPct,
             newContext(),
-            "Total %");
+            getText(ResourceUtil.COLUMN_TOTAL_PCT));
         configurePctColumn(
             totalPctDiff,
             TreeNodeDiff::getTotalPctDiff,
-            "Total % Diff");
+            getText(ResourceUtil.COLUMN_TOTAL_PCT_DIFF));
 
         configureCntColumn(
             baseSelfCount,
             TreeNodeDiff::getBaseSelfCount,
             baseContext(),
-            "Self #");
+            getText(ResourceUtil.COLUMN_SELF_CNT));
         configureCntColumn(
             newSelfCount,
             TreeNodeDiff::getNewSelfCount,
             newContext(),
-            "Self #");
+            getText(ResourceUtil.COLUMN_SELF_CNT));
         configureCntDiffColumn(
             selfCountDiff,
             TreeNodeDiff::getSelfCountDiff,
-            "Self # Diff");
+            getText(ResourceUtil.COLUMN_SELF_CNT_DIFF));
 
         configureCntColumn(
             baseTotalCount,
             TreeNodeDiff::getBaseTotalCount,
             baseContext(),
-            "Total #");
+            getText(ResourceUtil.COLUMN_TOTAL_CNT));
         configureCntColumn(
             newTotalCount,
             TreeNodeDiff::getNewTotalCount,
             newContext(),
-            "Total #");
+            getText(ResourceUtil.COLUMN_TOTAL_CNT));
         configureCntDiffColumn(
             totalCountDiff,
             TreeNodeDiff::getTotalCountDiff,
-            "Total # Diff");
+            getText(ResourceUtil.COLUMN_TOTAL_CNT_DIFF));
 
         configureCntColumn(
             baseParentCount,
             TreeNodeDiff::getBaseParentCount,
             baseContext(),
-            "Parent #");
+            getText(ResourceUtil.COLUMN_PARENT_CNT));
         configureCntColumn(
             newParentCount,
             TreeNodeDiff::getNewParentCount,
             newContext(),
-            "Parent #");
+            getText(ResourceUtil.COLUMN_PARENT_CNT));
         configureCntDiffColumn(
             parentCountDiff,
             TreeNodeDiff::getParentCountDiff,
-            "Parent # Diff");
+            getText(ResourceUtil.COLUMN_PARENT_CNT));
     }
 
     @Override
@@ -356,7 +351,7 @@ public class TreeDiffViewController extends ProfileDiffViewController<Profile>
     private void applyQuickFilter()
     {
         String input = quickFilterText.getText();
-        this.quickFilter = input.isEmpty() ? null : new StringFilter(
+        quickFilter = input.isEmpty() ? null : new StringFilter(
             Filter.Mode.CONTAINS,
             frame -> frame.getClassName() + "." + frame.getMethodName(),
             input);
@@ -394,6 +389,17 @@ public class TreeDiffViewController extends ProfileDiffViewController<Profile>
             data.getValue().getValue() != null
                 && data.getValue().getValue() instanceof MethodNodeDiff
                     ? Integer.toString(accessor.apply(data.getValue().getValue())) : "");
+    }
+
+    @Override
+    protected void initializeInfoText()
+    {
+        info(filterButton, INFO_BUTTON_FILTER);
+        info(expandAllButton, INFO_BUTTON_EXPANDALL);
+        info(collapseAllButton, INFO_BUTTON_COLLAPSEALLALL);
+        info(quickFilterText, INFO_INPUT_QUICKFILTER);
+        info(quickFilterButton, INFO_BUTTON_QUICKFILTER);
+        info(diffTree, INFO_TABLE_TREEDIFF);
     }
 
     private class DiffTreeItem extends TreeItem<TreeNodeDiff>

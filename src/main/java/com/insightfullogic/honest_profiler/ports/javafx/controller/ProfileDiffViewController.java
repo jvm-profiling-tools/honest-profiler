@@ -19,6 +19,8 @@ public abstract class ProfileDiffViewController<T> extends AbstractController
 
     protected void initialize(Function<ProfileContext, ObservableValue<T>> targetExtractor)
     {
+        super.initialize();
+
         this.targetExtractor = targetExtractor;
         baseTarget = new SimpleObjectProperty<>();
         newTarget = new SimpleObjectProperty<>();

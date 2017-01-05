@@ -7,6 +7,7 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
@@ -18,15 +19,18 @@
          <top>
             <MenuBar fx:id="menuBar" BorderPane.alignment="CENTER">
               <menus>
-                <Menu fx:id="fileMenu" mnemonicParsing="false" text="File">
+                <Menu fx:id="fileMenu" mnemonicParsing="false" text="%menu.root.file">
                   <items>
-                    <MenuItem fx:id="openLogItem" mnemonicParsing="false" text="Open Log..." />
-                        <MenuItem fx:id="openLiveItem" mnemonicParsing="false" text="Monitor Log..." />
-                        <MenuItem fx:id="quitItem" mnemonicParsing="false" text="Quit" />
+                    <MenuItem fx:id="openLogItem" mnemonicParsing="false" text="%menu.root.file.openLog" />
+                        <MenuItem fx:id="openLiveItem" mnemonicParsing="false" text="%menu.root.file.monitorLog" />
+                        <MenuItem fx:id="quitItem" mnemonicParsing="false" text="%menu.root.file.quit" />
                   </items>
                 </Menu>
-                  <Menu fx:id="monitorMenu" mnemonicParsing="false" text="Monitor" />
+                  <Menu fx:id="monitorMenu" mnemonicParsing="false" text="%menu.root.monitor" />
               </menus>
+               <tooltip>
+                  <Tooltip text="%menu.root.tooltip" wrapText="true" />
+               </tooltip>
             </MenuBar>
          </top>
          <center>

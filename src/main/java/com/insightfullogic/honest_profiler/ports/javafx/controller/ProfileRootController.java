@@ -21,9 +21,15 @@ package com.insightfullogic.honest_profiler.ports.javafx.controller;
 import static com.insightfullogic.honest_profiler.ports.javafx.ViewType.FLAT;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext.ProfileMode.LIVE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ConversionUtil.getStringConverterForType;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_COMPARE;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_FREEZE_FROZEN;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_FREEZE_UNFROZEN;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_CHOICE_VIEWTYPE;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_LABEL_PROFILESAMPLECOUNT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.TOOLTIP_BUTTON_FREEZE_FROZEN;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.TOOLTIP_BUTTON_FREEZE_UNFROZEN;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.COMPARE_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FREEZE_16;
-import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.UNFREEZE_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor;
 
 import java.util.List;
@@ -51,9 +57,11 @@ public class ProfileRootController extends AbstractController
     @FXML
     private Button freezeButton;
     @FXML
+    private Tooltip freezeTooltip;
+    @FXML
     private Button compareButton;
     @FXML
-    private Label traceCount;
+    private Label profileSampleCount;
     @FXML
     private AnchorPane content;
     @FXML
@@ -65,26 +73,16 @@ public class ProfileRootController extends AbstractController
 
     private ProfileContext profileContext;
 
+    @Override
     @FXML
     public void initialize()
     {
-        info(
-            viewChoice,
-            "Select the View : Flat View lists all methods as a list; Tree View shows the stack trees per thread; Flame View shows the Flame Graph");
-        info(compareButton, "Click to select another open profile to compare this profile against");
-        info(
-            freezeButton,
-            "Freeze a live profile. The view will not update when new profiling information is available.");
-        info(traceCount, "Shows the number of samples in the profile");
+        super.initialize();
 
         initializeComparison();
 
         freezeButton.setGraphic(viewFor(FREEZE_16));
         freezeButton.setDisable(true);
-        freezeButton.setTooltip(new Tooltip("Freeze the live profile."));
-        info(
-            freezeButton,
-            "Freeze the live profile. The view will not update when new profiling information is available.");
 
         freezeButton.setOnAction(event ->
         {
@@ -92,19 +90,14 @@ public class ProfileRootController extends AbstractController
             {
                 profileContext.setFrozen(false);
                 freezeButton.setGraphic(viewFor(FREEZE_16));
-                freezeButton.setTooltip(new Tooltip("Freeze the live profile"));
-                info(
-                    freezeButton,
-                    "Freeze the live profile. The view will not update when new profiling information is available.");
+                freezeTooltip.setText(appCtx().textFor(TOOLTIP_BUTTON_FREEZE_UNFROZEN));
+                info(freezeButton, INFO_BUTTON_FREEZE_UNFROZEN);
             }
             else
             {
                 profileContext.setFrozen(true);
-                freezeButton.setGraphic(viewFor(UNFREEZE_16));
-                freezeButton.setTooltip(new Tooltip("Unfreeze the live profile"));
-                info(
-                    freezeButton,
-                    "Unfreeze the live profile. The view will update again when new profiling information is available.");
+                freezeTooltip.setText(appCtx().textFor(TOOLTIP_BUTTON_FREEZE_FROZEN));
+                info(freezeButton, INFO_BUTTON_FREEZE_FROZEN);
             }
         });
     }
@@ -129,12 +122,12 @@ public class ProfileRootController extends AbstractController
         flameController.setProfileContext(profileContext);
 
         profileContext.profileProperty().addListener(
-            (property, oldValue, newValue) -> traceCount
+            (property, oldValue, newValue) -> profileSampleCount
                 .setText(newValue == null ? null : newValue.getTraceCount() + " samples"));
 
         if (profileContext.getProfile() != null)
         {
-            traceCount.setText(profileContext.getProfile().getTraceCount() + " samples");
+            profileSampleCount.setText(profileContext.getProfile().getTraceCount() + " samples");
         }
 
         viewChoice.setConverter(getStringConverterForType(ViewType.class));
@@ -149,7 +142,6 @@ public class ProfileRootController extends AbstractController
     private void initializeComparison()
     {
         compareButton.setGraphic(viewFor(COMPARE_16));
-        compareButton.setTooltip(new Tooltip("Compare this profile with another open profile"));
         compareButton.setOnMousePressed(new EventHandler<MouseEvent>()
         {
             @Override
@@ -218,9 +210,17 @@ public class ProfileRootController extends AbstractController
             }
 
             MenuItem item = new MenuItem(name);
-            item.setOnAction(
-                event -> appCtx().createDiffView(profileContext.getName(), name));
+            item.setOnAction(event -> appCtx().createDiffView(profileContext.getName(), name));
             menu.getItems().add(item);
         });
+    }
+
+    @Override
+    protected void initializeInfoText()
+    {
+        info(viewChoice, INFO_CHOICE_VIEWTYPE);
+        info(compareButton, INFO_BUTTON_COMPARE);
+        info(freezeButton, INFO_BUTTON_FREEZE_UNFROZEN);
+        info(profileSampleCount, INFO_LABEL_PROFILESAMPLECOUNT);
     }
 }

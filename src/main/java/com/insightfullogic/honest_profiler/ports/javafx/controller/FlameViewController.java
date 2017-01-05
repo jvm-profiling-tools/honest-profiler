@@ -73,4 +73,10 @@ public class FlameViewController extends ProfileViewController<FlameGraph>
 
         flameView.accept(flameGraph);
     }
+
+    @Override
+    protected void initializeInfoText()
+    {
+        // NOOP
+    }
 }

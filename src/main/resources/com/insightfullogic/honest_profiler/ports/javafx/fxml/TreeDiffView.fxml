@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.control.TreeTableColumn?>
 <?import javafx.scene.control.TreeTableView?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -11,7 +12,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.insightfullogic.honest_profiler.ports.javafx.controller.TreeDiffViewController">
+<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.insightfullogic.honest_profiler.ports.javafx.controller.TreeDiffViewController">
    <children>
       <HBox alignment="CENTER_LEFT" maxHeight="25.0" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" spacing="6.0">
          <children>
@@ -27,13 +28,28 @@
                   <RowConstraints maxHeight="25.0" minHeight="25.0" prefHeight="25.0" vgrow="SOMETIMES" />
                </rowConstraints>
                <children>
-                  <Button fx:id="filterButton" alignment="CENTER" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" GridPane.hgrow="NEVER" GridPane.vgrow="NEVER" />
-                  <Button fx:id="expandAllButton" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" GridPane.columnIndex="1" GridPane.hgrow="NEVER" GridPane.vgrow="NEVER" />
-                  <Button fx:id="collapseAllButton" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" GridPane.columnIndex="2" GridPane.hgrow="NEVER" GridPane.vgrow="NEVER" />
+                  <Button fx:id="filterButton" alignment="CENTER" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" GridPane.hgrow="NEVER" GridPane.vgrow="NEVER">
+                     <tooltip>
+                        <Tooltip text="%button.filter.tooltip" />
+                     </tooltip></Button>
+                  <Button fx:id="expandAllButton" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" GridPane.columnIndex="1" GridPane.hgrow="NEVER" GridPane.vgrow="NEVER">
+                     <tooltip>
+                        <Tooltip text="%button.expandAll.tooltip" />
+                     </tooltip></Button>
+                  <Button fx:id="collapseAllButton" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" GridPane.columnIndex="2" GridPane.hgrow="NEVER" GridPane.vgrow="NEVER">
+                     <tooltip>
+                        <Tooltip text="%button.collapseAll.tooltip" />
+                     </tooltip></Button>
                   <HBox maxHeight="20.0" minHeight="20.0" prefHeight="20.0" GridPane.columnIndex="4">
                      <children>
-                        <TextField fx:id="quickFilterText" maxHeight="20.0" maxWidth="1.7976931348623157E308" minHeight="20.0" prefHeight="20.0" promptText="Quick FQMN Filter" HBox.hgrow="ALWAYS" />
-                        <Button fx:id="quickFilterButton" alignment="CENTER" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" HBox.hgrow="NEVER" />
+                        <TextField fx:id="quickFilterText" maxHeight="20.0" maxWidth="1.7976931348623157E308" minHeight="20.0" prefHeight="20.0" promptText="%input.quickFilter.prompt" HBox.hgrow="ALWAYS">
+                           <tooltip>
+                              <Tooltip text="%input.quickFilter.tooltip" />
+                           </tooltip></TextField>
+                        <Button fx:id="quickFilterButton" alignment="CENTER" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" HBox.hgrow="NEVER">
+                           <tooltip>
+                              <Tooltip text="%button.quickFilter.tooltip" />
+                           </tooltip></Button>
                      </children>
                   </HBox>
                </children>
@@ -45,25 +61,28 @@
       </HBox>
       <TreeTableView fx:id="diffTree" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" showRoot="false" VBox.vgrow="ALWAYS">
          <columns>
-            <TreeTableColumn fx:id="methodColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="-1.0" sortable="false" text="Method" />
-            <TreeTableColumn fx:id="baseSelfPct" editable="false" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" sortable="false" text="Base Self %" />
-            <TreeTableColumn fx:id="newSelfPct" editable="false" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" sortable="false" text="New Self %" />
-            <TreeTableColumn fx:id="selfPctDiff" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="Self % Diff" />
-            <TreeTableColumn fx:id="baseTotalPct" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="Base Total %" />
-            <TreeTableColumn fx:id="newTotalPct" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="New Total %" />
-            <TreeTableColumn fx:id="totalPctDiff" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="Total % Diff" />
-            <TreeTableColumn fx:id="baseSelfCount" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="Base Self #" />
-            <TreeTableColumn fx:id="newSelfCount" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="New Self #" />
-            <TreeTableColumn fx:id="selfCountDiff" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="Self # Diff" />
-            <TreeTableColumn fx:id="baseTotalCount" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="Base Total #" />
-            <TreeTableColumn fx:id="newTotalCount" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="New Total #" />
-            <TreeTableColumn fx:id="totalCountDiff" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="Total # Diff" />
-            <TreeTableColumn fx:id="baseParentCount" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="Base Parent #" />
-            <TreeTableColumn fx:id="newParentCount" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="New Parent #" />
-            <TreeTableColumn fx:id="parentCountDiff" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="Parent # Diff" />
+            <TreeTableColumn fx:id="methodColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="-1.0" sortable="false" text="%column.method" />
+            <TreeTableColumn fx:id="baseSelfPct" editable="false" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" sortable="false" text="%column.selfSamplePercent" />
+            <TreeTableColumn fx:id="newSelfPct" editable="false" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" sortable="false" text="%column.selfSamplePercent" />
+            <TreeTableColumn fx:id="selfPctDiff" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.selfSamplePercentDiff" />
+            <TreeTableColumn fx:id="baseTotalPct" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.totalSamplePercent" />
+            <TreeTableColumn fx:id="newTotalPct" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.totalSamplePercent" />
+            <TreeTableColumn fx:id="totalPctDiff" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.totalSamplePercentDiff" />
+            <TreeTableColumn fx:id="baseSelfCount" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.selfSampleCount" />
+            <TreeTableColumn fx:id="newSelfCount" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.selfSampleCount" />
+            <TreeTableColumn fx:id="selfCountDiff" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.selfSampleCountDiff" />
+            <TreeTableColumn fx:id="baseTotalCount" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.totalSampleCount" />
+            <TreeTableColumn fx:id="newTotalCount" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.totalSampleCount" />
+            <TreeTableColumn fx:id="totalCountDiff" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.totalSampleCountDiff" />
+            <TreeTableColumn fx:id="baseParentCount" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.parentSampleCount" />
+            <TreeTableColumn fx:id="newParentCount" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.parentSampleCount" />
+            <TreeTableColumn fx:id="parentCountDiff" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.parentSampleCountDiff" />
          </columns>
          <columnResizePolicy>
             <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-         </columnResizePolicy></TreeTableView>
+         </columnResizePolicy>
+         <tooltip>
+            <Tooltip text="%table.treeDiff.tooltip" />
+         </tooltip></TreeTableView>
    </children>
 </VBox>

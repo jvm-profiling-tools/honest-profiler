@@ -22,6 +22,12 @@ import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.Filt
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.THREAD_SAMPLE;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.TIME_SHARE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.FILTER;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_COLLAPSEALLALL;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_EXPANDALL;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_FILTER;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_QUICKFILTER;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_INPUT_QUICKFILTER;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TABLE_TREE;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.COLLAPSE_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.EXPAND_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_16;
@@ -58,7 +64,6 @@ import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableColumn.CellDataFeatures;
@@ -96,21 +101,11 @@ public class TreeViewController extends ProfileViewController<Profile>
 
     private RootNodeAdapter rootNode;
 
+    @Override
     @FXML
-    private void initialize()
+    protected void initialize()
     {
         super.initialize(profileContext -> profileContext.profileProperty());
-
-        info(filterButton, "Specify filters restricting the visible entries");
-        info(expandAllButton, "Expand all trees");
-        info(collapseAllButton, "Collapse all trees");
-        info(
-            quickFilterText,
-            "Specify text for quickly filtering the Fully Qualified Method Name (= <fully_qualified_class_name>.<method_name>)");
-        info(quickFilterButton, "Apply the Quick Filter");
-        info(
-            treeView,
-            "Shows the Threads in the profiled application. Right-click any node for expand/collapse and export options.");
 
         currentFilter = new ProfileFilter();
 
@@ -131,23 +126,18 @@ public class TreeViewController extends ProfileViewController<Profile>
         filterDialogController.addAllowedFilterTypes(STRING, THREAD_SAMPLE, TIME_SHARE);
 
         filterButton.setGraphic(viewFor(FUNNEL_16));
-        filterButton.setTooltip(new Tooltip("Specify filters"));
         filterButton
             .setOnAction(event -> filterSpec.set(filterDialogController.showAndWait().get()));
 
         expandAllButton.setGraphic(viewFor(EXPAND_16));
-        expandAllButton.setTooltip(new Tooltip("Expand all threads"));
         expandAllButton.setOnAction(
             event -> treeView.getRoot().getChildren().stream().forEach(TreeUtil::expandFully));
 
         collapseAllButton.setGraphic(viewFor(COLLAPSE_16));
-        collapseAllButton.setTooltip(new Tooltip("Collapse all threads"));
         collapseAllButton.setOnAction(
             event -> treeView.getRoot().getChildren().stream().forEach(TreeUtil::collapseFully));
 
         quickFilterButton.setGraphic(viewFor(FUNNEL_16));
-        quickFilterButton
-            .setTooltip(new Tooltip("Specify quick filter on classname + method name"));
         quickFilterButton.setOnAction(event -> applyQuickFilter());
 
         treeView.setRoot(rootNode);
@@ -212,7 +202,7 @@ public class TreeViewController extends ProfileViewController<Profile>
     private void applyQuickFilter()
     {
         String input = quickFilterText.getText();
-        this.quickFilter = input.isEmpty() ? null : new StringFilter(
+        quickFilter = input.isEmpty() ? null : new StringFilter(
             Filter.Mode.CONTAINS,
             frame -> frame.getClassName() + "." + frame.getMethodName(),
             input);
@@ -245,5 +235,16 @@ public class TreeViewController extends ProfileViewController<Profile>
             filters.addAll(currentFilter.getFilters());
             return new ProfileFilter(filters);
         }
+    }
+
+    @Override
+    protected void initializeInfoText()
+    {
+        info(filterButton, INFO_BUTTON_FILTER);
+        info(expandAllButton, INFO_BUTTON_EXPANDALL);
+        info(collapseAllButton, INFO_BUTTON_COLLAPSEALLALL);
+        info(quickFilterText, INFO_INPUT_QUICKFILTER);
+        info(quickFilterButton, INFO_BUTTON_QUICKFILTER);
+        info(treeView, INFO_TABLE_TREE);
     }
 }

@@ -4,6 +4,10 @@ import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.Filt
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.THREAD_SAMPLE;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.TIME_SHARE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ConversionUtil.getStringConverterForType;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_CHOICE_COMPARISONOPERATOR;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_CHOICE_FILTERTARGET;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_CHOICE_FILTERTYPE;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_INPUT_FILTERVALUE;
 import static javafx.scene.control.ButtonType.CANCEL;
 import static javafx.scene.control.ButtonType.OK;
 
@@ -48,13 +52,11 @@ public class FilterCreationDialogController extends AbstractDialogController<Fil
 
     private ChangeListenerHandle<String> currentListenerHandle;
 
+    @Override
     @FXML
-    public void initialize()
+    protected void initialize()
     {
-        info(type, "Select the type of the filter");
-        info(target, "For a particular type of filter, select the target field to which the filter should be applied");
-        info(comparison, "Select the comparison operator for the filter");
-        info(value, "Specify the value the filter will use for comparison");
+        super.initialize();
 
         // Validator Map Population
         Button okButton = (Button) dialogPane.lookupButton(OK);
@@ -83,12 +85,11 @@ public class FilterCreationDialogController extends AbstractDialogController<Fil
     @Override
     public Callback<ButtonType, FilterItem> createResultHandler()
     {
-        return buttonType -> buttonType == CANCEL ? null
-            : new FilterItem(
-                type.getSelectionModel().getSelectedItem(),
-                comparison.getSelectionModel().getSelectedItem(),
-                target.getSelectionModel().getSelectedItem(),
-                value.getText());
+        return buttonType -> buttonType == CANCEL ? null : new FilterItem(
+            type.getSelectionModel().getSelectedItem(),
+            comparison.getSelectionModel().getSelectedItem(),
+            target.getSelectionModel().getSelectedItem(),
+            value.getText());
     }
 
     @Override
@@ -127,5 +128,14 @@ public class FilterCreationDialogController extends AbstractDialogController<Fil
         percentLabel.setManaged(filterType == THREAD_SAMPLE || filterType == TIME_SHARE);
 
         currentListenerHandle = validatorMap.get(filterType).attach(value.textProperty(), value);
+    }
+
+    @Override
+    protected void initializeInfoText()
+    {
+        info(type, INFO_CHOICE_FILTERTYPE);
+        info(target, INFO_CHOICE_FILTERTARGET);
+        info(comparison, INFO_CHOICE_COMPARISONOPERATOR);
+        info(value, INFO_INPUT_FILTERVALUE);
     }
 }

@@ -24,6 +24,21 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.s
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.addProfileNr;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.createColoredLabelContainer;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.refreshTable;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_PROFILE_CNT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_PROFILE_CNT_DIFF;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_CNT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_CNT_DIFF;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_PCT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_PCT_DIFF;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_CNT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_CNT_DIFF;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_PCT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_PCT_DIFF;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_EXPORT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_FILTER;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_QUICKFILTER;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_INPUT_QUICKFILTER;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TABLE_FLATDIFF;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.StyleUtil.doubleDiffStyler;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.StyleUtil.intDiffStyler;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil.writeFlatProfileDiffCsv;
@@ -66,7 +81,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
@@ -125,17 +139,11 @@ public class FlatDiffViewController extends ProfileDiffViewController<Profile>
     private ProfileFilter currentFilter;
     private StringFilter quickFilter;
 
+    @Override
     @FXML
-    private void initialize()
+    protected void initialize()
     {
         super.initialize(profileContext -> profileContext.profileProperty());
-
-        info(filterButton, "Specify filters restricting the visible entries");
-        info(exportButton, "Export the visible entries to a CSV file");
-        info(
-            quickFilterText,
-            "Specify text for quickly filtering the Fully Qualified Method Name (= <fully_qualified_class_name>.<method_name>)");
-        info(quickFilterButton, "Apply the Quick Filter");
 
         diff = new FlatProfileDiff(diffTable.getItems());
 
@@ -146,7 +154,6 @@ public class FlatDiffViewController extends ProfileDiffViewController<Profile>
         filterDialogController.addAllowedFilterTypes(STRING);
 
         exportButton.setGraphic(viewFor(EXPORT_16));
-        exportButton.setTooltip(new Tooltip("Export the current view to a file"));
         exportButton.setOnAction(event -> showExportDialog(
             exportButton.getScene().getWindow(),
             "flat_diff_profile.csv",
@@ -154,8 +161,6 @@ public class FlatDiffViewController extends ProfileDiffViewController<Profile>
         ));
 
         quickFilterButton.setGraphic(viewFor(FUNNEL_16));
-        quickFilterButton
-            .setTooltip(new Tooltip("Specify quick filter on classname + method name"));
         quickFilterButton.setOnAction(event -> applyQuickFilter());
 
         filterSpec = new SimpleObjectProperty<>(null);
@@ -190,40 +195,84 @@ public class FlatDiffViewController extends ProfileDiffViewController<Profile>
     {
         super.setProfileContexts(baseContext, newContext);
 
-        configurePercentColumn(baseSelfTime, "baseSelfTimeShare", baseContext(), "Self %");
-        configurePercentColumn(newSelfTime, "newSelfTimeShare", newContext(), "Self %");
-        configurePercentColumn(selfTimeDiff, "pctSelfChange", doubleDiffStyler, "Self % Diff");
+        configurePercentColumn(
+            baseSelfTime,
+            "baseSelfTimeShare",
+            baseContext(),
+            getText(COLUMN_SELF_PCT));
+        configurePercentColumn(
+            newSelfTime,
+            "newSelfTimeShare",
+            newContext(),
+            getText(COLUMN_SELF_PCT));
+        configurePercentColumn(
+            selfTimeDiff,
+            "pctSelfChange",
+            doubleDiffStyler,
+            getText(COLUMN_SELF_PCT_DIFF));
 
-        configurePercentColumn(baseTotalTime, "baseTotalTimeShare", baseContext(), "Total %");
-        configurePercentColumn(newTotalTime, "newTotalTimeShare", newContext(), "Total %");
-        configurePercentColumn(totalTimeDiff, "pctTotalChange", doubleDiffStyler, "Total % Diff");
+        configurePercentColumn(
+            baseTotalTime,
+            "baseTotalTimeShare",
+            baseContext(),
+            getText(COLUMN_TOTAL_PCT));
+        configurePercentColumn(
+            newTotalTime,
+            "newTotalTimeShare",
+            newContext(),
+            getText(COLUMN_TOTAL_PCT));
+        configurePercentColumn(
+            totalTimeDiff,
+            "pctTotalChange",
+            doubleDiffStyler,
+            getText(COLUMN_TOTAL_PCT_DIFF));
 
-        configureCountColumn(baseSelfCount, "baseSelfCount", baseContext(), "Self #");
-        configureCountColumn(newSelfCount, "newSelfCount", newContext(), "Self #");
+        configureCountColumn(
+            baseSelfCount,
+            "baseSelfCount",
+            baseContext(),
+            getText(COLUMN_SELF_CNT));
+        configureCountColumn(newSelfCount, "newSelfCount", newContext(), getText(COLUMN_SELF_CNT));
         configureCountDiffColumn(
             selfCountDiff,
             data -> new ReadOnlyIntegerWrapper(
                 data.getValue().getNewSelfCount() - data.getValue().getBaseSelfCount()),
             intDiffStyler,
-            "Self # Diff");
+            getText(COLUMN_SELF_CNT_DIFF));
 
-        configureCountColumn(baseTotalCount, "baseTotalCount", baseContext(), "Total #");
-        configureCountColumn(newTotalCount, "newTotalCount", newContext(), "Total #");
+        configureCountColumn(
+            baseTotalCount,
+            "baseTotalCount",
+            baseContext(),
+            getText(COLUMN_TOTAL_CNT));
+        configureCountColumn(
+            newTotalCount,
+            "newTotalCount",
+            newContext(),
+            getText(COLUMN_TOTAL_CNT));
         configureCountDiffColumn(
             totalCountDiff,
             data -> new ReadOnlyIntegerWrapper(
                 data.getValue().getNewTotalCount() - data.getValue().getBaseTotalCount()),
             intDiffStyler,
-            "Total # Diff");
+            getText(COLUMN_TOTAL_CNT_DIFF));
 
-        configureCountColumn(baseTraceCount, "baseTraceCount", baseContext(), "Trace #");
-        configureCountColumn(newTraceCount, "newTraceCount", newContext(), "Trace #");
+        configureCountColumn(
+            baseTraceCount,
+            "baseTraceCount",
+            baseContext(),
+            getText(COLUMN_PROFILE_CNT));
+        configureCountColumn(
+            newTraceCount,
+            "newTraceCount",
+            newContext(),
+            getText(COLUMN_PROFILE_CNT));
         configureCountDiffColumn(
             traceCountDiff,
             data -> new ReadOnlyIntegerWrapper(
                 data.getValue().getNewTraceCount() - data.getValue().getBaseTraceCount()),
             intDiffStyler,
-            "Trace # Diff");
+            getText(COLUMN_PROFILE_CNT_DIFF));
     }
 
     @Override
@@ -275,8 +324,7 @@ public class FlatDiffViewController extends ProfileDiffViewController<Profile>
     }
 
     private void configureCountColumn(TableColumn<FlatEntryDiff, Number> column,
-        String propertyName,
-        ProfileContext profileContext, String title)
+        String propertyName, ProfileContext profileContext, String title)
     {
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
         column.setCellFactory(col -> new CountTableCell<FlatEntryDiff>());
@@ -330,11 +378,10 @@ public class FlatDiffViewController extends ProfileDiffViewController<Profile>
     private void applyQuickFilter()
     {
         String input = quickFilterText.getText();
-        this.quickFilter = input.isEmpty() ? null
-            : new StringFilter(
-                Filter.Mode.CONTAINS,
-                frame -> frame.getClassName() + "." + frame.getMethodName(),
-                input);
+        quickFilter = input.isEmpty() ? null : new StringFilter(
+            Filter.Mode.CONTAINS,
+            frame -> frame.getClassName() + "." + frame.getMethodName(),
+            input);
         refresh();
     }
 
@@ -351,5 +398,15 @@ public class FlatDiffViewController extends ProfileDiffViewController<Profile>
             filters.addAll(currentFilter.getFilters());
             return new ProfileFilter(filters);
         }
+    }
+
+    @Override
+    protected void initializeInfoText()
+    {
+        info(filterButton, INFO_BUTTON_FILTER);
+        info(exportButton, INFO_BUTTON_EXPORT);
+        info(quickFilterText, INFO_INPUT_QUICKFILTER);
+        info(quickFilterButton, INFO_BUTTON_QUICKFILTER);
+        info(diffTable, INFO_TABLE_FLATDIFF);
     }
 }
