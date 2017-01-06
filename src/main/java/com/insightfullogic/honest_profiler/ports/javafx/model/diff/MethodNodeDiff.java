@@ -10,7 +10,7 @@ import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
-public class MethodNodeDiff implements TreeNodeDiff
+public class MethodNodeDiff implements NodeDiff
 {
     private String name;
 
@@ -58,13 +58,13 @@ public class MethodNodeDiff implements TreeNodeDiff
     @Override
     public double getBaseSelfPct()
     {
-        return getBaseParentCount() == 0 ? 0 : getBaseSelfCount() / (double) getBaseParentCount();
+        return getBaseParentCnt() == 0 ? 0 : getBaseSelfCnt() / (double) getBaseParentCnt();
     }
 
     @Override
     public double getNewSelfPct()
     {
-        return getNewParentCount() == 0 ? 0 : getNewSelfCount() / (double) getNewParentCount();
+        return getNewParentCnt() == 0 ? 0 : getNewSelfCnt() / (double) getNewParentCnt();
     }
 
     @Override
@@ -76,13 +76,13 @@ public class MethodNodeDiff implements TreeNodeDiff
     @Override
     public double getBaseTotalPct()
     {
-        return getBaseParentCount() == 0 ? 0 : getBaseTotalCount() / (double) getBaseParentCount();
+        return getBaseParentCnt() == 0 ? 0 : getBaseTotalCnt() / (double) getBaseParentCnt();
     }
 
     @Override
     public double getNewTotalPct()
     {
-        return getNewParentCount() == 0 ? 0 : getNewTotalCount() / (double) getNewParentCount();
+        return getNewParentCnt() == 0 ? 0 : getNewTotalCnt() / (double) getNewParentCnt();
     }
 
     @Override
@@ -92,57 +92,57 @@ public class MethodNodeDiff implements TreeNodeDiff
     }
 
     @Override
-    public int getBaseSelfCount()
+    public int getBaseSelfCnt()
     {
         return baseSelfCount.get();
     }
 
     @Override
-    public int getNewSelfCount()
+    public int getNewSelfCnt()
     {
         return newSelfCount.get();
     }
 
     @Override
-    public int getSelfCountDiff()
+    public int getSelfCntDiff()
     {
-        return getNewSelfCount() - getBaseSelfCount();
+        return getNewSelfCnt() - getBaseSelfCnt();
     }
 
     @Override
-    public int getBaseTotalCount()
+    public int getBaseTotalCnt()
     {
         return baseTotalCount.get();
     }
 
     @Override
-    public int getNewTotalCount()
+    public int getNewTotalCnt()
     {
         return newTotalCount.get();
     }
 
     @Override
-    public int getTotalCountDiff()
+    public int getTotalCntDiff()
     {
-        return getNewTotalCount() - getBaseTotalCount();
+        return getNewTotalCnt() - getBaseTotalCnt();
     }
 
     @Override
-    public int getBaseParentCount()
+    public int getBaseParentCnt()
     {
         return baseParentCount.get();
     }
 
     @Override
-    public int getNewParentCount()
+    public int getNewParentCnt()
     {
         return newParentCount.get();
     }
 
     @Override
-    public int getParentCountDiff()
+    public int getParentCntDiff()
     {
-        return getNewParentCount() - getBaseParentCount();
+        return getNewParentCnt() - getBaseParentCnt();
     }
 
     public MethodNodeDiff updateForBase(ProfileNode baseNode)

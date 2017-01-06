@@ -39,8 +39,7 @@ public final class ReportUtil
 
     public static enum Mode
     {
-        TEXT("", " ", ""),
-        CSV("\"", "\",\"", "\"");
+        TEXT("", " ", ""), CSV("\"", "\",\"", "\"");
 
         private String start;
         private String middle;
@@ -121,16 +120,16 @@ public final class ReportUtil
         out.print("Method");
 
         mode.middle(out);
-        out.print("Self Time %");
+        out.print("Self %");
         mode.middle(out);
-        out.print("Total Time %");
+        out.print("Total %");
 
         mode.middle(out);
-        out.print("Self Sample #");
+        out.print("Self #");
         mode.middle(out);
-        out.print("Total Sample #");
+        out.print("Total #");
         mode.middle(out);
-        out.print("Profile Sample #");
+        out.print("Profile #");
         mode.end(out);
 
         entries.forEach(entry ->
@@ -163,39 +162,39 @@ public final class ReportUtil
         out.print("Method");
 
         mode.middle(out);
-        out.print("Base Self Time %");
+        out.print("Base Self %");
         mode.middle(out);
-        out.print("New Self Time %");
+        out.print("New Self %");
         mode.middle(out);
-        out.print("Self Time % Diff");
+        out.print("Self % Diff");
 
         mode.middle(out);
-        out.print("Base Total Time %");
+        out.print("Base Total %");
         mode.middle(out);
-        out.print("New Total Time %");
+        out.print("New Total %");
         mode.middle(out);
-        out.print("Total Time % Diff");
+        out.print("Total % Diff");
 
         mode.middle(out);
-        out.print("Base Self Sample #");
+        out.print("Base Self #");
         mode.middle(out);
-        out.print("New Self Sample #");
+        out.print("New Self #");
         mode.middle(out);
-        out.print("Self Sample # Diff");
+        out.print("Self # Diff");
 
         mode.middle(out);
-        out.print("Base Total Sample #");
+        out.print("Base Total #");
         mode.middle(out);
-        out.print("New Total Sample #");
+        out.print("New Total #");
         mode.middle(out);
-        out.print("Total Sample # Diff");
+        out.print("Total # Diff");
 
         mode.middle(out);
-        out.print("Base Profile Sample #");
+        out.print("Base Profile #");
         mode.middle(out);
-        out.print("New Profile Sample #");
+        out.print("New Profile #");
         mode.middle(out);
-        out.print("Profile Sample # Diff");
+        out.print("Profile # Diff");
 
         mode.end(out);
 
@@ -205,45 +204,39 @@ public final class ReportUtil
             out.write(entry.getFullName());
 
             mode.middle(out);
-            out.printf("%.4f", entry.baseSelfTimeShareProperty().get());
+            out.printf("%.4f", entry.getBaseSelfPct());
             mode.middle(out);
-            out.printf("%.4f", entry.newSelfTimeShareProperty().get());
+            out.printf("%.4f", entry.getNewSelfPct());
             mode.middle(out);
-            out.printf("%.4f", entry.pctSelfChangeProperty().get());
+            out.printf("%.4f", entry.getSelfPctDiff());
 
             mode.middle(out);
-            out.printf("%.4f", entry.baseTotalTimeShareProperty().get());
+            out.printf("%.4f", entry.getBaseTotalPct());
             mode.middle(out);
-            out.printf("%.4f", entry.newTotalTimeShareProperty().get());
+            out.printf("%.4f", entry.getNewTotalPct());
             mode.middle(out);
-            out.printf("%.4f", entry.pctTotalChangeProperty().get());
+            out.printf("%.4f", entry.getTotalPctDiff());
 
             mode.middle(out);
-            out.printf("%d", entry.baseSelfCountProperty().get());
+            out.printf("%d", entry.getBaseSelfCnt());
             mode.middle(out);
-            out.printf("%d", entry.newSelfCountProperty().get());
+            out.printf("%d", entry.getNewSelfCnt());
             mode.middle(out);
-            out.printf(
-                "%d",
-                entry.newSelfCountProperty().get() - entry.baseSelfCountProperty().get());
+            out.printf("%d", entry.getSelfCntDiff());
 
             mode.middle(out);
-            out.printf("%d", entry.baseTotalCountProperty().get());
+            out.printf("%d", entry.getBaseTotalCnt());
             mode.middle(out);
-            out.printf("%d", entry.newTotalCountProperty().get());
+            out.printf("%d", entry.getNewTotalCnt());
             mode.middle(out);
-            out.printf(
-                "%d",
-                entry.newTotalCountProperty().get() - entry.baseTotalCountProperty().get());
+            out.printf("%d", entry.getTotalCntDiff());
 
             mode.middle(out);
-            out.printf("%d", entry.baseTraceCountProperty().get());
+            out.printf("%d", entry.getBaseProfileCnt());
             mode.middle(out);
-            out.printf("%d", entry.newTraceCountProperty().get());
+            out.printf("%d", entry.getNewProfileCnt());
             mode.middle(out);
-            out.printf(
-                "%d",
-                entry.newTraceCountProperty().get() - entry.baseTraceCountProperty().get());
+            out.printf("%d", entry.getProfileCntDiff());
 
             mode.end(out);
         });

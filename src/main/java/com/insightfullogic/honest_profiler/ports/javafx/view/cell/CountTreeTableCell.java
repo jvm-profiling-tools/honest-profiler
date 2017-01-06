@@ -23,16 +23,18 @@ import static javafx.scene.text.TextAlignment.RIGHT;
 
 import java.util.function.Function;
 
-import javafx.scene.control.TableCell;
+import com.insightfullogic.honest_profiler.ports.javafx.model.diff.ThreadNodeDiff;
 
-public class CountTableCell<T> extends TableCell<T, Number>
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableCell;
+
+public class CountTreeTableCell<T> extends TreeTableCell<T, String>
 {
-    private Function<Number, String> styleFunction;
+    private Function<String, String> styleFunction;
 
-    public CountTableCell(Function<Number, String> styleFunction)
+    public CountTreeTableCell(Function<String, String> styleFunction)
     {
         super();
-
         setTextAlignment(RIGHT);
         setAlignment(CENTER_RIGHT);
 
@@ -40,16 +42,19 @@ public class CountTableCell<T> extends TableCell<T, Number>
     }
 
     @Override
-    protected void updateItem(Number item, boolean isEmpty)
+    protected void updateItem(String text, boolean isEmpty)
     {
-        if (isEmpty || item == null)
+        if (isEmpty || text == null)
         {
             setText(null);
             setStyle(null);
             return;
         }
 
-        setText(item.toString());
-        setStyle(styleFunction == null ? null : styleFunction.apply(item));
+        TreeItem<T> treeItem = getTreeTableRow().getTreeItem();
+        boolean threadNode = treeItem == null || treeItem.getValue() instanceof ThreadNodeDiff;
+
+        setText(threadNode ? null : text.toString());
+        setStyle((threadNode || styleFunction == null) ? null : styleFunction.apply(text));
     }
 }

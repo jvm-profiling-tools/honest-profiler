@@ -30,15 +30,13 @@ public class PercentageTableCell<T> extends TableCell<T, Number>
 {
     private Function<Number, String> styleFunction;
 
-    public PercentageTableCell()
-    {
-        setTextAlignment(RIGHT);
-        setAlignment(CENTER_RIGHT);
-    }
-
     public PercentageTableCell(Function<Number, String> styleFunction)
     {
-        this();
+        super();
+
+        setTextAlignment(RIGHT);
+        setAlignment(CENTER_RIGHT);
+
         this.styleFunction = styleFunction;
     }
 

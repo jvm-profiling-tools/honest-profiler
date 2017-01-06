@@ -1,15 +1,16 @@
 package com.insightfullogic.honest_profiler.ports.javafx.view.cell;
 
-import static com.insightfullogic.honest_profiler.ports.javafx.util.ContextMenuUtil.bindContextMenuForTreeCell;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ContextMenuUtil.bindContextMenuForTreeTableCell;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.StyleUtil.STYLE_METHOD_NAME;
 
 import javafx.scene.control.TreeTableCell;
 
-public class TreeViewTreeTableCell<T> extends TreeTableCell<T, String>
+public class MethodNameTreeTableCell<T> extends TreeTableCell<T, String>
 {
-    public TreeViewTreeTableCell()
+    public MethodNameTreeTableCell()
     {
         super();
-        bindContextMenuForTreeCell(this);
+        bindContextMenuForTreeTableCell(this);
     }
 
     @Override
@@ -17,13 +18,13 @@ public class TreeViewTreeTableCell<T> extends TreeTableCell<T, String>
     {
         super.updateItem(item, empty);
 
-        setStyle(null);
         if (empty)
         {
             setText(null);
             setGraphic(null);
             return;
         }
+        setStyle(STYLE_METHOD_NAME);
         setText(item);
     }
 }

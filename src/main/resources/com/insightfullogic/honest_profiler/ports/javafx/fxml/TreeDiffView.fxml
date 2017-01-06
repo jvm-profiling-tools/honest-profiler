@@ -98,19 +98,16 @@
             <TreeTableColumn fx:id="baseTotalPct" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.totalSamplePercent" />
             <TreeTableColumn fx:id="newTotalPct" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.totalSamplePercent" />
             <TreeTableColumn fx:id="totalPctDiff" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.totalSamplePercentDiff" />
-            <TreeTableColumn fx:id="baseSelfCount" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.selfSampleCount" />
-            <TreeTableColumn fx:id="newSelfCount" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.selfSampleCount" />
-            <TreeTableColumn fx:id="selfCountDiff" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.selfSampleCountDiff" />
-            <TreeTableColumn fx:id="baseTotalCount" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.totalSampleCount" />
-            <TreeTableColumn fx:id="newTotalCount" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.totalSampleCount" />
-            <TreeTableColumn fx:id="totalCountDiff" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.totalSampleCountDiff" />
-            <TreeTableColumn fx:id="baseParentCount" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.parentSampleCount" />
-            <TreeTableColumn fx:id="newParentCount" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.parentSampleCount" />
-            <TreeTableColumn fx:id="parentCountDiff" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.parentSampleCountDiff" />
+            <TreeTableColumn fx:id="baseSelfCnt" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.selfSampleCount" />
+            <TreeTableColumn fx:id="newSelfCnt" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.selfSampleCount" />
+            <TreeTableColumn fx:id="selfCntDiff" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.selfSampleCountDiff" />
+            <TreeTableColumn fx:id="baseTotalCnt" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.totalSampleCount" />
+            <TreeTableColumn fx:id="newTotalCnt" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.totalSampleCount" />
+            <TreeTableColumn fx:id="totalCntDiff" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.totalSampleCountDiff" />
+            <TreeTableColumn fx:id="baseParentCnt" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.parentSampleCount" />
+            <TreeTableColumn fx:id="newParentCnt" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.parentSampleCount" />
+            <TreeTableColumn fx:id="parentCntDiff" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.parentSampleCountDiff" />
          </columns>
-         <columnResizePolicy>
-            <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-         </columnResizePolicy>
          <tooltip>
             <Tooltip text="%table.treeDiff.tooltip" />
          </tooltip></TreeTableView>

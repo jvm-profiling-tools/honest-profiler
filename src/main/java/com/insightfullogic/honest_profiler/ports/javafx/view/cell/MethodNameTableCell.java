@@ -36,7 +36,7 @@ public class MethodNameTableCell<T> extends TableCell<T, String>
             return;
         }
 
-        setText(value);
         setStyle(STYLE_METHOD_NAME);
+        setText(value);
     }
 }

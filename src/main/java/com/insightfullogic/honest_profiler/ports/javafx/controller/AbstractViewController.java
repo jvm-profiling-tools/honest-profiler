@@ -2,13 +2,18 @@ package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.FILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.TITLE_DIALOG_SPECIFYFILTERS;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.StyleUtil.doubleDiffStyler;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.StyleUtil.intDiffStyler;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.StyleUtil.stringDiffStyler;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_ACTIVE_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor;
+import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderPercentage;
 import static javafx.scene.input.KeyCode.ENTER;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import com.insightfullogic.honest_profiler.core.filters.Filter;
 import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
@@ -16,19 +21,32 @@ import com.insightfullogic.honest_profiler.core.filters.StringFilter;
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
+import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterSpecification;
 import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType;
 import com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil;
+import com.insightfullogic.honest_profiler.ports.javafx.view.cell.CountTableCell;
+import com.insightfullogic.honest_profiler.ports.javafx.view.cell.CountTreeTableCell;
+import com.insightfullogic.honest_profiler.ports.javafx.view.cell.PercentageTableCell;
+import com.insightfullogic.honest_profiler.ports.javafx.view.cell.PercentageTreeTableCell;
 
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.StringProperty;
 import javafx.scene.control.Button;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.TreeTableColumn.CellDataFeatures;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 
 /**
  * Superclass for all View Controllers in the application. These controllers provide a particular view on data. The
  * class holds the code for the filters and quick filter.
+ *
+ * The superclass also provides some common UI helper methods for column configuration.
  */
 public abstract class AbstractViewController extends AbstractController
 {
@@ -66,6 +84,8 @@ public abstract class AbstractViewController extends AbstractController
         this.quickFilterText = quickFilterText;
     }
 
+    // Accessors
+
     /**
      * In addition to the normal functionality, the method calls filter initialization, which needs the
      * ApplicationContext to be present. If a particular view controller
@@ -86,17 +106,103 @@ public abstract class AbstractViewController extends AbstractController
     }
 
     /**
+     * Refreshes the view. The view should be updated based on the current state of the {@link Profile} and
+     * {@link ProfileFilter}.
+     */
+    protected abstract void refresh();
+
+    // UI Helper Methods
+
+    protected abstract <C> void setColumnHeader(C column, String title, ProfileContext context);
+
+    protected <T> void cfgPctCol(TableColumn<T, Number> column, String propertyName,
+        ProfileContext profileContext, String title)
+    {
+        column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
+        column.setCellFactory(col -> new PercentageTableCell<>(null));
+        setColumnHeader(column, title, profileContext);
+    }
+
+    protected <T> void cfgPctDiffCol(TableColumn<T, Number> column, String propertyName,
+        String title)
+    {
+        column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
+        column.setCellFactory(col -> new PercentageTableCell<>(doubleDiffStyler));
+        setColumnHeader(column, title, null);
+    }
+
+    protected <T> void cfgCntCol(TableColumn<T, Number> column, String propertyName,
+        ProfileContext profileContext, String title)
+    {
+        column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
+        column.setCellFactory(col -> new CountTableCell<>(null));
+        setColumnHeader(column, title, profileContext);
+    }
+
+    protected <T> void cfgCntDiffCol(TableColumn<T, Number> column, String propertyName,
+        String title)
+    {
+        column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
+        column.setCellFactory(col -> new CountTableCell<>(intDiffStyler));
+        setColumnHeader(column, title, null);
+    }
+
+    protected <T> void cfgPctCol(TreeTableColumn<T, String> column, Function<T, Double> accessor,
+        ProfileContext profileContext, String title)
+    {
+        column.setCellValueFactory(data -> wrapDouble(data, accessor));
+        column.setCellFactory(col -> new PercentageTreeTableCell<>(null));
+        setColumnHeader(column, title, profileContext);
+    }
+
+    protected <T> void cfgPctDiffCol(TreeTableColumn<T, String> column,
+        Function<T, Double> accessor, String title)
+    {
+        column.setCellValueFactory(data -> wrapDouble(data, accessor));
+        column.setCellFactory(col -> new PercentageTreeTableCell<>(stringDiffStyler));
+        setColumnHeader(column, title, null);
+    }
+
+    protected <T> void cfgCntCol(TreeTableColumn<T, String> column, Function<T, Integer> accessor,
+        ProfileContext profileContext, String title)
+    {
+        column.setCellValueFactory(data -> wrapInt(data, accessor));
+        column.setCellFactory(col -> new CountTreeTableCell<>(null));
+        setColumnHeader(column, title, profileContext);
+    }
+
+    protected <T> void cfgCntDiffCol(TreeTableColumn<T, String> column,
+        Function<T, Integer> accessor, String title)
+    {
+        column.setCellValueFactory(data -> wrapInt(data, accessor));
+        column.setCellFactory(col -> new CountTreeTableCell<>(stringDiffStyler));
+        setColumnHeader(column, title, null);
+    }
+
+    private <T> StringProperty wrapDouble(CellDataFeatures<T, String> data,
+        Function<T, Double> accessor)
+    {
+        return new ReadOnlyStringWrapper(
+            data.getValue().getValue() != null
+                ? renderPercentage(accessor.apply(data.getValue().getValue())) : "");
+    }
+
+    private <T> StringProperty wrapInt(CellDataFeatures<T, String> data,
+        Function<T, Integer> accessor)
+    {
+        return new ReadOnlyStringWrapper(
+            data.getValue().getValue() != null
+                ? Integer.toString(accessor.apply(data.getValue().getValue())) : "");
+    }
+
+    // Filter-related methods
+
+    /**
      * View Controllers must implement this, and return the {@link FilterType}s which are supported by them.
      *
      * @return an array containing the {@link FilterType}s supported by the view controller
      */
     protected abstract FilterType[] getAllowedFilterTypes();
-
-    /**
-     * Refreshes the view. The view should be updated based on the current state of the {@link Profile} and
-     * {@link ProfileFilter}.
-     */
-    protected abstract void refresh();
 
     /**
      * Returns the current {@link FilterSpecification}.

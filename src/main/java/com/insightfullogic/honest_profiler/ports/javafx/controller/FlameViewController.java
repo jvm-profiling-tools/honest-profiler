@@ -19,6 +19,7 @@
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
 import com.insightfullogic.honest_profiler.core.profiles.FlameGraph;
+import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType;
 import com.insightfullogic.honest_profiler.ports.javafx.view.FlameGraphCanvas;
 
@@ -84,6 +85,12 @@ public class FlameViewController extends ProfileViewController<FlameGraph>
     protected void refresh()
     {
         flameView.accept(getTarget());
+    }
+
+    @Override
+    protected <C> void setColumnHeader(C column, String title, ProfileContext context)
+    {
+        // NOOP
     }
 
     @Override

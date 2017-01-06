@@ -18,8 +18,12 @@ public final class StyleUtil
 
     public static final Function<Number, String> intDiffStyler = number -> number.intValue() > 0
         ? STYLE_BAD : (number.intValue() < 0 ? STYLE_GOOD : STYLE_NORMAL);
+
     public static final Function<Number, String> doubleDiffStyler = number -> number
         .doubleValue() > 0 ? STYLE_BAD : (number.doubleValue() < 0 ? STYLE_GOOD : STYLE_NORMAL);
+
+    public static final Function<String, String> stringDiffStyler = string -> string.startsWith("-")
+        ? STYLE_GOOD : ("0".equals(string) || "0.00%".equals(string)) ? STYLE_NORMAL : STYLE_BAD;
 
     private StyleUtil()
     {

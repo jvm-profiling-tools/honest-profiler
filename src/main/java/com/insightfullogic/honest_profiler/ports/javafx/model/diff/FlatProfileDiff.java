@@ -30,7 +30,7 @@ public class FlatProfileDiff
         entriesByMethodName.clear();
     }
 
-    public void updateBase(List<FlatProfileEntry> baseProfile)
+    public void updateForBase(List<FlatProfileEntry> baseProfile)
     {
         baseProfile.forEach(
             entry -> entriesByMethodName.compute(
@@ -39,7 +39,7 @@ public class FlatProfileDiff
                     ? newDiff(entry, true) : diff.updateForBase(entry)));
     }
 
-    public void updateNew(List<FlatProfileEntry> newProfile)
+    public void updateForNew(List<FlatProfileEntry> newProfile)
     {
         newProfile.forEach(
             entry -> entriesByMethodName.compute(

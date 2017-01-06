@@ -1,5 +1,9 @@
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
+import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.addProfileNr;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.createColoredLabelContainer;
+import static javafx.geometry.Pos.CENTER;
+
 import java.util.function.Function;
 
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
@@ -8,8 +12,13 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TreeTableColumn;
+import javafx.scene.layout.HBox;
+import javafx.scene.text.Text;
 
 /**
  * Superclass for all Diff View Controllers in the application which provide a view on a comparison between two
@@ -24,6 +33,8 @@ import javafx.scene.control.TextField;
  * By binding or unbinding the local targets, it is possible to star and stop all tracking of changes to the targets in
  * the UI. This has been provided to make it possible to stop executing refresh() and other UI updates when the view
  * associated to the controller is hidden.
+ *
+ * The superclass also provides some common UI helper methods for column configuration.
  *
  * @param <T> the data type of the target
  */
@@ -58,6 +69,63 @@ public abstract class ProfileDiffViewController<T> extends AbstractViewControlle
         newTarget.addListener((property, oldValue, newValue) -> refresh());
     }
 
+    // UI Helper Methods
+
+    protected <C> void setColumnHeader(C column, String title, ProfileContext profileContext)
+    {
+        HBox header = createColoredLabelContainer(CENTER);
+
+        if (profileContext != null)
+        {
+            addProfileNr(header, profileContext);
+        }
+
+        header.getChildren().add(new Text(title));
+
+        // Somehow it's hard to get a TableColumn to resize properly.
+        // Therefore, we calculate a fair width ourselves.
+        double width = calculateWidth(header);
+
+        if (column instanceof TreeTableColumn<?, ?>)
+        {
+            reconfigure((TreeTableColumn<?, ?>) column, null, header, width, width + 5);
+        }
+        else
+        {
+            reconfigure((TableColumn<?, ?>) column, null, header, width, width + 5);
+        }
+    }
+
+    private void reconfigure(TreeTableColumn<?, ?> column, String text, Node graphic,
+        double minWidth, double prefWidth)
+    {
+        column.setText(text);
+        column.setGraphic(graphic);
+        column.setMinWidth(minWidth);
+        column.setPrefWidth(prefWidth);
+    }
+
+    private void reconfigure(TableColumn<?, ?> column, String text, Node graphic, double minWidth,
+        double prefWidth)
+    {
+        column.setText(text);
+        column.setGraphic(graphic);
+        column.setMinWidth(minWidth);
+        column.setPrefWidth(prefWidth);
+    }
+
+    private double calculateWidth(HBox box)
+    {
+        double width = 0;
+        for (Node node : box.getChildren())
+        {
+            width += node.getBoundsInLocal().getWidth();
+        }
+        width += box.getSpacing() * (box.getChildren().size() - 1);
+        width += box.getPadding().getLeft() + box.getPadding().getRight();
+        return width;
+    }
+
     // Activation
 
     /**
@@ -80,6 +148,8 @@ public abstract class ProfileDiffViewController<T> extends AbstractViewControlle
         baseTarget.unbind();
         newTarget.unbind();
     }
+
+    // Accessors
 
     /**
      * Returns the {@link ProfileContext} for the baseline target. The name has been shortened to unclutter code in

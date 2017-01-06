@@ -80,21 +80,21 @@
       <TableView fx:id="diffTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
           <columns>
             <TableColumn fx:id="method" prefWidth="492.0" text="%column.method" />
-            <TableColumn fx:id="baseSelfTime" prefWidth="100.0" text="%column.selfSamplePercent" />
-            <TableColumn fx:id="newSelfTime" prefWidth="100.0" text="%column.selfSamplePercent" />
-            <TableColumn fx:id="selfTimeDiff" prefWidth="100.0" text="%column.selfSamplePercentDiff" />
-            <TableColumn fx:id="baseTotalTime" prefWidth="100.0" text="%column.totalSamplePercent" />
-            <TableColumn fx:id="newTotalTime" prefWidth="100.0" text="%column.totalSamplePercent" />
-            <TableColumn fx:id="totalTimeDiff" prefWidth="100.0" text="%column.totalSamplePercentDiff" />
-            <TableColumn fx:id="baseSelfCount" prefWidth="100.0" text="%column.selfSampleCount" />
-            <TableColumn fx:id="newSelfCount" prefWidth="100.0" text="%column.selfSampleCount" />
-            <TableColumn fx:id="selfCountDiff" prefWidth="100.0" text="%column.selfSampleCountDiff" />
-            <TableColumn fx:id="baseTotalCount" prefWidth="100.0" text="%column.totalSampleCount" />
-            <TableColumn fx:id="newTotalCount" prefWidth="100.0" text="%column.totalSampleCount" />
-            <TableColumn fx:id="totalCountDiff" prefWidth="100.0" text="%column.totalSampleCountDiff" />
-            <TableColumn fx:id="baseTraceCount" prefWidth="100.0" text="%column.profileSampleCount" />
-            <TableColumn fx:id="newTraceCount" prefWidth="100.0" text="%column.profileSampleCount" />
-            <TableColumn fx:id="traceCountDiff" prefWidth="100.0" text="%column.profileSampleCountDiff" />
+            <TableColumn fx:id="baseSelfPct" prefWidth="100.0" text="%column.selfSamplePercent" />
+            <TableColumn fx:id="newSelfPct" prefWidth="100.0" text="%column.selfSamplePercent" />
+            <TableColumn fx:id="selfPctDiff" prefWidth="100.0" text="%column.selfSamplePercentDiff" />
+            <TableColumn fx:id="baseTotalPct" prefWidth="100.0" text="%column.totalSamplePercent" />
+            <TableColumn fx:id="newTotalPct" prefWidth="100.0" text="%column.totalSamplePercent" />
+            <TableColumn fx:id="totalPctDiff" prefWidth="100.0" text="%column.totalSamplePercentDiff" />
+            <TableColumn fx:id="baseSelfCnt" prefWidth="100.0" text="%column.selfSampleCount" />
+            <TableColumn fx:id="newSelfCnt" prefWidth="100.0" text="%column.selfSampleCount" />
+            <TableColumn fx:id="selfCntDiff" prefWidth="100.0" text="%column.selfSampleCountDiff" />
+            <TableColumn fx:id="baseTotalCnt" prefWidth="100.0" text="%column.totalSampleCount" />
+            <TableColumn fx:id="newTotalCnt" prefWidth="100.0" text="%column.totalSampleCount" />
+            <TableColumn fx:id="totalCntDiff" prefWidth="100.0" text="%column.totalSampleCountDiff" />
+            <TableColumn fx:id="baseProfileCnt" prefWidth="100.0" text="%column.profileSampleCount" />
+            <TableColumn fx:id="newProfileCnt" prefWidth="100.0" text="%column.profileSampleCount" />
+            <TableColumn fx:id="profileCntDiff" prefWidth="100.0" text="%column.profileSampleCountDiff" />
           </columns>
          <tooltip>
             <Tooltip text="%table.flatDiff.tooltip" />

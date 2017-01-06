@@ -125,7 +125,7 @@ public class FlatViewController extends ProfileViewController<Profile>
         String propertyName)
     {
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new PercentageTableCell<FlatProfileEntry>());
+        column.setCellFactory(col -> new PercentageTableCell<FlatProfileEntry>(null));
     }
 
     // AbstractController Implementation

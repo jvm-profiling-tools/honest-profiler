@@ -20,7 +20,7 @@ import javafx.scene.control.TreeTableCell;
 
 public final class ContextMenuUtil
 {
-    public static <T, U> void bindContextMenuForTreeCell(TreeTableCell<T, U> cell)
+    public static <T, U> void bindContextMenuForTreeTableCell(TreeTableCell<T, U> cell)
     {
         bindContextMenuForTreeCell(
             cell.contextMenuProperty(),

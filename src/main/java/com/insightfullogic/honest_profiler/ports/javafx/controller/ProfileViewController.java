@@ -107,4 +107,15 @@ public abstract class ProfileViewController<T> extends AbstractViewController
     {
         return target.get();
     }
+
+    // AbstractViewController Implementation
+
+    /**
+     * Override doing nothing. The profile view controllers have fixed column headings defined in the FXML.
+     */
+    @Override
+    protected <C> void setColumnHeader(C column, String title, ProfileContext context)
+    {
+        // NOOP
+    }
 }

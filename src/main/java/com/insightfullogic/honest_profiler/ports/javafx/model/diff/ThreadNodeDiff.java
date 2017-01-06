@@ -10,7 +10,7 @@ import java.util.Map;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileTree;
 
-public class ThreadNodeDiff implements TreeNodeDiff
+public class ThreadNodeDiff implements NodeDiff
 {
     private String name;
     private int baseSampleCount;
@@ -141,55 +141,55 @@ public class ThreadNodeDiff implements TreeNodeDiff
     }
 
     @Override
-    public int getBaseSelfCount()
+    public int getBaseSelfCnt()
     {
         return 0;
     }
 
     @Override
-    public int getNewSelfCount()
+    public int getNewSelfCnt()
     {
         return 0;
     }
 
     @Override
-    public int getSelfCountDiff()
+    public int getSelfCntDiff()
     {
         return 0;
     }
 
     @Override
-    public int getBaseTotalCount()
+    public int getBaseTotalCnt()
     {
         return 0;
     }
 
     @Override
-    public int getNewTotalCount()
+    public int getNewTotalCnt()
     {
         return 0;
     }
 
     @Override
-    public int getTotalCountDiff()
+    public int getTotalCntDiff()
     {
         return 0;
     }
 
     @Override
-    public int getBaseParentCount()
+    public int getBaseParentCnt()
     {
         return 0;
     }
 
     @Override
-    public int getNewParentCount()
+    public int getNewParentCnt()
     {
         return 0;
     }
 
     @Override
-    public int getParentCountDiff()
+    public int getParentCntDiff()
     {
         return 0;
     }
