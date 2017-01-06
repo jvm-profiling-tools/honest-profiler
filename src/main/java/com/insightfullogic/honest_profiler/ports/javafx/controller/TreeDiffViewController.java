@@ -26,7 +26,7 @@ import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType;
 import com.insightfullogic.honest_profiler.ports.javafx.model.task.CopyAndFilterProfile;
 import com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil;
-import com.insightfullogic.honest_profiler.ports.javafx.view.cell.TreeDiffViewCell;
+import com.insightfullogic.honest_profiler.ports.javafx.view.cell.TreeViewTreeTableCell;
 
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.StringProperty;
@@ -111,7 +111,7 @@ public class TreeDiffViewController extends ProfileDiffViewController<Profile>
         methodColumn.setCellValueFactory(
             data -> new ReadOnlyStringWrapper(
                 data.getValue() == null ? null : data.getValue().getValue().getName()));
-        methodColumn.setCellFactory(col -> new TreeDiffViewCell());
+        methodColumn.setCellFactory(col -> new TreeViewTreeTableCell<>());
 
         configurePctColumn(
             baseSelfPct,
@@ -227,7 +227,7 @@ public class TreeDiffViewController extends ProfileDiffViewController<Profile>
         Function<TreeNodeDiff, Double> retriever, ProfileContext profileContext, String title)
     {
         column.setCellValueFactory(data -> wrapDouble(data, retriever));
-        column.setCellFactory(col -> new TreeDiffViewCell());
+        column.setCellFactory(col -> new TreeViewTreeTableCell<>());
         setColumnHeader(column, title, profileContext);
     }
 
@@ -235,7 +235,7 @@ public class TreeDiffViewController extends ProfileDiffViewController<Profile>
         Function<TreeNodeDiff, Double> retriever, String title)
     {
         column.setCellValueFactory(data -> wrapDouble(data, retriever));
-        column.setCellFactory(col -> new TreeDiffViewCell());
+        column.setCellFactory(col -> new TreeViewTreeTableCell<>());
         setColumnHeader(column, title, null);
     }
 
@@ -243,7 +243,7 @@ public class TreeDiffViewController extends ProfileDiffViewController<Profile>
         Function<TreeNodeDiff, Integer> retriever, ProfileContext profileContext, String title)
     {
         column.setCellValueFactory(data -> wrapInt(data, retriever));
-        column.setCellFactory(col -> new TreeDiffViewCell());
+        column.setCellFactory(col -> new TreeViewTreeTableCell<>());
         setColumnHeader(column, title, profileContext);
     }
 
@@ -251,7 +251,7 @@ public class TreeDiffViewController extends ProfileDiffViewController<Profile>
         Function<TreeNodeDiff, Integer> retriever, String title)
     {
         column.setCellValueFactory(data -> wrapInt(data, retriever));
-        column.setCellFactory(col -> new TreeDiffViewCell());
+        column.setCellFactory(col -> new TreeViewTreeTableCell<>());
         setColumnHeader(column, title, null);
     }
 

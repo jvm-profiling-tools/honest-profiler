@@ -38,7 +38,7 @@ import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
 import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType;
 import com.insightfullogic.honest_profiler.ports.javafx.model.task.CopyAndFilterProfile;
 import com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil;
-import com.insightfullogic.honest_profiler.ports.javafx.view.cell.ProfileNodeTreeTableCell;
+import com.insightfullogic.honest_profiler.ports.javafx.view.cell.TreeViewTreeTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.TreeViewCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.tree.MethodNodeAdapter;
 import com.insightfullogic.honest_profiler.ports.javafx.view.tree.RootNodeAdapter;
@@ -94,11 +94,11 @@ public class TreeViewController extends ProfileViewController<Profile>
 
         treeView.setRoot(rootNode);
 
+        methodColumn.setCellFactory(column -> new TreeViewTreeTableCell<>());
+        methodColumn.setCellValueFactory(data -> buildProfileNodeCell(data.getValue()));
+
         totalColumn.setCellValueFactory(data -> wrapDouble(data, ProfileNode::getTotalTimeShare));
         selfColumn.setCellValueFactory(data -> wrapDouble(data, ProfileNode::getSelfTimeShare));
-
-        methodColumn.setCellFactory(column -> new ProfileNodeTreeTableCell());
-        methodColumn.setCellValueFactory(data -> buildProfileNodeCell(data.getValue()));
 
         percentColumn.setCellFactory(param -> new TreeViewCell());
     }

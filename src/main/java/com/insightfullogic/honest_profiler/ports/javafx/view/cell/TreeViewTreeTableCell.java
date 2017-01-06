@@ -2,13 +2,11 @@ package com.insightfullogic.honest_profiler.ports.javafx.view.cell;
 
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ContextMenuUtil.bindContextMenuForTreeCell;
 
-import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
-
 import javafx.scene.control.TreeTableCell;
 
-public class ProfileNodeTreeTableCell extends TreeTableCell<ProfileNode, String>
+public class TreeViewTreeTableCell<T> extends TreeTableCell<T, String>
 {
-    public ProfileNodeTreeTableCell()
+    public TreeViewTreeTableCell()
     {
         super();
         bindContextMenuForTreeCell(this);
