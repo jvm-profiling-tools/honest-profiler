@@ -116,12 +116,12 @@ public class TreeDiffViewController extends ProfileDiffViewController<Profile>
         configurePctColumn(
             baseSelfPct,
             TreeNodeDiff::getBaseSelfPct,
-            baseContext(),
+            baseCtx(),
             getText(COLUMN_SELF_PCT));
         configurePctColumn(
             newSelfPct,
             TreeNodeDiff::getNewSelfPct,
-            newContext(),
+            newCtx(),
             getText(COLUMN_SELF_PCT));
         configurePctColumn(
             selfPctDiff,
@@ -131,12 +131,12 @@ public class TreeDiffViewController extends ProfileDiffViewController<Profile>
         configurePctColumn(
             baseTotalPct,
             TreeNodeDiff::getBaseTotalPct,
-            baseContext(),
+            baseCtx(),
             getText(ResourceUtil.COLUMN_TOTAL_PCT));
         configurePctColumn(
             newTotalPct,
             TreeNodeDiff::getNewTotalPct,
-            newContext(),
+            newCtx(),
             getText(ResourceUtil.COLUMN_TOTAL_PCT));
         configurePctColumn(
             totalPctDiff,
@@ -146,12 +146,12 @@ public class TreeDiffViewController extends ProfileDiffViewController<Profile>
         configureCntColumn(
             baseSelfCount,
             TreeNodeDiff::getBaseSelfCount,
-            baseContext(),
+            baseCtx(),
             getText(ResourceUtil.COLUMN_SELF_CNT));
         configureCntColumn(
             newSelfCount,
             TreeNodeDiff::getNewSelfCount,
-            newContext(),
+            newCtx(),
             getText(ResourceUtil.COLUMN_SELF_CNT));
         configureCntDiffColumn(
             selfCountDiff,
@@ -161,12 +161,12 @@ public class TreeDiffViewController extends ProfileDiffViewController<Profile>
         configureCntColumn(
             baseTotalCount,
             TreeNodeDiff::getBaseTotalCount,
-            baseContext(),
+            baseCtx(),
             getText(ResourceUtil.COLUMN_TOTAL_CNT));
         configureCntColumn(
             newTotalCount,
             TreeNodeDiff::getNewTotalCount,
-            newContext(),
+            newCtx(),
             getText(ResourceUtil.COLUMN_TOTAL_CNT));
         configureCntDiffColumn(
             totalCountDiff,
@@ -176,12 +176,12 @@ public class TreeDiffViewController extends ProfileDiffViewController<Profile>
         configureCntColumn(
             baseParentCount,
             TreeNodeDiff::getBaseParentCount,
-            baseContext(),
+            baseCtx(),
             getText(ResourceUtil.COLUMN_PARENT_CNT));
         configureCntColumn(
             newParentCount,
             TreeNodeDiff::getNewParentCount,
-            newContext(),
+            newCtx(),
             getText(ResourceUtil.COLUMN_PARENT_CNT));
         configureCntDiffColumn(
             parentCountDiff,

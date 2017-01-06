@@ -143,12 +143,12 @@ public class FlatDiffViewController extends ProfileDiffViewController<Profile>
         configurePercentColumn(
             baseSelfTime,
             "baseSelfTimeShare",
-            baseContext(),
+            baseCtx(),
             getText(COLUMN_SELF_PCT));
         configurePercentColumn(
             newSelfTime,
             "newSelfTimeShare",
-            newContext(),
+            newCtx(),
             getText(COLUMN_SELF_PCT));
         configurePercentColumn(
             selfTimeDiff,
@@ -159,12 +159,12 @@ public class FlatDiffViewController extends ProfileDiffViewController<Profile>
         configurePercentColumn(
             baseTotalTime,
             "baseTotalTimeShare",
-            baseContext(),
+            baseCtx(),
             getText(COLUMN_TOTAL_PCT));
         configurePercentColumn(
             newTotalTime,
             "newTotalTimeShare",
-            newContext(),
+            newCtx(),
             getText(COLUMN_TOTAL_PCT));
         configurePercentColumn(
             totalTimeDiff,
@@ -175,9 +175,9 @@ public class FlatDiffViewController extends ProfileDiffViewController<Profile>
         configureCountColumn(
             baseSelfCount,
             "baseSelfCount",
-            baseContext(),
+            baseCtx(),
             getText(COLUMN_SELF_CNT));
-        configureCountColumn(newSelfCount, "newSelfCount", newContext(), getText(COLUMN_SELF_CNT));
+        configureCountColumn(newSelfCount, "newSelfCount", newCtx(), getText(COLUMN_SELF_CNT));
         configureCountDiffColumn(
             selfCountDiff,
             data -> new ReadOnlyIntegerWrapper(
@@ -188,12 +188,12 @@ public class FlatDiffViewController extends ProfileDiffViewController<Profile>
         configureCountColumn(
             baseTotalCount,
             "baseTotalCount",
-            baseContext(),
+            baseCtx(),
             getText(COLUMN_TOTAL_CNT));
         configureCountColumn(
             newTotalCount,
             "newTotalCount",
-            newContext(),
+            newCtx(),
             getText(COLUMN_TOTAL_CNT));
         configureCountDiffColumn(
             totalCountDiff,
@@ -205,12 +205,12 @@ public class FlatDiffViewController extends ProfileDiffViewController<Profile>
         configureCountColumn(
             baseTraceCount,
             "baseTraceCount",
-            baseContext(),
+            baseCtx(),
             getText(COLUMN_PROFILE_CNT));
         configureCountColumn(
             newTraceCount,
             "newTraceCount",
-            newContext(),
+            newCtx(),
             getText(COLUMN_PROFILE_CNT));
         configureCountDiffColumn(
             traceCountDiff,

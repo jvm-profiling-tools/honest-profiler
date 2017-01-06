@@ -5,11 +5,28 @@ import java.util.function.Function;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 
+/**
+ * Superclass for all Diff View Controllers in the application which provide a view on a comparison between two
+ * "targets", data structures of type T which are each stored in their respective {@link ProfileContext}.
+ *
+ * This superclass stores the {@link ProfileContext}s encapsulating the two targets. It also ensures that subclass
+ * refresh() implementations are called when a new instance of either target is available in the context.
+ *
+ * This is achieved by keeping two local target {@link Property}s, which can be bound or unbound to the target
+ * {@link Property}s in the {@link ProfileContext}s.
+ *
+ * By binding or unbinding the local targets, it is possible to star and stop all tracking of changes to the targets in
+ * the UI. This has been provided to make it possible to stop executing refresh() and other UI updates when the view
+ * associated to the controller is hidden.
+ *
+ * @param <T> the data type of the target
+ */
 public abstract class ProfileDiffViewController<T> extends AbstractViewController
 {
     private ProfileContext baseContext;
@@ -19,6 +36,16 @@ public abstract class ProfileDiffViewController<T> extends AbstractViewControlle
     private ObjectProperty<T> newTarget;
     private Function<ProfileContext, ObservableValue<T>> targetExtractor;
 
+    /**
+     * This method must be called by subclasses in their FXML initialize(). It provides the extraction function which
+     * specifies how to get the targets from their {@link ProfileContext}s. It also passes on the controller-local UI
+     * nodes needed by the AbstractViewController superclass.
+     *
+     * @param targetExtractor function which extracts the target from the {@link ProfileContext}
+     * @param filterButton the button used to trigger filter editing
+     * @param quickFilterButton the button used to apply the quick filter
+     * @param quickFilterText the TextField providing the value for the quick filter
+     */
     protected void initialize(Function<ProfileContext, ObservableValue<T>> targetExtractor,
         Button filterButton, Button quickFilterButton, TextField quickFilterText)
     {
@@ -31,43 +58,80 @@ public abstract class ProfileDiffViewController<T> extends AbstractViewControlle
         newTarget.addListener((property, oldValue, newValue) -> refresh());
     }
 
-    protected ProfileContext baseContext()
-    {
-        return baseContext;
-    }
-
-    protected ProfileContext newContext()
-    {
-        return newContext;
-    }
-
-    protected T getBaseTarget()
-    {
-        return baseTarget.get();
-    }
-
-    protected T getNewTarget()
-    {
-        return newTarget.get();
-    }
-
-    public void setProfileContexts(ProfileContext baseContext, ProfileContext newContext)
-    {
-        this.baseContext = baseContext;
-        this.newContext = newContext;
-    }
-
     // Activation
 
+    /**
+     * Binds the local target {@link Property}s to the target {@link Property}s in the {@link ProfileContext}s, using
+     * the target extractor function. The net effect is that the controller will start tracking changes to the target
+     * instances in the {@link ProfileContext}.
+     */
     public void activate()
     {
         baseTarget.bind(targetExtractor.apply(baseContext));
         newTarget.bind(targetExtractor.apply(newContext));
     }
 
+    /**
+     * Unbinds the local target {@link Property}s. The controller no longer tracks changes to the target
+     * {@link Property}s in the {@link ProfileContext}s.
+     */
     public void deactivate()
     {
         baseTarget.unbind();
         newTarget.unbind();
+    }
+
+    /**
+     * Returns the {@link ProfileContext} for the baseline target. The name has been shortened to unclutter code in
+     * subclasses.
+     *
+     * @return the {@link ProfileContext} encapsulating the baseline target.
+     */
+    protected ProfileContext baseCtx()
+    {
+        return baseContext;
+    }
+
+    /**
+     * Returns the {@link ProfileContext} for the target which will be compared against the baseline. The name has been
+     * shortened to unclutter code in subclasses.
+     *
+     * @return the {@link ProfileContext} encapsulating the target being compared against the baseline.
+     */
+    protected ProfileContext newCtx()
+    {
+        return newContext;
+    }
+
+    /**
+     * Returns the current baseline target instance.
+     *
+     * @return the current baseline target instance
+     */
+    protected T getBaseTarget()
+    {
+        return baseTarget.get();
+    }
+
+    /**
+     * Returns the current "new" target instance.
+     *
+     * @return the current "new" target instance
+     */
+    protected T getNewTarget()
+    {
+        return newTarget.get();
+    }
+
+    /**
+     * Sets the {@link ProfileContext}s encapsulating the baseline target and the target being compared against it.
+     *
+     * @param profileContext the {@link ProfileContext}s encapsulating the baseline target and the target being compared
+     *            against it
+     */
+    public void setProfileContexts(ProfileContext baseContext, ProfileContext newContext)
+    {
+        this.baseContext = baseContext;
+        this.newContext = newContext;
     }
 }

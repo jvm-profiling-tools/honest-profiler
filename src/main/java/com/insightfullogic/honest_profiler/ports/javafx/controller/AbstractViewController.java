@@ -13,6 +13,7 @@ import java.util.List;
 import com.insightfullogic.honest_profiler.core.filters.Filter;
 import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
 import com.insightfullogic.honest_profiler.core.filters.StringFilter;
+import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterSpecification;
@@ -25,6 +26,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 
+/**
+ * Superclass for all View Controllers in the application. These controllers provide a particular view on data. The
+ * class holds the code for the filters and quick filter.
+ */
 public abstract class AbstractViewController extends AbstractController
 {
     private Button filterButton;
@@ -38,6 +43,14 @@ public abstract class AbstractViewController extends AbstractController
     private ProfileFilter currentFilter = new ProfileFilter();
     private StringFilter quickFilter;
 
+    /**
+     * This method must be called by subclasses in their FXML initialize(). It provides the controller-local UI nodes
+     * needed by the AbstractViewController.
+     *
+     * @param filterButton the button used to trigger filter editing
+     * @param quickFilterButton the button used to apply the quick filter
+     * @param quickFilterText the TextField providing the value for the quick filter
+     */
     protected void initialize(Button filterButton, Button quickFilterButton,
         TextField quickFilterText)
     {
@@ -53,6 +66,12 @@ public abstract class AbstractViewController extends AbstractController
         this.quickFilterText = quickFilterText;
     }
 
+    /**
+     * In addition to the normal functionality, the method calls filter initialization, which needs the
+     * ApplicationContext to be present. If a particular view controller
+     *
+     * @param applicationContext the ApplicationContext of this application
+     */
     @Override
     public void setApplicationContext(ApplicationContext applicationContext)
     {
@@ -66,11 +85,34 @@ public abstract class AbstractViewController extends AbstractController
         initializeFilters(applicationContext);
     }
 
+    /**
+     * View Controllers must implement this, and return the {@link FilterType}s which are supported by them.
+     *
+     * @return an array containing the {@link FilterType}s supported by the view controller
+     */
+    protected abstract FilterType[] getAllowedFilterTypes();
+
+    /**
+     * Refreshes the view. The view should be updated based on the current state of the {@link Profile} and
+     * {@link ProfileFilter}.
+     */
+    protected abstract void refresh();
+
+    /**
+     * Returns the current {@link FilterSpecification}.
+     *
+     * @return the current {@link FilterSpecification}
+     */
     protected ObjectProperty<FilterSpecification> getFilterSpecification()
     {
         return filterSpec;
     }
 
+    /**
+     * Returns the currently active {@link ProfileFilter}, constructed from the current filters and the quick filter.
+     *
+     * @return the currently active {@link ProfileFilter}
+     */
     protected ProfileFilter getAdjustedProfileFilter()
     {
         if (quickFilter == null)
@@ -84,8 +126,12 @@ public abstract class AbstractViewController extends AbstractController
         return new ProfileFilter(filters);
     }
 
-    // The appCtxt parameter is here to make explicit that the method depends on
-    // its presence.
+    /**
+     * Initializes the filters.
+     *
+     * @param applicationContext the {@link ApplicationContext}. The parameter is used to explicitly point out the
+     *            dependency on the presense of the context.
+     */
     private void initializeFilters(ApplicationContext applicationContext)
     {
         dialogController = createFilterDialog();
@@ -131,8 +177,4 @@ public abstract class AbstractViewController extends AbstractController
             input);
         refresh();
     }
-
-    protected abstract FilterType[] getAllowedFilterTypes();
-
-    protected abstract void refresh();
 }
