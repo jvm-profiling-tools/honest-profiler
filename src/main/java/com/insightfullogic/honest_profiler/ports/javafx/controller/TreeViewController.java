@@ -35,11 +35,12 @@ import java.util.function.Function;
 
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
+import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType;
 import com.insightfullogic.honest_profiler.ports.javafx.model.task.CopyAndFilterProfile;
 import com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil;
-import com.insightfullogic.honest_profiler.ports.javafx.view.cell.TreeViewCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTreeTableCell;
+import com.insightfullogic.honest_profiler.ports.javafx.view.cell.TreeViewCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.tree.MethodNodeAdapter;
 import com.insightfullogic.honest_profiler.ports.javafx.view.tree.RootNodeAdapter;
 import com.insightfullogic.honest_profiler.ports.javafx.view.tree.ThreadNodeAdapter;
@@ -89,7 +90,12 @@ public class TreeViewController extends ProfileViewController<Profile>
             filterButton,
             quickFilterButton,
             quickFilterText);
+    }
 
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext)
+    {
+        super.setApplicationContext(applicationContext);
         initializeTable();
     }
 
@@ -100,7 +106,7 @@ public class TreeViewController extends ProfileViewController<Profile>
         rootNode = new RootNodeAdapter(getFilterSpecification());
         treeView.setRoot(rootNode);
 
-        methodColumn.setCellFactory(column -> new MethodNameTreeTableCell<>());
+        methodColumn.setCellFactory(column -> new MethodNameTreeTableCell<>(appCtx()));
         methodColumn.setCellValueFactory(data -> buildProfileNodeCell(data.getValue()));
 
         totalColumn.setCellValueFactory(data -> wrapDouble(data, ProfileNode::getTotalTimeShare));

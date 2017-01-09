@@ -92,22 +92,25 @@
       <TreeTableView fx:id="diffTree" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" showRoot="false" VBox.vgrow="ALWAYS">
          <columns>
             <TreeTableColumn fx:id="methodColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="-1.0" sortable="false" text="%column.method" />
-            <TreeTableColumn fx:id="baseSelfPct" editable="false" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" sortable="false" text="%column.selfSamplePercent" />
-            <TreeTableColumn fx:id="newSelfPct" editable="false" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" sortable="false" text="%column.selfSamplePercent" />
-            <TreeTableColumn fx:id="selfPctDiff" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.selfSamplePercentDiff" />
-            <TreeTableColumn fx:id="baseTotalPct" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.totalSamplePercent" />
-            <TreeTableColumn fx:id="newTotalPct" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.totalSamplePercent" />
-            <TreeTableColumn fx:id="totalPctDiff" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.totalSamplePercentDiff" />
-            <TreeTableColumn fx:id="baseSelfCnt" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.selfSampleCount" />
-            <TreeTableColumn fx:id="newSelfCnt" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.selfSampleCount" />
-            <TreeTableColumn fx:id="selfCntDiff" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.selfSampleCountDiff" />
-            <TreeTableColumn fx:id="baseTotalCnt" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.totalSampleCount" />
-            <TreeTableColumn fx:id="newTotalCnt" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.totalSampleCount" />
-            <TreeTableColumn fx:id="totalCntDiff" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.totalSampleCountDiff" />
-            <TreeTableColumn fx:id="baseParentCnt" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.parentSampleCount" />
-            <TreeTableColumn fx:id="newParentCnt" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.parentSampleCount" />
-            <TreeTableColumn fx:id="parentCntDiff" maxWidth="1000.0" minWidth="60.0" prefWidth="-1.0" text="%column.parentSampleCountDiff" />
+            <TreeTableColumn fx:id="baseSelfPct" editable="false" maxWidth="1.7976931348623157E308" minWidth="60.0" prefWidth="-1.0" sortable="false" text="%column.selfSamplePercent" />
+            <TreeTableColumn fx:id="newSelfPct" editable="false" maxWidth="1.7976931348623157E308" minWidth="60.0" prefWidth="-1.0" sortable="false" text="%column.selfSamplePercent" />
+            <TreeTableColumn fx:id="selfPctDiff" editable="false" maxWidth="1.7976931348623157E308" minWidth="60.0" prefWidth="-1.0" text="%column.selfSamplePercentDiff" />
+            <TreeTableColumn fx:id="baseTotalPct" editable="false" maxWidth="1.7976931348623157E308" minWidth="60.0" prefWidth="-1.0" text="%column.totalSamplePercent" />
+            <TreeTableColumn fx:id="newTotalPct" editable="false" maxWidth="1.7976931348623157E308" minWidth="60.0" prefWidth="-1.0" text="%column.totalSamplePercent" />
+            <TreeTableColumn fx:id="totalPctDiff" editable="false" maxWidth="1.7976931348623157E308" minWidth="60.0" prefWidth="-1.0" text="%column.totalSamplePercentDiff" />
+            <TreeTableColumn fx:id="baseSelfCnt" editable="false" maxWidth="1.7976931348623157E308" minWidth="60.0" prefWidth="-1.0" text="%column.selfSampleCount" />
+            <TreeTableColumn fx:id="newSelfCnt" editable="false" maxWidth="1.7976931348623157E308" minWidth="60.0" prefWidth="-1.0" text="%column.selfSampleCount" />
+            <TreeTableColumn fx:id="selfCntDiff" editable="false" maxWidth="1.7976931348623157E308" minWidth="60.0" prefWidth="-1.0" text="%column.selfSampleCountDiff" />
+            <TreeTableColumn fx:id="baseTotalCnt" editable="false" maxWidth="1.7976931348623157E308" minWidth="60.0" prefWidth="-1.0" text="%column.totalSampleCount" />
+            <TreeTableColumn fx:id="newTotalCnt" editable="false" maxWidth="1.7976931348623157E308" minWidth="60.0" prefWidth="-1.0" text="%column.totalSampleCount" />
+            <TreeTableColumn fx:id="totalCntDiff" editable="false" maxWidth="1.7976931348623157E308" minWidth="60.0" prefWidth="-1.0" text="%column.totalSampleCountDiff" />
+            <TreeTableColumn fx:id="baseParentCnt" editable="false" maxWidth="1.7976931348623157E308" minWidth="60.0" prefWidth="-1.0" text="%column.parentSampleCount" />
+            <TreeTableColumn fx:id="newParentCnt" editable="false" maxWidth="1.7976931348623157E308" minWidth="60.0" prefWidth="-1.0" text="%column.parentSampleCount" />
+            <TreeTableColumn fx:id="parentCntDiff" editable="false" maxWidth="1.7976931348623157E308" minWidth="60.0" prefWidth="-1.0" text="%column.parentSampleCountDiff" />
          </columns>
+         <columnResizePolicy>
+            <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+         </columnResizePolicy>
          <tooltip>
             <Tooltip text="%table.treeDiff.tooltip" />
          </tooltip></TreeTableView>

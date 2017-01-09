@@ -49,6 +49,11 @@ public final class ResourceUtil
     public static final String CONTENT_LABEL_PROFILESAMPLECOUNT = "label.profileSampleCount.content";
     public static final String CONTENT_TAB_LOADING = "tab.loading.content";
 
+    public static final String CTXMENU_TREE_EXPANDFULLY = "ctxmenu.tree.expandFully";
+    public static final String CTXMENU_TREE_EXPANDFIRSTONLY = "ctxmenu.tree.expandFirstOnly";
+    public static final String CTXMENU_TREE_COLLAPSE = "ctxmenu.tree.collapse";
+    public static final String CTXMENU_TREE_EXPORTSUBTREE = "ctxmenu.tree.exportSubtree";
+
     public static final String TOOLTIP_BUTTON_FREEZE_UNFROZEN = "button.freeze.unfrozen.tooltip";
     public static final String TOOLTIP_BUTTON_FREEZE_FROZEN = "button.freeze.frozen.tooltip";
 

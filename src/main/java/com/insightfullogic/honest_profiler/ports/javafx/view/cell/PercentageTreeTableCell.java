@@ -18,6 +18,8 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.view.cell;
 
+import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderPercentage;
+
 import java.util.function.Function;
 
 import com.insightfullogic.honest_profiler.ports.javafx.model.diff.ThreadNodeDiff;
@@ -25,20 +27,20 @@ import com.insightfullogic.honest_profiler.ports.javafx.model.diff.ThreadNodeDif
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableCell;
 
-public class PercentageTreeTableCell<T> extends TreeTableCell<T, String>
+public class PercentageTreeTableCell<T> extends TreeTableCell<T, Number>
 {
-    private Function<String, String> styleFunction;
+    private Function<Number, String> styleFunction;
 
-    public PercentageTreeTableCell(Function<String, String> styleFunction)
+    public PercentageTreeTableCell(Function<Number, String> styleFunction)
     {
         super();
         this.styleFunction = styleFunction;
     }
 
     @Override
-    protected void updateItem(String text, boolean isEmpty)
+    protected void updateItem(Number number, boolean isEmpty)
     {
-        if (isEmpty || text == null)
+        if (isEmpty || number == null)
         {
             setText(null);
             setStyle(null);
@@ -48,7 +50,7 @@ public class PercentageTreeTableCell<T> extends TreeTableCell<T, String>
         TreeItem<T> treeItem = getTreeTableRow().getTreeItem();
         boolean threadNode = treeItem == null || treeItem.getValue() instanceof ThreadNodeDiff;
 
-        setText(threadNode ? null : text);
-        setStyle((threadNode || styleFunction == null) ? null : styleFunction.apply(text));
+        setText(threadNode ? null : renderPercentage(number.doubleValue()));
+        setStyle((threadNode || styleFunction == null) ? null : styleFunction.apply(number));
     }
 }

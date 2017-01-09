@@ -53,35 +53,35 @@ public class TreeDiffViewController extends ProfileDiffViewController<Profile>
     @FXML
     private TreeTableColumn<NodeDiff, String> methodColumn;
     @FXML
-    private TreeTableColumn<NodeDiff, String> baseSelfPct;
+    private TreeTableColumn<NodeDiff, Number> baseSelfPct;
     @FXML
-    private TreeTableColumn<NodeDiff, String> newSelfPct;
+    private TreeTableColumn<NodeDiff, Number> newSelfPct;
     @FXML
-    private TreeTableColumn<NodeDiff, String> selfPctDiff;
+    private TreeTableColumn<NodeDiff, Number> selfPctDiff;
     @FXML
-    private TreeTableColumn<NodeDiff, String> baseTotalPct;
+    private TreeTableColumn<NodeDiff, Number> baseTotalPct;
     @FXML
-    private TreeTableColumn<NodeDiff, String> newTotalPct;
+    private TreeTableColumn<NodeDiff, Number> newTotalPct;
     @FXML
-    private TreeTableColumn<NodeDiff, String> totalPctDiff;
+    private TreeTableColumn<NodeDiff, Number> totalPctDiff;
     @FXML
-    private TreeTableColumn<NodeDiff, String> baseSelfCnt;
+    private TreeTableColumn<NodeDiff, Number> baseSelfCnt;
     @FXML
-    private TreeTableColumn<NodeDiff, String> newSelfCnt;
+    private TreeTableColumn<NodeDiff, Number> newSelfCnt;
     @FXML
-    private TreeTableColumn<NodeDiff, String> selfCntDiff;
+    private TreeTableColumn<NodeDiff, Number> selfCntDiff;
     @FXML
-    private TreeTableColumn<NodeDiff, String> baseTotalCnt;
+    private TreeTableColumn<NodeDiff, Number> baseTotalCnt;
     @FXML
-    private TreeTableColumn<NodeDiff, String> newTotalCnt;
+    private TreeTableColumn<NodeDiff, Number> newTotalCnt;
     @FXML
-    private TreeTableColumn<NodeDiff, String> totalCntDiff;
+    private TreeTableColumn<NodeDiff, Number> totalCntDiff;
     @FXML
-    private TreeTableColumn<NodeDiff, String> baseParentCnt;
+    private TreeTableColumn<NodeDiff, Number> baseParentCnt;
     @FXML
-    private TreeTableColumn<NodeDiff, String> newParentCnt;
+    private TreeTableColumn<NodeDiff, Number> newParentCnt;
     @FXML
-    private TreeTableColumn<NodeDiff, String> parentCntDiff;
+    private TreeTableColumn<NodeDiff, Number> parentCntDiff;
 
     private TreeProfileDiff diff;
 
@@ -113,27 +113,27 @@ public class TreeDiffViewController extends ProfileDiffViewController<Profile>
         methodColumn.setCellValueFactory(
             data -> new ReadOnlyStringWrapper(
                 data.getValue() == null ? null : data.getValue().getValue().getName()));
-        methodColumn.setCellFactory(col -> new MethodNameTreeTableCell<>());
+        methodColumn.setCellFactory(col -> new MethodNameTreeTableCell<>(appCtx()));
 
-        cfgPctCol(baseSelfPct, NodeDiff::getBaseSelfPct, baseCtx(), getText(COLUMN_SELF_PCT));
-        cfgPctCol(newSelfPct, NodeDiff::getNewSelfPct, newCtx(), getText(COLUMN_SELF_PCT));
-        cfgPctDiffCol(selfPctDiff, NodeDiff::getSelfPctDiff, getText(COLUMN_SELF_PCT_DIFF));
+        cfgPctCol(baseSelfPct, "baseSelfPct", baseCtx(), getText(COLUMN_SELF_PCT));
+        cfgPctCol(newSelfPct, "newSelfPct", newCtx(), getText(COLUMN_SELF_PCT));
+        cfgPctDiffCol(selfPctDiff, "selfPctDiff", getText(COLUMN_SELF_PCT_DIFF));
 
-        cfgPctCol(baseTotalPct, NodeDiff::getBaseSelfPct, baseCtx(), getText(COLUMN_TOTAL_PCT));
-        cfgPctCol(newTotalPct, NodeDiff::getNewSelfPct, newCtx(), getText(COLUMN_TOTAL_PCT));
-        cfgPctDiffCol(totalPctDiff, NodeDiff::getSelfPctDiff, getText(COLUMN_TOTAL_PCT_DIFF));
+        cfgPctCol(baseTotalPct, "baseTotalPct", baseCtx(), getText(COLUMN_TOTAL_PCT));
+        cfgPctCol(newTotalPct, "newTotalPct", newCtx(), getText(COLUMN_TOTAL_PCT));
+        cfgPctDiffCol(totalPctDiff, "totalPctDiff", getText(COLUMN_TOTAL_PCT_DIFF));
 
-        cfgCntCol(baseSelfCnt, NodeDiff::getBaseSelfCnt, baseCtx(), getText(COLUMN_SELF_CNT));
-        cfgCntCol(newSelfCnt, NodeDiff::getNewSelfCnt, newCtx(), getText(COLUMN_SELF_CNT));
-        cfgCntDiffCol(selfCntDiff, NodeDiff::getSelfCntDiff, getText(COLUMN_SELF_CNT_DIFF));
+        cfgCntCol(baseSelfCnt, "baseSelfCnt", baseCtx(), getText(COLUMN_SELF_CNT));
+        cfgCntCol(newSelfCnt, "newSelfCnt", newCtx(), getText(COLUMN_SELF_CNT));
+        cfgCntDiffCol(selfCntDiff, "selfCntDiff", getText(COLUMN_SELF_CNT_DIFF));
 
-        cfgCntCol(baseTotalCnt, NodeDiff::getBaseTotalCnt, baseCtx(), getText(COLUMN_TOTAL_CNT));
-        cfgCntCol(newTotalCnt, NodeDiff::getNewTotalCnt, newCtx(), getText(COLUMN_TOTAL_CNT));
-        cfgCntDiffCol(totalCntDiff, NodeDiff::getTotalCntDiff, getText(COLUMN_TOTAL_CNT_DIFF));
+        cfgCntCol(baseTotalCnt, "baseTotalCnt", baseCtx(), getText(COLUMN_TOTAL_CNT));
+        cfgCntCol(newTotalCnt, "newTotalCnt", newCtx(), getText(COLUMN_TOTAL_CNT));
+        cfgCntDiffCol(totalCntDiff, "totalCntDiff", getText(COLUMN_TOTAL_CNT_DIFF));
 
-        cfgCntCol(baseParentCnt, NodeDiff::getBaseParentCnt, baseCtx(), getText(COLUMN_PARENT_CNT));
-        cfgCntCol(newParentCnt, NodeDiff::getNewParentCnt, newCtx(), getText(COLUMN_PARENT_CNT));
-        cfgCntDiffCol(parentCntDiff, NodeDiff::getParentCntDiff, getText(COLUMN_PARENT_CNT));
+        cfgCntCol(baseParentCnt, "baseParentCnt", baseCtx(), getText(COLUMN_PARENT_CNT));
+        cfgCntCol(newParentCnt, "newParentCnt", newCtx(), getText(COLUMN_PARENT_CNT));
+        cfgCntDiffCol(parentCntDiff, "parentCntDiff", getText(COLUMN_PARENT_CNT));
     }
 
     private void updateDiff(Profile profile, boolean base)
