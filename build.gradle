@@ -1,0 +1,92 @@
+plugins {
+  id 'com.moowork.node' version '1.0.1'
+}
+
+apply plugin: 'application'
+apply plugin: 'eclipse'
+
+group = 'com.insightfullogic'
+version = '1.0-SNAPSHOT'
+description = 'Honest Profiler UI'
+mainClassName = 'com.insightfullogic.honest_profiler.ports.javafx.JavaFXApplication'
+sourceCompatibility = 8
+
+sourceSets {
+
+  main {
+    java.srcDir 'src/main/webapp'
+    resources {
+      srcDir 'src/main/webapp'
+      exclude '**/bower_components/**'
+    }
+  }
+  
+  test {
+    resources {
+      srcDir 'src/test/webapp'
+    }
+  }
+}
+
+repositories { mavenCentral() }
+
+dependencies {
+  
+  compile files(javax.tools.ToolProvider.systemToolClassLoader.URLs),
+    'org.picocontainer:picocontainer:2.15',
+    'org.webbitserver:webbit:0.4.15',
+    'com.fasterxml.jackson.core:jackson-databind:2.8.5',
+    'ch.qos.logback:logback-classic:1.1.8',
+    'args4j:args4j:2.33',
+    'org.fusesource.jansi:jansi:1.14'
+
+  testCompile 'com.insightfullogic:lambda-behave:0.4',
+    'org.loadui:testFx:3.1.2'
+}
+
+tasks.withType(JavaCompile) {
+  options.encoding = 'UTF-8'
+}
+
+task cmake(type: Exec) {
+
+  executable 'cmake'
+  args '.'
+}
+
+task make(type: Exec) {
+
+  dependsOn cmake
+  executable 'make'
+}
+
+assemble.dependsOn make
+
+clean {
+  delete fileTree(dir: projectDir, includes: ['.attach_pid*', 'log-*-*.hpl'])
+}
+
+test {
+
+  dependsOn make, npm_test
+  maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
+  ignoreFailures = true
+}
+
+task allJar(type: Jar) {
+
+  from compileJava
+  from processResources
+  configurations.runtime.resolvedConfiguration.resolvedArtifacts*.file.each {
+    from zipTree(it)
+  }
+  baseName = jar.baseName + '-all'
+  fileMode = 0644
+  duplicatesStrategy = 'exclude'
+}
+
+assemble.dependsOn allJar
+
+distTar.enabled = false
+distZip.enabled = false
+startScripts.enabled = false
