@@ -154,7 +154,7 @@ public abstract class AbstractViewController extends AbstractController
         ProfileContext profileContext, String title)
     {
         column.setCellValueFactory(new TreeItemPropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new PercentageTreeTableCell<>(doubleDiffStyler));
+        column.setCellFactory(col -> new PercentageTreeTableCell<>(null));
         setColumnHeader(column, title, profileContext);
     }
 
@@ -170,7 +170,7 @@ public abstract class AbstractViewController extends AbstractController
         ProfileContext profileContext, String title)
     {
         column.setCellValueFactory(new TreeItemPropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new CountTreeTableCell<>(doubleDiffStyler));
+        column.setCellFactory(col -> new CountTreeTableCell<>(null));
         setColumnHeader(column, title, profileContext);
     }
 

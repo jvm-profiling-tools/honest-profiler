@@ -21,6 +21,8 @@ package com.insightfullogic.honest_profiler.ports.javafx.controller;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.STRING;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.THREAD_SAMPLE;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.TIME_SHARE;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_PCT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_PCT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_COLLAPSEALLALL;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_EXPANDALL;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_FILTER;
@@ -29,9 +31,6 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TABLE_TREE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil.expandFully;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderMethod;
-import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderPercentage;
-
-import java.util.function.Function;
 
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
@@ -52,7 +51,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
-import javafx.scene.control.TreeTableColumn.CellDataFeatures;
 import javafx.scene.control.TreeTableView;
 
 public class TreeViewController extends ProfileViewController<Profile>
@@ -75,9 +73,9 @@ public class TreeViewController extends ProfileViewController<Profile>
     @FXML
     private TreeTableColumn<ProfileNode, ProfileNode> percentColumn;
     @FXML
-    private TreeTableColumn<ProfileNode, String> totalColumn;
+    private TreeTableColumn<ProfileNode, Number> totalPct;
     @FXML
-    private TreeTableColumn<ProfileNode, String> selfColumn;
+    private TreeTableColumn<ProfileNode, Number> selfPct;
 
     private RootNodeAdapter rootNode;
 
@@ -109,10 +107,10 @@ public class TreeViewController extends ProfileViewController<Profile>
         methodColumn.setCellFactory(column -> new MethodNameTreeTableCell<>(appCtx()));
         methodColumn.setCellValueFactory(data -> buildProfileNodeCell(data.getValue()));
 
-        totalColumn.setCellValueFactory(data -> wrapDouble(data, ProfileNode::getTotalTimeShare));
-        selfColumn.setCellValueFactory(data -> wrapDouble(data, ProfileNode::getSelfTimeShare));
-
         percentColumn.setCellFactory(param -> new TreeViewCell());
+
+        cfgPctCol(totalPct, "totalTimeShare", prfCtx(), COLUMN_TOTAL_PCT);
+        cfgPctCol(selfPct, "selfTimeShare", prfCtx(), COLUMN_SELF_PCT);
     }
 
     // Helper Methods
@@ -144,14 +142,6 @@ public class TreeViewController extends ProfileViewController<Profile>
         }
 
         return new ReadOnlyStringWrapper(text);
-    }
-
-    private StringProperty wrapDouble(CellDataFeatures<ProfileNode, String> data,
-        Function<ProfileNode, Double> accessor)
-    {
-        return new ReadOnlyStringWrapper(
-            data.getValue().getValue() != null
-                ? renderPercentage(accessor.apply(data.getValue().getValue())) : "");
     }
 
     // AbstractController Implementation

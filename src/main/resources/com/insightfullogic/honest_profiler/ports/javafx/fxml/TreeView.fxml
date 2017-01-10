@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.insightfullogic.honest_profiler.ports.javafx.controller.TreeViewController">
+<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.insightfullogic.honest_profiler.ports.javafx.controller.TreeViewController">
    <children>
       <HBox alignment="CENTER_LEFT" maxHeight="25.0" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" spacing="6.0">
          <children>
@@ -93,8 +93,8 @@
          <columns>
             <TreeTableColumn fx:id="methodColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="-1.0" sortable="false" text="%column.method" />
             <TreeTableColumn fx:id="percentColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="65.0" resizable="false" sortable="false" text="%column.totalSamplePercentGraph" />
-            <TreeTableColumn fx:id="totalColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="-1.0" sortable="false" text="%column.totalSamplePercent" />
-            <TreeTableColumn fx:id="selfColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="-1.0" sortable="false" text="%column.selfSamplePercent" />
+            <TreeTableColumn fx:id="totalPct" editable="false" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="-1.0" sortable="false" text="%column.totalSamplePercent" />
+            <TreeTableColumn fx:id="selfPct" editable="false" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="-1.0" sortable="false" text="%column.selfSamplePercent" />
          </columns>
          <columnResizePolicy>
             <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
