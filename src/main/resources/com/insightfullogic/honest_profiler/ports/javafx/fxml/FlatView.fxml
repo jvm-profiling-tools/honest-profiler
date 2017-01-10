@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.insightfullogic.honest_profiler.ports.javafx.controller.FlatViewController">
+<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.insightfullogic.honest_profiler.ports.javafx.controller.FlatViewController">
    <children>
       <HBox alignment="CENTER_LEFT" maxHeight="25.0" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" spacing="6.0" VBox.vgrow="NEVER">
          <children>
@@ -81,11 +81,11 @@
           <columns>
               <TableColumn fx:id="method" prefWidth="492.0" text="%column.method" />
               <TableColumn fx:id="selfTimeGraphical" maxWidth="150.0" minWidth="150.0" prefWidth="150.0" text="%column.selfSamplePercentGraph" />
-              <TableColumn fx:id="selfTimeShare" prefWidth="120.0" text="%column.selfSamplePercent" />
-              <TableColumn fx:id="totalTimeShare" prefWidth="120.0" text="%column.totalSamplePercent" />
-            <TableColumn fx:id="selfCount" prefWidth="120.0" text="%column.selfSampleCount" />
-            <TableColumn fx:id="totalCount" prefWidth="120.0" text="%column.totalSampleCount" />
-            <TableColumn fx:id="traceCount" prefWidth="120.0" text="%column.profileSampleCount" />
+              <TableColumn fx:id="selfPct" prefWidth="120.0" text="%column.selfSamplePercent" />
+              <TableColumn fx:id="totalPct" prefWidth="120.0" text="%column.totalSamplePercent" />
+            <TableColumn fx:id="selfCnt" prefWidth="120.0" text="%column.selfSampleCount" />
+            <TableColumn fx:id="totalCnt" prefWidth="120.0" text="%column.totalSampleCount" />
+            <TableColumn fx:id="profileCnt" prefWidth="120.0" text="%column.profileSampleCount" />
           </columns>
          <tooltip>
             <Tooltip text="%table.flat.tooltip" />

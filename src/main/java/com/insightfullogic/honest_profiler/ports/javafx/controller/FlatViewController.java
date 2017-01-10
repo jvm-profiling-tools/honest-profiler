@@ -23,6 +23,11 @@ import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.Filt
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.TIME_SHARE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.showExportDialog;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.refreshTable;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_PROFILE_CNT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_CNT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_PCT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_CNT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_PCT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_EXPORT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_FILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_QUICKFILTER;
@@ -39,7 +44,6 @@ import com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.Rendering;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.GraphicalShareTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTableCell;
-import com.insightfullogic.honest_profiler.ports.javafx.view.cell.PercentageTableCell;
 
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -66,15 +70,15 @@ public class FlatViewController extends ProfileViewController<Profile>
     @FXML
     private TableColumn<FlatProfileEntry, Double> selfTimeGraphical;
     @FXML
-    private TableColumn<FlatProfileEntry, Number> selfTimeShare;
+    private TableColumn<FlatProfileEntry, Number> selfPct;
     @FXML
-    private TableColumn<FlatProfileEntry, Number> totalTimeShare;
+    private TableColumn<FlatProfileEntry, Number> totalPct;
     @FXML
-    private TableColumn<FlatProfileEntry, Integer> selfCount;
+    private TableColumn<FlatProfileEntry, Number> selfCnt;
     @FXML
-    private TableColumn<FlatProfileEntry, Integer> totalCount;
+    private TableColumn<FlatProfileEntry, Number> totalCnt;
     @FXML
-    private TableColumn<FlatProfileEntry, Integer> traceCount;
+    private TableColumn<FlatProfileEntry, Number> profileCnt;
 
     private ObservableList<FlatProfileEntry> flatProfile;
 
@@ -113,19 +117,11 @@ public class FlatViewController extends ProfileViewController<Profile>
         selfTimeGraphical.setCellValueFactory(new PropertyValueFactory<>("selfTimeShare"));
         selfTimeGraphical.setCellFactory(col -> new GraphicalShareTableCell(col.getPrefWidth()));
 
-        configureTimeShareColumn(selfTimeShare, "selfTimeShare");
-        configureTimeShareColumn(totalTimeShare, "totalTimeShare");
-
-        selfCount.setCellValueFactory(new PropertyValueFactory<>("selfCount"));
-        totalCount.setCellValueFactory(new PropertyValueFactory<>("totalCount"));
-        traceCount.setCellValueFactory(new PropertyValueFactory<>("traceCount"));
-    }
-
-    private void configureTimeShareColumn(TableColumn<FlatProfileEntry, Number> column,
-        String propertyName)
-    {
-        column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new PercentageTableCell<FlatProfileEntry>(null));
+        cfgPctCol(selfPct, "selfTimeShare", prfCtx(), COLUMN_SELF_PCT);
+        cfgPctCol(selfPct, "totalTimeShare", prfCtx(), COLUMN_TOTAL_PCT);
+        cfgCntCol(selfCnt, "selfCount", prfCtx(), COLUMN_SELF_CNT);
+        cfgCntCol(totalCnt, "totalCount", prfCtx(), COLUMN_TOTAL_CNT);
+        cfgCntCol(profileCnt, "traceCount", prfCtx(), COLUMN_PROFILE_CNT);
     }
 
     // AbstractController Implementation
