@@ -189,11 +189,13 @@ public class FlatDiffViewController extends ProfileDiffViewController<Profile>
     @Override
     protected void initializeHandlers()
     {
-        exportButton.setOnAction(event -> showExportDialog(
-            exportButton.getScene().getWindow(),
-            "flat_diff_profile.csv",
-            out -> writeFlatProfileDiffCsv(out, diff, ReportUtil.Mode.CSV)
-            ));
+        exportButton.setOnAction(
+            event -> showExportDialog(
+                appCtx(),
+                exportButton.getScene().getWindow(),
+                "flat_diff_profile.csv",
+                out -> writeFlatProfileDiffCsv(out, diff, ReportUtil.Mode.CSV)
+                ));
     }
 
     // AbstractViewController Implementation

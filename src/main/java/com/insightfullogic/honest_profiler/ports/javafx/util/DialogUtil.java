@@ -1,5 +1,13 @@
 package com.insightfullogic.honest_profiler.ports.javafx.util;
 
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.CONTENT_LABEL_EXCEPTION;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.EXCEPTION_DIALOGCREATIONFAILED;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.HEADER_DIALOG_ERR_EXPORTPROFILE;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.MESSAGE_DIALOG_ERR_EXPORTPROFILE;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.TITLE_DIALOG_ERR_EXPORTPROFILE;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.TITLE_DIALOG_OPENFILE;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.TYPE_FILE_ALL;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.TYPE_FILE_HP;
 import static javafx.scene.control.Alert.AlertType.ERROR;
 import static javafx.scene.layout.Priority.ALWAYS;
 
@@ -10,6 +18,7 @@ import java.io.StringWriter;
 import java.util.function.Consumer;
 
 import com.insightfullogic.honest_profiler.ports.javafx.controller.dialog.DialogController;
+import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -30,7 +39,8 @@ public final class DialogUtil
 
     private static File CACHED_PARENT_DIR;
 
-    public static <T> DialogController<T> newDialog(String fxml, String title, boolean resetOnShow)
+    public static <T> DialogController<T> newDialog(ApplicationContext appCtx, String fxml,
+        String title, boolean resetOnShow)
     {
         try
         {
@@ -53,22 +63,22 @@ public final class DialogUtil
         }
         catch (IOException ioe)
         {
-            throw new RuntimeException("Failed to instantiate DialogPane for " + fxml, ioe);
+            throw new RuntimeException(appCtx.textFor(EXCEPTION_DIALOGCREATIONFAILED, fxml), ioe);
         }
     }
 
-    public static File selectLogFile()
+    public static File selectLogFile(ApplicationContext appCtx)
     {
         FileChooser fileChooser = new FileChooser();
 
         fileChooser.setInitialDirectory(CACHED_PARENT_DIR);
 
         fileChooser.getExtensionFilters().addAll(
-            new ExtensionFilter("HP Log Files", "*.hpl"),
-            new ExtensionFilter("All Files", "*.*"));
+            new ExtensionFilter(appCtx.textFor(TYPE_FILE_HP), "*.hpl"),
+            new ExtensionFilter(appCtx.textFor(TYPE_FILE_ALL), "*.*"));
 
         fileChooser.setSelectedExtensionFilter(fileChooser.getExtensionFilters().get(0));
-        fileChooser.setTitle("Open an Honest Profiler Log File");
+        fileChooser.setTitle(appCtx.textFor(TITLE_DIALOG_OPENFILE));
 
         File file = fileChooser.showOpenDialog(null);
         if (file != null)
@@ -78,8 +88,8 @@ public final class DialogUtil
         return file;
     }
 
-    public static void showExportDialog(Window window, String initialFileName,
-        Consumer<PrintWriter> exportMethod)
+    public static void showExportDialog(ApplicationContext appCtx, Window window,
+        String initialFileName, Consumer<PrintWriter> exportMethod)
     {
         FileChooser chooser = new FileChooser();
         chooser.setInitialDirectory(CACHED_PARENT_DIR);
@@ -99,11 +109,10 @@ public final class DialogUtil
             catch (IOException ioe)
             {
                 showExceptionDialog(
-                    "I/O Issue",
-                    "File could not be written",
-                    "An issue occurred trying to export data to file "
-                        + file.getAbsolutePath()
-                        + ".",
+                    appCtx,
+                    appCtx.textFor(TITLE_DIALOG_ERR_EXPORTPROFILE),
+                    appCtx.textFor(HEADER_DIALOG_ERR_EXPORTPROFILE),
+                    appCtx.textFor(MESSAGE_DIALOG_ERR_EXPORTPROFILE, file.getAbsolutePath()),
                     ioe);
             }
         }
@@ -120,8 +129,8 @@ public final class DialogUtil
         alert.showAndWait();
     }
 
-    public static void showExceptionDialog(String title, String headerText, String contentText,
-        Throwable t)
+    public static void showExceptionDialog(ApplicationContext appCtx, String title,
+        String headerText, String contentText, Throwable t)
     {
         Alert alert = new Alert(ERROR);
 
@@ -140,7 +149,7 @@ public final class DialogUtil
             // Ignore
         }
 
-        Label label = new Label("The exception stacktrace was:");
+        Label label = new Label(appCtx.textFor(CONTENT_LABEL_EXCEPTION));
 
         TextArea textArea = new TextArea(exceptionText);
         textArea.setEditable(false);

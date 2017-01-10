@@ -47,6 +47,7 @@ public final class ResourceUtil
     public static final String INFO_TAB_PROFILEDIFF = "tab.profileDiff.info";
 
     public static final String CONTENT_LABEL_PROFILESAMPLECOUNT = "label.profileSampleCount.content";
+    public static final String CONTENT_LABEL_EXCEPTION = "label.exception.content";
     public static final String CONTENT_TAB_LOADING = "tab.loading.content";
 
     public static final String CTXMENU_TREE_EXPANDFULLY = "ctxmenu.tree.expandFully";
@@ -73,7 +74,29 @@ public final class ResourceUtil
     public static final String COLUMN_PARENT_CNT_DIFF = "column.parentSampleCountDiff";
     public static final String COLUMN_PROFILE_CNT_DIFF = "column.profileSampleCountDiff";
 
+    public static final String TITLE_DIALOG_OPENFILE = "dialog.openFile.title";
     public static final String TITLE_DIALOG_SPECIFYFILTERS = "dialog.specifyFilters.title";
+    public static final String TITLE_DIALOG_SPECIFYFILTER = "dialog.specifyFilter.title";
+
+    public static final String TITLE_DIALOG_ERR_OPENPROFILE = "dialog.err.openProfile.title";
+    public static final String TITLE_DIALOG_ERR_EXPORTPROFILE = "dialog.err.exportProfile.title";
+
+    public static final String HEADER_DIALOG_ERR_OPENPROFILE = "dialog.err.openProfile.header";
+    public static final String HEADER_DIALOG_ERR_EXPORTPROFILE = "dialog.err.exportProfile.header";
+
+    public static final String MESSAGE_DIALOG_ERR_OPENPROFILE = "dialog.err.openProfile.message";
+    public static final String MESSAGE_DIALOG_ERR_TASKCANCELED = "dialog.err.taskCanceled.message";
+    public static final String MESSAGE_DIALOG_ERR_EXPORTPROFILE = "dialog.err.exportProfile.message";
+
+    public static final String TYPE_FILE_HP = "type.file.hp";
+    public static final String TYPE_FILE_ALL = "type.file.all";
+
+    public static final String EXCEPTION_DIALOGCREATIONFAILED = "exception.dialogCreationFailed.message";
+
+    public static final String GENERAL_UNKNOWN = "general.unknown";
+    public static final String GENERAL_THREAD = "general.thread";
+    public static final String GENERAL_DEPTH = "general.depth";
+    public static final String GENERAL_SAMPLECOUNT = "general.sampleCount";
 
     private static final Locale DEFAULT_LOCALE = ENGLISH;
     private static final String BUNDLE_BASE = "com.insightfullogic.honest_profiler.ports.javafx.i18n.HPUIBundle";

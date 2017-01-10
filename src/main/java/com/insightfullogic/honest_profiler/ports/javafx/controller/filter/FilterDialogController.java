@@ -6,6 +6,7 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_REMOVEFILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_CHECK_HIDEERRORTHREADS;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_LIST_FILTERS;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.TITLE_DIALOG_SPECIFYFILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.MINUS_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.PLUS_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor;
@@ -87,9 +88,6 @@ public class FilterDialogController extends AbstractDialogController<FilterSpeci
             data -> new ReadOnlyObjectWrapper<>(
                 data.getValue() == null ? null : data.getValue().getValue()));
 
-        filterCreationController = (FilterCreationDialogController) DialogUtil
-            .<FilterItem>newDialog(FILTER_CREATION, "Specify Filter", true);
-
         // The NULL item is always in the last row, and is used to figure out
         // where to put the "Add
         // Filter" (plus) button
@@ -100,6 +98,13 @@ public class FilterDialogController extends AbstractDialogController<FilterSpeci
     public void setApplicationContext(ApplicationContext applicationContext)
     {
         super.setApplicationContext(applicationContext);
+
+        filterCreationController = (FilterCreationDialogController) DialogUtil
+            .<FilterItem>newDialog(
+                appCtx(),
+                FILTER_CREATION,
+                appCtx().textFor(TITLE_DIALOG_SPECIFYFILTER),
+                true);
         filterCreationController.setApplicationContext(applicationContext);
     }
 

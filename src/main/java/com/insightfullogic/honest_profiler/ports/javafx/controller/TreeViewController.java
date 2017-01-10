@@ -21,6 +21,10 @@ package com.insightfullogic.honest_profiler.ports.javafx.controller;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.STRING;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.THREAD_SAMPLE;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.TIME_SHARE;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.GENERAL_DEPTH;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.GENERAL_SAMPLECOUNT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.GENERAL_THREAD;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.GENERAL_UNKNOWN;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_COLLAPSEALLALL;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_EXPANDALL;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_FILTER;
@@ -126,14 +130,18 @@ public class TreeViewController extends ProfileViewController<Profile>
             ThreadNodeAdapter adapter = (ThreadNodeAdapter) treeItem;
             String name = adapter.getThreadName();
 
-            StringBuilder builder = new StringBuilder("Thread").append(' ');
+            StringBuilder builder = new StringBuilder(appCtx().textFor(GENERAL_THREAD)).append(' ');
             builder.append(
-                (adapter.getThreadId() < 0) ? "Unknown [" + adapter.getThreadId() + "]"
+                (adapter.getThreadId() < 0)
+                    ? appCtx().textFor(GENERAL_UNKNOWN) + " [" + adapter.getThreadId() + "]"
                     : adapter.getThreadId());
 
-            builder.append(' ')
-                .append((name == null || name.isEmpty()) ? "Unknown" : "[" + name + "]")
-                .append(" (depth = ").append(adapter.getDepth()).append(", # samples = ")
+            builder.append(' ').append(
+                (name == null || name.isEmpty()) ? appCtx().textFor(GENERAL_UNKNOWN)
+                    : "[" + name + "]")
+                .append(" (").append(appCtx().textFor(GENERAL_DEPTH)).append(" = ")
+                .append(adapter.getDepth()).append(", ")
+                .append(appCtx().textFor(GENERAL_SAMPLECOUNT)).append(" = ")
                 .append(adapter.getNrOfSamples()).append(")");
 
             text = builder.toString();

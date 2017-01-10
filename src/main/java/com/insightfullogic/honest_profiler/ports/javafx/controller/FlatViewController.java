@@ -143,11 +143,13 @@ public class FlatViewController extends ProfileViewController<Profile>
     @Override
     protected void initializeHandlers()
     {
-        exportButton.setOnAction(event -> showExportDialog(
-            exportButton.getScene().getWindow(),
-            "flat_profile.csv",
-            out -> writeFlatProfileCsv(out, flatProfile, ReportUtil.Mode.CSV)
-        ));
+        exportButton.setOnAction(
+            event -> showExportDialog(
+                appCtx(),
+                exportButton.getScene().getWindow(),
+                "flat_profile.csv",
+                out -> writeFlatProfileCsv(out, flatProfile, ReportUtil.Mode.CSV)
+            ));
     }
 
     // AbstractViewController Implementation

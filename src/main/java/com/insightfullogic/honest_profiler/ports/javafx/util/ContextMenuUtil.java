@@ -107,6 +107,7 @@ public final class ContextMenuUtil
                 menu.getItems(),
                 appCtx.textFor(CTXMENU_TREE_EXPORTSUBTREE),
                 info -> showExportDialog(
+                    appCtx,
                     menu.getScene().getWindow(),
                     "stack_profile.txt",
                     out -> writeStack(out, (ProfileNode) treeItem.getValue())
