@@ -99,7 +99,10 @@ public final class ContextMenuUtil
             appCtx.textFor(CTXMENU_TREE_EXPANDFIRSTONLY),
             info -> expandFirstOnly(treeItem));
 
-        addMenuItem(menu.getItems(), CTXMENU_TREE_COLLAPSE, info -> collapseFully(treeItem));
+        addMenuItem(
+            menu.getItems(),
+            appCtx.textFor(CTXMENU_TREE_COLLAPSE),
+            info -> collapseFully(treeItem));
 
         if (treeItem.getValue() instanceof ProfileNode)
         {
