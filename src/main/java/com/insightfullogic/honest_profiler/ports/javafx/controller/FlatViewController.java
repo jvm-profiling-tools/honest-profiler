@@ -118,7 +118,7 @@ public class FlatViewController extends ProfileViewController<Profile>
         selfTimeGraphical.setCellFactory(col -> new GraphicalShareTableCell(col.getPrefWidth()));
 
         cfgPctCol(selfPct, "selfTimeShare", prfCtx(), COLUMN_SELF_PCT);
-        cfgPctCol(selfPct, "totalTimeShare", prfCtx(), COLUMN_TOTAL_PCT);
+        cfgPctCol(totalPct, "totalTimeShare", prfCtx(), COLUMN_TOTAL_PCT);
         cfgCntCol(selfCnt, "selfCount", prfCtx(), COLUMN_SELF_CNT);
         cfgCntCol(totalCnt, "totalCount", prfCtx(), COLUMN_TOTAL_CNT);
         cfgCntCol(profileCnt, "traceCount", prfCtx(), COLUMN_PROFILE_CNT);
