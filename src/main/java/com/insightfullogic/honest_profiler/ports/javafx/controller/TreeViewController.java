@@ -21,7 +21,10 @@ package com.insightfullogic.honest_profiler.ports.javafx.controller;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.STRING;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.THREAD_SAMPLE;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.TIME_SHARE;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_PARENT_CNT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_CNT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_PCT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_CNT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_PCT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.GENERAL_DEPTH;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.GENERAL_SAMPLECOUNT;
@@ -80,6 +83,12 @@ public class TreeViewController extends ProfileViewController<Profile>
     private TreeTableColumn<ProfileNode, Number> totalPct;
     @FXML
     private TreeTableColumn<ProfileNode, Number> selfPct;
+    @FXML
+    private TreeTableColumn<ProfileNode, Number> totalCnt;
+    @FXML
+    private TreeTableColumn<ProfileNode, Number> selfCnt;
+    @FXML
+    private TreeTableColumn<ProfileNode, Number> parentCnt;
 
     private RootNodeAdapter rootNode;
 
@@ -115,6 +124,9 @@ public class TreeViewController extends ProfileViewController<Profile>
 
         cfgPctCol(totalPct, "totalTimeShare", prfCtx(), COLUMN_TOTAL_PCT);
         cfgPctCol(selfPct, "selfTimeShare", prfCtx(), COLUMN_SELF_PCT);
+        cfgCntCol(totalCnt, "totalCount", prfCtx(), COLUMN_TOTAL_CNT);
+        cfgCntCol(selfCnt, "selfCount", prfCtx(), COLUMN_SELF_CNT);
+        cfgCntCol(parentCnt, "parentCount", prfCtx(), COLUMN_PARENT_CNT);
     }
 
     // Helper Methods

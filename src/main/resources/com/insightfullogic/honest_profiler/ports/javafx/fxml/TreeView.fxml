@@ -95,6 +95,9 @@
             <TreeTableColumn fx:id="percentColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="65.0" resizable="false" sortable="false" text="%column.totalSamplePercentGraph" />
             <TreeTableColumn fx:id="totalPct" editable="false" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="-1.0" sortable="false" text="%column.totalSamplePercent" />
             <TreeTableColumn fx:id="selfPct" editable="false" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="-1.0" sortable="false" text="%column.selfSamplePercent" />
+            <TreeTableColumn fx:id="totalCnt" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="-1.0" text="%column.totalSampleCount" />
+            <TreeTableColumn fx:id="selfCnt" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="-1.0" text="%column.selfSampleCount" />
+            <TreeTableColumn fx:id="parentCnt" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="-1.0" text="%column.parentSampleCount" />
          </columns>
          <columnResizePolicy>
             <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
