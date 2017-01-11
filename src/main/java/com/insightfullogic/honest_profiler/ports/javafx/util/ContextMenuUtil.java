@@ -99,7 +99,10 @@ public final class ContextMenuUtil
             appCtx.textFor(CTXMENU_TREE_EXPANDFIRSTONLY),
             info -> expandFirstOnly(treeItem));
 
-        addMenuItem(menu.getItems(), CTXMENU_TREE_COLLAPSE, info -> collapseFully(treeItem));
+        addMenuItem(
+            menu.getItems(),
+            appCtx.textFor(CTXMENU_TREE_COLLAPSE),
+            info -> collapseFully(treeItem));
 
         if (treeItem.getValue() instanceof ProfileNode)
         {
@@ -107,6 +110,7 @@ public final class ContextMenuUtil
                 menu.getItems(),
                 appCtx.textFor(CTXMENU_TREE_EXPORTSUBTREE),
                 info -> showExportDialog(
+                    appCtx,
                     menu.getScene().getWindow(),
                     "stack_profile.txt",
                     out -> writeStack(out, (ProfileNode) treeItem.getValue())

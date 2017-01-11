@@ -10,9 +10,14 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.addPr
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.createColoredLabelContainer;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.getProgressIndicator;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.loaderFor;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.CONTENT_TAB_LOADING;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.HEADER_DIALOG_ERR_OPENPROFILE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_MENU_ROOT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TAB_PROFILE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TAB_PROFILEDIFF;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.MESSAGE_DIALOG_ERR_OPENPROFILE;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.MESSAGE_DIALOG_ERR_TASKCANCELED;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.TITLE_DIALOG_ERR_OPENPROFILE;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.LIVE_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.LOG_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor;
@@ -140,9 +145,10 @@ public class RootController extends AbstractController implements MachineListene
             catch (Throwable t)
             {
                 showExceptionDialog(
-                    "Profile Error",
-                    "Profile not opened",
-                    "An exception occurred trying to open the profile.",
+                    appCtx(),
+                    appCtx().textFor(TITLE_DIALOG_ERR_OPENPROFILE),
+                    appCtx().textFor(HEADER_DIALOG_ERR_OPENPROFILE),
+                    appCtx().textFor(MESSAGE_DIALOG_ERR_OPENPROFILE),
                     t);
             }
         });
@@ -152,9 +158,10 @@ public class RootController extends AbstractController implements MachineListene
             {
                 profileTabs.getTabs().remove(tab);
                 showExceptionDialog(
-                    "Profile Error",
-                    "Profile not opened",
-                    "The profile could not be opened.",
+                    appCtx(),
+                    appCtx().textFor(TITLE_DIALOG_ERR_OPENPROFILE),
+                    appCtx().textFor(HEADER_DIALOG_ERR_OPENPROFILE),
+                    appCtx().textFor(MESSAGE_DIALOG_ERR_OPENPROFILE),
                     task.getException());
             });
 
@@ -163,9 +170,9 @@ public class RootController extends AbstractController implements MachineListene
             {
                 profileTabs.getTabs().remove(tab);
                 showErrorDialog(
-                    "Profile Error",
-                    "Profile not opened",
-                    "The task for opening the profile was canceled.");
+                    appCtx().textFor(TITLE_DIALOG_ERR_OPENPROFILE),
+                    appCtx().textFor(HEADER_DIALOG_ERR_OPENPROFILE),
+                    appCtx().textFor(MESSAGE_DIALOG_ERR_TASKCANCELED));
             });
 
         appCtx().getExecutorService().submit(task);
@@ -237,7 +244,7 @@ public class RootController extends AbstractController implements MachineListene
 
     private Tab newLoadingTab()
     {
-        Tab tab = new Tab("Loading...");
+        Tab tab = new Tab(appCtx().textFor(CONTENT_TAB_LOADING));
         tab.setGraphic(getProgressIndicator(15, 15));
         return tab;
     }
@@ -246,7 +253,7 @@ public class RootController extends AbstractController implements MachineListene
     {
 
         setRootDisabled(true);
-        File file = selectLogFile();
+        File file = selectLogFile(appCtx());
         setRootDisabled(false);
 
         if (file != null)

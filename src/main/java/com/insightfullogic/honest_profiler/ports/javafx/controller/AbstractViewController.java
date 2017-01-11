@@ -257,8 +257,11 @@ public abstract class AbstractViewController extends AbstractController
 
     private FilterDialogController createFilterDialog()
     {
-        return (FilterDialogController) DialogUtil
-            .<FilterSpecification>newDialog(FILTER, getText(TITLE_DIALOG_SPECIFYFILTERS), false);
+        return (FilterDialogController) DialogUtil.<FilterSpecification>newDialog(
+            appCtx(),
+            FILTER,
+            getText(TITLE_DIALOG_SPECIFYFILTERS),
+            false);
     }
 
     private ImageView iconFor(FilterSpecification spec)
