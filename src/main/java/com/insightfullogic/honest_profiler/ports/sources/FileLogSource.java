@@ -131,7 +131,16 @@ public class FileLogSource implements LogSource
      */
     private void mapBuffer(long offset) throws IOException
     {
-        buffer = channel.map(READ_ONLY, offset, BUFFER_SIZE);
+        int length = BUFFER_SIZE;
+        long fileEnd = channel.size();
+
+        if (offset + BUFFER_SIZE > fileEnd)
+        {
+            // Cast to int is safe, since the test determines that the int
+            // BUFFER_SIZE > fileEnd - offset)
+            length = (int) (fileEnd - offset);
+        }
+        buffer = channel.map(READ_ONLY, offset, length);
     }
 
     @Override
