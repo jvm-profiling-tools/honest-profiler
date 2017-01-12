@@ -131,11 +131,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GLOBAL_WARNINGS} ${GLOBAL_COPTS} -pthr
 add_library(${OUTPUT} SHARED ${SOURCE_FILES})
 
 if ("${CMAKE_SYSTEM_NAME}" STREQUAL "FreeBSD") 
-    target_link_libraries(${OUTPUT} ${JNI_LIBRARIES} rt)
+    target_link_libraries(${OUTPUT} ${JAVA_JVM_LIBRARY} rt)
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    target_link_libraries(${OUTPUT} ${JNI_LIBRARIES} dl)
+    target_link_libraries(${OUTPUT} ${JAVA_JVM_LIBRARY} dl)
 else()
-    target_link_libraries(${OUTPUT} ${JNI_LIBRARIES} dl rt)
+    target_link_libraries(${OUTPUT} ${JAVA_JVM_LIBRARY} dl rt)
 endif()
 
 add_executable(unitTests ${UNIT_TEST_H} ${TEST_FILES})
