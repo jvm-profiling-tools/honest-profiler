@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
+import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 
 /**
  * Wrapper for LeanNode with extra links.
@@ -28,6 +29,11 @@ public class LinkedLeanNode
     public LeanNode getLeanNode()
     {
         return wrapped;
+    }
+
+    public NumericInfo getData()
+    {
+        return wrapped.getData();
     }
 
     public FqmnLink getFqmnLink()

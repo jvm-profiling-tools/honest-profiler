@@ -76,6 +76,14 @@ public class NumericInfo
         return totalCnt;
     }
 
+    /**
+     * Update method for initial lean aggregation.
+     *
+     * @param nanos the number of ns spent in the stack
+     * @param self a boolean indicating whether the associated frame is the last
+     *            in the stack
+     * @return this object
+     */
     public NumericInfo update(long nanos, boolean self)
     {
         BigInteger converted = BigInteger.valueOf(nanos);
@@ -89,6 +97,15 @@ public class NumericInfo
             selfCnt++;
         }
 
+        return this;
+    }
+
+    public NumericInfo add(NumericInfo other)
+    {
+        selfTime = selfTime.add(other.selfTime);
+        totalTime = totalTime.add(other.totalTime);
+        selfCnt += other.selfCnt;
+        totalCnt = other.totalCnt;
         return this;
     }
 

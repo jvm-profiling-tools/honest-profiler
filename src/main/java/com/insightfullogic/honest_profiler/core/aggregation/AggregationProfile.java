@@ -55,9 +55,9 @@ public class AggregationProfile
     {
         String fqmn = sourceProfile.getMethodMap().get(frame.getMethodId()).getFqmn();
         FqmnLink link = fqmnLinks.computeIfAbsent(fqmn, FqmnLink::new);
-        link.addSibling(threadId, node);
 
         LinkedLeanNode linkedNode = new LinkedLeanNode(node, parent, link);
+        link.addSibling(threadId, linkedNode);
 
         if (parent != null)
         {
@@ -65,8 +65,8 @@ public class AggregationProfile
             parent.addChild(linkedNode);
 
             // Add FQMN Link Parent-Child relations
-            link.addParent(threadId, parent.getLeanNode());
-            parent.getFqmnLink().addChild(threadId, node);
+            link.addParent(threadId, parent);
+            parent.getFqmnLink().addChild(threadId, linkedNode);
         }
 
         node.getChildren().forEach((childFrame, childNode) ->
