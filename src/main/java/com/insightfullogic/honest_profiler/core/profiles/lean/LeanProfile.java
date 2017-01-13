@@ -3,9 +3,15 @@ package com.insightfullogic.honest_profiler.core.profiles.lean;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.insightfullogic.honest_profiler.core.profiles.Profile;
+
 /**
- * Alternative Profile which stores/collects all info only once. Any aggregation
- * is relegated to post-processing.
+ * Alternative to {@link Profile} which stores/collects all info only once,
+ * eliminating redundancy. The granularity is at stackframe level, keyed by
+ * class name, method name, bci and line number.
+ *
+ * Any aggregation other than counts and time addition at the lowest level is
+ * relegated to post-processing.
  */
 public class LeanProfile
 {

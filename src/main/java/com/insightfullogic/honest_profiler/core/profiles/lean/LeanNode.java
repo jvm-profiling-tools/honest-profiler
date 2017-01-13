@@ -5,6 +5,13 @@ import java.util.Map;
 
 import com.insightfullogic.honest_profiler.core.parser.TraceStart;
 
+/**
+ * Tree node which records stacktrace information. The tree root contains the
+ * numerical data at thread-level, and has as unique child the root method of
+ * that thread. Any other node contains numerical data about its associated
+ * stack frame, and has as children the nodes representing stack frames called
+ * at some time from that location.
+ */
 public class LeanNode
 {
     private final NumericInfo data;

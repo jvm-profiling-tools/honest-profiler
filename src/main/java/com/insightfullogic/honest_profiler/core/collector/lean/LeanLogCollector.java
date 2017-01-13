@@ -4,6 +4,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.insightfullogic.honest_profiler.core.parser.LogEventListener;
 import com.insightfullogic.honest_profiler.core.parser.Method;
@@ -17,25 +18,46 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfileListene
 import com.insightfullogic.honest_profiler.core.profiles.lean.MethodInfo;
 import com.insightfullogic.honest_profiler.core.profiles.lean.ThreadInfo;
 
+/**
+ * Collector which emits {@link LeanProfile}s.
+ */
 public class LeanLogCollector implements LogEventListener
 {
+    // Class Properties
+
     private static final long SECONDSTONANOS = 1000 * 1000 * 1000;
+
+    // Instance Properties
 
     private final LeanProfileListener listener;
 
+    // Maps method ids to MethodInfo objects.
     private final Map<Long, MethodInfo> methodMap;
+    // Maps thread ids to ThreadInfo objects.
     private final Map<Long, ThreadInfo> threadMap;
+    // Maps thread ids to the profile trees for the threads. The root contains
+    // the Thread-level data, anything below are stackframe-level data.
     private final Map<Long, LeanNode> threadData;
 
     private Deque<StackFrame> stackTrace;
 
+    // Seconds and nanos as reported by the last TraceStart received.
     private long prevSeconds;
     private long prevNanos;
+
+    // Difference in ns between the previous and the current TraceStart.
     private long nanosSpent;
 
-    private LeanNode currentNode;
-
+    // Properties related to profile emission.
     private boolean emitOnChange;
+    private AtomicBoolean profileRequested;
+    private boolean hasData;
+
+    // Property for internal use. When a TraceStart is received, this is set to
+    // the LeanNode corresponding to the reported thread id. When stackframes
+    // are processed, it is replaced by the node representing the processed
+    // stackframe.
+    private LeanNode currentNode;
 
     public LeanLogCollector(final LeanProfileListener listener, final boolean emitOnChange)
     {
@@ -49,6 +71,17 @@ public class LeanLogCollector implements LogEventListener
         stackTrace = new ArrayDeque<>();
 
         currentNode = null;
+
+        profileRequested = new AtomicBoolean(false);
+    }
+
+    /**
+     * Set a flag from any thread, which will cause an updated profile to be
+     * emitted as soon as possible.
+     */
+    public void requestProfile()
+    {
+        profileRequested.set(true);
     }
 
     @Override
@@ -71,6 +104,11 @@ public class LeanLogCollector implements LogEventListener
 
     private void collectThreadDump()
     {
+        if (!stackTrace.isEmpty())
+        {
+            hasData = true;
+        }
+
         while (!stackTrace.isEmpty())
         {
             collectStackFrame(stackTrace.pop());
@@ -91,6 +129,7 @@ public class LeanLogCollector implements LogEventListener
             newThreadMeta.getThreadId(),
             (k, v) -> v == null ? new ThreadInfo(newThreadMeta)
                 : v.checkAndSetName(newThreadMeta.getThreadName()));
+        emitProfileIfNeeded();
     }
 
     /**
@@ -111,6 +150,14 @@ public class LeanLogCollector implements LogEventListener
             .update(nanosSpent, new FrameInfo(stackFrame), stackTrace.isEmpty());
     }
 
+    /**
+     * Calculates the number of ns spent between the previous {@link TraceStart}
+     * and the current one. After the first {@link TraceStart} nanosSpent will
+     * still be 0.
+     *
+     * @param newSeconds seconds reported in the current TraceStart
+     * @param newNanos nanoSeconds reported in the current TraceStart
+     */
     private void updateTime(long newSeconds, long newNanos)
     {
         // The timestamp is absolute, so the very first time these calculations
@@ -130,7 +177,7 @@ public class LeanLogCollector implements LogEventListener
 
     private void emitProfileIfNeeded()
     {
-        if (nanosSpent > 0 && emitOnChange)
+        if (hasData && (profileRequested.getAndSet(false) || emitOnChange))
         {
             emitProfile();
         }
