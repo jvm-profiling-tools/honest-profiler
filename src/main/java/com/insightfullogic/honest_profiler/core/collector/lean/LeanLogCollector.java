@@ -11,10 +11,10 @@ import com.insightfullogic.honest_profiler.core.parser.StackFrame;
 import com.insightfullogic.honest_profiler.core.parser.ThreadMeta;
 import com.insightfullogic.honest_profiler.core.parser.TraceStart;
 import com.insightfullogic.honest_profiler.core.profiles.lean.FrameInfo;
-import com.insightfullogic.honest_profiler.core.profiles.lean.MethodInfo;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfile;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfileListener;
+import com.insightfullogic.honest_profiler.core.profiles.lean.MethodInfo;
 import com.insightfullogic.honest_profiler.core.profiles.lean.ThreadInfo;
 
 public class LeanLogCollector implements LogEventListener
@@ -27,8 +27,7 @@ public class LeanLogCollector implements LogEventListener
     private final Map<Long, ThreadInfo> threadMap;
     private final Map<Long, LeanNode> threadData;
 
-    private Deque<StackFrame> previousStack;
-    private Deque<StackFrame> currentStack;
+    private Deque<StackFrame> stackTrace;
 
     private long prevSeconds;
     private long prevNanos;
@@ -47,8 +46,7 @@ public class LeanLogCollector implements LogEventListener
         threadMap = new HashMap<>();
         threadData = new HashMap<>();
 
-        previousStack = new ArrayDeque<>();
-        currentStack = new ArrayDeque<>();
+        stackTrace = new ArrayDeque<>();
 
         currentNode = null;
     }
@@ -56,31 +54,26 @@ public class LeanLogCollector implements LogEventListener
     @Override
     public void handle(TraceStart traceStart)
     {
-        currentNode = threadData.computeIfAbsent(traceStart.getThreadId(), v -> new LeanNode(0));
         updateTime(traceStart.getTraceEpoch(), traceStart.getTraceEpochNano());
-
         collectThreadDump();
+
+        currentNode = threadData.computeIfAbsent(traceStart.getThreadId(), v -> new LeanNode(0));
+
         emitProfileIfNeeded();
-        currentStack.clear();
+        stackTrace.clear();
     }
 
     @Override
     public void handle(StackFrame stackFrame)
     {
-        currentStack.push(stackFrame);
+        stackTrace.push(stackFrame);
     }
 
     private void collectThreadDump()
     {
-        // Switch around the stacks, so the currentStack is empty again, and
-        // what was collected can be processed.
-        Deque<StackFrame> temp = currentStack;
-        currentStack = previousStack;
-        previousStack = temp;
-
-        while (!previousStack.isEmpty())
+        while (!stackTrace.isEmpty())
         {
-            collectStackFrame(previousStack.size() == 1, previousStack.pop());
+            collectStackFrame(stackTrace.pop());
         }
     }
 
@@ -100,29 +93,36 @@ public class LeanLogCollector implements LogEventListener
                 : v.checkAndSetName(newThreadMeta.getThreadName()));
     }
 
-    @Override
     /**
      * If no ThreadStart occurred after the last stack frames were added, we
      * obviously don't have an accurate "nanosSpent", but reusing the last one
      * should do fine as an approximation.
      */
+    @Override
     public void endOfLog()
     {
         collectThreadDump();
         emitProfile();
     }
 
-    private void collectStackFrame(boolean self, StackFrame stackFrame)
+    private void collectStackFrame(StackFrame stackFrame)
     {
-        currentNode = currentNode.update(nanosSpent, new FrameInfo(stackFrame));
+        currentNode = currentNode
+            .update(nanosSpent, new FrameInfo(stackFrame), stackTrace.isEmpty());
     }
 
     private void updateTime(long newSeconds, long newNanos)
     {
-        long secondsDiff = newSeconds - prevSeconds;
-        long nanosDiff = newNanos - prevNanos;
+        // The timestamp is absolute, so the very first time these calculations
+        // are meaningless. And if the log doesn't contain timestamps,
+        // prevSeconds will always be zero, so we avoid the calculations.
+        if (prevSeconds > 0)
+        {
+            long secondsDiff = newSeconds - prevSeconds;
+            long nanosDiff = newNanos - prevNanos;
 
-        nanosSpent = (secondsDiff * SECONDSTONANOS) + nanosDiff;
+            nanosSpent = (secondsDiff * SECONDSTONANOS) + nanosDiff;
+        }
 
         prevSeconds = newSeconds;
         prevNanos = newNanos;

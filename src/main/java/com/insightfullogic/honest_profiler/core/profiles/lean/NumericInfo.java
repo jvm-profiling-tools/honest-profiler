@@ -1,38 +1,79 @@
 package com.insightfullogic.honest_profiler.core.profiles.lean;
 
+import static java.math.BigInteger.ZERO;
+
 import java.math.BigInteger;
 
 public class NumericInfo
 {
-    private BigInteger nanosSpent;
+    private BigInteger selfTime;
+    private BigInteger totalTime;
+
     private int selfCnt;
     private int totalCnt;
 
-    public NumericInfo(long nanos)
+    /**
+     * Constructor for an item which will be updated with non-self data.
+     */
+    public NumericInfo()
     {
-        this(BigInteger.valueOf(nanos), 1, 1);
+        this(ZERO, ZERO, 0, 0);
     }
 
-    public NumericInfo(BigInteger nanosSpent, int selfCnt, int totalCnt)
+    /**
+     * Constructor for a "final" item with self and total time known.
+     *
+     * @param selfNanos the self (and total) time
+     */
+    public NumericInfo(long selfNanos)
     {
-        this.nanosSpent = nanosSpent;
+        this(BigInteger.valueOf(selfNanos), BigInteger.valueOf(selfNanos), 1, 1);
+    }
+
+    /**
+     * Copy constructor.
+     *
+     * @param source the source NumericInfo which is being copied
+     */
+    private NumericInfo(NumericInfo source)
+    {
+        this(source.selfTime, source.totalTime, source.selfCnt, source.totalCnt);
+    }
+
+    /**
+     * Convenience internal constructor.
+     *
+     * @param selfTime the self time in ns
+     * @param totalTime the total time in ns
+     * @param selfCnt the self count
+     * @param totalCnt the total count
+     */
+    private NumericInfo(BigInteger selfTime, BigInteger totalTime, int selfCnt, int totalCnt)
+    {
+        this.selfTime = selfTime;
+        this.totalTime = totalTime;
         this.selfCnt = selfCnt;
         this.totalCnt = totalCnt;
     }
 
     public NumericInfo update(long nanos, boolean self)
     {
-        nanosSpent = nanosSpent.add(BigInteger.valueOf(nanos));
+        BigInteger converted = BigInteger.valueOf(nanos);
+
+        totalTime = totalTime.add(converted);
         totalCnt++;
+
         if (self)
         {
+            selfTime = selfTime.add(converted);
             selfCnt++;
         }
+
         return this;
     }
 
     public NumericInfo copy()
     {
-        return new NumericInfo(nanosSpent, selfCnt, totalCnt);
+        return new NumericInfo(this);
     }
 }
