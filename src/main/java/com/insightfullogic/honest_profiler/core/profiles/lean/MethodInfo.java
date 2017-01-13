@@ -9,6 +9,8 @@ public class MethodInfo
     private final String className;
     private final String methodName;
 
+    private String cachedFqmn;
+
     public MethodInfo(long methodId, String fileName, String className, String methodName)
     {
         this.methodId = methodId;
@@ -43,6 +45,28 @@ public class MethodInfo
     public String getMethodName()
     {
         return methodName;
+    }
+
+    public String getFqmn()
+    {
+        if (cachedFqmn == null)
+        {
+            StringBuilder result = new StringBuilder(formatClassName(className));
+            result.append(".");
+            result.append(methodName);
+            cachedFqmn = result.toString();
+        }
+        return cachedFqmn;
+    }
+
+    private String formatClassName(String className)
+    {
+        if (className.isEmpty())
+        {
+            return className;
+        }
+
+        return className.substring(1, className.length() - 1).replace('/', '.');
     }
 
     @Override

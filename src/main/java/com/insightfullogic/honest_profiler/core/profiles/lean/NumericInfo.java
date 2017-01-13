@@ -56,6 +56,26 @@ public class NumericInfo
         this.totalCnt = totalCnt;
     }
 
+    public BigInteger getSelfTime()
+    {
+        return selfTime;
+    }
+
+    public BigInteger getTotalTime()
+    {
+        return totalTime;
+    }
+
+    public int getSelfCnt()
+    {
+        return selfCnt;
+    }
+
+    public int getTotalCnt()
+    {
+        return totalCnt;
+    }
+
     public NumericInfo update(long nanos, boolean self)
     {
         BigInteger converted = BigInteger.valueOf(nanos);

@@ -41,6 +41,16 @@ public class LeanNode
         source.children.forEach((key, value) -> this.children.put(key.copy(), value.copy()));
     }
 
+    public NumericInfo getData()
+    {
+        return data;
+    }
+
+    public Map<FrameInfo, LeanNode> getChildren()
+    {
+        return children;
+    }
+
     /**
      * The update is called from the LogCollector, on the parent with the next
      * (potentially last) child from the trace.
