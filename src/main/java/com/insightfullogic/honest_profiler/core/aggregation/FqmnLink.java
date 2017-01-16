@@ -21,9 +21,9 @@ public class FqmnLink
 {
     private final String fqmn;
 
-    private final Map<Long, Set<LinkedLeanNode>> parents;
-    private final Map<Long, Set<LinkedLeanNode>> children;
-    private final Map<Long, Set<LinkedLeanNode>> siblings;
+    private final Map<Long, Set<LeanNode>> parents;
+    private final Map<Long, Set<LeanNode>> children;
+    private final Map<Long, Set<LeanNode>> siblings;
 
     public FqmnLink(String fqmn)
     {
@@ -39,32 +39,32 @@ public class FqmnLink
         return fqmn;
     }
 
-    public Map<Long, Set<LinkedLeanNode>> getParents()
+    public Map<Long, Set<LeanNode>> getParents()
     {
         return parents;
     }
 
-    public Map<Long, Set<LinkedLeanNode>> getChildren()
+    public Map<Long, Set<LeanNode>> getChildren()
     {
         return children;
     }
 
-    public Map<Long, Set<LinkedLeanNode>> getSiblings()
+    public Map<Long, Set<LeanNode>> getSiblings()
     {
         return siblings;
     }
 
-    public void addParent(Long threadId, LinkedLeanNode parent)
+    public void addParent(Long threadId, LeanNode parent)
     {
         addToSet(parents, threadId, parent);
     }
 
-    public void addChild(Long threadId, LinkedLeanNode child)
+    public void addChild(Long threadId, LeanNode child)
     {
         addToSet(children, threadId, child);
     }
 
-    public void addSibling(Long threadId, LinkedLeanNode sibling)
+    public void addSibling(Long threadId, LeanNode sibling)
     {
         addToSet(siblings, threadId, sibling);
     }

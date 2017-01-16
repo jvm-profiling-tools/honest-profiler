@@ -14,18 +14,24 @@ import com.insightfullogic.honest_profiler.core.parser.TraceStart;
  */
 public class LeanNode
 {
+    private final FrameInfo frame;
     private final NumericInfo data;
+    private LeanNode parent;
     private final Map<FrameInfo, LeanNode> children;
 
-    public LeanNode()
+    public LeanNode(FrameInfo frame, LeanNode parent)
     {
+        this.frame = frame;
         data = new NumericInfo();
+        this.parent = parent;
         children = new HashMap<>();
     }
 
-    public LeanNode(long nanos)
+    public LeanNode(FrameInfo frame, long nanos, LeanNode parent)
     {
+        this.frame = frame;
         data = new NumericInfo(nanos);
+        this.parent = parent;
         children = new HashMap<>();
     }
 
@@ -34,16 +40,28 @@ public class LeanNode
      *
      * @param source the source SlimNode which is being copied
      */
-    private LeanNode(LeanNode source)
+    private LeanNode(LeanNode source, LeanNode newParent)
     {
+        this.frame = source.frame;
         this.data = source.data.copy();
+        this.parent = newParent;
         this.children = new HashMap<>();
-        source.children.forEach((key, value) -> this.children.put(key.copy(), value.copy()));
+        source.children.forEach((key, value) -> this.children.put(key.copy(), value.copy(this)));
+    }
+
+    public FrameInfo getFrame()
+    {
+        return frame;
     }
 
     public NumericInfo getData()
     {
         return data;
+    }
+
+    public LeanNode getParent()
+    {
+        return parent;
     }
 
     public Map<FrameInfo, LeanNode> getChildren()
@@ -67,13 +85,30 @@ public class LeanNode
 
         return children.compute(
             child,
-            (k, v) -> v == null ? (last ? new LeanNode(nanos) : new LeanNode())
+            (k, v) -> v == null
+                ? (last ? new LeanNode(child, nanos, this) : new LeanNode(child, this))
                 : (last ? v.updateSelf(nanos) : v));
     }
 
+    /**
+     * Copy method for the top of the tree, which has no parent.
+     *
+     * @return a copy of this object
+     */
     public LeanNode copy()
     {
-        return new LeanNode(this);
+        return new LeanNode(this, null);
+    }
+
+    /**
+     * Copy method for children.
+     *
+     * @param newParent the new parent for the children
+     * @return a copy of this object
+     */
+    public LeanNode copy(LeanNode newParent)
+    {
+        return new LeanNode(this, newParent);
     }
 
     private LeanNode updateSelf(long nanos)

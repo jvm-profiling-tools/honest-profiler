@@ -90,7 +90,8 @@ public class LeanLogCollector implements LogEventListener
         updateTime(traceStart.getTraceEpoch(), traceStart.getTraceEpochNano());
         collectThreadDump();
 
-        currentNode = threadData.computeIfAbsent(traceStart.getThreadId(), v -> new LeanNode(0));
+        currentNode = threadData
+            .computeIfAbsent(traceStart.getThreadId(), v -> new LeanNode(null, 0, null));
 
         emitProfileIfNeeded();
         stackTrace.clear();

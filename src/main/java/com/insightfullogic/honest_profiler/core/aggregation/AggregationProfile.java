@@ -14,7 +14,7 @@ public class AggregationProfile
 {
     private final LeanProfile sourceProfile;
     private final Map<String, FqmnLink> fqmnLinks;
-    private final Map<Long, LinkedLeanNode> threadRoots;
+    private final Map<Long, LeanNode> threadRoots;
 
     public AggregationProfile(LeanProfile sourceProfile)
     {
@@ -31,12 +31,18 @@ public class AggregationProfile
         return sourceProfile;
     }
 
+    public FqmnLink getFqmnLink(LeanNode node)
+    {
+        return fqmnLinks
+            .get(sourceProfile.getMethodMap().get(node.getFrame().getMethodId()).getFqmn());
+    }
+
     public Map<String, FqmnLink> getFqmnLinks()
     {
         return fqmnLinks;
     }
 
-    public Map<Long, LinkedLeanNode> getThreadRoots()
+    public Map<Long, LeanNode> getThreadRoots()
     {
         return threadRoots;
     }
@@ -46,34 +52,27 @@ public class AggregationProfile
         sourceProfile.getThreadData().forEach((threadId, threadData) ->
         {
             threadData.getChildren().forEach(
-                (frame, node) -> threadRoots.put(threadId, link(threadId, frame, node, null)));
+                (frame, node) -> threadRoots.put(threadId, link(threadId, frame, node)));
         });
     }
 
-    private LinkedLeanNode link(Long threadId, FrameInfo frame, LeanNode node,
-        LinkedLeanNode parent)
+    private LeanNode link(Long threadId, FrameInfo frame, LeanNode node)
     {
         String fqmn = sourceProfile.getMethodMap().get(frame.getMethodId()).getFqmn();
         FqmnLink link = fqmnLinks.computeIfAbsent(fqmn, FqmnLink::new);
 
-        LinkedLeanNode linkedNode = new LinkedLeanNode(node, parent, link);
-        link.addSibling(threadId, linkedNode);
+        link.addSibling(threadId, node);
 
+        LeanNode parent = node.getParent();
         if (parent != null)
         {
-            // Add Linked Node parent-child relation
-            parent.addChild(linkedNode);
-
             // Add FQMN Link Parent-Child relations
             link.addParent(threadId, parent);
-            parent.getFqmnLink().addChild(threadId, linkedNode);
+            if (parent.getFrame() != null)
+            {
+                getFqmnLink(parent).addChild(threadId, node);
+            }
         }
-
-        node.getChildren().forEach((childFrame, childNode) ->
-        {
-            linkedNode.addChild(link(threadId, childFrame, childNode, linkedNode));
-        });
-
-        return linkedNode;
+        return node;
     }
 }
