@@ -1,5 +1,6 @@
 package com.insightfullogic.honest_profiler.core.profiles.lean;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,14 +18,14 @@ public class LeanNode
     private final FrameInfo frame;
     private final NumericInfo data;
     private LeanNode parent;
-    private final Map<FrameInfo, LeanNode> children;
+    private final Map<FrameInfo, LeanNode> childMap;
 
     public LeanNode(FrameInfo frame, LeanNode parent)
     {
         this.frame = frame;
         data = new NumericInfo();
         this.parent = parent;
-        children = new HashMap<>();
+        childMap = new HashMap<>();
     }
 
     public LeanNode(FrameInfo frame, long nanos, LeanNode parent)
@@ -32,7 +33,7 @@ public class LeanNode
         this.frame = frame;
         data = new NumericInfo(nanos);
         this.parent = parent;
-        children = new HashMap<>();
+        childMap = new HashMap<>();
     }
 
     /**
@@ -45,8 +46,8 @@ public class LeanNode
         this.frame = source.frame;
         this.data = source.data.copy();
         this.parent = newParent;
-        this.children = new HashMap<>();
-        source.children.forEach((key, value) -> this.children.put(key.copy(), value.copy(this)));
+        this.childMap = new HashMap<>();
+        source.childMap.forEach((key, value) -> this.childMap.put(key.copy(), value.copy(this)));
     }
 
     public FrameInfo getFrame()
@@ -64,9 +65,14 @@ public class LeanNode
         return parent;
     }
 
-    public Map<FrameInfo, LeanNode> getChildren()
+    public Map<FrameInfo, LeanNode> getChildMap()
     {
-        return children;
+        return childMap;
+    }
+
+    public Collection<LeanNode> getChildren()
+    {
+        return childMap.values();
     }
 
     /**
@@ -83,7 +89,7 @@ public class LeanNode
     {
         data.update(nanos, false);
 
-        return children.compute(
+        return childMap.compute(
             child,
             (k, v) -> v == null
                 ? (last ? new LeanNode(child, nanos, this) : new LeanNode(child, this))

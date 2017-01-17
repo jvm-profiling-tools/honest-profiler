@@ -43,4 +43,9 @@ public class LeanProfile
     {
         return threadData;
     }
+
+    public String getFqmn(LeanNode node)
+    {
+        return getMethodMap().get(node.getFrame().getMethodId()).getFqmn();
+    }
 }

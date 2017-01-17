@@ -3,7 +3,6 @@ package com.insightfullogic.honest_profiler.core.aggregation;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.insightfullogic.honest_profiler.core.profiles.lean.FrameInfo;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfile;
 
@@ -52,13 +51,13 @@ public class AggregationProfile
         sourceProfile.getThreadData().forEach((threadId, threadData) ->
         {
             threadData.getChildren().forEach(
-                (frame, node) -> threadRoots.put(threadId, link(threadId, frame, node)));
+                node -> threadRoots.put(threadId, link(threadId, node)));
         });
     }
 
-    private LeanNode link(Long threadId, FrameInfo frame, LeanNode node)
+    private LeanNode link(Long threadId, LeanNode node)
     {
-        String fqmn = sourceProfile.getMethodMap().get(frame.getMethodId()).getFqmn();
+        String fqmn = sourceProfile.getMethodMap().get(node.getFrame().getMethodId()).getFqmn();
         FqmnLink link = fqmnLinks.computeIfAbsent(fqmn, FqmnLink::new);
 
         link.addSibling(threadId, node);

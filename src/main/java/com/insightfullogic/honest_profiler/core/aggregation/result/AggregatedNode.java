@@ -1,8 +1,9 @@
-package com.insightfullogic.honest_profiler.core.aggregation;
+package com.insightfullogic.honest_profiler.core.aggregation.result;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.insightfullogic.honest_profiler.core.profiles.lean.FrameInfo;
 import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 
 /**
@@ -13,6 +14,12 @@ public class AggregatedNode
 {
     private final AggregatedEntry entry;
     private final List<AggregatedNode> children;
+
+    public AggregatedNode(Aggregation<?> aggregation)
+    {
+        this.entry = new AggregatedEntry(null, aggregation);
+        this.children = new ArrayList<>();
+    }
 
     public AggregatedNode(AggregatedEntry entry)
     {
@@ -80,8 +87,21 @@ public class AggregatedNode
         return entry.getTotalCntPct();
     }
 
+    public void add(String key, FrameInfo frame, NumericInfo data)
+    {
+        entry.setKey(key);
+        entry.add(frame, data);
+    }
+
     public void addChild(AggregatedEntry entry)
     {
         children.add(new AggregatedNode(entry));
+    }
+
+    public AggregatedNode combine(AggregatedNode other)
+    {
+        entry.combine(other.entry);
+        children.addAll(other.children);
+        return this;
     }
 }

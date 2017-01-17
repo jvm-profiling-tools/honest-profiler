@@ -1,4 +1,4 @@
-package com.insightfullogic.honest_profiler.core.aggregation;
+package com.insightfullogic.honest_profiler.core.aggregation.result;
 
 import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 
