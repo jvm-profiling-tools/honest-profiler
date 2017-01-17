@@ -43,6 +43,16 @@ public class AggregatedEntry
         frames.add(frame);
     }
 
+    public Aggregation<?> getAggregation()
+    {
+        return aggregation;
+    }
+
+    public NumericInfo getReference()
+    {
+        return aggregation.getReferenceData();
+    }
+
     public String getKey()
     {
         return key;
@@ -103,6 +113,11 @@ public class AggregatedEntry
         return data.getTotalCnt() / (double) getReference().getTotalCnt();
     }
 
+    public int getRefCnt()
+    {
+        return getReference().getTotalCnt();
+    }
+
     public void add(FrameInfo frame, NumericInfo newData)
     {
         frames.add(frame);
@@ -113,10 +128,5 @@ public class AggregatedEntry
     {
         frames.addAll(other.frames);
         data.add(other.data);
-    }
-
-    private NumericInfo getReference()
-    {
-        return aggregation.getReferenceData();
     }
 }

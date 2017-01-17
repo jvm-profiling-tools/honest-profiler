@@ -2,18 +2,25 @@ package com.insightfullogic.honest_profiler.ports.javafx.model;
 
 import static javafx.application.Platform.isFxApplicationThread;
 import static javafx.application.Platform.runLater;
+import static javafx.util.Duration.seconds;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
+import com.insightfullogic.honest_profiler.core.collector.lean.ProfileSource;
 import com.insightfullogic.honest_profiler.core.profiles.FlameGraph;
 import com.insightfullogic.honest_profiler.core.profiles.FlameGraphListener;
-import com.insightfullogic.honest_profiler.core.profiles.Profile;
-import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
+import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfile;
+import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfileListener;
+import com.insightfullogic.honest_profiler.ports.javafx.model.task.AggregateProfileTask;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.util.Duration;
 
 public class ProfileContext
 {
@@ -24,26 +31,58 @@ public class ProfileContext
 
     private static final AtomicInteger counter = new AtomicInteger();
 
+    private final ApplicationContext appCtx;
+
     private final int id;
 
     private final SimpleStringProperty name;
+
     private final ProfileMode mode;
-    private final SimpleObjectProperty<Profile> profile;
+    private ProfileSource profileSource;
+
+    private final SimpleObjectProperty<AggregationProfile> profile;
     private final SimpleObjectProperty<FlameGraph> flameGraph;
 
     private boolean frozen;
+
+    private Duration refreshInterval;
+    private Timeline timeline;
+
     // While frozen, incoming profiles/graphs are cached in the following 2
     // instance properties.
-    private Profile cachedProfile;
+    private LeanProfile cachedProfile;
     private FlameGraph cachedFlameGraph;
 
-    public ProfileContext(String name, ProfileMode mode)
+    public ProfileContext(ApplicationContext appCtx, String name, ProfileMode mode)
     {
+        this.appCtx = appCtx;
+
+        this.mode = mode;
+        this.profileSource = null;
+
         id = counter.incrementAndGet();
         this.name = new SimpleStringProperty(name);
-        this.mode = mode;
         profile = new SimpleObjectProperty<>();
         flameGraph = new SimpleObjectProperty<>();
+
+        refreshInterval = seconds(1);
+    }
+
+    public void setProfileSource(ProfileSource profileSource)
+    {
+        this.profileSource = profileSource;
+        updateTimeline();
+    }
+
+    public int getDuration()
+    {
+        return (int) refreshInterval.toSeconds();
+    }
+
+    public void setDuration(int seconds)
+    {
+        refreshInterval = seconds(seconds);
+        updateTimeline();
     }
 
     public int getId()
@@ -61,7 +100,7 @@ public class ProfileContext
         return mode;
     }
 
-    public Profile getProfile()
+    public AggregationProfile getProfile()
     {
         return profile.get();
     }
@@ -71,7 +110,7 @@ public class ProfileContext
         return name;
     }
 
-    public ObjectProperty<Profile> profileProperty()
+    public ObjectProperty<AggregationProfile> profileProperty()
     {
         return profile;
     }
@@ -92,11 +131,7 @@ public class ProfileContext
         this.frozen = freeze;
         if (!freeze)
         {
-            if (cachedProfile != null)
-            {
-                update(cachedProfile);
-                cachedProfile = null;
-            }
+            appCtx.execute(new AggregateProfileTask(ProfileContext.this, cachedProfile));
 
             if (cachedFlameGraph != null)
             {
@@ -106,20 +141,22 @@ public class ProfileContext
         }
     }
 
-    public ProfileListener getProfileListener()
+    public LeanProfileListener getProfileListener()
     {
-        return new ProfileListener()
+        return new LeanProfileListener()
         {
             @Override
-            public void accept(Profile t)
+            public void accept(LeanProfile profile)
             {
-                if (isFxApplicationThread())
+                if (profile == cachedProfile)
                 {
-                    update(t);
+                    return;
                 }
-                else
+
+                cachedProfile = profile;
+                if (!frozen)
                 {
-                    runLater(() -> update(t));
+                    appCtx.execute(new AggregateProfileTask(ProfileContext.this, profile));
                 }
             }
         };
@@ -145,16 +182,9 @@ public class ProfileContext
     }
 
     // Call only on FX Thread !
-    private void update(Profile t)
+    public void update(AggregationProfile profile)
     {
-        if (frozen)
-        {
-            cachedProfile = t;
-        }
-        else
-        {
-            profile.set(t);
-        }
+        this.profile.set(profile);
     }
 
     private void update(FlameGraph t)
@@ -167,5 +197,18 @@ public class ProfileContext
         {
             flameGraph.set(t);
         }
+    }
+
+    private void updateTimeline()
+    {
+        timeline.setOnFinished(event ->
+        {
+            timeline = new Timeline(
+                new KeyFrame(refreshInterval, e -> profileSource.requestProfile()));
+            timeline.setCycleCount(Timeline.INDEFINITE);
+            timeline.play();
+        });
+
+        timeline.stop();
     }
 }

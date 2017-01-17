@@ -8,10 +8,10 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
+import com.insightfullogic.honest_profiler.core.aggregation.result.AggregatedDiffEntry;
+import com.insightfullogic.honest_profiler.core.aggregation.result.AggregatedEntry;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileTree;
-import com.insightfullogic.honest_profiler.ports.javafx.model.diff.FlatProfileDiff;
 
 public final class ReportUtil
 {
@@ -113,7 +113,7 @@ public final class ReportUtil
         // TODO Implement
     }
 
-    public static void writeFlatProfileCsv(PrintWriter out, List<FlatProfileEntry> entries,
+    public static void writeFlatProfileCsv(PrintWriter out, List<AggregatedEntry> entries,
         Mode mode)
     {
         mode.start(out);
@@ -128,35 +128,30 @@ public final class ReportUtil
         out.print("Self #");
         mode.middle(out);
         out.print("Total #");
-        mode.middle(out);
-        out.print("Profile #");
         mode.end(out);
 
         entries.forEach(entry ->
         {
             mode.start(out);
-            out.print(entry.getFrameInfo().getClassName());
-            out.print(".");
-            out.print(entry.getFrameInfo().getMethodName());
+            out.print(entry.getKey());
 
             mode.middle(out);
-            out.printf("%.4f", entry.getSelfTimeShare());
+            out.printf("%.4f", entry.getSelfCntPct());
             mode.middle(out);
-            out.printf("%.4f", entry.getTotalTimeShare());
+            out.printf("%.4f", entry.getTotalCntPct());
 
             mode.middle(out);
-            out.printf("%d", entry.getSelfCount());
+            out.printf("%d", entry.getSelfCnt());
             mode.middle(out);
-            out.printf("%d", entry.getTotalCount());
-            mode.middle(out);
-            out.printf("%d", entry.getTraceCount());
+            out.printf("%d", entry.getTotalCnt());
             mode.end(out);
         });
 
         out.flush();
     }
 
-    public static void writeFlatProfileDiffCsv(PrintWriter out, FlatProfileDiff diff, Mode mode)
+    public static void writeFlatProfileDiffCsv(PrintWriter out, List<AggregatedDiffEntry> entries,
+        Mode mode)
     {
         mode.start(out);
         out.print("Method");
@@ -189,33 +184,26 @@ public final class ReportUtil
         mode.middle(out);
         out.print("Total # Diff");
 
-        mode.middle(out);
-        out.print("Base Profile #");
-        mode.middle(out);
-        out.print("New Profile #");
-        mode.middle(out);
-        out.print("Profile # Diff");
-
         mode.end(out);
 
-        diff.getEntries().forEach(entry ->
+        entries.forEach(entry ->
         {
             mode.start(out);
-            out.write(entry.getFullName());
+            out.write(entry.getKey());
 
             mode.middle(out);
-            out.printf("%.4f", entry.getBaseSelfPct());
+            out.printf("%.4f", entry.getBaseSelfCntPct());
             mode.middle(out);
-            out.printf("%.4f", entry.getNewSelfPct());
+            out.printf("%.4f", entry.getNewSelfCntPct());
             mode.middle(out);
-            out.printf("%.4f", entry.getSelfPctDiff());
+            out.printf("%.4f", entry.getSelfCntPctDiff());
 
             mode.middle(out);
-            out.printf("%.4f", entry.getBaseTotalPct());
+            out.printf("%.4f", entry.getBaseTotalCntPct());
             mode.middle(out);
-            out.printf("%.4f", entry.getNewTotalPct());
+            out.printf("%.4f", entry.getNewTotalCntPct());
             mode.middle(out);
-            out.printf("%.4f", entry.getTotalPctDiff());
+            out.printf("%.4f", entry.getTotalCntPctDiff());
 
             mode.middle(out);
             out.printf("%d", entry.getBaseSelfCnt());
@@ -230,13 +218,6 @@ public final class ReportUtil
             out.printf("%d", entry.getNewTotalCnt());
             mode.middle(out);
             out.printf("%d", entry.getTotalCntDiff());
-
-            mode.middle(out);
-            out.printf("%d", entry.getBaseProfileCnt());
-            mode.middle(out);
-            out.printf("%d", entry.getNewProfileCnt());
-            mode.middle(out);
-            out.printf("%d", entry.getProfileCntDiff());
 
             mode.end(out);
         });

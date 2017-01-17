@@ -22,7 +22,7 @@ import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.re
 import static javafx.scene.paint.Color.RED;
 import static javafx.scene.paint.Color.WHEAT;
 
-import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
+import com.insightfullogic.honest_profiler.core.aggregation.result.AggregatedNode;
 import com.insightfullogic.honest_profiler.ports.javafx.view.tree.MethodNodeAdapter;
 
 import javafx.scene.canvas.Canvas;
@@ -31,7 +31,7 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.paint.Color;
 
-public class TreeViewCell extends TreeTableCell<ProfileNode, ProfileNode>
+public class TreeViewCell extends TreeTableCell<AggregatedNode, AggregatedNode>
 {
     private static final int IMAGE_WIDTH = 50;
     private static final int IMAGE_HEIGHT = 15;
@@ -43,11 +43,11 @@ public class TreeViewCell extends TreeTableCell<ProfileNode, ProfileNode>
      * Not threadsafe: must be run on JavaFx thread.
      */
     @Override
-    protected void updateItem(ProfileNode profileNode, boolean empty)
+    protected void updateItem(AggregatedNode profileNode, boolean empty)
     {
         super.updateItem(profileNode, empty);
 
-        TreeItem<ProfileNode> treeItem = getTreeTableRow().getTreeItem();
+        TreeItem<AggregatedNode> treeItem = getTreeTableRow().getTreeItem();
 
         if (treeItem instanceof MethodNodeAdapter)
         {
@@ -59,14 +59,14 @@ public class TreeViewCell extends TreeTableCell<ProfileNode, ProfileNode>
         }
     }
 
-    private void renderMethodNode(ProfileNode profileNode, boolean empty)
+    private void renderMethodNode(AggregatedNode profileNode, boolean empty)
     {
         Canvas canvas = new Canvas(IMAGE_WIDTH, IMAGE_HEIGHT);
         GraphicsContext context = canvas.getGraphicsContext2D();
         context.setFill(Color.BLACK);
         context.strokeRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
 
-        double timeShare = profileNode.getTotalTimeShare();
+        double timeShare = profileNode.getTotalCntPct();
         double scaledShare = timeShare * IMAGE_WIDTH;
         double xStart = IMAGE_WIDTH - scaledShare;
         context.setFill(Color.GREEN);

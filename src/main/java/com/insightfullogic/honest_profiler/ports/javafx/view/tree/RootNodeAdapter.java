@@ -6,18 +6,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
-import com.insightfullogic.honest_profiler.core.profiles.ProfileTree;
+import com.insightfullogic.honest_profiler.core.aggregation.result.AggregatedNode;
 import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterSpecification;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 
-public class RootNodeAdapter extends TreeItem<ProfileNode>
+public class RootNodeAdapter extends TreeItem<AggregatedNode>
 {
     private ObjectProperty<FilterSpecification> filterSpec;
-    private final Map<Long, ThreadNodeAdapter> threadsById;
+    private final Map<String, ThreadNodeAdapter> threadsById;
 
     public RootNodeAdapter(ObjectProperty<FilterSpecification> filterSpec)
     {
@@ -28,32 +27,33 @@ public class RootNodeAdapter extends TreeItem<ProfileNode>
         setExpanded(true);
     }
 
-    public void update(List<ProfileTree> trees)
+    public void update(List<AggregatedNode> trees)
     {
-        ObservableList<TreeItem<ProfileNode>> children = getChildren();
+        ObservableList<TreeItem<AggregatedNode>> children = getChildren();
         children.clear();
 
         boolean hideErrorThreads = filterSpec.get().isHideErrorThreads();
 
-        Set<Long> present = new HashSet<>();
-        for (ProfileTree tree : trees)
+        Set<String> present = new HashSet<>();
+        for (AggregatedNode tree : trees)
         {
-            if (hideErrorThreads
-                && tree.getRootNode().getFrameInfo().getMethodId() < 0
-                && tree.getRootNode().getChildren().isEmpty())
-            {
-                continue; // Skip. Won't be marked as present either.
-            }
+            // TODO fix this.
+            // if (hideErrorThreads
+            // && tree.getRootNode().getFrameInfo().getMethodId() < 0
+            // && tree.getRootNode().getChildren().isEmpty())
+            // {
+            // continue; // Skip. Won't be marked as present either.
+            // }
 
-            long threadId = tree.getThreadId();
+            String threadId = tree.getKey();
             present.add(threadId);
 
             ThreadNodeAdapter thread = threadsById.computeIfAbsent(threadId, id ->
             {
                 ThreadNodeAdapter adapter = new ThreadNodeAdapter(
                     id,
-                    tree.getThreadName(),
-                    tree.getNumberOfSamples());
+                    tree.getKey(),
+                    tree.getData().getTotalCnt());
                 return adapter;
             });
 

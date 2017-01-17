@@ -22,7 +22,6 @@ import static com.insightfullogic.honest_profiler.ports.javafx.model.ProfileCont
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.STRING;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.TIME_SHARE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.showExportDialog;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.refreshTable;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_PROFILE_CNT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_CNT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_PCT;
@@ -35,13 +34,11 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TABLE_FLAT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil.writeFlatProfileCsv;
 
-import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
-import com.insightfullogic.honest_profiler.core.profiles.Profile;
+import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
+import com.insightfullogic.honest_profiler.core.aggregation.result.AggregatedEntry;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType;
-import com.insightfullogic.honest_profiler.ports.javafx.model.task.CopyAndFilterProfile;
 import com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil;
-import com.insightfullogic.honest_profiler.ports.javafx.view.Rendering;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.GraphicalShareTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTableCell;
 
@@ -53,7 +50,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-public class FlatViewController extends ProfileViewController<Profile>
+public class FlatViewController extends ProfileViewController<AggregationProfile>
 {
     @FXML
     private Button filterButton;
@@ -64,23 +61,23 @@ public class FlatViewController extends ProfileViewController<Profile>
     @FXML
     private Button quickFilterButton;
     @FXML
-    private TableView<FlatProfileEntry> flatProfileView;
+    private TableView<AggregatedEntry> flatProfileView;
     @FXML
-    private TableColumn<FlatProfileEntry, String> method;
+    private TableColumn<AggregatedEntry, String> method;
     @FXML
-    private TableColumn<FlatProfileEntry, Double> selfTimeGraphical;
+    private TableColumn<AggregatedEntry, Double> selfTimeGraphical;
     @FXML
-    private TableColumn<FlatProfileEntry, Number> selfPct;
+    private TableColumn<AggregatedEntry, Number> selfPct;
     @FXML
-    private TableColumn<FlatProfileEntry, Number> totalPct;
+    private TableColumn<AggregatedEntry, Number> totalPct;
     @FXML
-    private TableColumn<FlatProfileEntry, Number> selfCnt;
+    private TableColumn<AggregatedEntry, Number> selfCnt;
     @FXML
-    private TableColumn<FlatProfileEntry, Number> totalCnt;
+    private TableColumn<AggregatedEntry, Number> totalCnt;
     @FXML
-    private TableColumn<FlatProfileEntry, Number> profileCnt;
+    private TableColumn<AggregatedEntry, Number> profileCnt;
 
-    private ObservableList<FlatProfileEntry> flatProfile;
+    private ObservableList<AggregatedEntry> flatProfile;
 
     @Override
     @FXML
@@ -111,17 +108,17 @@ public class FlatViewController extends ProfileViewController<Profile>
 
     private void initializeTable()
     {
-        method.setCellValueFactory(Rendering::method);
-        method.setCellFactory(col -> new MethodNameTableCell<FlatProfileEntry>());
+        method.setCellValueFactory(new PropertyValueFactory<>("key"));
+        method.setCellFactory(col -> new MethodNameTableCell<AggregatedEntry>());
 
-        selfTimeGraphical.setCellValueFactory(new PropertyValueFactory<>("selfTimeShare"));
-        selfTimeGraphical.setCellFactory(col -> new GraphicalShareTableCell(col.getPrefWidth()));
+        selfTimeGraphical.setCellValueFactory(new PropertyValueFactory<>("selfCntPct"));
+        selfTimeGraphical.setCellFactory(col -> new GraphicalShareTableCell<>(col.getPrefWidth()));
 
-        cfgPctCol(selfPct, "selfTimeShare", prfCtx(), COLUMN_SELF_PCT);
-        cfgPctCol(totalPct, "totalTimeShare", prfCtx(), COLUMN_TOTAL_PCT);
-        cfgCntCol(selfCnt, "selfCount", prfCtx(), COLUMN_SELF_CNT);
-        cfgCntCol(totalCnt, "totalCount", prfCtx(), COLUMN_TOTAL_CNT);
-        cfgCntCol(profileCnt, "traceCount", prfCtx(), COLUMN_PROFILE_CNT);
+        cfgPctCol(selfPct, "selfCntPct", prfCtx(), COLUMN_SELF_PCT);
+        cfgPctCol(totalPct, "totalCntPct", prfCtx(), COLUMN_TOTAL_PCT);
+        cfgCntCol(selfCnt, "selfCnt", prfCtx(), COLUMN_SELF_CNT);
+        cfgCntCol(totalCnt, "totalCnt", prfCtx(), COLUMN_TOTAL_CNT);
+        cfgCntCol(profileCnt, "refCnt", prfCtx(), COLUMN_PROFILE_CNT);
     }
 
     // AbstractController Implementation
@@ -153,16 +150,16 @@ public class FlatViewController extends ProfileViewController<Profile>
     @Override
     protected void refresh()
     {
-        CopyAndFilterProfile task = new CopyAndFilterProfile(
-            getTarget(),
-            getAdjustedProfileFilter());
-        task.setOnSucceeded(state ->
-        {
-            flatProfile.clear();
-            task.getValue().flatByMethodProfile().forEach(flatProfile::add);
-            refreshTable(flatProfileView);
-        });
-        appCtx().getExecutorService().execute(task);
+        // CopyAndFilterProfileTask task = new CopyAndFilterProfileTask(
+        // getTarget(),
+        // getAdjustedProfileFilter());
+        // task.setOnSucceeded(state ->
+        // {
+        // flatProfile.clear();
+        // task.getValue().flatByMethodProfile().forEach(flatProfile::add);
+        // refreshTable(flatProfileView);
+        // });
+        // appCtx().execute(task);
     }
 
     @Override

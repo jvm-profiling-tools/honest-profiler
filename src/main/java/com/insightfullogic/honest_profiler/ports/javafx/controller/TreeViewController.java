@@ -37,13 +37,11 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_INPUT_QUICKFILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TABLE_TREE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil.expandFully;
-import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderMethod;
 
-import com.insightfullogic.honest_profiler.core.profiles.Profile;
-import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
+import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
+import com.insightfullogic.honest_profiler.core.aggregation.result.AggregatedNode;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType;
-import com.insightfullogic.honest_profiler.ports.javafx.model.task.CopyAndFilterProfile;
 import com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTreeTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.TreeViewCell;
@@ -60,7 +58,7 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 
-public class TreeViewController extends ProfileViewController<Profile>
+public class TreeViewController extends ProfileViewController<AggregationProfile>
 {
     @FXML
     private Button filterButton;
@@ -74,21 +72,21 @@ public class TreeViewController extends ProfileViewController<Profile>
     private Button quickFilterButton;
 
     @FXML
-    private TreeTableView<ProfileNode> treeView;
+    private TreeTableView<AggregatedNode> treeView;
     @FXML
-    private TreeTableColumn<ProfileNode, String> methodColumn;
+    private TreeTableColumn<AggregatedNode, String> methodColumn;
     @FXML
-    private TreeTableColumn<ProfileNode, ProfileNode> percentColumn;
+    private TreeTableColumn<AggregatedNode, AggregatedNode> percentColumn;
     @FXML
-    private TreeTableColumn<ProfileNode, Number> totalPct;
+    private TreeTableColumn<AggregatedNode, Number> totalPct;
     @FXML
-    private TreeTableColumn<ProfileNode, Number> selfPct;
+    private TreeTableColumn<AggregatedNode, Number> selfPct;
     @FXML
-    private TreeTableColumn<ProfileNode, Number> totalCnt;
+    private TreeTableColumn<AggregatedNode, Number> totalCnt;
     @FXML
-    private TreeTableColumn<ProfileNode, Number> selfCnt;
+    private TreeTableColumn<AggregatedNode, Number> selfCnt;
     @FXML
-    private TreeTableColumn<ProfileNode, Number> parentCnt;
+    private TreeTableColumn<AggregatedNode, Number> parentCnt;
 
     private RootNodeAdapter rootNode;
 
@@ -122,16 +120,16 @@ public class TreeViewController extends ProfileViewController<Profile>
 
         percentColumn.setCellFactory(param -> new TreeViewCell());
 
-        cfgPctCol(totalPct, "totalTimeShare", prfCtx(), COLUMN_TOTAL_PCT);
-        cfgPctCol(selfPct, "selfTimeShare", prfCtx(), COLUMN_SELF_PCT);
-        cfgCntCol(totalCnt, "totalCount", prfCtx(), COLUMN_TOTAL_CNT);
-        cfgCntCol(selfCnt, "selfCount", prfCtx(), COLUMN_SELF_CNT);
+        cfgPctCol(totalPct, "totalCntPct", prfCtx(), COLUMN_TOTAL_PCT);
+        cfgPctCol(selfPct, "selfCntPct", prfCtx(), COLUMN_SELF_PCT);
+        cfgCntCol(totalCnt, "totalCnt", prfCtx(), COLUMN_TOTAL_CNT);
+        cfgCntCol(selfCnt, "selfCnt", prfCtx(), COLUMN_SELF_CNT);
         cfgCntCol(parentCnt, "parentCount", prfCtx(), COLUMN_PARENT_CNT);
     }
 
     // Helper Methods
 
-    private StringProperty buildProfileNodeCell(TreeItem<ProfileNode> treeItem)
+    private StringProperty buildProfileNodeCell(TreeItem<AggregatedNode> treeItem)
     {
         String text = "";
 
@@ -141,10 +139,7 @@ public class TreeViewController extends ProfileViewController<Profile>
             String name = adapter.getThreadName();
 
             StringBuilder builder = new StringBuilder(appCtx().textFor(GENERAL_THREAD)).append(' ');
-            builder.append(
-                (adapter.getThreadId() < 0)
-                    ? appCtx().textFor(GENERAL_UNKNOWN) + " [" + adapter.getThreadId() + "]"
-                    : adapter.getThreadId());
+            builder.append(adapter.getThreadId());
 
             builder.append(' ').append(
                 (name == null || name.isEmpty()) ? appCtx().textFor(GENERAL_UNKNOWN)
@@ -158,7 +153,7 @@ public class TreeViewController extends ProfileViewController<Profile>
         }
         else if (treeItem instanceof MethodNodeAdapter)
         {
-            text = renderMethod(treeItem.getValue().getFrameInfo());
+            text = treeItem.getValue().getKey();
         }
 
         return new ReadOnlyStringWrapper(text);
@@ -191,11 +186,12 @@ public class TreeViewController extends ProfileViewController<Profile>
     @Override
     protected void refresh()
     {
-        CopyAndFilterProfile task = new CopyAndFilterProfile(
-            getTarget(),
-            getAdjustedProfileFilter());
-        task.setOnSucceeded(state -> rootNode.update(task.getValue().getTrees()));
-        appCtx().getExecutorService().execute(task);
+        // CopyAndFilterProfileTask task = new CopyAndFilterProfileTask(
+        // getTarget(),
+        // getAdjustedProfileFilter());
+        // task.setOnSucceeded(state ->
+        // rootNode.update(task.getValue().getTrees()));
+        // appCtx().execute(task);
     }
 
     @Override

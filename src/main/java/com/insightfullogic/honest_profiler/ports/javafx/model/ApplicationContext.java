@@ -17,6 +17,7 @@ import com.insightfullogic.honest_profiler.ports.javafx.controller.RootControlle
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableStringValue;
+import javafx.concurrent.Task;
 
 public final class ApplicationContext
 {
@@ -81,6 +82,11 @@ public final class ApplicationContext
     public List<String> getOpenProfileNames()
     {
         return profileContextMap.keySet().stream().sorted().collect(toList());
+    }
+
+    public void execute(Task<?> task)
+    {
+        executorService.execute(task);
     }
 
     public ExecutorService getExecutorService()

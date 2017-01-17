@@ -1,18 +1,17 @@
 package com.insightfullogic.honest_profiler.ports.javafx.view.tree;
 
-import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
-import com.insightfullogic.honest_profiler.core.profiles.ProfileTree;
+import com.insightfullogic.honest_profiler.core.aggregation.result.AggregatedNode;
 
 import javafx.scene.control.TreeItem;
 
-public class ThreadNodeAdapter extends TreeItem<ProfileNode>
+public class ThreadNodeAdapter extends TreeItem<AggregatedNode>
 {
-    private final long threadId;
+    private final String threadId;
     private final String threadName;
     private final MethodNodeAdapter adapter;
     private long nrOfSamples;
 
-    public ThreadNodeAdapter(long threadId, String threadName, long nrOfSamples)
+    public ThreadNodeAdapter(String threadId, String threadName, long nrOfSamples)
     {
         super();
 
@@ -24,13 +23,13 @@ public class ThreadNodeAdapter extends TreeItem<ProfileNode>
         getChildren().add(adapter);
     }
 
-    public void update(ProfileTree tree)
+    public void update(AggregatedNode tree)
     {
-        nrOfSamples = tree.getNumberOfSamples();
-        adapter.update(tree.getRootNode());
+        nrOfSamples = tree.getData().getTotalCnt();
+        adapter.update(tree.getChildren().get(0));
     }
 
-    public long getThreadId()
+    public String getThreadId()
     {
         return threadId;
     }

@@ -1,5 +1,7 @@
 package com.insightfullogic.honest_profiler.core.aggregation.result;
 
+import static java.lang.Math.max;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +37,16 @@ public class AggregatedNode
     public List<AggregatedNode> getChildren()
     {
         return children;
+    }
+
+    public Aggregation<?> getAggregation()
+    {
+        return entry.getAggregation();
+    }
+
+    public NumericInfo getReference()
+    {
+        return entry.getAggregation().getReferenceData();
     }
 
     public String getKey()
@@ -85,6 +97,28 @@ public class AggregatedNode
     public double getTotalCntPct()
     {
         return entry.getTotalCntPct();
+    }
+
+    public int getRefCnt()
+    {
+        return getReference().getTotalCnt();
+    }
+
+    // Calculate deepest stack depth in descendants. Return 0 if there are no
+    // children.
+    public int getDescendantDepth()
+    {
+        if (children.isEmpty())
+        {
+            return 0;
+        }
+
+        int depth = 0;
+        for (AggregatedNode child : children)
+        {
+            depth = max(depth, child.getDescendantDepth() + 1);
+        }
+        return depth;
     }
 
     public void add(String key, FrameInfo frame, NumericInfo data)

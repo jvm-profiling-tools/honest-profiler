@@ -21,7 +21,7 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.ThreadInfo;
 /**
  * Collector which emits {@link LeanProfile}s.
  */
-public class LeanLogCollector implements LogEventListener
+public class LeanLogCollector implements LogEventListener, ProfileSource
 {
     // Class Properties
 
@@ -49,9 +49,7 @@ public class LeanLogCollector implements LogEventListener
     private long nanosSpent;
 
     // Properties related to profile emission.
-    private boolean emitOnChange;
     private AtomicBoolean profileRequested;
-    private boolean hasData;
 
     // Property for internal use. When a TraceStart is received, this is set to
     // the LeanNode corresponding to the reported thread id. When stackframes
@@ -59,10 +57,12 @@ public class LeanLogCollector implements LogEventListener
     // stackframe.
     private LeanNode currentNode;
 
-    public LeanLogCollector(final LeanProfileListener listener, final boolean emitOnChange)
+    private boolean dirty;
+    private LeanProfile cachedProfile;
+
+    public LeanLogCollector(final LeanProfileListener listener)
     {
         this.listener = listener;
-        this.emitOnChange = emitOnChange;
 
         methodMap = new HashMap<>();
         threadMap = new HashMap<>();
@@ -79,11 +79,16 @@ public class LeanLogCollector implements LogEventListener
      * Set a flag from any thread, which will cause an updated profile to be
      * emitted as soon as possible.
      */
+    @Override
     public void requestProfile()
     {
         profileRequested.set(true);
     }
 
+    /**
+     * On the very first {@link TraceStart}, dirty should be false, so nothing
+     * will be emitted.
+     */
     @Override
     public void handle(TraceStart traceStart)
     {
@@ -100,16 +105,12 @@ public class LeanLogCollector implements LogEventListener
     @Override
     public void handle(StackFrame stackFrame)
     {
+        dirty = true;
         stackTrace.push(stackFrame);
     }
 
     private void collectThreadDump()
     {
-        if (!stackTrace.isEmpty())
-        {
-            hasData = true;
-        }
-
         while (!stackTrace.isEmpty())
         {
             collectStackFrame(stackTrace.pop());
@@ -119,6 +120,7 @@ public class LeanLogCollector implements LogEventListener
     @Override
     public void handle(Method newMethod)
     {
+        dirty = true;
         methodMap.putIfAbsent(newMethod.getMethodId(), new MethodInfo(newMethod));
         emitProfileIfNeeded();
     }
@@ -126,6 +128,7 @@ public class LeanLogCollector implements LogEventListener
     @Override
     public void handle(ThreadMeta newThreadMeta)
     {
+        dirty = true;
         threadMap.compute(
             newThreadMeta.getThreadId(),
             (k, v) -> v == null ? new ThreadInfo(newThreadMeta)
@@ -141,6 +144,7 @@ public class LeanLogCollector implements LogEventListener
     @Override
     public void endOfLog()
     {
+        dirty = true;
         collectThreadDump();
         emitProfile();
     }
@@ -178,7 +182,7 @@ public class LeanLogCollector implements LogEventListener
 
     private void emitProfileIfNeeded()
     {
-        if (hasData && (profileRequested.getAndSet(false) || emitOnChange))
+        if (profileRequested.getAndSet(false))
         {
             emitProfile();
         }
@@ -186,6 +190,12 @@ public class LeanLogCollector implements LogEventListener
 
     private void emitProfile()
     {
-        listener.accept(new LeanProfile(methodMap, threadMap, threadData));
+        if (dirty)
+        {
+            cachedProfile = new LeanProfile(methodMap, threadMap, threadData);
+            dirty = false;
+        }
+
+        listener.accept(cachedProfile);
     }
 }

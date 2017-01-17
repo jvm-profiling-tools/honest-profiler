@@ -5,12 +5,12 @@ import com.insightfullogic.honest_profiler.core.profiles.Profile;
 
 import javafx.concurrent.Task;
 
-public class CopyAndFilterProfile extends Task<Profile>
+public class CopyAndFilterProfileTask extends Task<Profile>
 {
     private final Profile originalProfile;
     private final ProfileFilter filter;
 
-    public CopyAndFilterProfile(Profile originalProfile, ProfileFilter filter)
+    public CopyAndFilterProfileTask(Profile originalProfile, ProfileFilter filter)
     {
         super();
         this.originalProfile = originalProfile;

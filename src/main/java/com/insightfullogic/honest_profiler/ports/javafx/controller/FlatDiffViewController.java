@@ -38,12 +38,13 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TABLE_FLATDIFF;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil.writeFlatProfileDiffCsv;
 
+import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
+import com.insightfullogic.honest_profiler.core.aggregation.result.AggregatedDiffEntry;
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
-import com.insightfullogic.honest_profiler.ports.javafx.model.diff.FlatEntryDiff;
 import com.insightfullogic.honest_profiler.ports.javafx.model.diff.FlatProfileDiff;
 import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType;
-import com.insightfullogic.honest_profiler.ports.javafx.model.task.CopyAndFilterProfile;
+import com.insightfullogic.honest_profiler.ports.javafx.model.task.CopyAndFilterProfileTask;
 import com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTableCell;
 
@@ -54,7 +55,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
-public class FlatDiffViewController extends ProfileDiffViewController<Profile>
+public class FlatDiffViewController extends ProfileDiffViewController<AggregationProfile>
 {
     @FXML
     private Button filterButton;
@@ -65,39 +66,39 @@ public class FlatDiffViewController extends ProfileDiffViewController<Profile>
     @FXML
     private Button quickFilterButton;
     @FXML
-    private TableView<FlatEntryDiff> diffTable;
+    private TableView<AggregatedDiffEntry> diffTable;
     @FXML
-    private TableColumn<FlatEntryDiff, String> method;
+    private TableColumn<AggregatedDiffEntry, String> method;
     @FXML
-    private TableColumn<FlatEntryDiff, Number> baseSelfPct;
+    private TableColumn<AggregatedDiffEntry, Number> baseSelfPct;
     @FXML
-    private TableColumn<FlatEntryDiff, Number> newSelfPct;
+    private TableColumn<AggregatedDiffEntry, Number> newSelfPct;
     @FXML
-    private TableColumn<FlatEntryDiff, Number> selfPctDiff;
+    private TableColumn<AggregatedDiffEntry, Number> selfPctDiff;
     @FXML
-    private TableColumn<FlatEntryDiff, Number> baseTotalPct;
+    private TableColumn<AggregatedDiffEntry, Number> baseTotalPct;
     @FXML
-    private TableColumn<FlatEntryDiff, Number> newTotalPct;
+    private TableColumn<AggregatedDiffEntry, Number> newTotalPct;
     @FXML
-    private TableColumn<FlatEntryDiff, Number> totalPctDiff;
+    private TableColumn<AggregatedDiffEntry, Number> totalPctDiff;
     @FXML
-    private TableColumn<FlatEntryDiff, Number> baseSelfCnt;
+    private TableColumn<AggregatedDiffEntry, Number> baseSelfCnt;
     @FXML
-    private TableColumn<FlatEntryDiff, Number> newSelfCnt;
+    private TableColumn<AggregatedDiffEntry, Number> newSelfCnt;
     @FXML
-    private TableColumn<FlatEntryDiff, Number> selfCntDiff;
+    private TableColumn<AggregatedDiffEntry, Number> selfCntDiff;
     @FXML
-    private TableColumn<FlatEntryDiff, Number> baseTotalCnt;
+    private TableColumn<AggregatedDiffEntry, Number> baseTotalCnt;
     @FXML
-    private TableColumn<FlatEntryDiff, Number> newTotalCnt;
+    private TableColumn<AggregatedDiffEntry, Number> newTotalCnt;
     @FXML
-    private TableColumn<FlatEntryDiff, Number> totalCntDiff;
+    private TableColumn<AggregatedDiffEntry, Number> totalCntDiff;
     @FXML
-    private TableColumn<FlatEntryDiff, Number> baseProfileCnt;
+    private TableColumn<AggregatedDiffEntry, Number> baseProfileCnt;
     @FXML
-    private TableColumn<FlatEntryDiff, Number> newProfileCnt;
+    private TableColumn<AggregatedDiffEntry, Number> newProfileCnt;
     @FXML
-    private TableColumn<FlatEntryDiff, Number> profileCntDiff;
+    private TableColumn<AggregatedDiffEntry, Number> profileCntDiff;
 
     private FlatProfileDiff diff;
 
@@ -125,9 +126,8 @@ public class FlatDiffViewController extends ProfileDiffViewController<Profile>
 
     private void initializeTable()
     {
-        method
-            .setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getFullName()));
-        method.setCellFactory(col -> new MethodNameTableCell<FlatEntryDiff>());
+        method.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getKey()));
+        method.setCellFactory(col -> new MethodNameTableCell<AggregatedDiffEntry>());
 
         cfgPctCol(baseSelfPct, "baseSelfPct", baseCtx(), getText(COLUMN_SELF_PCT));
         cfgPctCol(newSelfPct, "newSelfPct", newCtx(), getText(COLUMN_SELF_PCT));
@@ -152,7 +152,9 @@ public class FlatDiffViewController extends ProfileDiffViewController<Profile>
 
     private void updateDiff(Profile profile, boolean base)
     {
-        CopyAndFilterProfile task = new CopyAndFilterProfile(profile, getAdjustedProfileFilter());
+        CopyAndFilterProfileTask task = new CopyAndFilterProfileTask(
+            profile,
+            getAdjustedProfileFilter());
         task.setOnSucceeded(state ->
         {
             // No need to worry about concurrency here, since this (the code for
@@ -171,7 +173,7 @@ public class FlatDiffViewController extends ProfileDiffViewController<Profile>
 
             refreshTable(diffTable);
         });
-        appCtx().getExecutorService().execute(task);
+        appCtx().execute(task);
     }
 
     // AbstractController Implementation

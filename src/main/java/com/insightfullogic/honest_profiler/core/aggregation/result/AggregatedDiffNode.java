@@ -14,6 +14,11 @@ public class AggregatedDiffNode
         this.entry = entry;
     }
 
+    public String getKey()
+    {
+        return entry.getKey();
+    }
+
     public AggregatedEntry getBaseEntry()
     {
         return entry.getBaseEntry();
@@ -69,6 +74,11 @@ public class AggregatedDiffNode
         return entry.getBaseTotalCntPct();
     }
 
+    public int getBaseRefCnt()
+    {
+        return entry.getBaseRefCnt();
+    }
+
     public NumericInfo getNewData()
     {
         return entry.getNewData();
@@ -114,6 +124,11 @@ public class AggregatedDiffNode
         return entry.getNewTotalCntPct();
     }
 
+    public int getNewRefCnt()
+    {
+        return entry.getNewRefCnt();
+    }
+
     public long getSelfTimeDiff()
     {
         return entry.getSelfTimeDiff();
@@ -152,5 +167,10 @@ public class AggregatedDiffNode
     public double getTotalCntPctDiff()
     {
         return entry.getTotalCntPctDiff();
+    }
+
+    public int getRefCntDiff()
+    {
+        return entry.getRefCntDiff();
     }
 }

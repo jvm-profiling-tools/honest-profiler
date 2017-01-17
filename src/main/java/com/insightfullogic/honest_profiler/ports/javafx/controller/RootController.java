@@ -175,7 +175,7 @@ public class RootController extends AbstractController implements MachineListene
                     appCtx().textFor(MESSAGE_DIALOG_ERR_TASKCANCELED));
             });
 
-        appCtx().getExecutorService().submit(task);
+        appCtx().execute(task);
     }
 
     private void handleNewProfile(Tab tab, ProfileRootController controller,

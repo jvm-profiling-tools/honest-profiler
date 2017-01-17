@@ -20,13 +20,11 @@ package com.insightfullogic.honest_profiler.ports.javafx.view.cell;
 
 import static javafx.scene.paint.Color.DARKRED;
 
-import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
-
 import javafx.scene.control.TableCell;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
-public class GraphicalShareTableCell extends TableCell<FlatProfileEntry, Double>
+public class GraphicalShareTableCell<T> extends TableCell<T, Double>
 {
     private static final double HEIGHT = 8;
     private static final Color TIME_TAKEN_COLOR = DARKRED;

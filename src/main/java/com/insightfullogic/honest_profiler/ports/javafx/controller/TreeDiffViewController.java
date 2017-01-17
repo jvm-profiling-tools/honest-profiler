@@ -19,12 +19,14 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil.expandFully;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil.expandPartial;
 
+import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
+import com.insightfullogic.honest_profiler.core.aggregation.result.AggregatedDiffNode;
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.diff.NodeDiff;
 import com.insightfullogic.honest_profiler.ports.javafx.model.diff.TreeProfileDiff;
 import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType;
-import com.insightfullogic.honest_profiler.ports.javafx.model.task.CopyAndFilterProfile;
+import com.insightfullogic.honest_profiler.ports.javafx.model.task.CopyAndFilterProfileTask;
 import com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTreeTableCell;
 
@@ -36,7 +38,7 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 
-public class TreeDiffViewController extends ProfileDiffViewController<Profile>
+public class TreeDiffViewController extends ProfileDiffViewController<AggregationProfile>
 {
     @FXML
     private Button filterButton;
@@ -49,39 +51,39 @@ public class TreeDiffViewController extends ProfileDiffViewController<Profile>
     @FXML
     private Button quickFilterButton;
     @FXML
-    private TreeTableView<NodeDiff> diffTree;
+    private TreeTableView<AggregatedDiffNode> diffTree;
     @FXML
-    private TreeTableColumn<NodeDiff, String> methodColumn;
+    private TreeTableColumn<AggregatedDiffNode, String> methodColumn;
     @FXML
-    private TreeTableColumn<NodeDiff, Number> baseSelfPct;
+    private TreeTableColumn<AggregatedDiffNode, Number> baseSelfPct;
     @FXML
-    private TreeTableColumn<NodeDiff, Number> newSelfPct;
+    private TreeTableColumn<AggregatedDiffNode, Number> newSelfPct;
     @FXML
-    private TreeTableColumn<NodeDiff, Number> selfPctDiff;
+    private TreeTableColumn<AggregatedDiffNode, Number> selfPctDiff;
     @FXML
-    private TreeTableColumn<NodeDiff, Number> baseTotalPct;
+    private TreeTableColumn<AggregatedDiffNode, Number> baseTotalPct;
     @FXML
-    private TreeTableColumn<NodeDiff, Number> newTotalPct;
+    private TreeTableColumn<AggregatedDiffNode, Number> newTotalPct;
     @FXML
-    private TreeTableColumn<NodeDiff, Number> totalPctDiff;
+    private TreeTableColumn<AggregatedDiffNode, Number> totalPctDiff;
     @FXML
-    private TreeTableColumn<NodeDiff, Number> baseSelfCnt;
+    private TreeTableColumn<AggregatedDiffNode, Number> baseSelfCnt;
     @FXML
-    private TreeTableColumn<NodeDiff, Number> newSelfCnt;
+    private TreeTableColumn<AggregatedDiffNode, Number> newSelfCnt;
     @FXML
-    private TreeTableColumn<NodeDiff, Number> selfCntDiff;
+    private TreeTableColumn<AggregatedDiffNode, Number> selfCntDiff;
     @FXML
-    private TreeTableColumn<NodeDiff, Number> baseTotalCnt;
+    private TreeTableColumn<AggregatedDiffNode, Number> baseTotalCnt;
     @FXML
-    private TreeTableColumn<NodeDiff, Number> newTotalCnt;
+    private TreeTableColumn<AggregatedDiffNode, Number> newTotalCnt;
     @FXML
-    private TreeTableColumn<NodeDiff, Number> totalCntDiff;
+    private TreeTableColumn<AggregatedDiffNode, Number> totalCntDiff;
     @FXML
-    private TreeTableColumn<NodeDiff, Number> baseParentCnt;
+    private TreeTableColumn<AggregatedDiffNode, Number> baseParentCnt;
     @FXML
-    private TreeTableColumn<NodeDiff, Number> newParentCnt;
+    private TreeTableColumn<AggregatedDiffNode, Number> newParentCnt;
     @FXML
-    private TreeTableColumn<NodeDiff, Number> parentCntDiff;
+    private TreeTableColumn<AggregatedDiffNode, Number> parentCntDiff;
 
     private TreeProfileDiff diff;
 
@@ -112,7 +114,7 @@ public class TreeDiffViewController extends ProfileDiffViewController<Profile>
     {
         methodColumn.setCellValueFactory(
             data -> new ReadOnlyStringWrapper(
-                data.getValue() == null ? null : data.getValue().getValue().getName()));
+                data.getValue() == null ? null : data.getValue().getValue().getKey()));
         methodColumn.setCellFactory(col -> new MethodNameTreeTableCell<>(appCtx()));
 
         cfgPctCol(baseSelfPct, "baseSelfPct", baseCtx(), getText(COLUMN_SELF_PCT));
@@ -131,14 +133,16 @@ public class TreeDiffViewController extends ProfileDiffViewController<Profile>
         cfgCntCol(newTotalCnt, "newTotalCnt", newCtx(), getText(COLUMN_TOTAL_CNT));
         cfgCntDiffCol(totalCntDiff, "totalCntDiff", getText(COLUMN_TOTAL_CNT_DIFF));
 
-        cfgCntCol(baseParentCnt, "baseParentCnt", baseCtx(), getText(COLUMN_PARENT_CNT));
-        cfgCntCol(newParentCnt, "newParentCnt", newCtx(), getText(COLUMN_PARENT_CNT));
-        cfgCntDiffCol(parentCntDiff, "parentCntDiff", getText(COLUMN_PARENT_CNT));
+        cfgCntCol(baseParentCnt, "baseRefCnt", baseCtx(), getText(COLUMN_PARENT_CNT));
+        cfgCntCol(newParentCnt, "newRefCnt", newCtx(), getText(COLUMN_PARENT_CNT));
+        cfgCntDiffCol(parentCntDiff, "refCntDiff", getText(COLUMN_PARENT_CNT));
     }
 
     private void updateDiff(Profile profile, boolean base)
     {
-        CopyAndFilterProfile task = new CopyAndFilterProfile(profile, getAdjustedProfileFilter());
+        CopyAndFilterProfileTask task = new CopyAndFilterProfileTask(
+            profile,
+            getAdjustedProfileFilter());
         task.setOnSucceeded(state ->
         {
             // No need to worry about concurrency here, since this (the code for
@@ -159,7 +163,7 @@ public class TreeDiffViewController extends ProfileDiffViewController<Profile>
                 expandPartial(diffTree.getRoot(), 2);
             }
         });
-        appCtx().getExecutorService().execute(task);
+        appCtx().execute(task);
     }
 
     // AbstractController Implementation

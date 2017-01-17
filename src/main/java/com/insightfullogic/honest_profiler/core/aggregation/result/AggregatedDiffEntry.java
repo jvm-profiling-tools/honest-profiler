@@ -26,6 +26,11 @@ public class AggregatedDiffEntry
         return newEntry;
     }
 
+    public String getKey()
+    {
+        return baseEntry.getKey();
+    }
+
     public NumericInfo getBaseData()
     {
         return baseEntry.getData();
@@ -116,6 +121,16 @@ public class AggregatedDiffEntry
         return newEntry.getTotalCntPct();
     }
 
+    public int getBaseRefCnt()
+    {
+        return baseEntry.getRefCnt();
+    }
+
+    public int getNewRefCnt()
+    {
+        return newEntry.getRefCnt();
+    }
+
     public long getSelfTimeDiff()
     {
         return getNewSelfTime() - getBaseSelfTime();
@@ -154,5 +169,10 @@ public class AggregatedDiffEntry
     public double getTotalCntPctDiff()
     {
         return getNewTotalCntPct() - getBaseTotalCntPct();
+    }
+
+    public int getRefCntDiff()
+    {
+        return getNewRefCnt() - getBaseRefCnt();
     }
 }
