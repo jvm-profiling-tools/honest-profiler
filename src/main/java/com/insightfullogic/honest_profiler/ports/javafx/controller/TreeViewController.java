@@ -39,8 +39,8 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.AggregatedNod
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType;
 import com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil;
+import com.insightfullogic.honest_profiler.ports.javafx.view.cell.GraphicalShareTreeTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTreeTableCell;
-import com.insightfullogic.honest_profiler.ports.javafx.view.cell.TreeViewCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.tree.AggregationTreeItem;
 
 import javafx.fxml.FXML;
@@ -68,7 +68,7 @@ public class TreeViewController extends ProfileViewController<AggregationProfile
     @FXML
     private TreeTableColumn<AggregatedNode<String>, String> methodColumn;
     @FXML
-    private TreeTableColumn<AggregatedNode<String>, AggregatedNode<String>> percentColumn;
+    private TreeTableColumn<AggregatedNode<String>, Number> percentColumn;
     @FXML
     private TreeTableColumn<AggregatedNode<String>, Number> totalPct;
     @FXML
@@ -105,7 +105,8 @@ public class TreeViewController extends ProfileViewController<AggregationProfile
         methodColumn.setCellFactory(column -> new MethodNameTreeTableCell<>(appCtx()));
         methodColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("key"));
 
-        percentColumn.setCellFactory(param -> new TreeViewCell());
+        percentColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("totalCntPct"));
+        percentColumn.setCellFactory(param -> new GraphicalShareTreeTableCell());
 
         cfgPctCol(totalPct, "totalCntPct", prfCtx(), COLUMN_TOTAL_PCT);
         cfgPctCol(selfPct, "selfCntPct", prfCtx(), COLUMN_SELF_PCT);

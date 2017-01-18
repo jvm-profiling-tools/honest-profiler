@@ -27,7 +27,7 @@ import javafx.scene.shape.Rectangle;
 public class GraphicalShareTableCell<T> extends TableCell<T, Double>
 {
     private static final double HEIGHT = 8;
-    private static final Color TIME_TAKEN_COLOR = DARKRED;
+    private static final Color COLOR = DARKRED;
 
     private final double width;
 
@@ -37,17 +37,17 @@ public class GraphicalShareTableCell<T> extends TableCell<T, Double>
     }
 
     @Override
-    protected void updateItem(Double timeShare, boolean empty)
+    protected void updateItem(Double share, boolean empty)
     {
-        super.updateItem(timeShare, empty);
+        super.updateItem(share, empty);
 
-        if (empty || timeShare == null)
+        if (empty || share == null)
         {
             setText(null);
             setGraphic(null);
             return;
         }
 
-        setGraphic(new Rectangle(timeShare * width, HEIGHT, TIME_TAKEN_COLOR));
+        setGraphic(new Rectangle(share * width, HEIGHT, COLOR));
     }
 }

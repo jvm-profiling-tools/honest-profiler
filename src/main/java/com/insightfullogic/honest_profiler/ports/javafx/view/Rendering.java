@@ -20,13 +20,8 @@ package com.insightfullogic.honest_profiler.ports.javafx.view;
 
 import java.text.MessageFormat;
 
-import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
 import com.insightfullogic.honest_profiler.core.collector.Frame;
 import com.insightfullogic.honest_profiler.core.parser.Method;
-
-import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.scene.control.TableColumn.CellDataFeatures;
 
 public final class Rendering
 {
@@ -34,14 +29,6 @@ public final class Rendering
     public static String renderPercentage(double percentage)
     {
         return MessageFormat.format("{0,number,0.00%}", percentage);
-    }
-
-    public static SimpleObjectProperty<String> method(
-        CellDataFeatures<FlatProfileEntry, String> features)
-    {
-        Frame method = features.getValue().getFrameInfo();
-        String representation = renderMethod(method);
-        return new ReadOnlyObjectWrapper<>(representation);
     }
 
     public static String renderMethod(Frame method)

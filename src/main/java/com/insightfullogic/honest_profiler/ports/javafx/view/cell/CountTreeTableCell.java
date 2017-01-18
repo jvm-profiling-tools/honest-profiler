@@ -23,9 +23,6 @@ import static javafx.scene.text.TextAlignment.RIGHT;
 
 import java.util.function.Function;
 
-import com.insightfullogic.honest_profiler.ports.javafx.model.diff.ThreadNodeDiff;
-
-import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableCell;
 
 public class CountTreeTableCell<T> extends TreeTableCell<T, Number>
@@ -51,10 +48,7 @@ public class CountTreeTableCell<T> extends TreeTableCell<T, Number>
             return;
         }
 
-        TreeItem<T> treeItem = getTreeTableRow().getTreeItem();
-        boolean threadNode = treeItem == null || treeItem.getValue() instanceof ThreadNodeDiff;
-
-        setText(threadNode ? null : number.toString());
-        setStyle((threadNode || styleFunction == null) ? null : styleFunction.apply(number));
+        setText(number.toString());
+        setStyle(styleFunction == null ? null : styleFunction.apply(number));
     }
 }

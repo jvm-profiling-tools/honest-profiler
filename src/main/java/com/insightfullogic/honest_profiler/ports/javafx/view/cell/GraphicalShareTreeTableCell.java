@@ -23,15 +23,13 @@ import static javafx.scene.paint.Color.RED;
 import static javafx.scene.paint.Color.WHEAT;
 
 import com.insightfullogic.honest_profiler.core.aggregation.result.AggregatedNode;
-import com.insightfullogic.honest_profiler.ports.javafx.view.tree.MethodNodeAdapter;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.paint.Color;
 
-public class TreeViewCell extends TreeTableCell<AggregatedNode<String>, AggregatedNode<String>>
+public class GraphicalShareTreeTableCell extends TreeTableCell<AggregatedNode<String>, Number>
 {
     private static final int IMAGE_WIDTH = 50;
     private static final int IMAGE_HEIGHT = 15;
@@ -43,38 +41,30 @@ public class TreeViewCell extends TreeTableCell<AggregatedNode<String>, Aggregat
      * Not threadsafe: must be run on JavaFx thread.
      */
     @Override
-    protected void updateItem(AggregatedNode<String> profileNode, boolean empty)
+    protected void updateItem(Number number, boolean empty)
     {
-        super.updateItem(profileNode, empty);
+        super.updateItem(number, empty);
 
-        TreeItem<AggregatedNode<String>> treeItem = getTreeTableRow().getTreeItem();
-
-        if (treeItem instanceof MethodNodeAdapter)
-        {
-            renderMethodNode(treeItem.getValue(), empty);
-        }
-        else
+        if (empty || number == null)
         {
             setGraphic(null);
+            return;
         }
-    }
 
-    private void renderMethodNode(AggregatedNode<String> profileNode, boolean empty)
-    {
         Canvas canvas = new Canvas(IMAGE_WIDTH, IMAGE_HEIGHT);
         GraphicsContext context = canvas.getGraphicsContext2D();
         context.setFill(Color.BLACK);
         context.strokeRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
 
-        double timeShare = profileNode.getTotalCntPct();
-        double scaledShare = timeShare * IMAGE_WIDTH;
+        double share = number.doubleValue();
+        double scaledShare = share * IMAGE_WIDTH;
         double xStart = IMAGE_WIDTH - scaledShare;
         context.setFill(Color.GREEN);
         context.fillRect(xStart, 0, scaledShare, IMAGE_HEIGHT);
 
-        Color color = timeShare > 0.5 ? WHEAT : RED;
+        Color color = share > 0.5 ? WHEAT : RED;
         context.setFill(color);
-        context.fillText(renderPercentage(timeShare), TEXT_HORIZONTAL_INSET, TEXT_VERTICAL_INSET);
+        context.fillText(renderPercentage(share), TEXT_HORIZONTAL_INSET, TEXT_VERTICAL_INSET);
 
         setGraphic(canvas);
     }

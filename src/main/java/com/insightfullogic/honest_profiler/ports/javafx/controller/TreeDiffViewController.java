@@ -114,13 +114,13 @@ public class TreeDiffViewController extends ProfileDiffViewController<Aggregatio
                 data.getValue() == null ? null : data.getValue().getValue().getKey()));
         methodColumn.setCellFactory(col -> new MethodNameTreeTableCell<>(appCtx()));
 
-        cfgPctCol(baseSelfPct, "baseSelfPct", baseCtx(), getText(COLUMN_SELF_PCT));
-        cfgPctCol(newSelfPct, "newSelfPct", newCtx(), getText(COLUMN_SELF_PCT));
-        cfgPctDiffCol(selfPctDiff, "selfPctDiff", getText(COLUMN_SELF_PCT_DIFF));
+        cfgPctCol(baseSelfPct, "baseSelfCntPct", baseCtx(), getText(COLUMN_SELF_PCT));
+        cfgPctCol(newSelfPct, "newSelfCntPct", newCtx(), getText(COLUMN_SELF_PCT));
+        cfgPctDiffCol(selfPctDiff, "selfCntPctDiff", getText(COLUMN_SELF_PCT_DIFF));
 
-        cfgPctCol(baseTotalPct, "baseTotalPct", baseCtx(), getText(COLUMN_TOTAL_PCT));
-        cfgPctCol(newTotalPct, "newTotalPct", newCtx(), getText(COLUMN_TOTAL_PCT));
-        cfgPctDiffCol(totalPctDiff, "totalPctDiff", getText(COLUMN_TOTAL_PCT_DIFF));
+        cfgPctCol(baseTotalPct, "baseTotalCntPct", baseCtx(), getText(COLUMN_TOTAL_PCT));
+        cfgPctCol(newTotalPct, "newTotalCntPct", newCtx(), getText(COLUMN_TOTAL_PCT));
+        cfgPctDiffCol(totalPctDiff, "totalCntPctDiff", getText(COLUMN_TOTAL_PCT_DIFF));
 
         cfgCntCol(baseSelfCnt, "baseSelfCnt", baseCtx(), getText(COLUMN_SELF_CNT));
         cfgCntCol(newSelfCnt, "newSelfCnt", newCtx(), getText(COLUMN_SELF_CNT));
