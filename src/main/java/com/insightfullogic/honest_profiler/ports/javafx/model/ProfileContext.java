@@ -71,7 +71,7 @@ public class ProfileContext
     public void setProfileSource(ProfileSource profileSource)
     {
         this.profileSource = profileSource;
-        updateTimeline();
+        newTimeline();
     }
 
     public int getDuration()
@@ -207,14 +207,16 @@ public class ProfileContext
 
     private void updateTimeline()
     {
-        timeline.setOnFinished(event ->
-        {
-            timeline = new Timeline(
-                new KeyFrame(refreshInterval, e -> profileSource.requestProfile()));
-            timeline.setCycleCount(Timeline.INDEFINITE);
-            timeline.play();
-        });
-
+        timeline.setOnFinished(event -> newTimeline());
         timeline.stop();
+
+    }
+
+    private void newTimeline()
+    {
+        timeline = new Timeline(
+            new KeyFrame(refreshInterval, e -> profileSource.requestProfile()));
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.play();
     }
 }
