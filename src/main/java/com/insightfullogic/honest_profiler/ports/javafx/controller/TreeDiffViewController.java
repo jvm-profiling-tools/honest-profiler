@@ -21,20 +21,17 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil.exp
 
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
 import com.insightfullogic.honest_profiler.core.aggregation.result.AggregatedDiffNode;
-import com.insightfullogic.honest_profiler.core.profiles.Profile;
+import com.insightfullogic.honest_profiler.core.aggregation.result.TreeDiffAggregation;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
-import com.insightfullogic.honest_profiler.ports.javafx.model.diff.NodeDiff;
-import com.insightfullogic.honest_profiler.ports.javafx.model.diff.TreeProfileDiff;
 import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType;
-import com.insightfullogic.honest_profiler.ports.javafx.model.task.CopyAndFilterProfileTask;
 import com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTreeTableCell;
+import com.insightfullogic.honest_profiler.ports.javafx.view.tree.DiffAggregationTreeItem;
 
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 
@@ -51,53 +48,53 @@ public class TreeDiffViewController extends ProfileDiffViewController<Aggregatio
     @FXML
     private Button quickFilterButton;
     @FXML
-    private TreeTableView<AggregatedDiffNode> diffTree;
+    private TreeTableView<AggregatedDiffNode<String>> diffTree;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode, String> methodColumn;
+    private TreeTableColumn<AggregatedDiffNode<String>, String> methodColumn;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode, Number> baseSelfPct;
+    private TreeTableColumn<AggregatedDiffNode<String>, Number> baseSelfPct;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode, Number> newSelfPct;
+    private TreeTableColumn<AggregatedDiffNode<String>, Number> newSelfPct;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode, Number> selfPctDiff;
+    private TreeTableColumn<AggregatedDiffNode<String>, Number> selfPctDiff;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode, Number> baseTotalPct;
+    private TreeTableColumn<AggregatedDiffNode<String>, Number> baseTotalPct;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode, Number> newTotalPct;
+    private TreeTableColumn<AggregatedDiffNode<String>, Number> newTotalPct;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode, Number> totalPctDiff;
+    private TreeTableColumn<AggregatedDiffNode<String>, Number> totalPctDiff;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode, Number> baseSelfCnt;
+    private TreeTableColumn<AggregatedDiffNode<String>, Number> baseSelfCnt;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode, Number> newSelfCnt;
+    private TreeTableColumn<AggregatedDiffNode<String>, Number> newSelfCnt;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode, Number> selfCntDiff;
+    private TreeTableColumn<AggregatedDiffNode<String>, Number> selfCntDiff;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode, Number> baseTotalCnt;
+    private TreeTableColumn<AggregatedDiffNode<String>, Number> baseTotalCnt;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode, Number> newTotalCnt;
+    private TreeTableColumn<AggregatedDiffNode<String>, Number> newTotalCnt;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode, Number> totalCntDiff;
+    private TreeTableColumn<AggregatedDiffNode<String>, Number> totalCntDiff;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode, Number> baseParentCnt;
+    private TreeTableColumn<AggregatedDiffNode<String>, Number> baseParentCnt;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode, Number> newParentCnt;
+    private TreeTableColumn<AggregatedDiffNode<String>, Number> newParentCnt;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode, Number> parentCntDiff;
+    private TreeTableColumn<AggregatedDiffNode<String>, Number> parentCntDiff;
 
-    private TreeProfileDiff diff;
+    private TreeDiffAggregation<String> diff;
 
     @Override
     @FXML
     protected void initialize()
     {
+        diff = new TreeDiffAggregation<>();
+
         super.initialize(
             profileContext -> profileContext.profileProperty(),
             filterButton,
             quickFilterButton,
             quickFilterText);
-
-        diff = new TreeProfileDiff();
     }
 
     @Override
@@ -138,32 +135,46 @@ public class TreeDiffViewController extends ProfileDiffViewController<Aggregatio
         cfgCntDiffCol(parentCntDiff, "refCntDiff", getText(COLUMN_PARENT_CNT));
     }
 
-    private void updateDiff(Profile profile, boolean base)
+    private void updateDiff(AggregationProfile profile, boolean base)
     {
-        CopyAndFilterProfileTask task = new CopyAndFilterProfileTask(
-            profile,
-            getAdjustedProfileFilter());
-        task.setOnSucceeded(state ->
+        // CopyAndFilterProfileTask task = new CopyAndFilterProfileTask(
+        // profile,
+        // getAdjustedProfileFilter());
+        // task.setOnSucceeded(state ->
+        // {
+        // // No need to worry about concurrency here, since this (the code for
+        // // onSucceeded()) will be executed on the FX thread. So even though
+        // // in the diff 2 tasks might execute concurrently during refresh(),
+        // // the resulting update calls in this if-statement won't execute
+        // // concurrently.
+        // if (base)
+        // {
+        // diff.updateForBase(task.getValue());
+        // diffTree.setRoot(new DiffTreeItem(diff));
+        // expandPartial(diffTree.getRoot(), 2);
+        // }
+        // else
+        // {
+        // diff.updateForNew(task.getValue());
+        // diffTree.setRoot(new DiffTreeItem(diff));
+        // expandPartial(diffTree.getRoot(), 2);
+        // }
+        // });
+        // appCtx().execute(task);
+
+        if (profile != null)
         {
-            // No need to worry about concurrency here, since this (the code for
-            // onSucceeded()) will be executed on the FX thread. So even though
-            // in the diff 2 tasks might execute concurrently during refresh(),
-            // the resulting update calls in this if-statement won't execute
-            // concurrently.
             if (base)
             {
-                diff.updateForBase(task.getValue());
-                diffTree.setRoot(new DiffTreeItem(diff));
-                expandPartial(diffTree.getRoot(), 2);
+                diff.addBase(profile.getTreeAggregation());
             }
             else
             {
-                diff.updateForNew(task.getValue());
-                diffTree.setRoot(new DiffTreeItem(diff));
-                expandPartial(diffTree.getRoot(), 2);
+                diff.addNew(profile.getTreeAggregation());
             }
-        });
-        appCtx().execute(task);
+            diffTree.setRoot(new DiffAggregationTreeItem(diff));
+            expandPartial(diffTree.getRoot(), 2);
+        }
     }
 
     // AbstractController Implementation
@@ -192,7 +203,7 @@ public class TreeDiffViewController extends ProfileDiffViewController<Aggregatio
     @Override
     protected void refresh()
     {
-        diff = new TreeProfileDiff();
+        diff = new TreeDiffAggregation<>();
         updateDiff(getBaseTarget(), true);
         updateDiff(getNewTarget(), false);
     }
@@ -202,28 +213,5 @@ public class TreeDiffViewController extends ProfileDiffViewController<Aggregatio
     {
         return new FilterType[]
         { STRING };
-    }
-
-    // Helper Classes
-
-    private class DiffTreeItem extends TreeItem<NodeDiff>
-    {
-        public DiffTreeItem(TreeProfileDiff profileDiff)
-        {
-            super(null);
-            for (NodeDiff child : profileDiff.getChildren())
-            {
-                getChildren().add(new DiffTreeItem(child));
-            }
-        }
-
-        public DiffTreeItem(NodeDiff diff)
-        {
-            super(diff);
-            for (NodeDiff child : diff.getChildren())
-            {
-                getChildren().add(new DiffTreeItem(child));
-            }
-        }
     }
 }

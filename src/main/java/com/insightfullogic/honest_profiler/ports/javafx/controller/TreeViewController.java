@@ -26,10 +26,6 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_PCT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_CNT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_PCT;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.GENERAL_DEPTH;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.GENERAL_SAMPLECOUNT;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.GENERAL_THREAD;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.GENERAL_UNKNOWN;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_COLLAPSEALLALL;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_EXPANDALL;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_FILTER;
@@ -45,18 +41,14 @@ import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType;
 import com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTreeTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.TreeViewCell;
-import com.insightfullogic.honest_profiler.ports.javafx.view.tree.MethodNodeAdapter;
-import com.insightfullogic.honest_profiler.ports.javafx.view.tree.RootNodeAdapter;
-import com.insightfullogic.honest_profiler.ports.javafx.view.tree.ThreadNodeAdapter;
+import com.insightfullogic.honest_profiler.ports.javafx.view.tree.AggregationTreeItem;
 
-import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
+import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 
 public class TreeViewController extends ProfileViewController<AggregationProfile>
 {
@@ -72,23 +64,21 @@ public class TreeViewController extends ProfileViewController<AggregationProfile
     private Button quickFilterButton;
 
     @FXML
-    private TreeTableView<AggregatedNode> treeView;
+    private TreeTableView<AggregatedNode<String>> treeView;
     @FXML
-    private TreeTableColumn<AggregatedNode, String> methodColumn;
+    private TreeTableColumn<AggregatedNode<String>, String> methodColumn;
     @FXML
-    private TreeTableColumn<AggregatedNode, AggregatedNode> percentColumn;
+    private TreeTableColumn<AggregatedNode<String>, AggregatedNode<String>> percentColumn;
     @FXML
-    private TreeTableColumn<AggregatedNode, Number> totalPct;
+    private TreeTableColumn<AggregatedNode<String>, Number> totalPct;
     @FXML
-    private TreeTableColumn<AggregatedNode, Number> selfPct;
+    private TreeTableColumn<AggregatedNode<String>, Number> selfPct;
     @FXML
-    private TreeTableColumn<AggregatedNode, Number> totalCnt;
+    private TreeTableColumn<AggregatedNode<String>, Number> totalCnt;
     @FXML
-    private TreeTableColumn<AggregatedNode, Number> selfCnt;
+    private TreeTableColumn<AggregatedNode<String>, Number> selfCnt;
     @FXML
-    private TreeTableColumn<AggregatedNode, Number> parentCnt;
-
-    private RootNodeAdapter rootNode;
+    private TreeTableColumn<AggregatedNode<String>, Number> parentCnt;
 
     @Override
     @FXML
@@ -112,11 +102,8 @@ public class TreeViewController extends ProfileViewController<AggregationProfile
 
     private void initializeTable()
     {
-        rootNode = new RootNodeAdapter(getFilterSpecification());
-        treeView.setRoot(rootNode);
-
         methodColumn.setCellFactory(column -> new MethodNameTreeTableCell<>(appCtx()));
-        methodColumn.setCellValueFactory(data -> buildProfileNodeCell(data.getValue()));
+        methodColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("key"));
 
         percentColumn.setCellFactory(param -> new TreeViewCell());
 
@@ -125,38 +112,6 @@ public class TreeViewController extends ProfileViewController<AggregationProfile
         cfgCntCol(totalCnt, "totalCnt", prfCtx(), COLUMN_TOTAL_CNT);
         cfgCntCol(selfCnt, "selfCnt", prfCtx(), COLUMN_SELF_CNT);
         cfgCntCol(parentCnt, "parentCount", prfCtx(), COLUMN_PARENT_CNT);
-    }
-
-    // Helper Methods
-
-    private StringProperty buildProfileNodeCell(TreeItem<AggregatedNode> treeItem)
-    {
-        String text = "";
-
-        if (treeItem instanceof ThreadNodeAdapter)
-        {
-            ThreadNodeAdapter adapter = (ThreadNodeAdapter) treeItem;
-            String name = adapter.getThreadName();
-
-            StringBuilder builder = new StringBuilder(appCtx().textFor(GENERAL_THREAD)).append(' ');
-            builder.append(adapter.getThreadId());
-
-            builder.append(' ').append(
-                (name == null || name.isEmpty()) ? appCtx().textFor(GENERAL_UNKNOWN)
-                    : "[" + name + "]")
-                .append(" (").append(appCtx().textFor(GENERAL_DEPTH)).append(" = ")
-                .append(adapter.getDepth()).append(", ")
-                .append(appCtx().textFor(GENERAL_SAMPLECOUNT)).append(" = ")
-                .append(adapter.getNrOfSamples()).append(")");
-
-            text = builder.toString();
-        }
-        else if (treeItem instanceof MethodNodeAdapter)
-        {
-            text = treeItem.getValue().getKey();
-        }
-
-        return new ReadOnlyStringWrapper(text);
     }
 
     // AbstractController Implementation
@@ -192,6 +147,8 @@ public class TreeViewController extends ProfileViewController<AggregationProfile
         // task.setOnSucceeded(state ->
         // rootNode.update(task.getValue().getTrees()));
         // appCtx().execute(task);
+
+        treeView.setRoot(new AggregationTreeItem(getTarget().getTreeAggregation()));
     }
 
     @Override

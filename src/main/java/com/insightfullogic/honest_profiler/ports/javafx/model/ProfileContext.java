@@ -148,8 +148,14 @@ public class ProfileContext
             @Override
             public void accept(LeanProfile profile)
             {
+                if (profile == null)
+                {
+                    System.err.println("NULL profile in context listener");
+                }
+
                 if (profile == cachedProfile)
                 {
+                    System.err.println("Identical profile in context listener");
                     return;
                 }
 

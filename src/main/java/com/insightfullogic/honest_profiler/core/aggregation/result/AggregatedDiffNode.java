@@ -1,32 +1,73 @@
 package com.insightfullogic.honest_profiler.core.aggregation.result;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 
 /**
  * Provides the difference between two {@link AggregatedEntry}s.
  */
-public class AggregatedDiffNode
+public class AggregatedDiffNode<K> implements Keyed<K>
 {
-    private final AggregatedDiffEntry entry;
+    private final AggregatedDiffEntry<K> entry;
+    private final Map<K, AggregatedDiffNode<K>> children;
 
-    public AggregatedDiffNode(AggregatedDiffEntry entry)
+    public AggregatedDiffNode(AggregatedDiffEntry<K> entry)
     {
         this.entry = entry;
+        this.children = new HashMap<>();
     }
 
-    public String getKey()
+    public AggregatedDiffNode(AggregatedNode<K> baseNode, AggregatedNode<K> newNode)
+    {
+        this.entry = new AggregatedDiffEntry<>(
+            baseNode == null ? null : baseNode.getEntry(),
+            newNode == null ? null : newNode.getEntry());
+        this.children = new HashMap<>();
+        addBaseChildren(baseNode);
+        addNewChildren(newNode);
+    }
+
+    @Override
+    public K getKey()
     {
         return entry.getKey();
     }
 
-    public AggregatedEntry getBaseEntry()
+    public AggregatedDiffEntry<K> getDiffEntry()
+    {
+        return entry;
+    }
+
+    public AggregatedEntry<K> getBaseEntry()
     {
         return entry.getBaseEntry();
     }
 
-    public AggregatedEntry getNewEntry()
+    public AggregatedEntry<K> getNewEntry()
     {
         return entry.getNewEntry();
+    }
+
+    public AggregatedDiffNode<K> setBase(AggregatedNode<K> node)
+    {
+        entry.setBase(node.getEntry());
+        addBaseChildren(node);
+        return this;
+    }
+
+    public AggregatedDiffNode<K> setNew(AggregatedNode<K> node)
+    {
+        entry.setNew(node.getEntry());
+        addNewChildren(node);
+        return this;
+    }
+
+    public Collection<AggregatedDiffNode<K>> getChildren()
+    {
+        return children.values();
     }
 
     public NumericInfo getBaseData()
@@ -172,5 +213,37 @@ public class AggregatedDiffNode
     public int getRefCntDiff()
     {
         return entry.getRefCntDiff();
+    }
+
+    private void addBaseChildren(AggregatedNode<K> node)
+    {
+        if (node == null)
+        {
+            return;
+        }
+        node.getChildren().forEach(this::addBaseChild);
+    }
+
+    private void addNewChildren(AggregatedNode<K> node)
+    {
+        if (node == null)
+        {
+            return;
+        }
+        node.getChildren().forEach(this::addNewChild);
+    }
+
+    private void addBaseChild(AggregatedNode<K> child)
+    {
+        children.compute(
+            child.getKey(),
+            (k, v) -> v == null ? new AggregatedDiffNode<>(child, null) : v.setBase(child));
+    }
+
+    private void addNewChild(AggregatedNode<K> child)
+    {
+        children.compute(
+            child.getKey(),
+            (k, v) -> v == null ? new AggregatedDiffNode<>(null, child) : v.setNew(child));
     }
 }

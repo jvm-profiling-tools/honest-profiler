@@ -114,9 +114,9 @@ public class ProfileRootController extends AbstractController
         }
 
         viewChoice.setConverter(getStringConverterForType(ViewType.class));
-        viewChoice.getItems().addAll(ViewType.values());
         viewChoice.getSelectionModel().selectedItemProperty()
             .addListener((property, oldValue, newValue) -> show(newValue));
+        viewChoice.getItems().addAll(ViewType.values());
         viewChoice.getSelectionModel().select(FLAT);
 
         freezeButton.setDisable(profileContext.getMode() != LIVE);

@@ -1,14 +1,16 @@
 package com.insightfullogic.honest_profiler.core.aggregation.result;
 
+import java.util.List;
+
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 
-public class Aggregation<T>
+public class Aggregation<K, T extends Keyed<K>>
 {
-    private T data;
+    private List<T> data;
     private LeanNode reference;
 
-    public Aggregation(T data, LeanNode reference)
+    public Aggregation(List<T> data, LeanNode reference)
     {
         super();
         this.data = data;
@@ -30,8 +32,17 @@ public class Aggregation<T>
         this.reference = reference;
     }
 
-    public T getData()
+    public List<T> getData()
     {
         return data;
+    }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder result = new StringBuilder();
+        System.err.println("Aggregation :");
+        data.forEach(t -> System.err.println(t.toString()));
+        return result.toString();
     }
 }

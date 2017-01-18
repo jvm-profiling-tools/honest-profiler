@@ -4,8 +4,12 @@ import com.insightfullogic.honest_profiler.core.parser.ThreadMeta;
 
 public class ThreadInfo
 {
+    // Instance Properties
+
     private final long id;
     private String name;
+
+    // Instance Constructors
 
     public ThreadInfo(long id, String name)
     {
@@ -17,6 +21,13 @@ public class ThreadInfo
     {
         this.id = meta.getThreadId();
         this.name = meta.getThreadName();
+    }
+
+    // Instance Accessors
+
+    public long getId()
+    {
+        return id;
     }
 
     public String getName()
@@ -33,9 +44,14 @@ public class ThreadInfo
         return this;
     }
 
-    public long getId()
+    public String getIdentification()
     {
-        return id;
+        StringBuilder result = new StringBuilder();
+        result.append(name);
+        result.append(" <");
+        result.append(id);
+        result.append(">");
+        return result.toString();
     }
 
     @Override
@@ -88,5 +104,4 @@ public class ThreadInfo
 
         return true;
     }
-
 }

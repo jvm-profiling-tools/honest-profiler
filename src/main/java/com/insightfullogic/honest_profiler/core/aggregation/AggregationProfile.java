@@ -1,7 +1,6 @@
 package com.insightfullogic.honest_profiler.core.aggregation;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.insightfullogic.honest_profiler.core.aggregation.aggregator.Aggregator;
@@ -19,24 +18,22 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
  */
 public class AggregationProfile
 {
-    private static final Aggregator<AggregationProfile, List<AggregatedEntry>> flatAggregator = new FlatByFqmnAggregator();
-    private static final Aggregator<AggregationProfile, List<AggregatedNode>> treeAggregator = new TreeByFqmnAggregator();
+    private static final Aggregator<AggregationProfile, String, AggregatedEntry<String>> flatAggregator = new FlatByFqmnAggregator();
+    private static final Aggregator<AggregationProfile, String, AggregatedNode<String>> treeAggregator = new TreeByFqmnAggregator();
 
     private final LeanProfile sourceProfile;
     private final Map<String, FqmnLink> fqmnLinks;
-    private final Map<Long, LeanNode> threadRoots;
 
     private final LeanNode profileNode;
 
-    private Aggregation<List<AggregatedEntry>> flatAggregation;
-    private Aggregation<List<AggregatedNode>> treeAggregation;
+    private Aggregation<String, AggregatedEntry<String>> flatAggregation;
+    private Aggregation<String, AggregatedNode<String>> treeAggregation;
 
     public AggregationProfile(LeanProfile sourceProfile)
     {
         this.sourceProfile = sourceProfile;
 
         fqmnLinks = new HashMap<>();
-        threadRoots = new HashMap<>();
 
         this.profileNode = new LeanNode(null, null);
 
@@ -45,7 +42,7 @@ public class AggregationProfile
         aggregate();
     }
 
-    public LeanProfile getSourceProfile()
+    public LeanProfile getSource()
     {
         return sourceProfile;
     }
@@ -66,17 +63,12 @@ public class AggregationProfile
         return fqmnLinks;
     }
 
-    public Map<Long, LeanNode> getThreadRoots()
-    {
-        return threadRoots;
-    }
-
-    public Aggregation<List<AggregatedEntry>> getFlatAggregation()
+    public Aggregation<String, AggregatedEntry<String>> getFlatAggregation()
     {
         return flatAggregation;
     }
 
-    public Aggregation<List<AggregatedNode>> getTreeAggregation()
+    public Aggregation<String, AggregatedNode<String>> getTreeAggregation()
     {
         return treeAggregation;
     }
@@ -89,7 +81,7 @@ public class AggregationProfile
 
     private void aggregateTopLevel()
     {
-        NumericInfo aggregated = threadRoots.values().stream().collect(
+        NumericInfo aggregated = sourceProfile.getThreads().values().stream().collect(
             NumericInfo::new,
             (data, node) -> data.add(node.getData()),
             (data1, data2) -> data1.add(data2));
@@ -98,12 +90,12 @@ public class AggregationProfile
 
     private void calculateLinks()
     {
-        sourceProfile.getThreadData()
+        sourceProfile.getThreads()
             .forEach((threadId, threadData) -> threadData.getChildren().forEach(
-                node -> threadRoots.put(threadId, link(threadId, node))));
+                node -> link(threadId, node)));
     }
 
-    private LeanNode link(Long threadId, LeanNode node)
+    private void link(Long threadId, LeanNode node)
     {
         String fqmn = sourceProfile.getMethodMap().get(node.getFrame().getMethodId()).getFqmn();
         FqmnLink link = fqmnLinks.computeIfAbsent(fqmn, FqmnLink::new);
@@ -120,6 +112,7 @@ public class AggregationProfile
                 getFqmnLink(parent).addChild(threadId, node);
             }
         }
-        return node;
+
+        node.getChildren().forEach(child -> link(threadId, child));
     }
 }

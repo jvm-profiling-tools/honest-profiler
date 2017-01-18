@@ -136,24 +136,10 @@ public class RootController extends AbstractController implements MachineListene
 
         Task<ProfileContext> task = new InitializeProfileTask(appCtx(), source, live);
 
-        task.setOnSucceeded(event ->
-        {
-            try
-            {
-                handleNewProfile(tab, controller, task.get());
-            }
-            catch (Throwable t)
-            {
-                showExceptionDialog(
-                    appCtx(),
-                    appCtx().textFor(TITLE_DIALOG_ERR_OPENPROFILE),
-                    appCtx().textFor(HEADER_DIALOG_ERR_OPENPROFILE),
-                    appCtx().textFor(MESSAGE_DIALOG_ERR_OPENPROFILE),
-                    t);
-            }
-        });
+        task.setOnSucceeded(event -> handleNewProfile(tab, controller, task.getValue()));
 
         task.setOnFailed(
+
             event ->
             {
                 profileTabs.getTabs().remove(tab);

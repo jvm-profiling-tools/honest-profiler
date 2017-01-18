@@ -1,6 +1,7 @@
 package com.insightfullogic.honest_profiler.ports.javafx.model.task;
 
 import static com.insightfullogic.honest_profiler.core.Monitor.pipe;
+import static com.insightfullogic.honest_profiler.core.Monitor.pipeFile;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext.ProfileMode.LIVE;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext.ProfileMode.LOG;
 
@@ -42,7 +43,7 @@ public class InitializeProfileTask extends Task<ProfileContext>
             profileContext = new ProfileContext(appCtx, convertVmName(vm), LIVE);
             LeanLogCollector collector = getCollector(profileContext);
             profileContext.setProfileSource(collector);
-            pipe(vm.getLogSourceFromVmArgs(), collector, true).run();
+            pipeFile(vm.getLogSourceFromVmArgs(), collector, profileContext.getProfileListener());
         }
         else if (live)
         {
@@ -50,7 +51,7 @@ public class InitializeProfileTask extends Task<ProfileContext>
             profileContext = new ProfileContext(appCtx, file.getName(), LIVE);
             LeanLogCollector collector = getCollector(profileContext);
             profileContext.setProfileSource(collector);
-            pipe(new FileLogSource(file), collector, true).run();
+            pipeFile(new FileLogSource(file), collector, profileContext.getProfileListener());
         }
         else
         {
@@ -64,6 +65,13 @@ public class InitializeProfileTask extends Task<ProfileContext>
 
         appCtx.registerProfileContext(profileContext);
         return profileContext;
+    }
+
+    @Override
+    protected void failed()
+    {
+        super.failed();
+        getException().printStackTrace();
     }
 
     private LeanLogCollector getCollector(ProfileContext context)

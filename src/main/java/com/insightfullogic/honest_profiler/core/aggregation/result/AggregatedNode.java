@@ -12,34 +12,34 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
  * Wrapper for {@link AggregatedEntry} which allows organizing them into a tree
  * structure.
  */
-public class AggregatedNode
+public class AggregatedNode<K> implements Keyed<K>
 {
-    private final AggregatedEntry entry;
-    private final List<AggregatedNode> children;
+    private final AggregatedEntry<K> entry;
+    private final List<AggregatedNode<K>> children;
 
-    public AggregatedNode(Aggregation<?> aggregation)
+    public <T extends Keyed<K>> AggregatedNode(Aggregation<K, T> aggregation)
     {
-        this.entry = new AggregatedEntry(null, aggregation);
+        this.entry = new AggregatedEntry<>(null, aggregation);
         this.children = new ArrayList<>();
     }
 
-    public AggregatedNode(AggregatedEntry entry)
+    public AggregatedNode(AggregatedEntry<K> entry)
     {
         this.entry = entry;
         this.children = new ArrayList<>();
     }
 
-    public AggregatedEntry getEntry()
+    public AggregatedEntry<K> getEntry()
     {
         return entry;
     }
 
-    public List<AggregatedNode> getChildren()
+    public List<AggregatedNode<K>> getChildren()
     {
         return children;
     }
 
-    public Aggregation<?> getAggregation()
+    public <T extends Keyed<K>> Aggregation<K, T> getAggregation()
     {
         return entry.getAggregation();
     }
@@ -49,7 +49,8 @@ public class AggregatedNode
         return entry.getAggregation().getReferenceData();
     }
 
-    public String getKey()
+    @Override
+    public K getKey()
     {
         return entry.getKey();
     }
@@ -114,25 +115,25 @@ public class AggregatedNode
         }
 
         int depth = 0;
-        for (AggregatedNode child : children)
+        for (AggregatedNode<K> child : children)
         {
             depth = max(depth, child.getDescendantDepth() + 1);
         }
         return depth;
     }
 
-    public void add(String key, FrameInfo frame, NumericInfo data)
+    public void add(K key, FrameInfo frame, NumericInfo data)
     {
         entry.setKey(key);
         entry.add(frame, data);
     }
 
-    public void addChild(AggregatedEntry entry)
+    public void addChild(AggregatedEntry<K> entry)
     {
-        children.add(new AggregatedNode(entry));
+        children.add(new AggregatedNode<>(entry));
     }
 
-    public AggregatedNode combine(AggregatedNode other)
+    public AggregatedNode<K> combine(AggregatedNode<K> other)
     {
         entry.combine(other.entry);
         children.addAll(other.children);

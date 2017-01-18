@@ -10,7 +10,7 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.AggregatedNod
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 
-public class MethodNodeAdapter extends TreeItem<AggregatedNode>
+public class MethodNodeAdapter extends TreeItem<AggregatedNode<String>>
 {
     private static final double TIMESHARE_EXPAND_FACTOR = 0.2;
 
@@ -26,7 +26,7 @@ public class MethodNodeAdapter extends TreeItem<AggregatedNode>
         firstUpdate = true;
     }
 
-    public void update(AggregatedNode profileNode)
+    public void update(AggregatedNode<String> profileNode)
     {
         setValue(profileNode);
 
@@ -38,7 +38,7 @@ public class MethodNodeAdapter extends TreeItem<AggregatedNode>
 
         Set<String> present = new HashSet<>();
 
-        ObservableList<TreeItem<AggregatedNode>> children = getChildren();
+        ObservableList<TreeItem<AggregatedNode<String>>> children = getChildren();
         children.clear();
 
         profileNode.getChildren().forEach(child ->

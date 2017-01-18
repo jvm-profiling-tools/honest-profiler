@@ -22,9 +22,12 @@
 package com.insightfullogic.honest_profiler.core;
 
 import com.insightfullogic.honest_profiler.core.collector.LogCollector;
+import com.insightfullogic.honest_profiler.core.collector.lean.LeanLogCollector;
+import com.insightfullogic.honest_profiler.core.collector.lean.LeanProfileUpdateModerator;
 import com.insightfullogic.honest_profiler.core.parser.LogEventListener;
 import com.insightfullogic.honest_profiler.core.parser.LogParser;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
+import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfileListener;
 import com.insightfullogic.honest_profiler.core.sources.LogSource;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -47,6 +50,15 @@ public final class Monitor
         moderator.start();
 
         final Conductor conductor = pipe(logSource, moderator, true);
+        new ThreadedAgent(getLogger(ThreadedAgent.class), conductor::poll).start();
+    }
+
+    public static void pipeFile(final LogSource logSource, LeanLogCollector logCollector, final LeanProfileListener listener)
+    {
+        LeanProfileUpdateModerator moderator = new LeanProfileUpdateModerator(getLogger(LeanProfileUpdateModerator.class), listener);
+        moderator.start();
+
+        final Conductor conductor = pipe(logSource, logCollector, true);
         new ThreadedAgent(getLogger(ThreadedAgent.class), conductor::poll).start();
     }
 

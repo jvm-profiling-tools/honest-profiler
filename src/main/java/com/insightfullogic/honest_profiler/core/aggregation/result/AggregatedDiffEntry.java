@@ -5,30 +5,55 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 /**
  * Provides the difference between two {@link AggregatedEntry}s.
  */
-public class AggregatedDiffEntry
+public class AggregatedDiffEntry<K> implements Keyed<K>
 {
-    private final AggregatedEntry baseEntry;
-    private final AggregatedEntry newEntry;
+    private AggregatedEntry<K> baseEntry;
+    private AggregatedEntry<K> newEntry;
 
-    public AggregatedDiffEntry(AggregatedEntry baseEntry, AggregatedEntry newEntry)
+    public AggregatedDiffEntry(AggregatedEntry<K> baseEntry, AggregatedEntry<K> newEntry)
     {
-        this.baseEntry = baseEntry;
-        this.newEntry = newEntry;
+        this.baseEntry = baseEntry == null ? new AggregatedEntry<K>(newEntry.getKey(), null)
+            : baseEntry;
+        this.newEntry = newEntry == null ? new AggregatedEntry<K>(baseEntry.getKey(), null)
+            : newEntry;
     }
 
-    public AggregatedEntry getBaseEntry()
+    public AggregatedDiffEntry<K> setBase(AggregatedEntry<K> entry)
+    {
+        baseEntry = entry;
+        return this;
+    }
+
+    public AggregatedDiffEntry<K> setNew(AggregatedEntry<K> entry)
+    {
+        newEntry = entry;
+        return this;
+    }
+
+    public void addBase(NumericInfo data)
+    {
+        baseEntry.getData().add(data);
+    }
+
+    public void addNew(NumericInfo data)
+    {
+        newEntry.getData().add(data);
+    }
+
+    public AggregatedEntry<K> getBaseEntry()
     {
         return baseEntry;
     }
 
-    public AggregatedEntry getNewEntry()
+    public AggregatedEntry<K> getNewEntry()
     {
         return newEntry;
     }
 
-    public String getKey()
+    @Override
+    public K getKey()
     {
-        return baseEntry.getKey();
+        return baseEntry == null ? newEntry.getKey() : baseEntry.getKey();
     }
 
     public NumericInfo getBaseData()

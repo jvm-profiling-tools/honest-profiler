@@ -4,7 +4,7 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.AggregatedNod
 
 import javafx.scene.control.TreeItem;
 
-public class ThreadNodeAdapter extends TreeItem<AggregatedNode>
+public class ThreadNodeAdapter extends TreeItem<AggregatedNode<String>>
 {
     private final String threadId;
     private final String threadName;
@@ -23,10 +23,15 @@ public class ThreadNodeAdapter extends TreeItem<AggregatedNode>
         getChildren().add(adapter);
     }
 
-    public void update(AggregatedNode tree)
+    public void update(AggregatedNode<String> tree)
     {
         nrOfSamples = tree.getData().getTotalCnt();
-        adapter.update(tree.getChildren().get(0));
+        System.err.println(
+            "Thread tree " + tree.getKey() + "has " + tree.getChildren().size() + " children.");
+        if (tree.getChildren().size() > 0)
+        {
+            adapter.update(tree.getChildren().get(0));
+        }
     }
 
     public String getThreadId()

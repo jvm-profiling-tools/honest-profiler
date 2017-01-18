@@ -31,7 +31,7 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.paint.Color;
 
-public class TreeViewCell extends TreeTableCell<AggregatedNode, AggregatedNode>
+public class TreeViewCell extends TreeTableCell<AggregatedNode<String>, AggregatedNode<String>>
 {
     private static final int IMAGE_WIDTH = 50;
     private static final int IMAGE_HEIGHT = 15;
@@ -43,11 +43,11 @@ public class TreeViewCell extends TreeTableCell<AggregatedNode, AggregatedNode>
      * Not threadsafe: must be run on JavaFx thread.
      */
     @Override
-    protected void updateItem(AggregatedNode profileNode, boolean empty)
+    protected void updateItem(AggregatedNode<String> profileNode, boolean empty)
     {
         super.updateItem(profileNode, empty);
 
-        TreeItem<AggregatedNode> treeItem = getTreeTableRow().getTreeItem();
+        TreeItem<AggregatedNode<String>> treeItem = getTreeTableRow().getTreeItem();
 
         if (treeItem instanceof MethodNodeAdapter)
         {
@@ -59,7 +59,7 @@ public class TreeViewCell extends TreeTableCell<AggregatedNode, AggregatedNode>
         }
     }
 
-    private void renderMethodNode(AggregatedNode profileNode, boolean empty)
+    private void renderMethodNode(AggregatedNode<String> profileNode, boolean empty)
     {
         Canvas canvas = new Canvas(IMAGE_WIDTH, IMAGE_HEIGHT);
         GraphicsContext context = canvas.getGraphicsContext2D();

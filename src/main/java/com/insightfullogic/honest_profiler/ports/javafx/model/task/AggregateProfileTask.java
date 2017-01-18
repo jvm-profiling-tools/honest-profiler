@@ -27,17 +27,14 @@ public class AggregateProfileTask extends Task<AggregationProfile>
     @Override
     protected void succeeded()
     {
-        try
-        {
-            context.update(this.get());
-        }
-        catch (Throwable t)
-        {
-            // TODO Show something in UI, and handle better. The
-            // RuntimeException will go nowhere.
-            System.err.println("Aggregation task failed.");
-            t.printStackTrace();
-            throw new RuntimeException("Aggregation task failed.", t);
-        }
+        super.succeeded();
+        context.update(this.getValue());
+    }
+
+    @Override
+    protected void failed()
+    {
+        super.failed();
+        getException().printStackTrace();
     }
 }

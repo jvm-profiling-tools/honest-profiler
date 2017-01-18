@@ -6,6 +6,7 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.report.Table
 import java.io.PrintWriter;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import com.insightfullogic.honest_profiler.core.aggregation.result.AggregatedDiffEntry;
@@ -113,7 +114,7 @@ public final class ReportUtil
         // TODO Implement
     }
 
-    public static void writeFlatProfileCsv(PrintWriter out, List<AggregatedEntry> entries,
+    public static void writeFlatProfileCsv(PrintWriter out, List<AggregatedEntry<String>> entries,
         Mode mode)
     {
         mode.start(out);
@@ -150,8 +151,8 @@ public final class ReportUtil
         out.flush();
     }
 
-    public static void writeFlatProfileDiffCsv(PrintWriter out, List<AggregatedDiffEntry> entries,
-        Mode mode)
+    public static void writeFlatProfileDiffCsv(PrintWriter out,
+        Collection<AggregatedDiffEntry<String>> entries, Mode mode)
     {
         mode.start(out);
         out.print("Method");

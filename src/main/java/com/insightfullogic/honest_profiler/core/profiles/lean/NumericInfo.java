@@ -105,12 +105,18 @@ public class NumericInfo
         selfTime = selfTime.add(other.selfTime);
         totalTime = totalTime.add(other.totalTime);
         selfCnt += other.selfCnt;
-        totalCnt = other.totalCnt;
+        totalCnt += other.totalCnt;
         return this;
     }
 
     public NumericInfo copy()
     {
         return new NumericInfo(this);
+    }
+
+    @Override
+    public String toString()
+    {
+        return "data[" + selfTime + ":" + totalTime + ":" + selfCnt + ":" + totalCnt + "]";
     }
 }

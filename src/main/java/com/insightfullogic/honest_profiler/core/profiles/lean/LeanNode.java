@@ -122,4 +122,24 @@ public class LeanNode
         data.update(nanos, true);
         return this;
     }
+
+    @Override
+    public String toString()
+    {
+        return "LN [" + frame + ":" + data + "]";
+    }
+
+    public String toDeepString(int level, Map<Long, MethodInfo> methodMap)
+    {
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < level; i++)
+        {
+            result.append("  ");
+        }
+        result.append(toString()).append(" (")
+            .append(frame == null ? "--" : methodMap.get(frame.getMethodId()).getFqmn())
+            .append(")\n");
+        childMap.values().forEach(child -> result.append(child.toDeepString(level + 1, methodMap)));
+        return result.toString();
+    }
 }

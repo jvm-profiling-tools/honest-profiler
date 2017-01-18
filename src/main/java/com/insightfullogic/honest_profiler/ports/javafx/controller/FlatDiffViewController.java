@@ -20,7 +20,6 @@ package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.STRING;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.showExportDialog;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.refreshTable;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_PROFILE_CNT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_PROFILE_CNT_DIFF;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_CNT;
@@ -40,11 +39,9 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.report.Repor
 
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
 import com.insightfullogic.honest_profiler.core.aggregation.result.AggregatedDiffEntry;
-import com.insightfullogic.honest_profiler.core.profiles.Profile;
+import com.insightfullogic.honest_profiler.core.aggregation.result.FlatDiffAggregation;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
-import com.insightfullogic.honest_profiler.ports.javafx.model.diff.FlatProfileDiff;
 import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType;
-import com.insightfullogic.honest_profiler.ports.javafx.model.task.CopyAndFilterProfileTask;
 import com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTableCell;
 
@@ -66,53 +63,53 @@ public class FlatDiffViewController extends ProfileDiffViewController<Aggregatio
     @FXML
     private Button quickFilterButton;
     @FXML
-    private TableView<AggregatedDiffEntry> diffTable;
+    private TableView<AggregatedDiffEntry<String>> diffTable;
     @FXML
-    private TableColumn<AggregatedDiffEntry, String> method;
+    private TableColumn<AggregatedDiffEntry<String>, String> method;
     @FXML
-    private TableColumn<AggregatedDiffEntry, Number> baseSelfPct;
+    private TableColumn<AggregatedDiffEntry<String>, Number> baseSelfPct;
     @FXML
-    private TableColumn<AggregatedDiffEntry, Number> newSelfPct;
+    private TableColumn<AggregatedDiffEntry<String>, Number> newSelfPct;
     @FXML
-    private TableColumn<AggregatedDiffEntry, Number> selfPctDiff;
+    private TableColumn<AggregatedDiffEntry<String>, Number> selfPctDiff;
     @FXML
-    private TableColumn<AggregatedDiffEntry, Number> baseTotalPct;
+    private TableColumn<AggregatedDiffEntry<String>, Number> baseTotalPct;
     @FXML
-    private TableColumn<AggregatedDiffEntry, Number> newTotalPct;
+    private TableColumn<AggregatedDiffEntry<String>, Number> newTotalPct;
     @FXML
-    private TableColumn<AggregatedDiffEntry, Number> totalPctDiff;
+    private TableColumn<AggregatedDiffEntry<String>, Number> totalPctDiff;
     @FXML
-    private TableColumn<AggregatedDiffEntry, Number> baseSelfCnt;
+    private TableColumn<AggregatedDiffEntry<String>, Number> baseSelfCnt;
     @FXML
-    private TableColumn<AggregatedDiffEntry, Number> newSelfCnt;
+    private TableColumn<AggregatedDiffEntry<String>, Number> newSelfCnt;
     @FXML
-    private TableColumn<AggregatedDiffEntry, Number> selfCntDiff;
+    private TableColumn<AggregatedDiffEntry<String>, Number> selfCntDiff;
     @FXML
-    private TableColumn<AggregatedDiffEntry, Number> baseTotalCnt;
+    private TableColumn<AggregatedDiffEntry<String>, Number> baseTotalCnt;
     @FXML
-    private TableColumn<AggregatedDiffEntry, Number> newTotalCnt;
+    private TableColumn<AggregatedDiffEntry<String>, Number> newTotalCnt;
     @FXML
-    private TableColumn<AggregatedDiffEntry, Number> totalCntDiff;
+    private TableColumn<AggregatedDiffEntry<String>, Number> totalCntDiff;
     @FXML
-    private TableColumn<AggregatedDiffEntry, Number> baseProfileCnt;
+    private TableColumn<AggregatedDiffEntry<String>, Number> baseProfileCnt;
     @FXML
-    private TableColumn<AggregatedDiffEntry, Number> newProfileCnt;
+    private TableColumn<AggregatedDiffEntry<String>, Number> newProfileCnt;
     @FXML
-    private TableColumn<AggregatedDiffEntry, Number> profileCntDiff;
+    private TableColumn<AggregatedDiffEntry<String>, Number> profileCntDiff;
 
-    private FlatProfileDiff diff;
+    private FlatDiffAggregation<String> diff;
 
     @Override
     @FXML
     protected void initialize()
     {
+        diff = new FlatDiffAggregation<>();
+
         super.initialize(
             profileContext -> profileContext.profileProperty(),
             filterButton,
             quickFilterButton,
             quickFilterText);
-
-        diff = new FlatProfileDiff(diffTable.getItems());
     }
 
     @Override
@@ -127,15 +124,15 @@ public class FlatDiffViewController extends ProfileDiffViewController<Aggregatio
     private void initializeTable()
     {
         method.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getKey()));
-        method.setCellFactory(col -> new MethodNameTableCell<AggregatedDiffEntry>());
+        method.setCellFactory(col -> new MethodNameTableCell<AggregatedDiffEntry<String>>());
 
-        cfgPctCol(baseSelfPct, "baseSelfPct", baseCtx(), getText(COLUMN_SELF_PCT));
-        cfgPctCol(newSelfPct, "newSelfPct", newCtx(), getText(COLUMN_SELF_PCT));
-        cfgPctDiffCol(selfPctDiff, "selfPctDiff", getText(COLUMN_SELF_PCT_DIFF));
+        cfgPctCol(baseSelfPct, "baseSelfCntPct", baseCtx(), getText(COLUMN_SELF_PCT));
+        cfgPctCol(newSelfPct, "newSelfCntPct", newCtx(), getText(COLUMN_SELF_PCT));
+        cfgPctDiffCol(selfPctDiff, "selfCntPctDiff", getText(COLUMN_SELF_PCT_DIFF));
 
-        cfgPctCol(baseTotalPct, "baseTotalPct", baseCtx(), getText(COLUMN_TOTAL_PCT));
-        cfgPctCol(newTotalPct, "newTotalPct", newCtx(), getText(COLUMN_TOTAL_PCT));
-        cfgPctDiffCol(totalPctDiff, "totalPctDiff", getText(COLUMN_TOTAL_PCT_DIFF));
+        cfgPctCol(baseTotalPct, "baseTotalCntPct", baseCtx(), getText(COLUMN_TOTAL_PCT));
+        cfgPctCol(newTotalPct, "newTotalCntPct", newCtx(), getText(COLUMN_TOTAL_PCT));
+        cfgPctDiffCol(totalPctDiff, "totalCntPctDiff", getText(COLUMN_TOTAL_PCT_DIFF));
 
         cfgCntCol(baseSelfCnt, "baseSelfCnt", baseCtx(), getText(COLUMN_SELF_CNT));
         cfgCntCol(newSelfCnt, "newSelfCnt", newCtx(), getText(COLUMN_SELF_CNT));
@@ -145,35 +142,51 @@ public class FlatDiffViewController extends ProfileDiffViewController<Aggregatio
         cfgCntCol(newTotalCnt, "newTotalCnt", newCtx(), getText(COLUMN_TOTAL_CNT));
         cfgCntDiffCol(totalCntDiff, "totalCntDiff", getText(COLUMN_TOTAL_CNT_DIFF));
 
-        cfgCntCol(baseProfileCnt, "baseProfileCnt", baseCtx(), getText(COLUMN_PROFILE_CNT));
-        cfgCntCol(newProfileCnt, "newProfileCnt", newCtx(), getText(COLUMN_PROFILE_CNT));
-        cfgCntDiffCol(profileCntDiff, "profileCntDiff", getText(COLUMN_PROFILE_CNT_DIFF));
+        cfgCntCol(baseProfileCnt, "baseRefCnt", baseCtx(), getText(COLUMN_PROFILE_CNT));
+        cfgCntCol(newProfileCnt, "newRefCnt", newCtx(), getText(COLUMN_PROFILE_CNT));
+        cfgCntDiffCol(profileCntDiff, "refCntDiff", getText(COLUMN_PROFILE_CNT_DIFF));
     }
 
-    private void updateDiff(Profile profile, boolean base)
+    private void updateDiff(AggregationProfile profile, boolean base)
     {
-        CopyAndFilterProfileTask task = new CopyAndFilterProfileTask(
-            profile,
-            getAdjustedProfileFilter());
-        task.setOnSucceeded(state ->
+        // CopyAndFilterProfileTask task = new CopyAndFilterProfileTask(
+        // profile,
+        // getAdjustedProfileFilter());
+        // task.setOnSucceeded(state ->
+        // {
+        // // No need to worry about concurrency here, since this (the code for
+        // // onSucceeded()) will be executed on the FX thread. So even though
+        // // in the diff 2 tasks might execute concurrently during refresh(),
+        // // the resulting update calls in this if-statement won't execute
+        // // concurrently.
+        // if (base)
+        // {
+        // diff.addBase(profile.getFlatAggregation());
+        // }
+        // else
+        // {
+        // diff.addNew(profile.getFlatAggregation());
+        // }
+        //
+        // refreshTable(diffTable);
+        // });
+        // appCtx().execute(task);
+
+        if (profile != null)
         {
-            // No need to worry about concurrency here, since this (the code for
-            // onSucceeded()) will be executed on the FX thread. So even though
-            // in the diff 2 tasks might execute concurrently during refresh(),
-            // the resulting update calls in this if-statement won't execute
-            // concurrently.
             if (base)
             {
-                diff.updateForBase(task.getValue().getFlatByMethodProfile());
+                diff.setBase(profile.getFlatAggregation());
             }
             else
             {
-                diff.updateForNew(task.getValue().getFlatByMethodProfile());
+                diff.setNew(profile.getFlatAggregation());
             }
 
-            refreshTable(diffTable);
-        });
-        appCtx().execute(task);
+            diffTable.getItems().clear();
+            diffTable.getItems().addAll(diff.getData());
+            // refreshTable(diffTable);
+        }
     }
 
     // AbstractController Implementation
@@ -196,7 +209,7 @@ public class FlatDiffViewController extends ProfileDiffViewController<Aggregatio
                 appCtx(),
                 exportButton.getScene().getWindow(),
                 "flat_diff_profile.csv",
-                out -> writeFlatProfileDiffCsv(out, diff, ReportUtil.Mode.CSV)
+                out -> writeFlatProfileDiffCsv(out, diff.getData(), ReportUtil.Mode.CSV)
                 ));
     }
 
@@ -205,7 +218,7 @@ public class FlatDiffViewController extends ProfileDiffViewController<Aggregatio
     @Override
     protected void refresh()
     {
-        diff.clear();
+        // diff.clear();
         updateDiff(getBaseTarget(), true);
         updateDiff(getNewTarget(), false);
     }

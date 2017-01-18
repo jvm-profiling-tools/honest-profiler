@@ -91,4 +91,10 @@ public class FrameInfo
 
         return true;
     }
+
+    @Override
+    public String toString()
+    {
+        return "frame[" + methodId + ":" + lineNr + ":" + bci + "]";
+    }
 }

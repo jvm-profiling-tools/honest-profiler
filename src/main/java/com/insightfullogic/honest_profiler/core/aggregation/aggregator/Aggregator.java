@@ -1,6 +1,7 @@
 package com.insightfullogic.honest_profiler.core.aggregation.aggregator;
 
 import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
+import com.insightfullogic.honest_profiler.core.aggregation.result.Keyed;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 
 /**
@@ -9,7 +10,7 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
  * @param <I>
  * @param <R>
  */
-public interface Aggregator<I, R>
+public interface Aggregator<I, K, T extends Keyed<K>>
 {
-    Aggregation<R> aggregate(I input, LeanNode reference);
+    Aggregation<K, T> aggregate(I input, LeanNode reference);
 }

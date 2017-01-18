@@ -22,6 +22,7 @@ import static com.insightfullogic.honest_profiler.ports.javafx.model.ProfileCont
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.STRING;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.TIME_SHARE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.showExportDialog;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.refreshTable;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_PROFILE_CNT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_CNT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_PCT;
@@ -61,23 +62,23 @@ public class FlatViewController extends ProfileViewController<AggregationProfile
     @FXML
     private Button quickFilterButton;
     @FXML
-    private TableView<AggregatedEntry> flatProfileView;
+    private TableView<AggregatedEntry<String>> flatProfileView;
     @FXML
-    private TableColumn<AggregatedEntry, String> method;
+    private TableColumn<AggregatedEntry<String>, String> method;
     @FXML
-    private TableColumn<AggregatedEntry, Double> selfTimeGraphical;
+    private TableColumn<AggregatedEntry<String>, Double> selfTimeGraphical;
     @FXML
-    private TableColumn<AggregatedEntry, Number> selfPct;
+    private TableColumn<AggregatedEntry<String>, Number> selfPct;
     @FXML
-    private TableColumn<AggregatedEntry, Number> totalPct;
+    private TableColumn<AggregatedEntry<String>, Number> totalPct;
     @FXML
-    private TableColumn<AggregatedEntry, Number> selfCnt;
+    private TableColumn<AggregatedEntry<String>, Number> selfCnt;
     @FXML
-    private TableColumn<AggregatedEntry, Number> totalCnt;
+    private TableColumn<AggregatedEntry<String>, Number> totalCnt;
     @FXML
-    private TableColumn<AggregatedEntry, Number> profileCnt;
+    private TableColumn<AggregatedEntry<String>, Number> profileCnt;
 
-    private ObservableList<AggregatedEntry> flatProfile;
+    private ObservableList<AggregatedEntry<String>> flatProfile;
 
     @Override
     @FXML
@@ -109,7 +110,7 @@ public class FlatViewController extends ProfileViewController<AggregationProfile
     private void initializeTable()
     {
         method.setCellValueFactory(new PropertyValueFactory<>("key"));
-        method.setCellFactory(col -> new MethodNameTableCell<AggregatedEntry>());
+        method.setCellFactory(col -> new MethodNameTableCell<AggregatedEntry<String>>());
 
         selfTimeGraphical.setCellValueFactory(new PropertyValueFactory<>("selfCntPct"));
         selfTimeGraphical.setCellFactory(col -> new GraphicalShareTableCell<>(col.getPrefWidth()));
@@ -160,6 +161,10 @@ public class FlatViewController extends ProfileViewController<AggregationProfile
         // refreshTable(flatProfileView);
         // });
         // appCtx().execute(task);
+        flatProfile.clear();
+        flatProfile.addAll(getTarget().getFlatAggregation().getData());
+        flatProfileView.refresh();
+        refreshTable(flatProfileView);
     }
 
     @Override

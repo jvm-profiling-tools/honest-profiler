@@ -9,15 +9,15 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 /**
  * Lowest-level aggregation.
  */
-public class AggregatedEntry
+public class AggregatedEntry<K> implements Keyed<K>
 {
 
-    private final Aggregation<?> aggregation;
-    private String key;
+    private final Aggregation<K, ? extends Keyed<K>> aggregation;
+    private K key;
     private final NumericInfo data;
     private final List<FrameInfo> frames;
 
-    public AggregatedEntry(String key, Aggregation<?> aggregation)
+    public <T extends Keyed<K>> AggregatedEntry(K key, Aggregation<K, T> aggregation)
     {
         this.key = key;
         this.data = new NumericInfo();
@@ -25,7 +25,9 @@ public class AggregatedEntry
         this.frames = new ArrayList<>();
     }
 
-    public AggregatedEntry(String key, NumericInfo data, Aggregation<?> aggregation)
+    public <T extends Keyed<K>> AggregatedEntry(K key,
+                                                NumericInfo data,
+                                                Aggregation<K, T> aggregation)
     {
         this.key = key;
         this.data = data.copy();
@@ -34,18 +36,19 @@ public class AggregatedEntry
 
     }
 
-    public AggregatedEntry(String key,
-                           NumericInfo data,
-                           Aggregation<?> aggregation,
-                           FrameInfo frame)
+    public <T extends Keyed<K>> AggregatedEntry(K key,
+                                                NumericInfo data,
+                                                Aggregation<K, T> aggregation,
+                                                FrameInfo frame)
     {
         this(key, data, aggregation);
         frames.add(frame);
     }
 
-    public Aggregation<?> getAggregation()
+    @SuppressWarnings("unchecked")
+    public <T extends Keyed<K>> Aggregation<K, T> getAggregation()
     {
-        return aggregation;
+        return (Aggregation<K, T>) aggregation;
     }
 
     public NumericInfo getReference()
@@ -53,12 +56,13 @@ public class AggregatedEntry
         return aggregation.getReferenceData();
     }
 
-    public String getKey()
+    @Override
+    public K getKey()
     {
         return key;
     }
 
-    public void setKey(String key)
+    public void setKey(K key)
     {
         this.key = key;
     }
@@ -95,27 +99,29 @@ public class AggregatedEntry
 
     public double getSelfTimePct()
     {
-        return data.getSelfTime().doubleValue() / getReference().getTotalTime().longValue();
+        return aggregation == null ? 0
+            : data.getSelfTime().doubleValue() / getReference().getTotalTime().longValue();
     }
 
     public double getTotalTimePct()
     {
-        return data.getTotalTime().doubleValue() / getReference().getTotalTime().longValue();
+        return aggregation == null ? 0
+            : data.getTotalTime().doubleValue() / getReference().getTotalTime().longValue();
     }
 
     public double getSelfCntPct()
     {
-        return data.getSelfCnt() / (double) getReference().getTotalCnt();
+        return aggregation == null ? 0 : data.getSelfCnt() / (double) getReference().getTotalCnt();
     }
 
     public double getTotalCntPct()
     {
-        return data.getTotalCnt() / (double) getReference().getTotalCnt();
+        return aggregation == null ? 0 : data.getTotalCnt() / (double) getReference().getTotalCnt();
     }
 
     public int getRefCnt()
     {
-        return getReference().getTotalCnt();
+        return aggregation == null ? 0 : getReference().getTotalCnt();
     }
 
     public void add(FrameInfo frame, NumericInfo newData)
@@ -124,9 +130,21 @@ public class AggregatedEntry
         data.add(newData);
     }
 
-    public void combine(AggregatedEntry other)
+    public void combine(AggregatedEntry<K> other)
     {
         frames.addAll(other.frames);
         data.add(other.data);
+    }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder result = new StringBuilder();
+        result.append("entry[");
+        result.append(key);
+        result.append(":");
+        result.append(data);
+        result.append("]");
+        return result.toString();
     }
 }

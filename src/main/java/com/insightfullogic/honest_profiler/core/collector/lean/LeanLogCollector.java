@@ -60,6 +60,10 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
     private boolean dirty;
     private LeanProfile cachedProfile;
 
+    private int nrStarts;
+
+    // Instance Constructors
+
     public LeanLogCollector(final LeanProfileListener listener)
     {
         this.listener = listener;
@@ -75,6 +79,8 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
         profileRequested = new AtomicBoolean(false);
     }
 
+    // ProfileSource Implementation
+
     /**
      * Set a flag from any thread, which will cause an updated profile to be
      * emitted as soon as possible.
@@ -84,6 +90,8 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
     {
         profileRequested.set(true);
     }
+
+    // LogEventListener Implementation
 
     /**
      * On the very first {@link TraceStart}, dirty should be false, so nothing
@@ -96,7 +104,7 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
         collectThreadDump();
 
         currentNode = threadData
-            .computeIfAbsent(traceStart.getThreadId(), v -> new LeanNode(null, 0, null));
+            .computeIfAbsent(traceStart.getThreadId(), v -> new LeanNode(null, null));
 
         emitProfileIfNeeded();
         stackTrace.clear();
@@ -107,14 +115,6 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
     {
         dirty = true;
         stackTrace.push(stackFrame);
-    }
-
-    private void collectThreadDump()
-    {
-        while (!stackTrace.isEmpty())
-        {
-            collectStackFrame(stackTrace.pop());
-        }
     }
 
     @Override
@@ -147,6 +147,16 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
         dirty = true;
         collectThreadDump();
         emitProfile();
+    }
+
+    // Helper Methods
+
+    private void collectThreadDump()
+    {
+        while (!stackTrace.isEmpty())
+        {
+            collectStackFrame(stackTrace.pop());
+        }
     }
 
     private void collectStackFrame(StackFrame stackFrame)

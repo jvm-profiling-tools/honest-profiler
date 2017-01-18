@@ -13,7 +13,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 
-public class RootNodeAdapter extends TreeItem<AggregatedNode>
+public class RootNodeAdapter extends TreeItem<AggregatedNode<String>>
 {
     private ObjectProperty<FilterSpecification> filterSpec;
     private final Map<String, ThreadNodeAdapter> threadsById;
@@ -27,15 +27,15 @@ public class RootNodeAdapter extends TreeItem<AggregatedNode>
         setExpanded(true);
     }
 
-    public void update(List<AggregatedNode> trees)
+    public void update(List<AggregatedNode<String>> trees)
     {
-        ObservableList<TreeItem<AggregatedNode>> children = getChildren();
+        ObservableList<TreeItem<AggregatedNode<String>>> children = getChildren();
         children.clear();
 
         boolean hideErrorThreads = filterSpec.get().isHideErrorThreads();
 
         Set<String> present = new HashSet<>();
-        for (AggregatedNode tree : trees)
+        for (AggregatedNode<String> tree : trees)
         {
             // TODO fix this.
             // if (hideErrorThreads
