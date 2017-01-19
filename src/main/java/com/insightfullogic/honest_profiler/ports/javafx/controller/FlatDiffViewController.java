@@ -38,8 +38,8 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil.writeFlatProfileDiffCsv;
 
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
-import com.insightfullogic.honest_profiler.core.aggregation.result.AggregatedDiffEntry;
-import com.insightfullogic.honest_profiler.core.aggregation.result.FlatDiffAggregation;
+import com.insightfullogic.honest_profiler.core.aggregation.result.DiffEntry;
+import com.insightfullogic.honest_profiler.core.aggregation.result.FlatDiff;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType;
 import com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil;
@@ -63,47 +63,47 @@ public class FlatDiffViewController extends ProfileDiffViewController<Aggregatio
     @FXML
     private Button quickFilterButton;
     @FXML
-    private TableView<AggregatedDiffEntry<String>> diffTable;
+    private TableView<DiffEntry<String>> diffTable;
     @FXML
-    private TableColumn<AggregatedDiffEntry<String>, String> method;
+    private TableColumn<DiffEntry<String>, String> method;
     @FXML
-    private TableColumn<AggregatedDiffEntry<String>, Number> baseSelfPct;
+    private TableColumn<DiffEntry<String>, Number> baseSelfPct;
     @FXML
-    private TableColumn<AggregatedDiffEntry<String>, Number> newSelfPct;
+    private TableColumn<DiffEntry<String>, Number> newSelfPct;
     @FXML
-    private TableColumn<AggregatedDiffEntry<String>, Number> selfPctDiff;
+    private TableColumn<DiffEntry<String>, Number> selfPctDiff;
     @FXML
-    private TableColumn<AggregatedDiffEntry<String>, Number> baseTotalPct;
+    private TableColumn<DiffEntry<String>, Number> baseTotalPct;
     @FXML
-    private TableColumn<AggregatedDiffEntry<String>, Number> newTotalPct;
+    private TableColumn<DiffEntry<String>, Number> newTotalPct;
     @FXML
-    private TableColumn<AggregatedDiffEntry<String>, Number> totalPctDiff;
+    private TableColumn<DiffEntry<String>, Number> totalPctDiff;
     @FXML
-    private TableColumn<AggregatedDiffEntry<String>, Number> baseSelfCnt;
+    private TableColumn<DiffEntry<String>, Number> baseSelfCnt;
     @FXML
-    private TableColumn<AggregatedDiffEntry<String>, Number> newSelfCnt;
+    private TableColumn<DiffEntry<String>, Number> newSelfCnt;
     @FXML
-    private TableColumn<AggregatedDiffEntry<String>, Number> selfCntDiff;
+    private TableColumn<DiffEntry<String>, Number> selfCntDiff;
     @FXML
-    private TableColumn<AggregatedDiffEntry<String>, Number> baseTotalCnt;
+    private TableColumn<DiffEntry<String>, Number> baseTotalCnt;
     @FXML
-    private TableColumn<AggregatedDiffEntry<String>, Number> newTotalCnt;
+    private TableColumn<DiffEntry<String>, Number> newTotalCnt;
     @FXML
-    private TableColumn<AggregatedDiffEntry<String>, Number> totalCntDiff;
+    private TableColumn<DiffEntry<String>, Number> totalCntDiff;
     @FXML
-    private TableColumn<AggregatedDiffEntry<String>, Number> baseProfileCnt;
+    private TableColumn<DiffEntry<String>, Number> baseProfileCnt;
     @FXML
-    private TableColumn<AggregatedDiffEntry<String>, Number> newProfileCnt;
+    private TableColumn<DiffEntry<String>, Number> newProfileCnt;
     @FXML
-    private TableColumn<AggregatedDiffEntry<String>, Number> profileCntDiff;
+    private TableColumn<DiffEntry<String>, Number> profileCntDiff;
 
-    private FlatDiffAggregation<String> diff;
+    private FlatDiff<String> diff;
 
     @Override
     @FXML
     protected void initialize()
     {
-        diff = new FlatDiffAggregation<>();
+        diff = new FlatDiff<>();
 
         super.initialize(
             profileContext -> profileContext.profileProperty(),
@@ -124,7 +124,7 @@ public class FlatDiffViewController extends ProfileDiffViewController<Aggregatio
     private void initializeTable()
     {
         method.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getKey()));
-        method.setCellFactory(col -> new MethodNameTableCell<AggregatedDiffEntry<String>>());
+        method.setCellFactory(col -> new MethodNameTableCell<DiffEntry<String>>());
 
         cfgPctCol(baseSelfPct, "baseSelfCntPct", baseCtx(), getText(COLUMN_SELF_PCT));
         cfgPctCol(newSelfPct, "newSelfCntPct", newCtx(), getText(COLUMN_SELF_PCT));

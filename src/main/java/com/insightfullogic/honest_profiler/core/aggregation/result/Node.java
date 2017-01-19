@@ -9,32 +9,32 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.FrameInfo;
 import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 
 /**
- * Wrapper for {@link AggregatedEntry} which allows organizing them into a tree
+ * Wrapper for {@link Entry} which allows organizing them into a tree
  * structure.
  */
-public class AggregatedNode<K> implements Keyed<K>
+public class Node<K> implements Keyed<K>
 {
-    private final AggregatedEntry<K> entry;
-    private final List<AggregatedNode<K>> children;
+    private final Entry<K> entry;
+    private final List<Node<K>> children;
 
-    public <T extends Keyed<K>> AggregatedNode(Aggregation<K, T> aggregation)
+    public <T extends Keyed<K>> Node(Aggregation<K, T> aggregation)
     {
-        this.entry = new AggregatedEntry<>(null, aggregation);
+        this.entry = new Entry<>(null, aggregation);
         this.children = new ArrayList<>();
     }
 
-    public AggregatedNode(AggregatedEntry<K> entry)
+    public Node(Entry<K> entry)
     {
         this.entry = entry;
         this.children = new ArrayList<>();
     }
 
-    public AggregatedEntry<K> getEntry()
+    public Entry<K> getEntry()
     {
         return entry;
     }
 
-    public List<AggregatedNode<K>> getChildren()
+    public List<Node<K>> getChildren()
     {
         return children;
     }
@@ -115,7 +115,7 @@ public class AggregatedNode<K> implements Keyed<K>
         }
 
         int depth = 0;
-        for (AggregatedNode<K> child : children)
+        for (Node<K> child : children)
         {
             depth = max(depth, child.getDescendantDepth() + 1);
         }
@@ -128,12 +128,12 @@ public class AggregatedNode<K> implements Keyed<K>
         entry.add(frame, data);
     }
 
-    public void addChild(AggregatedEntry<K> entry)
+    public void addChild(Entry<K> entry)
     {
-        children.add(new AggregatedNode<>(entry));
+        children.add(new Node<>(entry));
     }
 
-    public AggregatedNode<K> combine(AggregatedNode<K> other)
+    public Node<K> combine(Node<K> other)
     {
         entry.combine(other.entry);
         children.addAll(other.children);

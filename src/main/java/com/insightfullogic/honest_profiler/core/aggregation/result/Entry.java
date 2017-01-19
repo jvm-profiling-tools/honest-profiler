@@ -9,7 +9,7 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 /**
  * Lowest-level aggregation.
  */
-public class AggregatedEntry<K> implements Keyed<K>
+public class Entry<K> implements Keyed<K>
 {
 
     private final Aggregation<K, ? extends Keyed<K>> aggregation;
@@ -17,7 +17,7 @@ public class AggregatedEntry<K> implements Keyed<K>
     private final NumericInfo data;
     private final List<FrameInfo> frames;
 
-    public <T extends Keyed<K>> AggregatedEntry(K key, Aggregation<K, T> aggregation)
+    public <T extends Keyed<K>> Entry(K key, Aggregation<K, T> aggregation)
     {
         this.key = key;
         this.data = new NumericInfo();
@@ -25,7 +25,7 @@ public class AggregatedEntry<K> implements Keyed<K>
         this.frames = new ArrayList<>();
     }
 
-    public <T extends Keyed<K>> AggregatedEntry(K key,
+    public <T extends Keyed<K>> Entry(K key,
                                                 NumericInfo data,
                                                 Aggregation<K, T> aggregation)
     {
@@ -36,7 +36,7 @@ public class AggregatedEntry<K> implements Keyed<K>
 
     }
 
-    public <T extends Keyed<K>> AggregatedEntry(K key,
+    public <T extends Keyed<K>> Entry(K key,
                                                 NumericInfo data,
                                                 Aggregation<K, T> aggregation,
                                                 FrameInfo frame)
@@ -130,7 +130,7 @@ public class AggregatedEntry<K> implements Keyed<K>
         data.add(newData);
     }
 
-    public void combine(AggregatedEntry<K> other)
+    public void combine(Entry<K> other)
     {
         frames.addAll(other.frames);
         data.add(other.data);

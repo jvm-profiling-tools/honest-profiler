@@ -22,14 +22,14 @@ import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.re
 import static javafx.scene.paint.Color.RED;
 import static javafx.scene.paint.Color.WHEAT;
 
-import com.insightfullogic.honest_profiler.core.aggregation.result.AggregatedNode;
+import com.insightfullogic.honest_profiler.core.aggregation.result.Node;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.paint.Color;
 
-public class GraphicalShareTreeTableCell extends TreeTableCell<AggregatedNode<String>, Number>
+public class GraphicalShareTreeTableCell extends TreeTableCell<Node<String>, Number>
 {
     private static final int IMAGE_WIDTH = 50;
     private static final int IMAGE_HEIGHT = 15;

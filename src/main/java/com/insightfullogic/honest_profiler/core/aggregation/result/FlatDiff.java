@@ -4,38 +4,38 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FlatDiffAggregation<K> extends AbstractDiffAggregation<K, AggregatedEntry<K>>
+public class FlatDiff<K> extends AbstractDiff<K, Entry<K>>
 {
-    private Map<K, AggregatedDiffEntry<K>> data;
+    private Map<K, DiffEntry<K>> data;
 
-    public FlatDiffAggregation()
+    public FlatDiff()
     {
         data = new HashMap<>();
     }
 
-    public void setBase(Aggregation<K, AggregatedEntry<K>> aggregation)
+    public void setBase(Aggregation<K, Entry<K>> aggregation)
     {
         super.setBaseAggregation(aggregation);
         aggregation.getData().forEach(entry ->
         {
             data.compute(
                 entry.getKey(),
-                (k, v) -> v == null ? new AggregatedDiffEntry<>(entry, null) : v.setBase(entry));
+                (k, v) -> v == null ? new DiffEntry<>(entry, null) : v.setBase(entry));
         });
     }
 
-    public void setNew(Aggregation<K, AggregatedEntry<K>> aggregation)
+    public void setNew(Aggregation<K, Entry<K>> aggregation)
     {
         super.setNewAggregation(aggregation);
         aggregation.getData().forEach(entry ->
         {
             data.compute(
                 entry.getKey(),
-                (k, v) -> v == null ? new AggregatedDiffEntry<>(null, entry) : v.setNew(entry));
+                (k, v) -> v == null ? new DiffEntry<>(null, entry) : v.setNew(entry));
         });
     }
 
-    public Collection<AggregatedDiffEntry<K>> getData()
+    public Collection<DiffEntry<K>> getData()
     {
         return data.values();
     }

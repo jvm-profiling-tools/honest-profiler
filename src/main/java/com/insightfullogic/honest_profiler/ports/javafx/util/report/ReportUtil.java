@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.insightfullogic.honest_profiler.core.aggregation.result.AggregatedDiffEntry;
-import com.insightfullogic.honest_profiler.core.aggregation.result.AggregatedEntry;
+import com.insightfullogic.honest_profiler.core.aggregation.result.DiffEntry;
+import com.insightfullogic.honest_profiler.core.aggregation.result.Entry;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileTree;
 
@@ -114,7 +114,7 @@ public final class ReportUtil
         // TODO Implement
     }
 
-    public static void writeFlatProfileCsv(PrintWriter out, List<AggregatedEntry<String>> entries,
+    public static void writeFlatProfileCsv(PrintWriter out, List<Entry<String>> entries,
         Mode mode)
     {
         mode.start(out);
@@ -152,7 +152,7 @@ public final class ReportUtil
     }
 
     public static void writeFlatProfileDiffCsv(PrintWriter out,
-        Collection<AggregatedDiffEntry<String>> entries, Mode mode)
+        Collection<DiffEntry<String>> entries, Mode mode)
     {
         mode.start(out);
         out.print("Method");

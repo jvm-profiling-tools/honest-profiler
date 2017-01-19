@@ -3,28 +3,28 @@ package com.insightfullogic.honest_profiler.core.aggregation.result;
 import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 
 /**
- * Provides the difference between two {@link AggregatedEntry}s.
+ * Provides the difference between two {@link Entry}s.
  */
-public class AggregatedDiffEntry<K> implements Keyed<K>
+public class DiffEntry<K> implements Keyed<K>
 {
-    private AggregatedEntry<K> baseEntry;
-    private AggregatedEntry<K> newEntry;
+    private Entry<K> baseEntry;
+    private Entry<K> newEntry;
 
-    public AggregatedDiffEntry(AggregatedEntry<K> baseEntry, AggregatedEntry<K> newEntry)
+    public DiffEntry(Entry<K> baseEntry, Entry<K> newEntry)
     {
-        this.baseEntry = baseEntry == null ? new AggregatedEntry<K>(newEntry.getKey(), null)
+        this.baseEntry = baseEntry == null ? new Entry<K>(newEntry.getKey(), null)
             : baseEntry;
-        this.newEntry = newEntry == null ? new AggregatedEntry<K>(baseEntry.getKey(), null)
+        this.newEntry = newEntry == null ? new Entry<K>(baseEntry.getKey(), null)
             : newEntry;
     }
 
-    public AggregatedDiffEntry<K> setBase(AggregatedEntry<K> entry)
+    public DiffEntry<K> setBase(Entry<K> entry)
     {
         baseEntry = entry;
         return this;
     }
 
-    public AggregatedDiffEntry<K> setNew(AggregatedEntry<K> entry)
+    public DiffEntry<K> setNew(Entry<K> entry)
     {
         newEntry = entry;
         return this;
@@ -40,12 +40,12 @@ public class AggregatedDiffEntry<K> implements Keyed<K>
         newEntry.getData().add(data);
     }
 
-    public AggregatedEntry<K> getBaseEntry()
+    public Entry<K> getBaseEntry()
     {
         return baseEntry;
     }
 
-    public AggregatedEntry<K> getNewEntry()
+    public Entry<K> getNewEntry()
     {
         return newEntry;
     }

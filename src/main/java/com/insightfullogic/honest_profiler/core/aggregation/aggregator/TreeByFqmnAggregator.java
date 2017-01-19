@@ -9,28 +9,28 @@ import java.util.Map;
 import java.util.stream.Collector;
 
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
-import com.insightfullogic.honest_profiler.core.aggregation.result.AggregatedEntry;
-import com.insightfullogic.honest_profiler.core.aggregation.result.AggregatedNode;
+import com.insightfullogic.honest_profiler.core.aggregation.result.Entry;
+import com.insightfullogic.honest_profiler.core.aggregation.result.Node;
 import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfile;
 
 public class TreeByFqmnAggregator
-    implements Aggregator<AggregationProfile, String, AggregatedNode<String>>
+    implements Aggregator<AggregationProfile, String, Node<String>>
 {
     @Override
-    public Aggregation<String, AggregatedNode<String>> aggregate(AggregationProfile input,
+    public Aggregation<String, Node<String>> aggregate(AggregationProfile input,
         LeanNode reference)
     {
 
-        List<AggregatedNode<String>> nodes = new ArrayList<>();
-        Aggregation<String, AggregatedNode<String>> result = new Aggregation<>(nodes, reference);
+        List<Node<String>> nodes = new ArrayList<>();
+        Aggregation<String, Node<String>> result = new Aggregation<>(nodes, reference);
 
         LeanProfile source = input.getSource();
 
         input.getSource().getThreads().forEach((threadId, threadNode) ->
         {
-            AggregatedNode<String> node = getThreadNode(result, source, threadId, threadNode);
+            Node<String> node = getThreadNode(result, source, threadId, threadNode);
             nodes.add(node);
             add(result, source, node, threadNode);
         });
@@ -38,35 +38,35 @@ public class TreeByFqmnAggregator
         return result;
     }
 
-    private AggregatedNode<String> getThreadNode(
-        Aggregation<String, AggregatedNode<String>> aggregation, LeanProfile profile, Long threadId,
+    private Node<String> getThreadNode(
+        Aggregation<String, Node<String>> aggregation, LeanProfile profile, Long threadId,
         LeanNode node)
     {
-        AggregatedEntry<String> entry = new AggregatedEntry<>(
+        Entry<String> entry = new Entry<>(
             profile.getThreadName(threadId),
             node.getData(),
             aggregation);
-        return new AggregatedNode<>(entry);
+        return new Node<>(entry);
     }
 
-    private void add(Aggregation<String, AggregatedNode<String>> aggregation, LeanProfile profile,
-        AggregatedNode<String> parentAggregation, LeanNode parent)
+    private void add(Aggregation<String, Node<String>> aggregation, LeanProfile profile,
+        Node<String> parentAggregation, LeanNode parent)
     {
-        Map<String, AggregatedNode<String>> nodeMap = parent.getChildren().stream().collect(
+        Map<String, Node<String>> nodeMap = parent.getChildren().stream().collect(
             groupingBy(
                 node -> profile.getFqmn(node),
                 getAggrCollector(aggregation, profile)));
         parentAggregation.getChildren().addAll(nodeMap.values());
     }
 
-    private Collector<LeanNode, AggregatedNode<String>, AggregatedNode<String>> getAggrCollector(
-        Aggregation<String, AggregatedNode<String>> aggregation, LeanProfile profile)
+    private Collector<LeanNode, Node<String>, Node<String>> getAggrCollector(
+        Aggregation<String, Node<String>> aggregation, LeanProfile profile)
     {
         // The key has to be specified in the update. I couldn't find a way to
         // easily or elegantly recuperate the String from the enclosing
         // groupingBy().
         return of(
-            () -> new AggregatedNode<>(aggregation),
+            () -> new Node<>(aggregation),
             (entry, node) ->
             {
                 entry.add(

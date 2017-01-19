@@ -35,7 +35,7 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil.expandFully;
 
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
-import com.insightfullogic.honest_profiler.core.aggregation.result.AggregatedNode;
+import com.insightfullogic.honest_profiler.core.aggregation.result.Node;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType;
 import com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil;
@@ -64,21 +64,21 @@ public class TreeViewController extends ProfileViewController<AggregationProfile
     private Button quickFilterButton;
 
     @FXML
-    private TreeTableView<AggregatedNode<String>> treeView;
+    private TreeTableView<Node<String>> treeView;
     @FXML
-    private TreeTableColumn<AggregatedNode<String>, String> methodColumn;
+    private TreeTableColumn<Node<String>, String> methodColumn;
     @FXML
-    private TreeTableColumn<AggregatedNode<String>, Number> percentColumn;
+    private TreeTableColumn<Node<String>, Number> percentColumn;
     @FXML
-    private TreeTableColumn<AggregatedNode<String>, Number> totalPct;
+    private TreeTableColumn<Node<String>, Number> totalPct;
     @FXML
-    private TreeTableColumn<AggregatedNode<String>, Number> selfPct;
+    private TreeTableColumn<Node<String>, Number> selfPct;
     @FXML
-    private TreeTableColumn<AggregatedNode<String>, Number> totalCnt;
+    private TreeTableColumn<Node<String>, Number> totalCnt;
     @FXML
-    private TreeTableColumn<AggregatedNode<String>, Number> selfCnt;
+    private TreeTableColumn<Node<String>, Number> selfCnt;
     @FXML
-    private TreeTableColumn<AggregatedNode<String>, Number> parentCnt;
+    private TreeTableColumn<Node<String>, Number> parentCnt;
 
     @Override
     @FXML

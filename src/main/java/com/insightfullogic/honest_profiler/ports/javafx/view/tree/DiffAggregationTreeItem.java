@@ -1,25 +1,25 @@
 package com.insightfullogic.honest_profiler.ports.javafx.view.tree;
 
-import com.insightfullogic.honest_profiler.core.aggregation.result.AggregatedDiffNode;
-import com.insightfullogic.honest_profiler.core.aggregation.result.TreeDiffAggregation;
+import com.insightfullogic.honest_profiler.core.aggregation.result.DiffNode;
+import com.insightfullogic.honest_profiler.core.aggregation.result.TreeDiff;
 
 import javafx.scene.control.TreeItem;
 
-public class DiffAggregationTreeItem extends TreeItem<AggregatedDiffNode<String>>
+public class DiffAggregationTreeItem extends TreeItem<DiffNode<String>>
 {
-    public DiffAggregationTreeItem(TreeDiffAggregation<String> profileDiff)
+    public DiffAggregationTreeItem(TreeDiff<String> profileDiff)
     {
         super(null);
-        for (AggregatedDiffNode<String> child : profileDiff.getData())
+        for (DiffNode<String> child : profileDiff.getData())
         {
             getChildren().add(new DiffAggregationTreeItem(child));
         }
     }
 
-    public DiffAggregationTreeItem(AggregatedDiffNode<String> diff)
+    public DiffAggregationTreeItem(DiffNode<String> diff)
     {
         super(diff);
-        for (AggregatedDiffNode<String> child : diff.getChildren())
+        for (DiffNode<String> child : diff.getChildren())
         {
             getChildren().add(new DiffAggregationTreeItem(child));
         }

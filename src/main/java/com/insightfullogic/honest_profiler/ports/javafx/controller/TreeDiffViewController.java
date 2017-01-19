@@ -20,8 +20,8 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil.exp
 import static com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil.expandPartial;
 
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
-import com.insightfullogic.honest_profiler.core.aggregation.result.AggregatedDiffNode;
-import com.insightfullogic.honest_profiler.core.aggregation.result.TreeDiffAggregation;
+import com.insightfullogic.honest_profiler.core.aggregation.result.DiffNode;
+import com.insightfullogic.honest_profiler.core.aggregation.result.TreeDiff;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType;
 import com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil;
@@ -48,47 +48,47 @@ public class TreeDiffViewController extends ProfileDiffViewController<Aggregatio
     @FXML
     private Button quickFilterButton;
     @FXML
-    private TreeTableView<AggregatedDiffNode<String>> diffTree;
+    private TreeTableView<DiffNode<String>> diffTree;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode<String>, String> methodColumn;
+    private TreeTableColumn<DiffNode<String>, String> methodColumn;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode<String>, Number> baseSelfPct;
+    private TreeTableColumn<DiffNode<String>, Number> baseSelfPct;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode<String>, Number> newSelfPct;
+    private TreeTableColumn<DiffNode<String>, Number> newSelfPct;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode<String>, Number> selfPctDiff;
+    private TreeTableColumn<DiffNode<String>, Number> selfPctDiff;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode<String>, Number> baseTotalPct;
+    private TreeTableColumn<DiffNode<String>, Number> baseTotalPct;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode<String>, Number> newTotalPct;
+    private TreeTableColumn<DiffNode<String>, Number> newTotalPct;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode<String>, Number> totalPctDiff;
+    private TreeTableColumn<DiffNode<String>, Number> totalPctDiff;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode<String>, Number> baseSelfCnt;
+    private TreeTableColumn<DiffNode<String>, Number> baseSelfCnt;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode<String>, Number> newSelfCnt;
+    private TreeTableColumn<DiffNode<String>, Number> newSelfCnt;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode<String>, Number> selfCntDiff;
+    private TreeTableColumn<DiffNode<String>, Number> selfCntDiff;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode<String>, Number> baseTotalCnt;
+    private TreeTableColumn<DiffNode<String>, Number> baseTotalCnt;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode<String>, Number> newTotalCnt;
+    private TreeTableColumn<DiffNode<String>, Number> newTotalCnt;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode<String>, Number> totalCntDiff;
+    private TreeTableColumn<DiffNode<String>, Number> totalCntDiff;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode<String>, Number> baseParentCnt;
+    private TreeTableColumn<DiffNode<String>, Number> baseParentCnt;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode<String>, Number> newParentCnt;
+    private TreeTableColumn<DiffNode<String>, Number> newParentCnt;
     @FXML
-    private TreeTableColumn<AggregatedDiffNode<String>, Number> parentCntDiff;
+    private TreeTableColumn<DiffNode<String>, Number> parentCntDiff;
 
-    private TreeDiffAggregation<String> diff;
+    private TreeDiff<String> diff;
 
     @Override
     @FXML
     protected void initialize()
     {
-        diff = new TreeDiffAggregation<>();
+        diff = new TreeDiff<>();
 
         super.initialize(
             profileContext -> profileContext.profileProperty(),
@@ -203,7 +203,7 @@ public class TreeDiffViewController extends ProfileDiffViewController<Aggregatio
     @Override
     protected void refresh()
     {
-        diff = new TreeDiffAggregation<>();
+        diff = new TreeDiff<>();
         updateDiff(getBaseTarget(), true);
         updateDiff(getNewTarget(), false);
     }

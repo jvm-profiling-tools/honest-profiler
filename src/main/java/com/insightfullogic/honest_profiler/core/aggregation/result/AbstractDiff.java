@@ -3,7 +3,7 @@ package com.insightfullogic.honest_profiler.core.aggregation.result;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 
-public abstract class AbstractDiffAggregation<K, T extends Keyed<K>>
+public abstract class AbstractDiff<K, T extends Keyed<K>>
 {
     private Aggregation<K, T> baseAggregation;
     private Aggregation<K, T> newAggregation;
