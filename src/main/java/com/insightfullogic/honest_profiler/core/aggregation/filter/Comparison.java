@@ -17,6 +17,8 @@ public enum Comparison
     STARTS_WITH("Starts With"),
     ENDS_WITH("Ends With"),
     CONTAINS("Contains"),
+    NOT_STARTS_WITH("Doesn't Start With"),
+    NOT_ENDS_WITH("Doesn't End With"),
     NOT_CONTAINS("Doesn't Contain"),
     MATCHES("Matches");
 
@@ -105,6 +107,10 @@ public enum Comparison
                 return str -> str.endsWith(value);
             case CONTAINS:
                 return str -> str.contains(value);
+            case NOT_STARTS_WITH:
+                return str -> !str.startsWith(value);
+            case NOT_ENDS_WITH:
+                return str -> !str.endsWith(value);
             case NOT_CONTAINS:
                 return str -> !str.contains(value);
             case MATCHES:

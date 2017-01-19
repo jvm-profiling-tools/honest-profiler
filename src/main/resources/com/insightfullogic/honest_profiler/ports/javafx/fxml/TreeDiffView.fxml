@@ -108,9 +108,6 @@
             <TreeTableColumn fx:id="newParentCnt" editable="false" maxWidth="1.7976931348623157E308" minWidth="60.0" prefWidth="-1.0" text="%column.parentSampleCount" />
             <TreeTableColumn fx:id="parentCntDiff" editable="false" maxWidth="1.7976931348623157E308" minWidth="60.0" prefWidth="-1.0" text="%column.parentSampleCountDiff" />
          </columns>
-         <columnResizePolicy>
-            <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-         </columnResizePolicy>
          <tooltip>
             <Tooltip text="%table.treeDiff.tooltip" />
          </tooltip></TreeTableView>

@@ -25,7 +25,8 @@ public class Tree<K> extends Aggregation<K, Node<K>>
     public Tree<K> filter(FilterSpecification<Node<K>> filterSpec)
     {
         return new Tree<>(
-            getData().stream().filter(filterSpec.getFilter()).collect(toList()),
+            getData().stream().map(node -> node.copyWithFilter(filterSpec.getFilter()))
+                .filter(node -> node != null).collect(toList()),
             getReference());
     }
 }

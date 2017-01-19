@@ -2,6 +2,7 @@ package com.insightfullogic.honest_profiler.core.aggregation.filter;
 
 import static com.insightfullogic.honest_profiler.core.aggregation.filter.Comparison.CONTAINS;
 import static com.insightfullogic.honest_profiler.core.aggregation.filter.Comparison.NOT_CONTAINS;
+import static com.insightfullogic.honest_profiler.core.aggregation.filter.Comparison.NOT_STARTS_WITH;
 import static com.insightfullogic.honest_profiler.core.aggregation.filter.Target.FQMN;
 import static java.util.Collections.emptyList;
 
@@ -75,6 +76,7 @@ public class FilterSpecification<T>
 
     private final Predicate<T> errorFilter()
     {
-        return new FilterItem.FilterPredicate<T, String>(type, FQMN, NOT_CONTAINS, "[ERR=");
+        return new FilterItem.FilterPredicate<T, String>(type, FQMN, NOT_CONTAINS, "[ERR=").and(
+            new FilterItem.FilterPredicate<T, String>(type, FQMN, NOT_STARTS_WITH, "Unknown <"));
     }
 }

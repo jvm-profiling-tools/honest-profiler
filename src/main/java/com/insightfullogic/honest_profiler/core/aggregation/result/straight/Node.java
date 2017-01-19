@@ -4,6 +4,7 @@ import static java.lang.Math.max;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
 import com.insightfullogic.honest_profiler.core.aggregation.result.Keyed;
@@ -11,8 +12,7 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.FrameInfo;
 import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 
 /**
- * Wrapper for {@link Entry} which allows organizing them into a tree
- * structure.
+ * Wrapper for {@link Entry} which allows organizing them into a tree structure.
  */
 public class Node<K> implements Keyed<K>
 {
@@ -34,6 +34,18 @@ public class Node<K> implements Keyed<K>
     public Entry<K> getEntry()
     {
         return entry;
+    }
+
+    /**
+     * Copy constructor.
+     *
+     * @param entry
+     * @param children
+     */
+    private Node(Entry<K> entry, List<Node<K>> children)
+    {
+        this.entry = entry;
+        this.children = children;
     }
 
     public List<Node<K>> getChildren()
@@ -140,5 +152,20 @@ public class Node<K> implements Keyed<K>
         entry.combine(other.entry);
         children.addAll(other.children);
         return this;
+    }
+
+    public Node<K> copyWithFilter(Predicate<Node<K>> filter)
+    {
+        List<Node<K>> newChildren = new ArrayList<>();
+        children.forEach(child ->
+        {
+            Node<K> newChild = child.copyWithFilter(filter);
+            if (newChild != null)
+            {
+                newChildren.add(newChild);
+            }
+        });
+
+        return newChildren.size() > 0 || filter.test(this) ? new Node<>(entry, newChildren) : null;
     }
 }

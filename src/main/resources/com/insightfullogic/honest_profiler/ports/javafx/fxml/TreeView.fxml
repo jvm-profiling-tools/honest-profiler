@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.insightfullogic.honest_profiler.ports.javafx.controller.TreeViewController">
+<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.insightfullogic.honest_profiler.ports.javafx.controller.TreeViewController">
    <children>
       <HBox alignment="CENTER_LEFT" maxHeight="25.0" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" spacing="6.0">
          <children>
@@ -99,9 +99,6 @@
             <TreeTableColumn fx:id="selfCnt" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="-1.0" text="%column.selfSampleCount" />
             <TreeTableColumn fx:id="parentCnt" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="-1.0" text="%column.parentSampleCount" />
          </columns>
-         <columnResizePolicy>
-            <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-         </columnResizePolicy>
          <tooltip>
             <Tooltip text="%table.tree.tooltip" />
          </tooltip></TreeTableView>

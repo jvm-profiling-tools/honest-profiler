@@ -63,6 +63,7 @@ public class TreeDiff<K> extends AbstractDiff<K, Node<K>, DiffNode<K>>
     public TreeDiff<K> filter(FilterSpecification<DiffNode<K>> filterSpec)
     {
         return new TreeDiff<>(
-            getData().stream().filter(filterSpec.getFilter()).collect(toList()));
+            getData().stream().map(node -> node.copyWithFilter(filterSpec.getFilter()))
+                .filter(node -> node != null).collect(toList()));
     }
 }

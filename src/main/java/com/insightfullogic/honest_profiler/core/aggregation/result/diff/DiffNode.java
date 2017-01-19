@@ -1,8 +1,11 @@
 package com.insightfullogic.honest_profiler.core.aggregation.result.diff;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import com.insightfullogic.honest_profiler.core.aggregation.result.Keyed;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
@@ -31,6 +34,13 @@ public class DiffNode<K> implements Keyed<K>
         this.children = new HashMap<>();
         addBaseChildren(baseNode);
         addNewChildren(newNode);
+    }
+
+    private DiffNode(DiffEntry<K> entry, List<DiffNode<K>> children)
+    {
+        this.entry = entry;
+        this.children = new HashMap<>();
+        children.forEach(child -> this.children.put(child.getKey(), child));
     }
 
     @Override
@@ -248,5 +258,21 @@ public class DiffNode<K> implements Keyed<K>
         children.compute(
             child.getKey(),
             (k, v) -> v == null ? new DiffNode<>(null, child) : v.setNew(child));
+    }
+
+    public DiffNode<K> copyWithFilter(Predicate<DiffNode<K>> filter)
+    {
+        List<DiffNode<K>> newChildren = new ArrayList<>();
+        children.values().forEach(child ->
+        {
+            DiffNode<K> newChild = child.copyWithFilter(filter);
+            if (newChild != null)
+            {
+                newChildren.add(newChild);
+            }
+        });
+
+        return newChildren.size() > 0 || filter.test(this) ? new DiffNode<>(entry, newChildren)
+            : null;
     }
 }
