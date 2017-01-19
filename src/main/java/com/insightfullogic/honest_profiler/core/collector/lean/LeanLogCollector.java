@@ -60,8 +60,6 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
     private boolean dirty;
     private LeanProfile cachedProfile;
 
-    private int nrStarts;
-
     // Instance Constructors
 
     public LeanLogCollector(final LeanProfileListener listener)
@@ -82,8 +80,7 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
     // ProfileSource Implementation
 
     /**
-     * Set a flag from any thread, which will cause an updated profile to be
-     * emitted as soon as possible.
+     * Set a flag from any thread, which will cause an updated profile to be emitted as soon as possible.
      */
     @Override
     public void requestProfile()
@@ -94,8 +91,7 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
     // LogEventListener Implementation
 
     /**
-     * On the very first {@link TraceStart}, dirty should be false, so nothing
-     * will be emitted.
+     * On the very first {@link TraceStart}, dirty should be false, so nothing will be emitted.
      */
     @Override
     public void handle(TraceStart traceStart)
@@ -137,9 +133,8 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
     }
 
     /**
-     * If no ThreadStart occurred after the last stack frames were added, we
-     * obviously don't have an accurate "nanosSpent", but reusing the last one
-     * should do fine as an approximation.
+     * If no ThreadStart occurred after the last stack frames were added, we obviously don't have an accurate
+     * "nanosSpent", but reusing the last one should do fine as an approximation.
      */
     @Override
     public void endOfLog()
@@ -166,9 +161,8 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
     }
 
     /**
-     * Calculates the number of ns spent between the previous {@link TraceStart}
-     * and the current one. After the first {@link TraceStart} nanosSpent will
-     * still be 0.
+     * Calculates the number of ns spent between the previous {@link TraceStart} and the current one. After the first
+     * {@link TraceStart} nanosSpent will still be 0.
      *
      * @param newSeconds seconds reported in the current TraceStart
      * @param newNanos nanoSeconds reported in the current TraceStart
