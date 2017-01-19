@@ -19,8 +19,8 @@ public class ThreadInfo
 
     public ThreadInfo(ThreadMeta meta)
     {
-        this.id = meta.getThreadId();
-        this.name = meta.getThreadName();
+        id = meta.getThreadId();
+        name = meta.getThreadName();
     }
 
     // Instance Accessors
@@ -47,7 +47,7 @@ public class ThreadInfo
     public String getIdentification()
     {
         StringBuilder result = new StringBuilder();
-        result.append(name);
+        result.append(name == null || name.isEmpty() ? "Unknown" : name);
         result.append(" <");
         result.append(id);
         result.append(">");

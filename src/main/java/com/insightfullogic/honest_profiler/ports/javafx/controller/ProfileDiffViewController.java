@@ -6,6 +6,7 @@ import static javafx.geometry.Pos.CENTER;
 
 import java.util.function.Function;
 
+import com.insightfullogic.honest_profiler.core.aggregation.result.ItemType;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 
 import javafx.beans.property.ObjectProperty;
@@ -38,7 +39,7 @@ import javafx.scene.text.Text;
  *
  * @param <T> the data type of the target
  */
-public abstract class ProfileDiffViewController<T> extends AbstractViewController
+public abstract class ProfileDiffViewController<T, U> extends AbstractViewController<U>
 {
     private ProfileContext baseContext;
     private ProfileContext newContext;
@@ -58,9 +59,9 @@ public abstract class ProfileDiffViewController<T> extends AbstractViewControlle
      * @param quickFilterText the TextField providing the value for the quick filter
      */
     protected void initialize(Function<ProfileContext, ObservableValue<T>> targetExtractor,
-        Button filterButton, Button quickFilterButton, TextField quickFilterText)
+        Button filterButton, Button quickFilterButton, TextField quickFilterText, ItemType type)
     {
-        super.initialize(filterButton, quickFilterButton, quickFilterText);
+        super.initialize(filterButton, quickFilterButton, quickFilterText, type);
 
         this.targetExtractor = targetExtractor;
         baseTarget = new SimpleObjectProperty<>();
@@ -71,6 +72,7 @@ public abstract class ProfileDiffViewController<T> extends AbstractViewControlle
 
     // UI Helper Methods
 
+    @Override
     protected <C> void setColumnHeader(C column, String title, ProfileContext profileContext)
     {
         HBox header = createColoredLabelContainer(CENTER);

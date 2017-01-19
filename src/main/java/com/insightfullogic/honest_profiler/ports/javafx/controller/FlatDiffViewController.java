@@ -18,7 +18,7 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
-import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.STRING;
+import static com.insightfullogic.honest_profiler.core.aggregation.result.ItemType.DIFFENTRY;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.showExportDialog;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_PROFILE_CNT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_PROFILE_CNT_DIFF;
@@ -38,10 +38,9 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil.writeFlatProfileDiffCsv;
 
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
-import com.insightfullogic.honest_profiler.core.aggregation.result.DiffEntry;
-import com.insightfullogic.honest_profiler.core.aggregation.result.FlatDiff;
+import com.insightfullogic.honest_profiler.core.aggregation.result.diff.DiffEntry;
+import com.insightfullogic.honest_profiler.core.aggregation.result.diff.FlatDiff;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
-import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType;
 import com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTableCell;
 
@@ -52,7 +51,8 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
-public class FlatDiffViewController extends ProfileDiffViewController<AggregationProfile>
+public class FlatDiffViewController
+    extends ProfileDiffViewController<AggregationProfile, DiffEntry<String>>
 {
     @FXML
     private Button filterButton;
@@ -109,7 +109,8 @@ public class FlatDiffViewController extends ProfileDiffViewController<Aggregatio
             profileContext -> profileContext.profileProperty(),
             filterButton,
             quickFilterButton,
-            quickFilterText);
+            quickFilterText,
+            DIFFENTRY);
     }
 
     @Override
@@ -149,42 +150,19 @@ public class FlatDiffViewController extends ProfileDiffViewController<Aggregatio
 
     private void updateDiff(AggregationProfile profile, boolean base)
     {
-        // CopyAndFilterProfileTask task = new CopyAndFilterProfileTask(
-        // profile,
-        // getAdjustedProfileFilter());
-        // task.setOnSucceeded(state ->
-        // {
-        // // No need to worry about concurrency here, since this (the code for
-        // // onSucceeded()) will be executed on the FX thread. So even though
-        // // in the diff 2 tasks might execute concurrently during refresh(),
-        // // the resulting update calls in this if-statement won't execute
-        // // concurrently.
-        // if (base)
-        // {
-        // diff.addBase(profile.getFlatAggregation());
-        // }
-        // else
-        // {
-        // diff.addNew(profile.getFlatAggregation());
-        // }
-        //
-        // refreshTable(diffTable);
-        // });
-        // appCtx().execute(task);
-
         if (profile != null)
         {
             if (base)
             {
-                diff.setBase(profile.getFlatAggregation());
+                diff.setBase(profile.getFlat());
             }
             else
             {
-                diff.setNew(profile.getFlatAggregation());
+                diff.setNew(profile.getFlat());
             }
 
             diffTable.getItems().clear();
-            diffTable.getItems().addAll(diff.getData());
+            diffTable.getItems().addAll(diff.filter(getFilterSpecification()).getData());
             // refreshTable(diffTable);
         }
     }
@@ -210,7 +188,7 @@ public class FlatDiffViewController extends ProfileDiffViewController<Aggregatio
                 exportButton.getScene().getWindow(),
                 "flat_diff_profile.csv",
                 out -> writeFlatProfileDiffCsv(out, diff.getData(), ReportUtil.Mode.CSV)
-                ));
+            ));
     }
 
     // AbstractViewController Implementation
@@ -221,12 +199,5 @@ public class FlatDiffViewController extends ProfileDiffViewController<Aggregatio
         // diff.clear();
         updateDiff(getBaseTarget(), true);
         updateDiff(getNewTarget(), false);
-    }
-
-    @Override
-    protected FilterType[] getAllowedFilterTypes()
-    {
-        return new FilterType[]
-        { STRING };
     }
 }

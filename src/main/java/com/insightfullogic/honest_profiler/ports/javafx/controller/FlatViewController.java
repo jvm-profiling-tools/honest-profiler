@@ -18,9 +18,8 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
+import static com.insightfullogic.honest_profiler.core.aggregation.result.ItemType.ENTRY;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext.ProfileMode.LIVE;
-import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.STRING;
-import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.TIME_SHARE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.showExportDialog;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.refreshTable;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_PROFILE_CNT;
@@ -36,9 +35,8 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil.writeFlatProfileCsv;
 
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
-import com.insightfullogic.honest_profiler.core.aggregation.result.Entry;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
-import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType;
 import com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.GraphicalShareTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTableCell;
@@ -51,7 +49,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-public class FlatViewController extends ProfileViewController<AggregationProfile>
+public class FlatViewController extends ProfileViewController<AggregationProfile, Entry<String>>
 {
     @FXML
     private Button filterButton;
@@ -88,7 +86,8 @@ public class FlatViewController extends ProfileViewController<AggregationProfile
             profileContext -> profileContext.profileProperty(),
             filterButton,
             quickFilterButton,
-            quickFilterText);
+            quickFilterText,
+            ENTRY);
 
         flatProfile = flatProfileView.getItems();
 
@@ -151,26 +150,9 @@ public class FlatViewController extends ProfileViewController<AggregationProfile
     @Override
     protected void refresh()
     {
-        // CopyAndFilterProfileTask task = new CopyAndFilterProfileTask(
-        // getTarget(),
-        // getAdjustedProfileFilter());
-        // task.setOnSucceeded(state ->
-        // {
-        // flatProfile.clear();
-        // task.getValue().flatByMethodProfile().forEach(flatProfile::add);
-        // refreshTable(flatProfileView);
-        // });
-        // appCtx().execute(task);
         flatProfile.clear();
-        flatProfile.addAll(getTarget().getFlatAggregation().getData());
+        flatProfile.addAll(getTarget().getFlat().filter(getFilterSpecification()).getData());
         flatProfileView.refresh();
         refreshTable(flatProfileView);
-    }
-
-    @Override
-    protected FilterType[] getAllowedFilterTypes()
-    {
-        return new FilterType[]
-        { STRING, TIME_SHARE };
     }
 }

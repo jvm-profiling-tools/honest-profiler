@@ -1,12 +1,10 @@
 package com.insightfullogic.honest_profiler.ports.javafx.controller.filter;
 
-import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.STRING;
-import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.THREAD_SAMPLE;
-import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.TIME_SHARE;
+import static com.insightfullogic.honest_profiler.core.aggregation.filter.ValueType.DOUBLE;
+import static com.insightfullogic.honest_profiler.core.aggregation.filter.ValueType.SHARE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ConversionUtil.getStringConverterForType;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_CHOICE_COMPARISONOPERATOR;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_CHOICE_FILTERTARGET;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_CHOICE_FILTERTYPE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_INPUT_FILTERVALUE;
 import static javafx.scene.control.ButtonType.CANCEL;
 import static javafx.scene.control.ButtonType.OK;
@@ -14,15 +12,14 @@ import static javafx.scene.control.ButtonType.OK;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.insightfullogic.honest_profiler.core.aggregation.filter.Comparison;
+import com.insightfullogic.honest_profiler.core.aggregation.filter.FilterItem;
+import com.insightfullogic.honest_profiler.core.aggregation.filter.Target;
+import com.insightfullogic.honest_profiler.core.aggregation.filter.ValueType;
+import com.insightfullogic.honest_profiler.core.aggregation.result.ItemType;
 import com.insightfullogic.honest_profiler.ports.javafx.controller.dialog.AbstractDialogController;
-import com.insightfullogic.honest_profiler.ports.javafx.model.filter.ComparisonType;
-import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterItem;
-import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType;
-import com.insightfullogic.honest_profiler.ports.javafx.model.filter.TargetType;
 import com.insightfullogic.honest_profiler.ports.javafx.util.handle.ChangeListenerHandle;
 import com.insightfullogic.honest_profiler.ports.javafx.util.validation.StringValidationListener;
-import com.insightfullogic.honest_profiler.ports.javafx.util.validation.ValidateDoubleListener;
-import com.insightfullogic.honest_profiler.ports.javafx.util.validation.ValidateStringListener;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -33,18 +30,16 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.util.Callback;
 
-public class FilterCreationDialogController extends AbstractDialogController<FilterItem>
+public class FilterCreationDialogController<T> extends AbstractDialogController<FilterItem<T, ?>>
 {
-    private final Map<FilterType, StringValidationListener> validatorMap = new HashMap<>();
+    private final Map<ValueType, StringValidationListener> validatorMap = new HashMap<>();
 
     @FXML
     private DialogPane dialogPane;
     @FXML
-    private ChoiceBox<FilterType> type;
+    private ChoiceBox<Target> target;
     @FXML
-    private ChoiceBox<TargetType> target;
-    @FXML
-    private ChoiceBox<ComparisonType> comparison;
+    private ChoiceBox<Comparison> comparison;
     @FXML
     private TextField value;
     @FXML
@@ -60,39 +55,41 @@ public class FilterCreationDialogController extends AbstractDialogController<Fil
 
         // Validator Map Population
         Button okButton = (Button) dialogPane.lookupButton(OK);
-        validatorMap.put(THREAD_SAMPLE, new ValidateDoubleListener(value, 0.0, 100.0, okButton));
-        validatorMap.put(TIME_SHARE, new ValidateDoubleListener(value, 0.0, 100.0, okButton));
-        validatorMap.put(STRING, new ValidateStringListener(value, okButton));
+        for (ValueType type : ValueType.values())
+        {
+            validatorMap
+                .put(type, new StringValidationListener(value, type.getValidator(), okButton));
+        }
 
         // Choice Display
-        type.setConverter(getStringConverterForType(FilterType.class));
-        target.setConverter(getStringConverterForType(TargetType.class));
-        comparison.setConverter(getStringConverterForType(ComparisonType.class));
+        target.setConverter(getStringConverterForType(Target.class));
+        comparison.setConverter(getStringConverterForType(Comparison.class));
     }
 
-    public void addAllowedFilterTypes(FilterType... filterType)
+    public void setItemType(ItemType itemType)
     {
-        type.getItems().addAll(filterType);
-        reset();
+        target.getItems().clear();
+        target.getItems().addAll(itemType.getAllowedTargets());
+        target.getSelectionModel().select(0);
     }
 
     // DialogController Implementation
 
     @Override
-    public Callback<ButtonType, FilterItem> createResultHandler()
+    public Callback<ButtonType, FilterItem<T, ?>> createResultHandler()
     {
-        return buttonType -> buttonType == CANCEL ? null : new FilterItem(
-            type.getSelectionModel().getSelectedItem(),
-            comparison.getSelectionModel().getSelectedItem(),
+        return buttonType -> buttonType == CANCEL ? null : new FilterItem<>(
             target.getSelectionModel().getSelectedItem(),
-            value.getText());
+            comparison.getSelectionModel().getSelectedItem(),
+            target.getSelectionModel().getSelectedItem().getType().getInterpreter()
+                .apply(value.getText()));
     }
 
     @Override
     public void reset()
     {
         dialogPane.lookupButton(OK).setDisable(true);
-        type.getSelectionModel().select(0);
+        target.getSelectionModel().select(0);
         resetSelection();
     }
 
@@ -100,18 +97,14 @@ public class FilterCreationDialogController extends AbstractDialogController<Fil
 
     private void resetSelection()
     {
-        target.getSelectionModel().select(0);
         comparison.getSelectionModel().select(0);
         value.clear();
     }
 
-    private void switchFilterType(FilterType filterType)
+    private void switchTarget(Target target)
     {
-        target.getItems().clear();
-        target.getItems().addAll(filterType.getAllowedTargets());
-
         comparison.getItems().clear();
-        comparison.getItems().addAll(filterType.getAllowedComparisons());
+        comparison.getItems().addAll(target.getType().getAllowedComparisons());
 
         if (currentListenerHandle != null)
         {
@@ -120,10 +113,12 @@ public class FilterCreationDialogController extends AbstractDialogController<Fil
 
         resetSelection();
 
-        percentLabel.setVisible(filterType == THREAD_SAMPLE || filterType == TIME_SHARE);
-        percentLabel.setManaged(filterType == THREAD_SAMPLE || filterType == TIME_SHARE);
+        boolean isPct = target.getType() == SHARE || target.getType() == DOUBLE;
+        percentLabel.setVisible(isPct);
+        percentLabel.setManaged(isPct);
 
-        currentListenerHandle = validatorMap.get(filterType).attach(value.textProperty(), value);
+        currentListenerHandle = validatorMap.get(target.getType())
+            .attach(value.textProperty(), value);
     }
 
     // AbstractController Implementation
@@ -131,7 +126,6 @@ public class FilterCreationDialogController extends AbstractDialogController<Fil
     @Override
     protected void initializeInfoText()
     {
-        info(type, INFO_CHOICE_FILTERTYPE);
         info(target, INFO_CHOICE_FILTERTARGET);
         info(comparison, INFO_CHOICE_COMPARISONOPERATOR);
         info(value, INFO_INPUT_FILTERVALUE);
@@ -140,7 +134,7 @@ public class FilterCreationDialogController extends AbstractDialogController<Fil
     @Override
     protected void initializeHandlers()
     {
-        type.getSelectionModel().selectedItemProperty()
-            .addListener((property, oldValue, newValue) -> switchFilterType(newValue));
+        target.getSelectionModel().selectedItemProperty()
+            .addListener((property, oldValue, newValue) -> switchTarget(newValue));
     }
 }

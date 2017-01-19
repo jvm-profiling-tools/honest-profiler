@@ -1,9 +1,12 @@
-package com.insightfullogic.honest_profiler.core.aggregation.result;
+package com.insightfullogic.honest_profiler.core.aggregation.result.diff;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.insightfullogic.honest_profiler.core.aggregation.result.Keyed;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 
 /**

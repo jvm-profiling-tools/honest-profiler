@@ -18,9 +18,7 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
-import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.STRING;
-import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.THREAD_SAMPLE;
-import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.TIME_SHARE;
+import static com.insightfullogic.honest_profiler.core.aggregation.result.ItemType.NODE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_PARENT_CNT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_CNT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_PCT;
@@ -35,13 +33,12 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil.expandFully;
 
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
-import com.insightfullogic.honest_profiler.core.aggregation.result.Node;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
-import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType;
 import com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.GraphicalShareTreeTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTreeTableCell;
-import com.insightfullogic.honest_profiler.ports.javafx.view.tree.AggregationTreeItem;
+import com.insightfullogic.honest_profiler.ports.javafx.view.tree.NodeTreeItem;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -50,7 +47,7 @@ import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 
-public class TreeViewController extends ProfileViewController<AggregationProfile>
+public class TreeViewController extends ProfileViewController<AggregationProfile, Node<String>>
 {
     @FXML
     private Button filterButton;
@@ -88,7 +85,8 @@ public class TreeViewController extends ProfileViewController<AggregationProfile
             profileContext -> profileContext.profileProperty(),
             filterButton,
             quickFilterButton,
-            quickFilterText);
+            quickFilterText,
+            NODE);
     }
 
     @Override
@@ -142,20 +140,6 @@ public class TreeViewController extends ProfileViewController<AggregationProfile
     @Override
     protected void refresh()
     {
-        // CopyAndFilterProfileTask task = new CopyAndFilterProfileTask(
-        // getTarget(),
-        // getAdjustedProfileFilter());
-        // task.setOnSucceeded(state ->
-        // rootNode.update(task.getValue().getTrees()));
-        // appCtx().execute(task);
-
-        treeView.setRoot(new AggregationTreeItem(getTarget().getTreeAggregation()));
-    }
-
-    @Override
-    protected FilterType[] getAllowedFilterTypes()
-    {
-        return new FilterType[]
-        { STRING, THREAD_SAMPLE, TIME_SHARE };
+        treeView.setRoot(new NodeTreeItem(getTarget().getTree().filter(getFilterSpecification())));
     }
 }

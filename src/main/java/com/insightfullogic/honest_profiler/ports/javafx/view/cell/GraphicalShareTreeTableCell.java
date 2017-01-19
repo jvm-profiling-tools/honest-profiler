@@ -22,7 +22,7 @@ import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.re
 import static javafx.scene.paint.Color.RED;
 import static javafx.scene.paint.Color.WHEAT;
 
-import com.insightfullogic.honest_profiler.core.aggregation.result.Node;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;

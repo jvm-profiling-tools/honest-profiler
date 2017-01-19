@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.insightfullogic.honest_profiler.core.aggregation.result.DiffEntry;
-import com.insightfullogic.honest_profiler.core.aggregation.result.Entry;
+import com.insightfullogic.honest_profiler.core.aggregation.result.diff.DiffEntry;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileTree;
 

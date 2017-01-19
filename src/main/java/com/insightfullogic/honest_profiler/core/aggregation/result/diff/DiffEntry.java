@@ -1,5 +1,7 @@
-package com.insightfullogic.honest_profiler.core.aggregation.result;
+package com.insightfullogic.honest_profiler.core.aggregation.result.diff;
 
+import com.insightfullogic.honest_profiler.core.aggregation.result.Keyed;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
 import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 
 /**

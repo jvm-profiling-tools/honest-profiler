@@ -1,9 +1,12 @@
-package com.insightfullogic.honest_profiler.core.aggregation.result;
+package com.insightfullogic.honest_profiler.core.aggregation.result.diff;
 
+import com.insightfullogic.honest_profiler.core.aggregation.filter.FilterSpecification;
+import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
+import com.insightfullogic.honest_profiler.core.aggregation.result.Keyed;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 
-public abstract class AbstractDiff<K, T extends Keyed<K>>
+public abstract class AbstractDiff<K, T extends Keyed<K>, U extends Keyed<K>>
 {
     private Aggregation<K, T> baseAggregation;
     private Aggregation<K, T> newAggregation;
@@ -47,4 +50,6 @@ public abstract class AbstractDiff<K, T extends Keyed<K>>
     {
         newAggregation.setReference(reference);
     }
+
+    public abstract AbstractDiff<K, T, U> filter(FilterSpecification<U> filterSpec);
 }

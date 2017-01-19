@@ -5,8 +5,8 @@ import java.util.Collection;
 import java.util.List;
 
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
-import com.insightfullogic.honest_profiler.core.aggregation.result.Entry;
-import com.insightfullogic.honest_profiler.core.aggregation.result.Flat;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 

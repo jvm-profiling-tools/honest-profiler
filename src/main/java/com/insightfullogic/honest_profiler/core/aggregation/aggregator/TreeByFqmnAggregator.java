@@ -9,9 +9,9 @@ import java.util.Map;
 import java.util.stream.Collector;
 
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
-import com.insightfullogic.honest_profiler.core.aggregation.result.Entry;
-import com.insightfullogic.honest_profiler.core.aggregation.result.Node;
-import com.insightfullogic.honest_profiler.core.aggregation.result.Tree;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfile;
 

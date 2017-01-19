@@ -1,23 +1,19 @@
 package com.insightfullogic.honest_profiler.ports.javafx;
 
-import com.insightfullogic.honest_profiler.ports.javafx.model.DisplayableType;
-
-public enum ViewType implements DisplayableType<ViewType>
+public enum ViewType
 {
-    FLAT("Flat View"),
-    TREE("Tree View"),
-    FLAME("Flame View");
+    FLAT("Flat View"), TREE("Tree View"), FLAME("Flame View");
 
-    private String displayName;
+    private String name;
 
     private ViewType(String displayName)
     {
-        this.displayName = displayName;
+        name = displayName;
     }
 
     @Override
-    public String getDisplayName()
+    public String toString()
     {
-        return displayName;
+        return name;
     }
 }

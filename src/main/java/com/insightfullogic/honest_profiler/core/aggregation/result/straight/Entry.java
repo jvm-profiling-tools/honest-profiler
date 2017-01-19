@@ -1,8 +1,10 @@
-package com.insightfullogic.honest_profiler.core.aggregation.result;
+package com.insightfullogic.honest_profiler.core.aggregation.result.straight;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
+import com.insightfullogic.honest_profiler.core.aggregation.result.Keyed;
 import com.insightfullogic.honest_profiler.core.profiles.lean.FrameInfo;
 import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 

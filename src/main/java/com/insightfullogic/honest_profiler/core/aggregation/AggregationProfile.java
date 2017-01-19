@@ -7,8 +7,10 @@ import com.insightfullogic.honest_profiler.core.aggregation.aggregator.Aggregato
 import com.insightfullogic.honest_profiler.core.aggregation.aggregator.FlatByFqmnAggregator;
 import com.insightfullogic.honest_profiler.core.aggregation.aggregator.TreeByFqmnAggregator;
 import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
-import com.insightfullogic.honest_profiler.core.aggregation.result.Entry;
-import com.insightfullogic.honest_profiler.core.aggregation.result.Node;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfile;
 import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
@@ -60,17 +62,17 @@ public class AggregationProfile
     }
 
     @SuppressWarnings("unchecked")
-    public Aggregation<String, Entry<String>> getFlatAggregation()
+    public Flat<String> getFlat()
     {
         cachedAggregations.putIfAbsent(flatAggregator, flatAggregator.aggregate(this, profileNode));
-        return (Aggregation<String, Entry<String>>) cachedAggregations.get(flatAggregator);
+        return (Flat<String>) cachedAggregations.get(flatAggregator);
     }
 
     @SuppressWarnings("unchecked")
-    public Aggregation<String, Node<String>> getTreeAggregation()
+    public Tree<String> getTree()
     {
         cachedAggregations.putIfAbsent(treeAggregator, treeAggregator.aggregate(this, profileNode));
-        return (Aggregation<String, Node<String>>) cachedAggregations.get(treeAggregator);
+        return (Tree<String>) cachedAggregations.get(treeAggregator);
     }
 
     private void aggregateTopLevel()

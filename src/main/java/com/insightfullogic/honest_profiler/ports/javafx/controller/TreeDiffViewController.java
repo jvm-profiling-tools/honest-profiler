@@ -1,6 +1,6 @@
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
-import static com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType.STRING;
+import static com.insightfullogic.honest_profiler.core.aggregation.result.ItemType.DIFFNODE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_PARENT_CNT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_CNT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_CNT_DIFF;
@@ -20,13 +20,12 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil.exp
 import static com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil.expandPartial;
 
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
-import com.insightfullogic.honest_profiler.core.aggregation.result.DiffNode;
-import com.insightfullogic.honest_profiler.core.aggregation.result.TreeDiff;
+import com.insightfullogic.honest_profiler.core.aggregation.result.diff.DiffNode;
+import com.insightfullogic.honest_profiler.core.aggregation.result.diff.TreeDiff;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
-import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType;
 import com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTreeTableCell;
-import com.insightfullogic.honest_profiler.ports.javafx.view.tree.DiffAggregationTreeItem;
+import com.insightfullogic.honest_profiler.ports.javafx.view.tree.DiffNodeTreeItem;
 
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.fxml.FXML;
@@ -35,7 +34,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 
-public class TreeDiffViewController extends ProfileDiffViewController<AggregationProfile>
+public class TreeDiffViewController
+    extends ProfileDiffViewController<AggregationProfile, DiffNode<String>>
 {
     @FXML
     private Button filterButton;
@@ -94,7 +94,8 @@ public class TreeDiffViewController extends ProfileDiffViewController<Aggregatio
             profileContext -> profileContext.profileProperty(),
             filterButton,
             quickFilterButton,
-            quickFilterText);
+            quickFilterText,
+            DIFFNODE);
     }
 
     @Override
@@ -137,42 +138,10 @@ public class TreeDiffViewController extends ProfileDiffViewController<Aggregatio
 
     private void updateDiff(AggregationProfile profile, boolean base)
     {
-        // CopyAndFilterProfileTask task = new CopyAndFilterProfileTask(
-        // profile,
-        // getAdjustedProfileFilter());
-        // task.setOnSucceeded(state ->
-        // {
-        // // No need to worry about concurrency here, since this (the code for
-        // // onSucceeded()) will be executed on the FX thread. So even though
-        // // in the diff 2 tasks might execute concurrently during refresh(),
-        // // the resulting update calls in this if-statement won't execute
-        // // concurrently.
-        // if (base)
-        // {
-        // diff.updateForBase(task.getValue());
-        // diffTree.setRoot(new DiffTreeItem(diff));
-        // expandPartial(diffTree.getRoot(), 2);
-        // }
-        // else
-        // {
-        // diff.updateForNew(task.getValue());
-        // diffTree.setRoot(new DiffTreeItem(diff));
-        // expandPartial(diffTree.getRoot(), 2);
-        // }
-        // });
-        // appCtx().execute(task);
-
         if (profile != null)
         {
-            if (base)
-            {
-                diff.addBase(profile.getTreeAggregation());
-            }
-            else
-            {
-                diff.addNew(profile.getTreeAggregation());
-            }
-            diffTree.setRoot(new DiffAggregationTreeItem(diff));
+            diff.set(profile.getTree(), base);
+            diffTree.setRoot(new DiffNodeTreeItem(diff.filter(getFilterSpecification())));
             expandPartial(diffTree.getRoot(), 2);
         }
     }
@@ -206,12 +175,5 @@ public class TreeDiffViewController extends ProfileDiffViewController<Aggregatio
         diff = new TreeDiff<>();
         updateDiff(getBaseTarget(), true);
         updateDiff(getNewTarget(), false);
-    }
-
-    @Override
-    protected FilterType[] getAllowedFilterTypes()
-    {
-        return new FilterType[]
-        { STRING };
     }
 }

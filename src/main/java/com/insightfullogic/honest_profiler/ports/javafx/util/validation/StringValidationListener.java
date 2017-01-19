@@ -6,7 +6,7 @@ import static java.util.Arrays.asList;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.Predicate;
 
 import com.insightfullogic.honest_profiler.ports.javafx.util.handle.ChangeListenerHandle;
 
@@ -15,18 +15,16 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 
-public abstract class StringValidationListener implements ChangeListener<String>
+public class StringValidationListener implements ChangeListener<String>
 {
 
     private ChangeListenerHandle<String> handle;
 
     private Node inputNode;
     private List<Button> buttons;
-    private Function<String, Boolean> test;
+    private Predicate<String> test;
 
-    protected StringValidationListener(Node inputNode,
-                                       Function<String, Boolean> test,
-                                       Button... buttons)
+    public StringValidationListener(Node inputNode, Predicate<String> test, Button... buttons)
     {
         this.inputNode = inputNode;
         this.test = test;
@@ -68,7 +66,7 @@ public abstract class StringValidationListener implements ChangeListener<String>
 
         try
         {
-            if (test.apply(newValue))
+            if (test.test(newValue))
             {
                 inputNode.setStyle(STYLE_NORMAL);
                 setDisabled(false);

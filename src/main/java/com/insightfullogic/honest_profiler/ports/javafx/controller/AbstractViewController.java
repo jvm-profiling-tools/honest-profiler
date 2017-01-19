@@ -9,18 +9,13 @@ import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor;
 import static javafx.scene.input.KeyCode.ENTER;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.insightfullogic.honest_profiler.core.filters.Filter;
+import com.insightfullogic.honest_profiler.core.aggregation.filter.FilterSpecification;
+import com.insightfullogic.honest_profiler.core.aggregation.result.ItemType;
 import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
-import com.insightfullogic.honest_profiler.core.filters.StringFilter;
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
-import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterSpecification;
-import com.insightfullogic.honest_profiler.ports.javafx.model.filter.FilterType;
 import com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.CountTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.CountTreeTableCell;
@@ -38,40 +33,33 @@ import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.image.ImageView;
 
 /**
- * Superclass for all View Controllers in the application. These controllers
- * provide a particular view on data. The class holds the code for the filters
- * and quick filter.
+ * Superclass for all View Controllers in the application. These controllers provide a particular view on data. The
+ * class holds the code for the filters and quick filter.
  *
- * The superclass also provides some common UI helper methods for column
- * configuration.
+ * The superclass also provides some common UI helper methods for column configuration.
  */
-public abstract class AbstractViewController extends AbstractController
+public abstract class AbstractViewController<T> extends AbstractController
 {
     private Button filterButton;
     private Button quickFilterButton;
     private TextField quickFilterText;
 
-    private FilterDialogController dialogController;
-    private ObjectProperty<FilterSpecification> filterSpec = new SimpleObjectProperty<>(
-        new FilterSpecification());
+    private FilterDialogController<T> dialogController;
+    private ObjectProperty<FilterSpecification<T>> filterSpec;
 
-    private ProfileFilter currentFilter = new ProfileFilter();
-    private StringFilter quickFilter;
+    private ItemType type;
 
     /**
-     * This method must be called by subclasses in their FXML initialize(). It
-     * provides the controller-local UI nodes needed by the
-     * AbstractViewController.
+     * This method must be called by subclasses in their FXML initialize(). It provides the controller-local UI nodes
+     * needed by the AbstractViewController.
      *
-     * @param filterButton
-     *            the button used to trigger filter editing
-     * @param quickFilterButton
-     *            the button used to apply the quick filter
-     * @param quickFilterText
-     *            the TextField providing the value for the quick filter
+     * @param filterButton the button used to trigger filter editing
+     * @param quickFilterButton the button used to apply the quick filter
+     * @param quickFilterText the TextField providing the value for the quick filter
+     * @param type the {@link ItemType} shown in the vies
      */
     protected void initialize(Button filterButton, Button quickFilterButton,
-        TextField quickFilterText)
+        TextField quickFilterText, ItemType type)
     {
         super.initialize();
 
@@ -83,17 +71,18 @@ public abstract class AbstractViewController extends AbstractController
         this.filterButton = filterButton;
         this.quickFilterButton = quickFilterButton;
         this.quickFilterText = quickFilterText;
+
+        this.type = type;
+        filterSpec = new SimpleObjectProperty<>(new FilterSpecification<>(type));
     }
 
     // Accessors
 
     /**
-     * In addition to the normal functionality, the method calls filter
-     * initialization, which needs the ApplicationContext to be present. If a
-     * particular view controller
+     * In addition to the normal functionality, the method calls filter initialization, which needs the
+     * ApplicationContext to be present. If a particular view controller
      *
-     * @param applicationContext
-     *            the ApplicationContext of this application
+     * @param applicationContext the ApplicationContext of this application
      */
     @Override
     public void setApplicationContext(ApplicationContext applicationContext)
@@ -109,8 +98,8 @@ public abstract class AbstractViewController extends AbstractController
     }
 
     /**
-     * Refreshes the view. The view should be updated based on the current state
-     * of the {@link Profile} and {@link ProfileFilter}.
+     * Refreshes the view. The view should be updated based on the current state of the {@link Profile} and
+     * {@link ProfileFilter}.
      */
     protected abstract void refresh();
 
@@ -118,7 +107,7 @@ public abstract class AbstractViewController extends AbstractController
 
     protected abstract <C> void setColumnHeader(C column, String title, ProfileContext context);
 
-    protected <T> void cfgPctCol(TableColumn<T, Number> column, String propertyName,
+    protected <U> void cfgPctCol(TableColumn<U, Number> column, String propertyName,
         ProfileContext profileContext, String title)
     {
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
@@ -126,7 +115,7 @@ public abstract class AbstractViewController extends AbstractController
         setColumnHeader(column, title, profileContext);
     }
 
-    protected <T> void cfgPctDiffCol(TableColumn<T, Number> column, String propertyName,
+    protected <U> void cfgPctDiffCol(TableColumn<U, Number> column, String propertyName,
         String title)
     {
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
@@ -134,7 +123,7 @@ public abstract class AbstractViewController extends AbstractController
         setColumnHeader(column, title, null);
     }
 
-    protected <T> void cfgCntCol(TableColumn<T, Number> column, String propertyName,
+    protected <U> void cfgCntCol(TableColumn<U, Number> column, String propertyName,
         ProfileContext profileContext, String title)
     {
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
@@ -142,7 +131,7 @@ public abstract class AbstractViewController extends AbstractController
         setColumnHeader(column, title, profileContext);
     }
 
-    protected <T> void cfgCntDiffCol(TableColumn<T, Number> column, String propertyName,
+    protected <U> void cfgCntDiffCol(TableColumn<U, Number> column, String propertyName,
         String title)
     {
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
@@ -150,7 +139,7 @@ public abstract class AbstractViewController extends AbstractController
         setColumnHeader(column, title, null);
     }
 
-    protected <T> void cfgPctCol(TreeTableColumn<T, Number> column, String propertyName,
+    protected <U> void cfgPctCol(TreeTableColumn<U, Number> column, String propertyName,
         ProfileContext profileContext, String title)
     {
         column.setCellValueFactory(new TreeItemPropertyValueFactory<>(propertyName));
@@ -158,7 +147,7 @@ public abstract class AbstractViewController extends AbstractController
         setColumnHeader(column, title, profileContext);
     }
 
-    protected <T> void cfgPctDiffCol(TreeTableColumn<T, Number> column, String propertyName,
+    protected <U> void cfgPctDiffCol(TreeTableColumn<U, Number> column, String propertyName,
         String title)
     {
         column.setCellValueFactory(new TreeItemPropertyValueFactory<>(propertyName));
@@ -166,7 +155,7 @@ public abstract class AbstractViewController extends AbstractController
         setColumnHeader(column, title, null);
     }
 
-    protected <T> void cfgCntCol(TreeTableColumn<T, Number> column, String propertyName,
+    protected <U> void cfgCntCol(TreeTableColumn<U, Number> column, String propertyName,
         ProfileContext profileContext, String title)
     {
         column.setCellValueFactory(new TreeItemPropertyValueFactory<>(propertyName));
@@ -174,7 +163,7 @@ public abstract class AbstractViewController extends AbstractController
         setColumnHeader(column, title, profileContext);
     }
 
-    protected <T> void cfgCntDiffCol(TreeTableColumn<T, Number> column, String propertyName,
+    protected <U> void cfgCntDiffCol(TreeTableColumn<U, Number> column, String propertyName,
         String title)
     {
         column.setCellValueFactory(new TreeItemPropertyValueFactory<>(propertyName));
@@ -185,61 +174,31 @@ public abstract class AbstractViewController extends AbstractController
     // Filter-related methods
 
     /**
-     * View Controllers must implement this, and return the {@link FilterType}s
-     * which are supported by them.
-     *
-     * @return an array containing the {@link FilterType}s supported by the view
-     *         controller
-     */
-    protected abstract FilterType[] getAllowedFilterTypes();
-
-    /**
      * Returns the current {@link FilterSpecification}.
      *
      * @return the current {@link FilterSpecification}
      */
-    protected ObjectProperty<FilterSpecification> getFilterSpecification()
+    protected FilterSpecification<T> getFilterSpecification()
     {
-        return filterSpec;
-    }
-
-    /**
-     * Returns the currently active {@link ProfileFilter}, constructed from the
-     * current filters and the quick filter.
-     *
-     * @return the currently active {@link ProfileFilter}
-     */
-    protected ProfileFilter getAdjustedProfileFilter()
-    {
-        if (quickFilter == null)
-        {
-            return currentFilter;
-        }
-
-        List<Filter> filters = new ArrayList<>();
-        filters.add(quickFilter);
-        filters.addAll(currentFilter.getFilters());
-        return new ProfileFilter(filters);
+        return filterSpec.get();
     }
 
     /**
      * Initializes the filters.
      *
-     * @param applicationContext
-     *            the {@link ApplicationContext}. The parameter is used to
-     *            explicitly point out the dependency on the presense of the
-     *            context.
+     * @param applicationContext the {@link ApplicationContext}. The parameter is used to explicitly point out the
+     *            dependency on the presense of the context.
      */
     private void initializeFilters(ApplicationContext applicationContext)
     {
+
         dialogController = createFilterDialog();
         dialogController.setApplicationContext(applicationContext);
-        dialogController.addAllowedFilterTypes(getAllowedFilterTypes());
+        dialogController.setItemType(type);
 
         filterSpec.addListener((property, oldValue, newValue) ->
         {
             filterButton.setGraphic(iconFor(newValue));
-            currentFilter = new ProfileFilter(newValue.getFilters());
             refresh();
         });
 
@@ -255,16 +214,16 @@ public abstract class AbstractViewController extends AbstractController
         });
     }
 
-    private FilterDialogController createFilterDialog()
+    private FilterDialogController<T> createFilterDialog()
     {
-        return (FilterDialogController) DialogUtil.<FilterSpecification>newDialog(
+        return (FilterDialogController<T>) DialogUtil.<FilterSpecification<T>>newDialog(
             appCtx(),
             FILTER,
             getText(TITLE_DIALOG_SPECIFYFILTERS),
             false);
     }
 
-    private ImageView iconFor(FilterSpecification spec)
+    private ImageView iconFor(FilterSpecification<T> spec)
     {
         return spec == null || !spec.isFiltering() ? viewFor(FUNNEL_16) : viewFor(FUNNEL_ACTIVE_16);
     }
@@ -272,10 +231,7 @@ public abstract class AbstractViewController extends AbstractController
     private void applyQuickFilter()
     {
         String input = quickFilterText.getText();
-        quickFilter = input.isEmpty() ? null : new StringFilter(
-            Filter.Mode.CONTAINS,
-            frame -> frame.getFullName(),
-            input);
+        filterSpec.get().setQuickFilter(input == null || input.isEmpty() ? null : input);
         refresh();
     }
 }
