@@ -6,21 +6,17 @@ import java.util.List;
 
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
 import com.insightfullogic.honest_profiler.core.aggregation.result.Entry;
-import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
+import com.insightfullogic.honest_profiler.core.aggregation.result.Flat;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 
-public class FlatByFqmnAggregator
-    implements Aggregator<AggregationProfile, String, Entry<String>>
+public class FlatByFqmnAggregator implements Aggregator<AggregationProfile, String, Entry<String>>
 {
     @Override
-    public Aggregation<String, Entry<String>> aggregate(AggregationProfile input,
-        LeanNode reference)
+    public Flat<String> aggregate(AggregationProfile input, LeanNode reference)
     {
         List<Entry<String>> result = new ArrayList<>();
-        Aggregation<String, Entry<String>> aggregation = new Aggregation<>(
-            result,
-            reference);
+        Flat<String> aggregation = new Flat<>(result, reference);
 
         input.getFqmnLinks().values().forEach(link ->
         {

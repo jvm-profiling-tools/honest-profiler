@@ -11,20 +11,18 @@ import java.util.stream.Collector;
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
 import com.insightfullogic.honest_profiler.core.aggregation.result.Entry;
 import com.insightfullogic.honest_profiler.core.aggregation.result.Node;
-import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
+import com.insightfullogic.honest_profiler.core.aggregation.result.Tree;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfile;
 
-public class TreeByFqmnAggregator
-    implements Aggregator<AggregationProfile, String, Node<String>>
+public class TreeByFqmnAggregator implements Aggregator<AggregationProfile, String, Node<String>>
 {
     @Override
-    public Aggregation<String, Node<String>> aggregate(AggregationProfile input,
-        LeanNode reference)
+    public Tree<String> aggregate(AggregationProfile input, LeanNode reference)
     {
 
         List<Node<String>> nodes = new ArrayList<>();
-        Aggregation<String, Node<String>> result = new Aggregation<>(nodes, reference);
+        Tree<String> result = new Tree<>(nodes, reference);
 
         LeanProfile source = input.getSource();
 
@@ -38,29 +36,25 @@ public class TreeByFqmnAggregator
         return result;
     }
 
-    private Node<String> getThreadNode(
-        Aggregation<String, Node<String>> aggregation, LeanProfile profile, Long threadId,
+    private Node<String> getThreadNode(Tree<String> tree, LeanProfile profile, Long threadId,
         LeanNode node)
     {
-        Entry<String> entry = new Entry<>(
-            profile.getThreadName(threadId),
-            node.getData(),
-            aggregation);
+        Entry<String> entry = new Entry<>(profile.getThreadName(threadId), node.getData(), tree);
         return new Node<>(entry);
     }
 
-    private void add(Aggregation<String, Node<String>> aggregation, LeanProfile profile,
-        Node<String> parentAggregation, LeanNode parent)
+    private void add(Tree<String> tree, LeanProfile profile, Node<String> parentAggregation,
+        LeanNode parent)
     {
         Map<String, Node<String>> nodeMap = parent.getChildren().stream().collect(
             groupingBy(
                 node -> profile.getFqmn(node),
-                getAggrCollector(aggregation, profile)));
+                getAggrCollector(tree, profile)));
         parentAggregation.getChildren().addAll(nodeMap.values());
     }
 
     private Collector<LeanNode, Node<String>, Node<String>> getAggrCollector(
-        Aggregation<String, Node<String>> aggregation, LeanProfile profile)
+        Tree<String> aggregation, LeanProfile profile)
     {
         // The key has to be specified in the update. I couldn't find a way to
         // easily or elegantly recuperate the String from the enclosing
