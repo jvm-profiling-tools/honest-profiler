@@ -1,6 +1,7 @@
 package com.insightfullogic.honest_profiler.core.aggregation.result.diff;
 
-import java.util.ArrayList;
+import static java.util.stream.Collectors.toList;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -262,16 +263,9 @@ public class DiffNode<K> implements Keyed<K>
 
     public DiffNode<K> copyWithFilter(Predicate<DiffNode<K>> filter)
     {
-        List<DiffNode<K>> newChildren = new ArrayList<>();
-        children.values().forEach(child ->
-        {
-            DiffNode<K> newChild = child.copyWithFilter(filter);
-            if (newChild != null)
-            {
-                newChildren.add(newChild);
-            }
-        });
-
+        List<DiffNode<K>> newChildren = children.values().stream()
+            .map(child -> child.copyWithFilter(filter)).filter(child -> child != null)
+            .collect(toList());
         return newChildren.size() > 0 || filter.test(this) ? new DiffNode<>(entry, newChildren)
             : null;
     }

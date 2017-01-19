@@ -27,9 +27,7 @@ public class Entry<K> implements Keyed<K>
         this.frames = new ArrayList<>();
     }
 
-    public <T extends Keyed<K>> Entry(K key,
-                                                NumericInfo data,
-                                                Aggregation<K, T> aggregation)
+    public <T extends Keyed<K>> Entry(K key, NumericInfo data, Aggregation<K, T> aggregation)
     {
         this.key = key;
         this.data = data.copy();
@@ -39,9 +37,9 @@ public class Entry<K> implements Keyed<K>
     }
 
     public <T extends Keyed<K>> Entry(K key,
-                                                NumericInfo data,
-                                                Aggregation<K, T> aggregation,
-                                                FrameInfo frame)
+                                      NumericInfo data,
+                                      Aggregation<K, T> aggregation,
+                                      FrameInfo frame)
     {
         this(key, data, aggregation);
         frames.add(frame);

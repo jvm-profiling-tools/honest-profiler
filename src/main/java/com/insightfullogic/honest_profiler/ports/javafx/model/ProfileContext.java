@@ -58,7 +58,7 @@ public class ProfileContext
         this.appCtx = appCtx;
 
         this.mode = mode;
-        this.profileSource = null;
+        profileSource = null;
 
         id = counter.incrementAndGet();
         this.name = new SimpleStringProperty(name);
@@ -128,7 +128,7 @@ public class ProfileContext
     // Call only on FX Thread !
     public void setFrozen(boolean freeze)
     {
-        this.frozen = freeze;
+        frozen = freeze;
         if (!freeze)
         {
             appCtx.execute(new AggregateProfileTask(ProfileContext.this, cachedProfile));
@@ -151,6 +151,7 @@ public class ProfileContext
                 if (profile == null)
                 {
                     System.err.println("NULL profile in context listener");
+                    return;
                 }
 
                 if (profile == cachedProfile)

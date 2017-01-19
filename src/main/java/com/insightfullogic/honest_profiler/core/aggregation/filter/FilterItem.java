@@ -25,29 +25,14 @@ public class FilterItem<T, U>
         return comparison;
     }
 
-    public void setComparison(Comparison comparison)
-    {
-        this.comparison = comparison;
-    }
-
     public Target getTarget()
     {
         return target;
     }
 
-    public void setTarget(Target target)
-    {
-        this.target = target;
-    }
-
     public U getValue()
     {
         return value;
-    }
-
-    public void setValue(U value)
-    {
-        this.value = value;
     }
 
     public Predicate<T> toFilter(ItemType type)

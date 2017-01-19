@@ -1,6 +1,7 @@
 package com.insightfullogic.honest_profiler.core.aggregation.result.straight;
 
 import static java.lang.Math.max;
+import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -156,16 +157,8 @@ public class Node<K> implements Keyed<K>
 
     public Node<K> copyWithFilter(Predicate<Node<K>> filter)
     {
-        List<Node<K>> newChildren = new ArrayList<>();
-        children.forEach(child ->
-        {
-            Node<K> newChild = child.copyWithFilter(filter);
-            if (newChild != null)
-            {
-                newChildren.add(newChild);
-            }
-        });
-
+        List<Node<K>> newChildren = children.stream().map(child -> child.copyWithFilter(filter))
+            .filter(child -> child != null).collect(toList());
         return newChildren.size() > 0 || filter.test(this) ? new Node<>(entry, newChildren) : null;
     }
 }

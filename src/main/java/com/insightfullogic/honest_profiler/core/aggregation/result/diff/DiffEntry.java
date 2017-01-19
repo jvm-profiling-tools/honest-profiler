@@ -14,10 +14,8 @@ public class DiffEntry<K> implements Keyed<K>
 
     public DiffEntry(Entry<K> baseEntry, Entry<K> newEntry)
     {
-        this.baseEntry = baseEntry == null ? new Entry<K>(newEntry.getKey(), null)
-            : baseEntry;
-        this.newEntry = newEntry == null ? new Entry<K>(baseEntry.getKey(), null)
-            : newEntry;
+        this.baseEntry = baseEntry == null ? new Entry<K>(newEntry.getKey(), null) : baseEntry;
+        this.newEntry = newEntry == null ? new Entry<K>(baseEntry.getKey(), null) : newEntry;
     }
 
     public DiffEntry<K> setBase(Entry<K> entry)

@@ -43,31 +43,26 @@ public class TreeByFqmnAggregator implements Aggregator<AggregationProfile, Stri
         return new Node<>(entry);
     }
 
-    private void add(Tree<String> tree, LeanProfile profile, Node<String> parentAggregation,
+    private void add(Tree<String> tree, LeanProfile profile, Node<String> parentNode,
         LeanNode parent)
     {
         Map<String, Node<String>> nodeMap = parent.getChildren().stream().collect(
-            groupingBy(
-                node -> profile.getFqmn(node),
-                getAggrCollector(tree, profile)));
-        parentAggregation.getChildren().addAll(nodeMap.values());
+            groupingBy(node -> profile.getFqmn(node), getCollector(tree, profile)));
+        parentNode.getChildren().addAll(nodeMap.values());
     }
 
-    private Collector<LeanNode, Node<String>, Node<String>> getAggrCollector(
-        Tree<String> aggregation, LeanProfile profile)
+    private Collector<LeanNode, Node<String>, Node<String>> getCollector(Tree<String> tree,
+        LeanProfile profile)
     {
         // The key has to be specified in the update. I couldn't find a way to
         // easily or elegantly recuperate the String from the enclosing
         // groupingBy().
         return of(
-            () -> new Node<>(aggregation),
+            () -> new Node<>(tree),
             (entry, node) ->
             {
-                entry.add(
-                    profile.getFqmn(node),
-                    node.getFrame(),
-                    node.getData());
-                add(aggregation, profile, entry, node);
+                entry.add(profile.getFqmn(node), node.getFrame(), node.getData());
+                add(tree, profile, entry, node);
             },
             (e1, e2) -> e1.combine(e2));
     }

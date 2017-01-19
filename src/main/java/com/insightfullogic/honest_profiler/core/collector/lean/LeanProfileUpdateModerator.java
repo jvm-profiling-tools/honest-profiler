@@ -21,12 +21,12 @@
  **/
 package com.insightfullogic.honest_profiler.core.collector.lean;
 
-import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfile;
-import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfileListener;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 
-import java.util.concurrent.atomic.AtomicReference;
+import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfile;
+import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfileListener;
 
 public class LeanProfileUpdateModerator extends Thread implements LeanProfileListener
 {
@@ -59,7 +59,7 @@ public class LeanProfileUpdateModerator extends Thread implements LeanProfileLis
                     incomingProfile.compareAndSet(profile, null);
                 }
 
-                Thread.sleep(UI_UPDATE_WINDOW_IN_MS);
+                sleep(UI_UPDATE_WINDOW_IN_MS);
             }
         }
         catch (Exception e)

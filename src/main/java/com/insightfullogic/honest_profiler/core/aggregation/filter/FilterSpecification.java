@@ -22,6 +22,7 @@ public class FilterSpecification<T>
     public FilterSpecification(ItemType type)
     {
         super();
+
         this.type = type;
         filters = emptyList();
     }

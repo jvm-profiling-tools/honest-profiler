@@ -68,7 +68,6 @@ public class FlatDiff<K> extends AbstractDiff<K, Entry<K>, DiffEntry<K>>
     @Override
     public FlatDiff<K> filter(FilterSpecification<DiffEntry<K>> filterSpec)
     {
-        return new FlatDiff<>(
-            getData().stream().filter(filterSpec.getFilter()).collect(toList()));
+        return new FlatDiff<>(getData().stream().filter(filterSpec.getFilter()).collect(toList()));
     }
 }
