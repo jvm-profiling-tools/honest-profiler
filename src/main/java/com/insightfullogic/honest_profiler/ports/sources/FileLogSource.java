@@ -34,16 +34,14 @@ import com.insightfullogic.honest_profiler.core.sources.CantReadFromSourceExcept
 import com.insightfullogic.honest_profiler.core.sources.LogSource;
 
 /**
- * LogSource implementation which maintains a fixed-size memory-mapped window
- * ({@value #BUFFER_SIZE} bytes) on the file. The read() method checks whether a
- * certain amount of the current buffer ({@value #ELASTICITY} bytes) has been
- * read already, and if so, remaps the buffer to the new position.
+ * LogSource implementation which maintains a fixed-size memory-mapped window ({@value #BUFFER_SIZE} bytes) on the file.
+ * The read() method checks whether a certain amount of the current buffer ({@value #ELASTICITY} bytes) has been read
+ * already, and if so, remaps the buffer to the new position.
  *
- * The ELASTICITY is provided for the benefit of the LogParser + Conductor
- * logic. If a partial record is read, the Conductor will sleep for a bit. So
- * ideally, BUFFER_SIZE - ELASTICITY should be large enough so that an "entire
- * record" (i.e. an entire stack) which might start at the last byte within the
- * ELASTICITY portion still would fit into the remains of the buffer.
+ * The ELASTICITY is provided for the benefit of the LogParser + Conductor logic. If a partial record is read, the
+ * Conductor will sleep for a bit. So ideally, BUFFER_SIZE - ELASTICITY should be large enough so that an "entire
+ * record" (i.e. an entire stack) which might start at the last byte within the ELASTICITY portion still would fit into
+ * the remains of the buffer.
  */
 public class FileLogSource implements LogSource
 {
@@ -97,8 +95,10 @@ public class FileLogSource implements LogSource
         {
             // If we've read more than ELASTICITY bytes, the
             // currentOffset is updated and the buffer is remapped.
+            // Also, apparently in live monitoring, the buffer can run out (hasRemaining == false), at which point we
+            // need to remap because teh underlying file stlll can keep growing.
             int position = buffer.position();
-            if (position > ELASTICITY)
+            if ((!buffer.hasRemaining() && currentOffset < channel.size()) || position > ELASTICITY)
             {
                 currentOffset += position;
                 mapBuffer(currentOffset);
@@ -123,9 +123,8 @@ public class FileLogSource implements LogSource
     // network bytebuffers
 
     /**
-     * Replaces the current buffer by a new ByteBuffer which is memory-mapped
-     * onto a BUFFER_SIZE (10 MB at time of writing) window starting at the
-     * specified offset.
+     * Replaces the current buffer by a new ByteBuffer which is memory-mapped onto a BUFFER_SIZE (10 MB at time of
+     * writing) window starting at the specified offset.
      *
      * @throws IOException
      */
