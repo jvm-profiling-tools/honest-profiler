@@ -48,9 +48,9 @@ public class FileLogSource implements LogSource
     // Class Properties
 
     // Fixed buffer size
-    private static final int BUFFER_SIZE = 1024 * 1024 * 5;
+    private static final int BUFFER_SIZE = 1024 * 1024 * 2; // 2 MB
     // Remap if more than ELASTICITY has been read from the current buffer
-    private static final int ELASTICITY = 1024 * 1024 * 4;
+    private static final int ELASTICITY = 1024 * 1024 * 1; // 1 MB
 
     // Instance Properties
 
@@ -61,6 +61,8 @@ public class FileLogSource implements LogSource
     private MappedByteBuffer buffer;
     // the offset in the file where the current buffer starts.
     private long currentOffset = 0;
+
+    private int previousPosition;
 
     // Instance Constructors
 
@@ -93,15 +95,29 @@ public class FileLogSource implements LogSource
     {
         try
         {
-            // If we've read more than ELASTICITY bytes, the
-            // currentOffset is updated and the buffer is remapped.
-            // Also, apparently in live monitoring, the buffer can run out (hasRemaining == false), at which point we
-            // need to remap because teh underlying file stlll can keep growing.
             int position = buffer.position();
-            if ((!buffer.hasRemaining() && currentOffset < channel.size()) || position > ELASTICITY)
+            boolean hasRemaining = buffer.hasRemaining();
+            long channelSize = channel.size();
+
+            // System.err.println("REM ? "+ hasRemaining+ " - OFF "+ currentOffset+ " - CSZ "+ channelSize+ " - POS "+
+            // position);
+
+            if (position == previousPosition)
             {
+                // The buffer was rewound after the previous read. Either the data was not written (0 was read) or a
+                // buffer underflow occurred. Don't update currentOffset, or we'll read over
+                mapBuffer(currentOffset);
+            }
+            else if ((!hasRemaining && currentOffset < channelSize) || position > ELASTICITY)
+            {
+                // If the buffer is empty but the file size increaded, or we've read more than ELASTICITY bytes, the
+                // currentOffset is updated and the buffer is remapped.
                 currentOffset += position;
                 mapBuffer(currentOffset);
+            }
+            else
+            {
+                previousPosition = position;
             }
         }
         catch (IOException e)
@@ -140,6 +156,10 @@ public class FileLogSource implements LogSource
             length = (int) (fileEnd - offset);
         }
         buffer = channel.map(READ_ONLY, offset, length);
+
+        // Ensures we know next time read() is called we can easily test whether the position moved or was remapped in a
+        // single comparison.
+        previousPosition = -1;
     }
 
     @Override
