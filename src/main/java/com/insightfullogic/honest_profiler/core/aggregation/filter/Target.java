@@ -16,9 +16,13 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.diff.DiffNode
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 
+/**
+ * A Target describes a value inside an aggregation item. It specifies a displayable name and the type of the value. A
+ * Target also provides an extractor, which is a {@link Function} for extracting the Target value from an aggregation
+ * item.
+ */
 public enum Target
 {
-
     FQMN("Fully Qualified Method Name", STRING),
     SELF_TIME("Self Time", LONG),
     TOTAL_TIME("Total Time", LONG),
@@ -53,10 +57,18 @@ public enum Target
     SELF_COUNT_PCT_DIFF("Self Count % Diff", PERCENT),
     TOTAL_COUNT_PCT_DIFF("Total Count % Diff", PERCENT);
 
+    // Class Properties
+
+    /**
+     * These maps are used for mapping the Targets to the corresponding extractors for each of the aggregation item
+     * types.
+     */
     private static Map<Target, Function<Entry<?>, ?>> entryExtractors = new HashMap<>();
     private static Map<Target, Function<Node<?>, ?>> nodeExtractors = new HashMap<>();
     private static Map<Target, Function<DiffEntry<?>, ?>> diffEntryExtractors = new HashMap<>();
     private static Map<Target, Function<DiffNode<?>, ?>> diffNodeExtractors = new HashMap<>();
+
+    // Class Constructors
 
     static
     {
@@ -149,33 +161,59 @@ public enum Target
         diffNodeExtractors.put(FQMN, DiffNode::getKey);
     }
 
+    // Instance Properties
+
     private String name;
     private ValueType type;
 
+    // Instance Constructors
+
+    /**
+     * Trivial private constructor specifying the displayable name and type for the Target value.
+     *
+     * @param name the displayable name of the Target value
+     * @param type the type of the target value
+     */
     private Target(String name, ValueType type)
     {
         this.name = name;
         this.type = type;
     }
 
+    // Instance Accessors
+
+    /**
+     * Returns the {@link ValueType} of the Target value.
+     * 
+     * @return the {@link ValueType} of the Target value
+     */
     public ValueType getType()
     {
         return type;
     }
 
+    // Extractor Methods
+
+    /**
+     * Returns the extractor {@link Function} which can extract the Target value from the aggregation items with the
+     * specified {@link ValueType}.
+     * 
+     * @param type the {@link ValueType} of the aggregation items the extractor will accept
+     * @return the extractor {@link Function} for extracting the Target value
+     */
     @SuppressWarnings("unchecked")
     public <T, U> Function<T, U> getExtractor(ItemType type)
     {
         switch (type)
         {
             case ENTRY:
-                return (Function<T, U>) entryExtractors.get(this);
+                return (Function<T, U>)entryExtractors.get(this);
             case NODE:
-                return (Function<T, U>) nodeExtractors.get(this);
+                return (Function<T, U>)nodeExtractors.get(this);
             case DIFFENTRY:
-                return (Function<T, U>) diffEntryExtractors.get(this);
+                return (Function<T, U>)diffEntryExtractors.get(this);
             case DIFFNODE:
-                return (Function<T, U>) diffNodeExtractors.get(this);
+                return (Function<T, U>)diffNodeExtractors.get(this);
             default:
                 break;
         }

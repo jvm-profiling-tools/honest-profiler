@@ -9,44 +9,38 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;;
 
+/**
+ * Enumeration for the various types of values in aggregation items. A ValueType also provides a validator, which tests
+ * whether an input String can be converted to a value of the specified type, an interpreter which converts an input
+ * String to a value of the specified type, and a list of {@link Comparison}s which are compatible with the ValueType.
+ *
+ * Note the presence of the PCT_INTERPRETER, which can't be defined as a constant before the enum declarations, so it
+ * was defined in the {@link Comparison} enumeration instead. Just the way the cookie crumbles, I guess.
+ */
 public enum ValueType
 {
+    /** ValueType for {@link Double}s */
     DOUBLE(validatorFor(Double::parseDouble), Double::parseDouble, NUMBER_COMPARISONS),
+    /** SHARE represents a percentage representing a part/total relation, i.e. it is between 0 and 100. */
     SHARE(validatorFor(Double::parseDouble, 0, 100), PCT_INTERPRETER, NUMBER_COMPARISONS),
+    /** PERCENT represents an arbitrary, unbounded percentage. */
     PERCENT(validatorFor(Double::parseDouble), PCT_INTERPRETER, NUMBER_COMPARISONS),
+    /** ValueType for {@link Integer}s */
     INTEGER(validatorFor(Integer::parseInt), Integer::parseInt, NUMBER_COMPARISONS),
+    /** ValueType for {@link Long}s */
     LONG(validatorFor(Long::parseLong), Long::parseLong, NUMBER_COMPARISONS),
+    /** ValueType for {@link String}s */
     STRING(str -> true, str -> str, STRING_COMPARISONS);
 
-    private Predicate<String> stringValidator;
-    private Function<String, ?> stringInterpreter;
-    private List<Comparison> allowedComparisons;
+    // Internal Validator Class Factory Methods
 
-    private ValueType(Predicate<String> stringValidator,
-                      Function<String, ?> stringInterpreter,
-                      Comparison... allowedComparisons)
-    {
-        this.stringValidator = stringValidator;
-        this.stringInterpreter = stringInterpreter;
-        this.allowedComparisons = asList(allowedComparisons);
-    }
-
-    public List<Comparison> getAllowedComparisons()
-    {
-        return allowedComparisons;
-    }
-
-    public Predicate<String> getValidator()
-    {
-        return stringValidator;
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> Function<String, T> getInterpreter()
-    {
-        return (Function<String, T>) stringInterpreter;
-    }
-
+    /**
+     * Returns a validator {@link Predicate} which tests the String by trying to apply corresponding the convertor. If
+     * that operation throws an Exception, the String cannot be converted.
+     *
+     * @param convertor the convertor {@link Function} which converts a String to a value of the specified type <T>
+     * @return a validator {@link Predicate}
+     */
     private static final <T> Predicate<String> validatorFor(Function<String, T> convertor)
     {
         return new Predicate<String>()
@@ -67,6 +61,15 @@ public enum ValueType
         };
     }
 
+    /**
+     * Returns a validator {@link Predicate} for {@link Double}s as in {@link #validatorFor(Function)}, with an extra
+     * boundary check.
+     *
+     * @param convertor the convertor {@link Function} which converts a String to a Double
+     * @param lower the lower bound the value has to be equal to or greater than in order to be accepted
+     * @param upper the upper bound the value has to be equal to or less than in order to be accepted
+     * @return a validator {@link Predicate} checking whether the String represents a Double within the specified range
+     */
     private static final Predicate<String> validatorFor(Function<String, Double> convertor,
         double lower, double upper)
     {
@@ -86,5 +89,55 @@ public enum ValueType
                 }
             }
         };
+    }
+
+    // Instance Properties
+
+    private Predicate<String> stringValidator;
+    private Function<String, ?> stringInterpreter;
+    private List<Comparison> allowedComparisons;
+
+    // Instance Constructors
+
+    private ValueType(Predicate<String> stringValidator,
+                      Function<String, ?> stringInterpreter,
+                      Comparison... allowedComparisons)
+    {
+        this.stringValidator = stringValidator;
+        this.stringInterpreter = stringInterpreter;
+        this.allowedComparisons = asList(allowedComparisons);
+    }
+
+    // Instance Accessors
+
+    /**
+     * Returns a list of {@link Comparison}s compatible with this ValueType.
+     *
+     * @return a list of {@link Comparison}s compatible with this ValueType
+     */
+    public List<Comparison> getAllowedComparisons()
+    {
+        return allowedComparisons;
+    }
+
+    /**
+     * Returns a {@link Predicate} for testing whether a String can be converted to a value of this type.
+     *
+     * @return a {@link Predicate} for testing whether a String can be converted to a value of this type
+     */
+    public Predicate<String> getValidator()
+    {
+        return stringValidator;
+    }
+
+    /**
+     * Returns a {@link Function} for converting a String to a value of this type.
+     *
+     * @return a {@link Function} for converting a String to a value of this type
+     */
+    @SuppressWarnings("unchecked")
+    public <T> Function<String, T> getInterpreter()
+    {
+        return (Function<String, T>)stringInterpreter;
     }
 }
