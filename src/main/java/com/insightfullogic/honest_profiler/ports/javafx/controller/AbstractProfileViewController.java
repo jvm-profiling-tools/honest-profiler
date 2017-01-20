@@ -28,7 +28,7 @@ import javafx.scene.control.TextField;
  *
  * @param <T> the data type of the target
  */
-public abstract class ProfileViewController<T, U> extends AbstractViewController<U>
+public abstract class AbstractProfileViewController<T, U> extends AbstractViewController<U>
 {
 
     private ProfileContext profileContext;

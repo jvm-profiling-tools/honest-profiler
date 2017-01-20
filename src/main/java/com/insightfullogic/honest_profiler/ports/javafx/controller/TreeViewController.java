@@ -47,7 +47,7 @@ import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 
-public class TreeViewController extends ProfileViewController<AggregationProfile, Node<String>>
+public class TreeViewController extends AbstractProfileViewController<AggregationProfile, Node<String>>
 {
     @FXML
     private Button filterButton;

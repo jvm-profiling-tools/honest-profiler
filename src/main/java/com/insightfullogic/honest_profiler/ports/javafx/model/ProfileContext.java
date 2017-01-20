@@ -131,6 +131,7 @@ public class ProfileContext
         frozen = freeze;
         if (!freeze)
         {
+            timeline.play();
             appCtx.execute(new AggregateProfileTask(ProfileContext.this, cachedProfile));
 
             if (cachedFlameGraph != null)
@@ -138,6 +139,10 @@ public class ProfileContext
                 update(cachedFlameGraph);
                 cachedFlameGraph = null;
             }
+        }
+        else
+        {
+            timeline.pause();
         }
     }
 

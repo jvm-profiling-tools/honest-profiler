@@ -27,7 +27,7 @@ import com.insightfullogic.honest_profiler.ports.javafx.view.FlameGraphCanvas;
 import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
 
-public class FlameViewController extends ProfileViewController<FlameGraph, FlameGraph>
+public class FlameViewController extends AbstractProfileViewController<FlameGraph, FlameGraph>
 {
     @FXML
     private VBox rootContainer;

@@ -30,6 +30,7 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.TOOLTIP_BUTTON_FREEZE_FROZEN;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.TOOLTIP_BUTTON_FREEZE_UNFROZEN;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FREEZE_16;
+import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.UNFREEZE_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor;
 
 import java.util.List;
@@ -218,6 +219,7 @@ public class ProfileRootController extends AbstractController
     private void freeze()
     {
         profileContext.setFrozen(true);
+        freezeButton.setGraphic(viewFor(UNFREEZE_16));
         freezeTooltip.setText(appCtx().textFor(TOOLTIP_BUTTON_FREEZE_FROZEN));
         info(freezeButton, INFO_BUTTON_FREEZE_FROZEN);
     }
