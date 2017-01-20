@@ -5,7 +5,7 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entr
 import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 
 /**
- * The aggregation item providing the difference between two {@link Entry}s.
+ * The aggregation item wrapping and providing the difference between two {@link Entry}s.
  */
 public class DiffEntry<K> implements Keyed<K>
 {
