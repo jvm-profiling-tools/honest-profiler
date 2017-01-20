@@ -29,13 +29,6 @@ public class GraphicalShareTableCell<T> extends TableCell<T, Double>
     private static final double HEIGHT = 8;
     private static final Color COLOR = DARKRED;
 
-    private final double width;
-
-    public GraphicalShareTableCell(final double width)
-    {
-        this.width = width;
-    }
-
     @Override
     protected void updateItem(Double share, boolean empty)
     {
@@ -48,6 +41,6 @@ public class GraphicalShareTableCell<T> extends TableCell<T, Double>
             return;
         }
 
-        setGraphic(new Rectangle(share * width, HEIGHT, COLOR));
+        setGraphic(new Rectangle(share * getWidth(), HEIGHT, COLOR));
     }
 }

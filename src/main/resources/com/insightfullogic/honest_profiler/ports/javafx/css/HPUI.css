@@ -7,11 +7,13 @@
 .table-cell {
 	/* Fix cell heights. Improves performance, and also allows UI calculations (ListView inside Pagination). */
 	-fx-fixed-cell-size: 20px;
+  -fx-font-family: monospace;
 }
 
 .list-cell {
 	/* Fix cell heights. Improves performance, and also allows UI calculations (ListView inside Pagination). */
 	-fx-cell-size: 20px;
+  -fx-font-family: monospace;
 }
 
 .menu-bar {

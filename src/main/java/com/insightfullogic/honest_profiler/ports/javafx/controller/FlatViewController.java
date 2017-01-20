@@ -122,7 +122,7 @@ public class FlatViewController
         method.setCellFactory(col -> new MethodNameTableCell<Entry<String>>());
 
         selfTimeGraphical.setCellValueFactory(new PropertyValueFactory<>("selfCntPct"));
-        selfTimeGraphical.setCellFactory(col -> new GraphicalShareTableCell<>(col.getPrefWidth()));
+        selfTimeGraphical.setCellFactory(col -> new GraphicalShareTableCell<>());
 
         cfgPctCol(selfCntPct, "selfCntPct", prfCtx(), COLUMN_SELF_CNT_PCT);
         cfgPctCol(totalCntPct, "totalCntPct", prfCtx(), COLUMN_TOTAL_CNT_PCT);
