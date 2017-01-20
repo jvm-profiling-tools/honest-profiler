@@ -19,11 +19,14 @@
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
 import static com.insightfullogic.honest_profiler.core.aggregation.result.ItemType.NODE;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_PARENT_CNT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_CNT;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_PCT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_CNT_PCT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_TIME;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_TIME_PCT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_CNT;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_PCT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_CNT_PCT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_TIME;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_TIME_PCT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_COLLAPSEALLALL;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_EXPANDALL;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_FILTER;
@@ -47,7 +50,8 @@ import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 
-public class TreeViewController extends AbstractProfileViewController<AggregationProfile, Node<String>>
+public class TreeViewController
+    extends AbstractProfileViewController<AggregationProfile, Node<String>>
 {
     @FXML
     private Button filterButton;
@@ -67,15 +71,21 @@ public class TreeViewController extends AbstractProfileViewController<Aggregatio
     @FXML
     private TreeTableColumn<Node<String>, Number> percentColumn;
     @FXML
-    private TreeTableColumn<Node<String>, Number> totalPct;
+    private TreeTableColumn<Node<String>, Number> totalCntPct;
     @FXML
-    private TreeTableColumn<Node<String>, Number> selfPct;
+    private TreeTableColumn<Node<String>, Number> selfCntPct;
     @FXML
     private TreeTableColumn<Node<String>, Number> totalCnt;
     @FXML
     private TreeTableColumn<Node<String>, Number> selfCnt;
     @FXML
-    private TreeTableColumn<Node<String>, Number> parentCnt;
+    private TreeTableColumn<Node<String>, Number> totalTimePct;
+    @FXML
+    private TreeTableColumn<Node<String>, Number> selfTimePct;
+    @FXML
+    private TreeTableColumn<Node<String>, Number> totalTime;
+    @FXML
+    private TreeTableColumn<Node<String>, Number> selfTime;
 
     @Override
     @FXML
@@ -106,11 +116,14 @@ public class TreeViewController extends AbstractProfileViewController<Aggregatio
         percentColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("totalCntPct"));
         percentColumn.setCellFactory(param -> new GraphicalShareTreeTableCell());
 
-        cfgPctCol(totalPct, "totalCntPct", prfCtx(), COLUMN_TOTAL_PCT);
-        cfgPctCol(selfPct, "selfCntPct", prfCtx(), COLUMN_SELF_PCT);
-        cfgCntCol(totalCnt, "totalCnt", prfCtx(), COLUMN_TOTAL_CNT);
-        cfgCntCol(selfCnt, "selfCnt", prfCtx(), COLUMN_SELF_CNT);
-        cfgCntCol(parentCnt, "parentCount", prfCtx(), COLUMN_PARENT_CNT);
+        cfgPctCol(totalCntPct, "totalCntPct", prfCtx(), COLUMN_TOTAL_CNT_PCT);
+        cfgPctCol(selfCntPct, "selfCntPct", prfCtx(), COLUMN_SELF_CNT_PCT);
+        cfgNrCol(totalCnt, "totalCnt", prfCtx(), COLUMN_TOTAL_CNT);
+        cfgNrCol(selfCnt, "selfCnt", prfCtx(), COLUMN_SELF_CNT);
+        cfgPctCol(totalTimePct, "totalTimePct", prfCtx(), COLUMN_TOTAL_TIME_PCT);
+        cfgPctCol(selfTimePct, "selfTimePct", prfCtx(), COLUMN_SELF_TIME_PCT);
+        cfgTimeCol(totalTime, "totalTime", prfCtx(), COLUMN_TOTAL_TIME);
+        cfgTimeCol(selfTime, "selfTime", prfCtx(), COLUMN_SELF_TIME);
     }
 
     // AbstractController Implementation

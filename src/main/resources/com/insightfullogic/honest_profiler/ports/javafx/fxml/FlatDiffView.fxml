@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.insightfullogic.honest_profiler.ports.javafx.controller.FlatDiffViewController">
+<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.insightfullogic.honest_profiler.ports.javafx.controller.FlatDiffViewController">
    <children>
       <HBox alignment="CENTER_LEFT" maxHeight="25.0" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" spacing="5.0" VBox.vgrow="NEVER">
          <children>
@@ -79,22 +79,31 @@
       </HBox>
       <TableView fx:id="diffTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
           <columns>
-            <TableColumn fx:id="method" prefWidth="492.0" text="%column.method" />
-            <TableColumn fx:id="baseSelfPct" prefWidth="100.0" text="%column.selfSamplePercent" />
-            <TableColumn fx:id="newSelfPct" prefWidth="100.0" text="%column.selfSamplePercent" />
-            <TableColumn fx:id="selfPctDiff" prefWidth="100.0" text="%column.selfSamplePercentDiff" />
-            <TableColumn fx:id="baseTotalPct" prefWidth="100.0" text="%column.totalSamplePercent" />
-            <TableColumn fx:id="newTotalPct" prefWidth="100.0" text="%column.totalSamplePercent" />
-            <TableColumn fx:id="totalPctDiff" prefWidth="100.0" text="%column.totalSamplePercentDiff" />
-            <TableColumn fx:id="baseSelfCnt" prefWidth="100.0" text="%column.selfSampleCount" />
-            <TableColumn fx:id="newSelfCnt" prefWidth="100.0" text="%column.selfSampleCount" />
-            <TableColumn fx:id="selfCntDiff" prefWidth="100.0" text="%column.selfSampleCountDiff" />
-            <TableColumn fx:id="baseTotalCnt" prefWidth="100.0" text="%column.totalSampleCount" />
-            <TableColumn fx:id="newTotalCnt" prefWidth="100.0" text="%column.totalSampleCount" />
-            <TableColumn fx:id="totalCntDiff" prefWidth="100.0" text="%column.totalSampleCountDiff" />
-            <TableColumn fx:id="baseProfileCnt" prefWidth="100.0" text="%column.profileSampleCount" />
-            <TableColumn fx:id="newProfileCnt" prefWidth="100.0" text="%column.profileSampleCount" />
-            <TableColumn fx:id="profileCntDiff" prefWidth="100.0" text="%column.profileSampleCountDiff" />
+            <TableColumn fx:id="method" maxWidth="1.7976931348623157E308" minWidth="250.0" prefWidth="-1.0" text="%column.method" />
+            <TableColumn fx:id="baseSelfCntPct" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.selfCntPct" />
+            <TableColumn fx:id="newSelfCntPct" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.selfCntPct" />
+            <TableColumn fx:id="selfCntPctDiff" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.selfCntPctDiff" />
+            <TableColumn fx:id="baseTotalCntPct" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.totalCntPct" />
+            <TableColumn fx:id="newTotalCntPct" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.totalCntPct" />
+            <TableColumn fx:id="totalCntPctDiff" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.totalCntPctDiff" />
+            <TableColumn fx:id="baseSelfCnt" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.selfCnt" />
+            <TableColumn fx:id="newSelfCnt" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.selfCnt" />
+            <TableColumn fx:id="selfCntDiff" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.selfCntDiff" />
+            <TableColumn fx:id="baseTotalCnt" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.totalCnt" />
+            <TableColumn fx:id="newTotalCnt" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.totalCnt" />
+            <TableColumn fx:id="totalCntDiff" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.totalCntDiff" />
+            <TableColumn fx:id="baseSelfTimePct" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.selfTimePct" />
+            <TableColumn fx:id="newSelfTimePct" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.selfTimePct" />
+            <TableColumn fx:id="selfTimePctDiff" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.selfTimePctDiff" />
+            <TableColumn fx:id="baseTotalTimePct" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.totalTimePct" />
+            <TableColumn fx:id="newTotalTimePct" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.totalTimePct" />
+            <TableColumn fx:id="totalTimePctDiff" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.totalTimePctDiff" />
+            <TableColumn fx:id="baseSelfTime" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.selfTime" />
+            <TableColumn fx:id="newSelfTime" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.selfTime" />
+            <TableColumn fx:id="selfTimeDiff" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.selfTimeDiff" />
+            <TableColumn fx:id="baseTotalTime" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.totalTime" />
+            <TableColumn fx:id="newTotalTime" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.totalTime" />
+            <TableColumn fx:id="totalTimeDiff" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.totalTimeDiff" />
           </columns>
          <tooltip>
             <Tooltip text="%table.flatDiff.tooltip" />

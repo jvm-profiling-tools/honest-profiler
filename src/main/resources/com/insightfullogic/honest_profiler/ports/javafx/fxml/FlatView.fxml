@@ -79,13 +79,16 @@
       </HBox>
       <TableView fx:id="flatProfileView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
           <columns>
-              <TableColumn fx:id="method" prefWidth="492.0" text="%column.method" />
-              <TableColumn fx:id="selfTimeGraphical" maxWidth="150.0" minWidth="150.0" prefWidth="150.0" text="%column.selfSamplePercentGraph" />
-              <TableColumn fx:id="selfPct" prefWidth="120.0" text="%column.selfSamplePercent" />
-              <TableColumn fx:id="totalPct" prefWidth="120.0" text="%column.totalSamplePercent" />
-            <TableColumn fx:id="selfCnt" prefWidth="120.0" text="%column.selfSampleCount" />
-            <TableColumn fx:id="totalCnt" prefWidth="120.0" text="%column.totalSampleCount" />
-            <TableColumn fx:id="profileCnt" prefWidth="120.0" text="%column.profileSampleCount" />
+              <TableColumn fx:id="method" maxWidth="1.7976931348623157E308" minWidth="250.0" prefWidth="-1.0" text="%column.method" />
+              <TableColumn fx:id="selfTimeGraphical" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.selfCntPctGraph" />
+              <TableColumn fx:id="selfCntPct" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.selfCntPct" />
+              <TableColumn fx:id="totalCntPct" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.totalCntPct" />
+            <TableColumn fx:id="selfCnt" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.selfCnt" />
+            <TableColumn fx:id="totalCnt" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.totalCnt" />
+            <TableColumn fx:id="selfTime" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.selfTime" />
+            <TableColumn fx:id="selfTimePct" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.selfTimePct" />
+            <TableColumn fx:id="totalTime" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.totalTime" />
+            <TableColumn fx:id="totalTimePct" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.totalTimePct" />
           </columns>
          <tooltip>
             <Tooltip text="%table.flat.tooltip" />

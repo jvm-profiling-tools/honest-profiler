@@ -1,15 +1,22 @@
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
 import static com.insightfullogic.honest_profiler.core.aggregation.result.ItemType.DIFFNODE;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_PARENT_CNT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_CNT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_CNT_DIFF;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_PCT;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_PCT_DIFF;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_CNT_PCT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_CNT_PCT_DIFF;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_TIME;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_TIME_DIFF;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_TIME_PCT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_TIME_PCT_DIFF;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_CNT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_CNT_DIFF;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_PCT;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_PCT_DIFF;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_CNT_PCT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_CNT_PCT_DIFF;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_TIME;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_TIME_DIFF;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_TIME_PCT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_TIME_PCT_DIFF;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_COLLAPSEALLALL;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_EXPANDALL;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_FILTER;
@@ -52,17 +59,17 @@ public class TreeDiffViewController
     @FXML
     private TreeTableColumn<DiffNode<String>, String> methodColumn;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> baseSelfPct;
+    private TreeTableColumn<DiffNode<String>, Number> baseSelfCntPct;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> newSelfPct;
+    private TreeTableColumn<DiffNode<String>, Number> newSelfCntPct;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> selfPctDiff;
+    private TreeTableColumn<DiffNode<String>, Number> selfCntPctDiff;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> baseTotalPct;
+    private TreeTableColumn<DiffNode<String>, Number> baseTotalCntPct;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> newTotalPct;
+    private TreeTableColumn<DiffNode<String>, Number> newTotalCntPct;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> totalPctDiff;
+    private TreeTableColumn<DiffNode<String>, Number> totalCntPctDiff;
     @FXML
     private TreeTableColumn<DiffNode<String>, Number> baseSelfCnt;
     @FXML
@@ -76,11 +83,29 @@ public class TreeDiffViewController
     @FXML
     private TreeTableColumn<DiffNode<String>, Number> totalCntDiff;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> baseParentCnt;
+    private TreeTableColumn<DiffNode<String>, Number> baseSelfTimePct;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> newParentCnt;
+    private TreeTableColumn<DiffNode<String>, Number> newSelfTimePct;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> parentCntDiff;
+    private TreeTableColumn<DiffNode<String>, Number> selfTimePctDiff;
+    @FXML
+    private TreeTableColumn<DiffNode<String>, Number> baseTotalTimePct;
+    @FXML
+    private TreeTableColumn<DiffNode<String>, Number> newTotalTimePct;
+    @FXML
+    private TreeTableColumn<DiffNode<String>, Number> totalTimePctDiff;
+    @FXML
+    private TreeTableColumn<DiffNode<String>, Number> baseSelfTime;
+    @FXML
+    private TreeTableColumn<DiffNode<String>, Number> newSelfTime;
+    @FXML
+    private TreeTableColumn<DiffNode<String>, Number> selfTimeDiff;
+    @FXML
+    private TreeTableColumn<DiffNode<String>, Number> baseTotalTime;
+    @FXML
+    private TreeTableColumn<DiffNode<String>, Number> newTotalTime;
+    @FXML
+    private TreeTableColumn<DiffNode<String>, Number> totalTimeDiff;
 
     private TreeDiff<String> diff;
 
@@ -115,25 +140,37 @@ public class TreeDiffViewController
                 data.getValue() == null ? null : data.getValue().getValue().getKey()));
         methodColumn.setCellFactory(col -> new MethodNameTreeTableCell<>(appCtx()));
 
-        cfgPctCol(baseSelfPct, "baseSelfCntPct", baseCtx(), getText(COLUMN_SELF_PCT));
-        cfgPctCol(newSelfPct, "newSelfCntPct", newCtx(), getText(COLUMN_SELF_PCT));
-        cfgPctDiffCol(selfPctDiff, "selfCntPctDiff", getText(COLUMN_SELF_PCT_DIFF));
+        cfgPctCol(baseSelfCntPct, "baseSelfCntPct", baseCtx(), getText(COLUMN_SELF_CNT_PCT));
+        cfgPctCol(newSelfCntPct, "newSelfCntPct", newCtx(), getText(COLUMN_SELF_CNT_PCT));
+        cfgPctDiffCol(selfCntPctDiff, "selfCntPctDiff", getText(COLUMN_SELF_CNT_PCT_DIFF));
 
-        cfgPctCol(baseTotalPct, "baseTotalCntPct", baseCtx(), getText(COLUMN_TOTAL_PCT));
-        cfgPctCol(newTotalPct, "newTotalCntPct", newCtx(), getText(COLUMN_TOTAL_PCT));
-        cfgPctDiffCol(totalPctDiff, "totalCntPctDiff", getText(COLUMN_TOTAL_PCT_DIFF));
+        cfgPctCol(baseTotalCntPct, "baseTotalCntPct", baseCtx(), getText(COLUMN_TOTAL_CNT_PCT));
+        cfgPctCol(newTotalCntPct, "newTotalCntPct", newCtx(), getText(COLUMN_TOTAL_CNT_PCT));
+        cfgPctDiffCol(totalCntPctDiff, "totalCntPctDiff", getText(COLUMN_TOTAL_CNT_PCT_DIFF));
 
-        cfgCntCol(baseSelfCnt, "baseSelfCnt", baseCtx(), getText(COLUMN_SELF_CNT));
-        cfgCntCol(newSelfCnt, "newSelfCnt", newCtx(), getText(COLUMN_SELF_CNT));
-        cfgCntDiffCol(selfCntDiff, "selfCntDiff", getText(COLUMN_SELF_CNT_DIFF));
+        cfgNrCol(baseSelfCnt, "baseSelfCnt", baseCtx(), getText(COLUMN_SELF_CNT));
+        cfgNrCol(newSelfCnt, "newSelfCnt", newCtx(), getText(COLUMN_SELF_CNT));
+        cfgNrDiffCol(selfCntDiff, "selfCntDiff", getText(COLUMN_SELF_CNT_DIFF));
 
-        cfgCntCol(baseTotalCnt, "baseTotalCnt", baseCtx(), getText(COLUMN_TOTAL_CNT));
-        cfgCntCol(newTotalCnt, "newTotalCnt", newCtx(), getText(COLUMN_TOTAL_CNT));
-        cfgCntDiffCol(totalCntDiff, "totalCntDiff", getText(COLUMN_TOTAL_CNT_DIFF));
+        cfgNrCol(baseTotalCnt, "baseTotalCnt", baseCtx(), getText(COLUMN_TOTAL_CNT));
+        cfgNrCol(newTotalCnt, "newTotalCnt", newCtx(), getText(COLUMN_TOTAL_CNT));
+        cfgNrDiffCol(totalCntDiff, "totalCntDiff", getText(COLUMN_TOTAL_CNT_DIFF));
 
-        cfgCntCol(baseParentCnt, "baseRefCnt", baseCtx(), getText(COLUMN_PARENT_CNT));
-        cfgCntCol(newParentCnt, "newRefCnt", newCtx(), getText(COLUMN_PARENT_CNT));
-        cfgCntDiffCol(parentCntDiff, "refCntDiff", getText(COLUMN_PARENT_CNT));
+        cfgPctCol(baseSelfTimePct, "baseSelfTimePct", baseCtx(), getText(COLUMN_SELF_TIME_PCT));
+        cfgPctCol(newSelfTimePct, "newSelfTimePct", newCtx(), getText(COLUMN_SELF_TIME_PCT));
+        cfgPctDiffCol(selfTimePctDiff, "selfTimePctDiff", getText(COLUMN_SELF_TIME_PCT_DIFF));
+
+        cfgPctCol(baseTotalTimePct, "baseTotalTimePct", baseCtx(), getText(COLUMN_TOTAL_TIME_PCT));
+        cfgPctCol(newTotalTimePct, "newTotalTimePct", newCtx(), getText(COLUMN_TOTAL_TIME_PCT));
+        cfgPctDiffCol(totalTimePctDiff, "totalTimePctDiff", getText(COLUMN_TOTAL_TIME_PCT_DIFF));
+
+        cfgTimeCol(baseSelfTime, "baseSelfTime", baseCtx(), getText(COLUMN_SELF_TIME));
+        cfgTimeCol(newSelfTime, "newSelfTime", newCtx(), getText(COLUMN_SELF_TIME));
+        cfgTimeDiffCol(selfTimeDiff, "selfTimeDiff", getText(COLUMN_SELF_TIME_DIFF));
+
+        cfgTimeCol(baseTotalTime, "baseTotalTime", baseCtx(), getText(COLUMN_TOTAL_TIME));
+        cfgTimeCol(newTotalTime, "newTotalTime", newCtx(), getText(COLUMN_TOTAL_TIME));
+        cfgTimeDiffCol(totalTimeDiff, "totalTimeDiff", getText(COLUMN_TOTAL_TIME_DIFF));
     }
 
     private void updateDiff(AggregationProfile profile, boolean base)

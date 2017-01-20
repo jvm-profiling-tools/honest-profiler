@@ -6,6 +6,13 @@ import javafx.util.StringConverter;
 
 public final class ConversionUtil
 {
+    private static final long NS_TO_MS = 1000 * 1000;
+
+    public static final long toMillis(long nanos)
+    {
+        return nanos / NS_TO_MS;
+    }
+
     public static <T extends Enum<T>> StringConverter<T> getStringConverterForType(Class<T> type)
     {
         return new StringConverter<T>()

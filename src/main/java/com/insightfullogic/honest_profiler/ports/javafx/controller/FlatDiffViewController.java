@@ -20,16 +20,22 @@ package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
 import static com.insightfullogic.honest_profiler.core.aggregation.result.ItemType.DIFFENTRY;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.showExportDialog;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_PROFILE_CNT;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_PROFILE_CNT_DIFF;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_CNT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_CNT_DIFF;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_PCT;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_PCT_DIFF;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_CNT_PCT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_CNT_PCT_DIFF;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_TIME;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_TIME_DIFF;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_TIME_PCT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_TIME_PCT_DIFF;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_CNT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_CNT_DIFF;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_PCT;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_PCT_DIFF;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_CNT_PCT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_CNT_PCT_DIFF;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_TIME;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_TIME_DIFF;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_TIME_PCT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_TIME_PCT_DIFF;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_EXPORT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_FILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_QUICKFILTER;
@@ -67,17 +73,17 @@ public class FlatDiffViewController
     @FXML
     private TableColumn<DiffEntry<String>, String> method;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> baseSelfPct;
+    private TableColumn<DiffEntry<String>, Number> baseSelfCntPct;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> newSelfPct;
+    private TableColumn<DiffEntry<String>, Number> newSelfCntPct;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> selfPctDiff;
+    private TableColumn<DiffEntry<String>, Number> selfCntPctDiff;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> baseTotalPct;
+    private TableColumn<DiffEntry<String>, Number> baseTotalCntPct;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> newTotalPct;
+    private TableColumn<DiffEntry<String>, Number> newTotalCntPct;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> totalPctDiff;
+    private TableColumn<DiffEntry<String>, Number> totalCntPctDiff;
     @FXML
     private TableColumn<DiffEntry<String>, Number> baseSelfCnt;
     @FXML
@@ -91,11 +97,29 @@ public class FlatDiffViewController
     @FXML
     private TableColumn<DiffEntry<String>, Number> totalCntDiff;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> baseProfileCnt;
+    private TableColumn<DiffEntry<String>, Number> baseSelfTimePct;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> newProfileCnt;
+    private TableColumn<DiffEntry<String>, Number> newSelfTimePct;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> profileCntDiff;
+    private TableColumn<DiffEntry<String>, Number> selfTimePctDiff;
+    @FXML
+    private TableColumn<DiffEntry<String>, Number> baseTotalTimePct;
+    @FXML
+    private TableColumn<DiffEntry<String>, Number> newTotalTimePct;
+    @FXML
+    private TableColumn<DiffEntry<String>, Number> totalTimePctDiff;
+    @FXML
+    private TableColumn<DiffEntry<String>, Number> baseSelfTime;
+    @FXML
+    private TableColumn<DiffEntry<String>, Number> newSelfTime;
+    @FXML
+    private TableColumn<DiffEntry<String>, Number> selfTimeDiff;
+    @FXML
+    private TableColumn<DiffEntry<String>, Number> baseTotalTime;
+    @FXML
+    private TableColumn<DiffEntry<String>, Number> newTotalTime;
+    @FXML
+    private TableColumn<DiffEntry<String>, Number> totalTimeDiff;
 
     private FlatDiff<String> diff;
 
@@ -127,43 +151,46 @@ public class FlatDiffViewController
         method.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getKey()));
         method.setCellFactory(col -> new MethodNameTableCell<DiffEntry<String>>());
 
-        cfgPctCol(baseSelfPct, "baseSelfCntPct", baseCtx(), getText(COLUMN_SELF_PCT));
-        cfgPctCol(newSelfPct, "newSelfCntPct", newCtx(), getText(COLUMN_SELF_PCT));
-        cfgPctDiffCol(selfPctDiff, "selfCntPctDiff", getText(COLUMN_SELF_PCT_DIFF));
+        cfgPctCol(baseSelfCntPct, "baseSelfCntPct", baseCtx(), getText(COLUMN_SELF_CNT_PCT));
+        cfgPctCol(newSelfCntPct, "newSelfCntPct", newCtx(), getText(COLUMN_SELF_CNT_PCT));
+        cfgPctDiffCol(selfCntPctDiff, "selfCntPctDiff", getText(COLUMN_SELF_CNT_PCT_DIFF));
 
-        cfgPctCol(baseTotalPct, "baseTotalCntPct", baseCtx(), getText(COLUMN_TOTAL_PCT));
-        cfgPctCol(newTotalPct, "newTotalCntPct", newCtx(), getText(COLUMN_TOTAL_PCT));
-        cfgPctDiffCol(totalPctDiff, "totalCntPctDiff", getText(COLUMN_TOTAL_PCT_DIFF));
+        cfgPctCol(baseTotalCntPct, "baseTotalCntPct", baseCtx(), getText(COLUMN_TOTAL_CNT_PCT));
+        cfgPctCol(newTotalCntPct, "newTotalCntPct", newCtx(), getText(COLUMN_TOTAL_CNT_PCT));
+        cfgPctDiffCol(totalCntPctDiff, "totalCntPctDiff", getText(COLUMN_TOTAL_CNT_PCT_DIFF));
 
-        cfgCntCol(baseSelfCnt, "baseSelfCnt", baseCtx(), getText(COLUMN_SELF_CNT));
-        cfgCntCol(newSelfCnt, "newSelfCnt", newCtx(), getText(COLUMN_SELF_CNT));
-        cfgCntDiffCol(selfCntDiff, "selfCntDiff", getText(COLUMN_SELF_CNT_DIFF));
+        cfgNrCol(baseSelfCnt, "baseSelfCnt", baseCtx(), getText(COLUMN_SELF_CNT));
+        cfgNrCol(newSelfCnt, "newSelfCnt", newCtx(), getText(COLUMN_SELF_CNT));
+        cfgNrDiffCol(selfCntDiff, "selfCntDiff", getText(COLUMN_SELF_CNT_DIFF));
 
-        cfgCntCol(baseTotalCnt, "baseTotalCnt", baseCtx(), getText(COLUMN_TOTAL_CNT));
-        cfgCntCol(newTotalCnt, "newTotalCnt", newCtx(), getText(COLUMN_TOTAL_CNT));
-        cfgCntDiffCol(totalCntDiff, "totalCntDiff", getText(COLUMN_TOTAL_CNT_DIFF));
+        cfgNrCol(baseTotalCnt, "baseTotalCnt", baseCtx(), getText(COLUMN_TOTAL_CNT));
+        cfgNrCol(newTotalCnt, "newTotalCnt", newCtx(), getText(COLUMN_TOTAL_CNT));
+        cfgNrDiffCol(totalCntDiff, "totalCntDiff", getText(COLUMN_TOTAL_CNT_DIFF));
 
-        cfgCntCol(baseProfileCnt, "baseRefCnt", baseCtx(), getText(COLUMN_PROFILE_CNT));
-        cfgCntCol(newProfileCnt, "newRefCnt", newCtx(), getText(COLUMN_PROFILE_CNT));
-        cfgCntDiffCol(profileCntDiff, "refCntDiff", getText(COLUMN_PROFILE_CNT_DIFF));
+        cfgPctCol(baseSelfTimePct, "baseSelfTimePct", baseCtx(), getText(COLUMN_SELF_TIME_PCT));
+        cfgPctCol(newSelfTimePct, "newSelfTimePct", newCtx(), getText(COLUMN_SELF_TIME_PCT));
+        cfgPctDiffCol(selfTimePctDiff, "selfTimePctDiff", getText(COLUMN_SELF_TIME_PCT_DIFF));
+
+        cfgPctCol(baseTotalTimePct, "baseTotalTimePct", baseCtx(), getText(COLUMN_TOTAL_TIME_PCT));
+        cfgPctCol(newTotalTimePct, "newTotalTimePct", newCtx(), getText(COLUMN_TOTAL_TIME_PCT));
+        cfgPctDiffCol(totalTimePctDiff, "totalTimePctDiff", getText(COLUMN_TOTAL_TIME_PCT_DIFF));
+
+        cfgTimeCol(baseSelfTime, "baseSelfTime", baseCtx(), getText(COLUMN_SELF_TIME));
+        cfgTimeCol(newSelfTime, "newSelfTime", newCtx(), getText(COLUMN_SELF_TIME));
+        cfgTimeDiffCol(selfTimeDiff, "selfTimeDiff", getText(COLUMN_SELF_TIME_DIFF));
+
+        cfgTimeCol(baseTotalTime, "baseTotalTime", baseCtx(), getText(COLUMN_TOTAL_TIME));
+        cfgTimeCol(newTotalTime, "newTotalTime", newCtx(), getText(COLUMN_TOTAL_TIME));
+        cfgTimeDiffCol(totalTimeDiff, "totalTimeDiff", getText(COLUMN_TOTAL_TIME_DIFF));
     }
 
     private void updateDiff(AggregationProfile profile, boolean base)
     {
         if (profile != null)
         {
-            if (base)
-            {
-                diff.setBase(profile.getFlat());
-            }
-            else
-            {
-                diff.setNew(profile.getFlat());
-            }
-
+            diff.set(profile.getFlat(), base);
             diffTable.getItems().clear();
             diffTable.getItems().addAll(diff.filter(getFilterSpecification()).getData());
-            // refreshTable(diffTable);
         }
     }
 
@@ -196,7 +223,6 @@ public class FlatDiffViewController
     @Override
     protected void refresh()
     {
-        // diff.clear();
         updateDiff(getBaseTarget(), true);
         updateDiff(getNewTarget(), false);
     }

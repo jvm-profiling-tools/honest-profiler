@@ -59,20 +59,26 @@ public final class ResourceUtil
     public static final String TOOLTIP_BUTTON_FREEZE_FROZEN = "button.freeze.frozen.tooltip";
 
     public static final String COLUMN_METHOD = "column.method";
-    public static final String COLUMN_SELF_PCT_GRAPH = "column.selfSamplePercentGraph";
-    public static final String COLUMN_TOTAL_PCT_GRAPH = "column.totalSamplePercentGraph";
-    public static final String COLUMN_SELF_PCT = "column.selfSamplePercent";
-    public static final String COLUMN_TOTAL_PCT = "column.totalSamplePercent";
-    public static final String COLUMN_SELF_CNT = "column.selfSampleCount";
-    public static final String COLUMN_TOTAL_CNT = "column.totalSampleCount";
-    public static final String COLUMN_PARENT_CNT = "column.parentSampleCount";
-    public static final String COLUMN_PROFILE_CNT = "column.profileSampleCount";
-    public static final String COLUMN_SELF_PCT_DIFF = "column.selfSamplePercentDiff";
-    public static final String COLUMN_TOTAL_PCT_DIFF = "column.totalSamplePercentDiff";
-    public static final String COLUMN_SELF_CNT_DIFF = "column.selfSampleCountDiff";
-    public static final String COLUMN_TOTAL_CNT_DIFF = "column.totalSampleCountDiff";
-    public static final String COLUMN_PARENT_CNT_DIFF = "column.parentSampleCountDiff";
-    public static final String COLUMN_PROFILE_CNT_DIFF = "column.profileSampleCountDiff";
+    public static final String COLUMN_SELF_PCT_GRAPH = "column.selfCntPctGraph";
+    public static final String COLUMN_TOTAL_PCT_GRAPH = "column.totalCntPctGraph";
+
+    public static final String COLUMN_SELF_CNT = "column.selfCnt";
+    public static final String COLUMN_SELF_TIME = "column.selfTime";
+    public static final String COLUMN_SELF_CNT_DIFF = "column.selfCntDiff";
+    public static final String COLUMN_SELF_TIME_DIFF = "column.selfTimeDiff";
+    public static final String COLUMN_SELF_CNT_PCT = "column.selfCntPct";
+    public static final String COLUMN_SELF_TIME_PCT = "column.selfTimePct";
+    public static final String COLUMN_SELF_CNT_PCT_DIFF = "column.selfCntPctDiff";
+    public static final String COLUMN_SELF_TIME_PCT_DIFF = "column.selfTimePctDiff";
+
+    public static final String COLUMN_TOTAL_CNT = "column.totalCnt";
+    public static final String COLUMN_TOTAL_TIME = "column.totalTime";
+    public static final String COLUMN_TOTAL_CNT_DIFF = "column.totalCntDiff";
+    public static final String COLUMN_TOTAL_TIME_DIFF = "column.totalTimeDiff";
+    public static final String COLUMN_TOTAL_CNT_PCT = "column.totalCntPct";
+    public static final String COLUMN_TOTAL_TIME_PCT = "column.totalTimePct";
+    public static final String COLUMN_TOTAL_CNT_PCT_DIFF = "column.totalCntPctDiff";
+    public static final String COLUMN_TOTAL_TIME_PCT_DIFF = "column.totalTimePctDiff";
 
     public static final String TITLE_DIALOG_OPENFILE = "dialog.openFile.title";
     public static final String TITLE_DIALOG_SPECIFYFILTERS = "dialog.specifyFilters.title";

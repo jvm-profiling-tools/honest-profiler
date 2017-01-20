@@ -4,6 +4,7 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.F
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.TITLE_DIALOG_SPECIFYFILTERS;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.StyleUtil.doubleDiffStyler;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.StyleUtil.intDiffStyler;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.StyleUtil.longDiffStyler;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_ACTIVE_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor;
@@ -21,6 +22,8 @@ import com.insightfullogic.honest_profiler.ports.javafx.view.cell.CountTableCell
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.CountTreeTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.PercentageTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.PercentageTreeTableCell;
+import com.insightfullogic.honest_profiler.ports.javafx.view.cell.TimeTableCell;
+import com.insightfullogic.honest_profiler.ports.javafx.view.cell.TimeTreeTableCell;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -33,10 +36,12 @@ import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.image.ImageView;
 
 /**
- * Superclass for all View Controllers in the application. These controllers provide a particular view on data. The
- * class holds the code for the filters and quick filter.
+ * Superclass for all View Controllers in the application. These controllers
+ * provide a particular view on data. The class holds the code for the filters
+ * and quick filter.
  *
- * The superclass also provides some common UI helper methods for column configuration.
+ * The superclass also provides some common UI helper methods for column
+ * configuration.
  */
 public abstract class AbstractViewController<T> extends AbstractController
 {
@@ -50,12 +55,14 @@ public abstract class AbstractViewController<T> extends AbstractController
     private ItemType type;
 
     /**
-     * This method must be called by subclasses in their FXML initialize(). It provides the controller-local UI nodes
-     * needed by the AbstractViewController.
+     * This method must be called by subclasses in their FXML initialize(). It
+     * provides the controller-local UI nodes needed by the
+     * AbstractViewController.
      *
      * @param filterButton the button used to trigger filter editing
      * @param quickFilterButton the button used to apply the quick filter
-     * @param quickFilterText the TextField providing the value for the quick filter
+     * @param quickFilterText the TextField providing the value for the quick
+     *            filter
      * @param type the {@link ItemType} shown in the vies
      */
     protected void initialize(Button filterButton, Button quickFilterButton,
@@ -79,8 +86,9 @@ public abstract class AbstractViewController<T> extends AbstractController
     // Accessors
 
     /**
-     * In addition to the normal functionality, the method calls filter initialization, which needs the
-     * ApplicationContext to be present. If a particular view controller
+     * In addition to the normal functionality, the method calls filter
+     * initialization, which needs the ApplicationContext to be present. If a
+     * particular view controller
      *
      * @param applicationContext the ApplicationContext of this application
      */
@@ -98,8 +106,8 @@ public abstract class AbstractViewController<T> extends AbstractController
     }
 
     /**
-     * Refreshes the view. The view should be updated based on the current state of the {@link Profile} and
-     * {@link ProfileFilter}.
+     * Refreshes the view. The view should be updated based on the current state
+     * of the {@link Profile} and {@link ProfileFilter}.
      */
     protected abstract void refresh();
 
@@ -123,7 +131,7 @@ public abstract class AbstractViewController<T> extends AbstractController
         setColumnHeader(column, title, null);
     }
 
-    protected <U> void cfgCntCol(TableColumn<U, Number> column, String propertyName,
+    protected <U> void cfgNrCol(TableColumn<U, Number> column, String propertyName,
         ProfileContext profileContext, String title)
     {
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
@@ -131,11 +139,27 @@ public abstract class AbstractViewController<T> extends AbstractController
         setColumnHeader(column, title, profileContext);
     }
 
-    protected <U> void cfgCntDiffCol(TableColumn<U, Number> column, String propertyName,
+    protected <U> void cfgNrDiffCol(TableColumn<U, Number> column, String propertyName,
         String title)
     {
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
         column.setCellFactory(col -> new CountTableCell<>(intDiffStyler));
+        setColumnHeader(column, title, null);
+    }
+
+    protected <U> void cfgTimeCol(TableColumn<U, Number> column, String propertyName,
+        ProfileContext profileContext, String title)
+    {
+        column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
+        column.setCellFactory(col -> new TimeTableCell<>(null));
+        setColumnHeader(column, title, profileContext);
+    }
+
+    protected <U> void cfgTimeDiffCol(TableColumn<U, Number> column, String propertyName,
+        String title)
+    {
+        column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
+        column.setCellFactory(col -> new TimeTableCell<>(longDiffStyler));
         setColumnHeader(column, title, null);
     }
 
@@ -155,7 +179,7 @@ public abstract class AbstractViewController<T> extends AbstractController
         setColumnHeader(column, title, null);
     }
 
-    protected <U> void cfgCntCol(TreeTableColumn<U, Number> column, String propertyName,
+    protected <U> void cfgNrCol(TreeTableColumn<U, Number> column, String propertyName,
         ProfileContext profileContext, String title)
     {
         column.setCellValueFactory(new TreeItemPropertyValueFactory<>(propertyName));
@@ -163,11 +187,27 @@ public abstract class AbstractViewController<T> extends AbstractController
         setColumnHeader(column, title, profileContext);
     }
 
-    protected <U> void cfgCntDiffCol(TreeTableColumn<U, Number> column, String propertyName,
+    protected <U> void cfgNrDiffCol(TreeTableColumn<U, Number> column, String propertyName,
         String title)
     {
         column.setCellValueFactory(new TreeItemPropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new CountTreeTableCell<>(doubleDiffStyler));
+        column.setCellFactory(col -> new CountTreeTableCell<>(intDiffStyler));
+        setColumnHeader(column, title, null);
+    }
+
+    protected <U> void cfgTimeCol(TreeTableColumn<U, Number> column, String propertyName,
+        ProfileContext profileContext, String title)
+    {
+        column.setCellValueFactory(new TreeItemPropertyValueFactory<>(propertyName));
+        column.setCellFactory(col -> new TimeTreeTableCell<>(null));
+        setColumnHeader(column, title, profileContext);
+    }
+
+    protected <U> void cfgTimeDiffCol(TreeTableColumn<U, Number> column, String propertyName,
+        String title)
+    {
+        column.setCellValueFactory(new TreeItemPropertyValueFactory<>(propertyName));
+        column.setCellFactory(col -> new TimeTreeTableCell<>(longDiffStyler));
         setColumnHeader(column, title, null);
     }
 
@@ -186,8 +226,9 @@ public abstract class AbstractViewController<T> extends AbstractController
     /**
      * Initializes the filters.
      *
-     * @param applicationContext the {@link ApplicationContext}. The parameter is used to explicitly point out the
-     *            dependency on the presense of the context.
+     * @param applicationContext the {@link ApplicationContext}. The parameter
+     *            is used to explicitly point out the dependency on the presense
+     *            of the context.
      */
     private void initializeFilters(ApplicationContext applicationContext)
     {
