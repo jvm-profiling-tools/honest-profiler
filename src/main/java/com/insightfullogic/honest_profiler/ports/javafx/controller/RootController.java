@@ -11,12 +11,15 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.creat
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.getProgressIndicator;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.loaderFor;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.CONTENT_TAB_LOADING;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.HEADER_DIALOG_ERR_ALREADYOPENPROFILE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.HEADER_DIALOG_ERR_OPENPROFILE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_MENU_ROOT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TAB_PROFILE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TAB_PROFILEDIFF;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.MESSAGE_DIALOG_ERR_ALREADYOPENPROFILE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.MESSAGE_DIALOG_ERR_OPENPROFILE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.MESSAGE_DIALOG_ERR_TASKCANCELED;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.TITLE_DIALOG_ERR_ALREADYOPENPROFILE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.TITLE_DIALOG_ERR_OPENPROFILE;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.LIVE_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.LOG_16;
@@ -108,7 +111,11 @@ public class RootController extends AbstractController implements MachineListene
 
         vmItem.setId(vm.getId());
         vmItem.setDisable(!vm.isAgentLoaded());
-        vmItem.setOnAction(event -> createNewProfile(vm, true));
+        vmItem.setOnAction(event ->
+        {
+            vmItem.setDisable(true);
+            createNewProfile(vm, true);
+        });
 
         if (monitorMenu != null)
         {
@@ -244,7 +251,18 @@ public class RootController extends AbstractController implements MachineListene
 
         if (file != null)
         {
-            fileBasedAction.accept(file);
+            Integer id = appCtx().getContextIdByPath(file);
+            if (id == null)
+            {
+                fileBasedAction.accept(file);
+            }
+            else
+            {
+                showErrorDialog(
+                    appCtx().textFor(TITLE_DIALOG_ERR_ALREADYOPENPROFILE),
+                    appCtx().textFor(HEADER_DIALOG_ERR_ALREADYOPENPROFILE),
+                    appCtx().textFor(MESSAGE_DIALOG_ERR_ALREADYOPENPROFILE, id.toString()));
+            }
         }
     }
 

@@ -6,6 +6,7 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static java.util.concurrent.Executors.newCachedThreadPool;
 import static java.util.stream.Collectors.toList;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -25,7 +26,8 @@ public final class ApplicationContext
     private ResourceBundle currentBundle;
 
     private SimpleStringProperty info;
-    private Map<String, ProfileContext> profileContextMap;
+    private Map<String, ProfileContext> nameToContextMap;
+    private Map<String, ProfileContext> pathToContextMap;
     private RootController rootController;
 
     private ExecutorService executorService = newCachedThreadPool();
@@ -36,7 +38,14 @@ public final class ApplicationContext
         currentBundle = getDefaultBundle();
         info = new SimpleStringProperty();
         this.rootController = rootController;
-        profileContextMap = new HashMap<String, ProfileContext>();
+        nameToContextMap = new HashMap<String, ProfileContext>();
+        pathToContextMap = new HashMap<String, ProfileContext>();
+    }
+
+    public Integer getContextIdByPath(File file)
+    {
+        ProfileContext ctx = pathToContextMap.get(file.getAbsolutePath());
+        return ctx == null ? null : ctx.getId();
     }
 
     public String textFor(String key)
@@ -71,17 +80,18 @@ public final class ApplicationContext
 
     public ProfileContext getProfileContext(String name)
     {
-        return profileContextMap.get(name);
+        return nameToContextMap.get(name);
     }
 
     public void registerProfileContext(ProfileContext context)
     {
-        profileContextMap.put(context.getName(), context);
+        nameToContextMap.put(context.getName(), context);
+        pathToContextMap.put(context.getFile().getAbsolutePath(), context);
     }
 
     public List<String> getOpenProfileNames()
     {
-        return profileContextMap.keySet().stream().sorted().collect(toList());
+        return nameToContextMap.keySet().stream().sorted().collect(toList());
     }
 
     public void execute(Task<?> task)

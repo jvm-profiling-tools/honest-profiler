@@ -14,6 +14,7 @@ import com.insightfullogic.honest_profiler.core.parser.LogEventPublisher;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
+import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext.ProfileMode;
 import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
 
 import javafx.concurrent.Task;
@@ -27,7 +28,7 @@ public class InitializeProfileTask extends Task<ProfileContext>
     public InitializeProfileTask(ApplicationContext applicationContext, Object source, boolean live)
     {
         super();
-        this.appCtx = applicationContext;
+        appCtx = applicationContext;
         this.source = source;
         this.live = live;
     }
@@ -35,36 +36,13 @@ public class InitializeProfileTask extends Task<ProfileContext>
     @Override
     protected ProfileContext call() throws Exception
     {
-        ProfileContext profileContext;
+        FileLogSource fileLogSource = getLogSource();
 
-        if (source instanceof VirtualMachine)
-        {
-            VirtualMachine vm = (VirtualMachine) source;
-            profileContext = new ProfileContext(appCtx, convertVmName(vm), LIVE);
-            LeanLogCollector collector = getCollector(profileContext);
-            profileContext.setProfileSource(collector);
-            pipeFile(vm.getLogSourceFromVmArgs(), collector, profileContext.getProfileListener());
-        }
-        else if (live)
-        {
-            File file = (File) source;
-            profileContext = new ProfileContext(appCtx, file.getName(), LIVE);
-            LeanLogCollector collector = getCollector(profileContext);
-            profileContext.setProfileSource(collector);
-            pipeFile(new FileLogSource(file), collector, profileContext.getProfileListener());
-        }
-        else
-        {
-            File file = (File) source;
-            profileContext = new ProfileContext(appCtx, file.getName(), LOG);
-            final LogEventListener collector = new LogEventPublisher()
-                .publishTo(getCollector(profileContext))
-                .publishTo(new FlameGraphCollector(profileContext.getFlameGraphListener()));
-            pipe(new FileLogSource(file), collector, false).run();
-        }
+        ProfileContext context = (source instanceof VirtualMachine || live)
+            ? monitor(fileLogSource) : consume(fileLogSource);
 
-        appCtx.registerProfileContext(profileContext);
-        return profileContext;
+        appCtx.registerProfileContext(context);
+        return context;
     }
 
     @Override
@@ -74,12 +52,52 @@ public class InitializeProfileTask extends Task<ProfileContext>
         getException().printStackTrace();
     }
 
+    private ProfileContext newProfileContext(ProfileMode mode, FileLogSource fileLogSource)
+    {
+        return new ProfileContext(appCtx, getName(), mode, fileLogSource.getFile());
+    }
+
     private LeanLogCollector getCollector(ProfileContext context)
     {
         return new LeanLogCollector(context.getProfileListener());
     }
 
-    private String convertVmName(VirtualMachine vm)
+    private FileLogSource getLogSource()
+    {
+        return (source instanceof VirtualMachine)
+            ? (FileLogSource) ((VirtualMachine) source).getLogSourceFromVmArgs()
+            : new FileLogSource((File) source);
+    }
+
+    private String getName()
+    {
+        return (source instanceof VirtualMachine) ? getVmName((VirtualMachine) source)
+            : ((File) source).getName();
+
+    }
+
+    private ProfileContext monitor(FileLogSource fileLogSource)
+    {
+        ProfileContext profileContext = newProfileContext(LIVE, fileLogSource);
+        LeanLogCollector collector = getCollector(profileContext);
+        profileContext.setProfileSource(collector);
+        pipeFile(fileLogSource, collector, profileContext.getProfileListener());
+
+        return profileContext;
+    }
+
+    private ProfileContext consume(FileLogSource fileLogSource)
+    {
+        ProfileContext profileContext = newProfileContext(LOG, fileLogSource);
+        final LogEventListener collector = new LogEventPublisher()
+            .publishTo(getCollector(profileContext))
+            .publishTo(new FlameGraphCollector(profileContext.getFlameGraphListener()));
+        pipe(fileLogSource, collector, false).run();
+
+        return profileContext;
+    }
+
+    private String getVmName(VirtualMachine vm)
     {
         String name = vm.getDisplayName();
 
