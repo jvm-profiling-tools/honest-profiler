@@ -4,6 +4,7 @@ import static javafx.application.Platform.isFxApplicationThread;
 import static javafx.application.Platform.runLater;
 import static javafx.util.Duration.seconds;
 
+import java.io.File;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
@@ -34,8 +35,8 @@ public class ProfileContext
     private final ApplicationContext appCtx;
 
     private final int id;
-
     private final SimpleStringProperty name;
+    private final File file;
 
     private final ProfileMode mode;
     private ProfileSource profileSource;
@@ -53,19 +54,25 @@ public class ProfileContext
     private LeanProfile cachedProfile;
     private FlameGraph cachedFlameGraph;
 
-    public ProfileContext(ApplicationContext appCtx, String name, ProfileMode mode)
+    public ProfileContext(ApplicationContext appCtx, String name, ProfileMode mode, File file)
     {
         this.appCtx = appCtx;
-
+        this.name = new SimpleStringProperty(name);
         this.mode = mode;
+        this.file = file;
+
         profileSource = null;
 
         id = counter.incrementAndGet();
-        this.name = new SimpleStringProperty(name);
         profile = new SimpleObjectProperty<>();
         flameGraph = new SimpleObjectProperty<>();
 
         refreshInterval = seconds(1);
+    }
+
+    public File getFile()
+    {
+        return file;
     }
 
     public void setProfileSource(ProfileSource profileSource)
