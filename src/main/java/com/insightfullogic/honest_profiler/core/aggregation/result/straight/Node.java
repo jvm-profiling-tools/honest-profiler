@@ -15,26 +15,20 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 /**
  * Wrapper for {@link Entry} which allows organizing them into a tree structure.
  */
-public class Node<K> implements Keyed<K>
+public class Node<K> extends Entry<K>
 {
-    private final Entry<K> entry;
-    private final List<Node<K>> children;
+    private List<Node<K>> children;
 
     public <T extends Keyed<K>> Node(Aggregation<K, T> aggregation)
     {
-        this.entry = new Entry<>(null, aggregation);
+        super(aggregation);
         this.children = new ArrayList<>();
     }
 
-    public Node(Entry<K> entry)
+    public <T extends Keyed<K>> Node(K key, NumericInfo data, Aggregation<K, T> aggregation)
     {
-        this.entry = entry;
+        super(key, data, aggregation);
         this.children = new ArrayList<>();
-    }
-
-    public Entry<K> getEntry()
-    {
-        return entry;
     }
 
     /**
@@ -43,9 +37,10 @@ public class Node<K> implements Keyed<K>
      * @param entry
      * @param children
      */
-    private Node(Entry<K> entry, List<Node<K>> children)
+    private Node(Node<K> entry, List<Node<K>> children)
     {
-        this.entry = entry;
+        this(entry.getAggregation());
+        entry.copyInto(this);
         this.children = children;
     }
 
@@ -54,67 +49,7 @@ public class Node<K> implements Keyed<K>
         return children;
     }
 
-    public <T extends Keyed<K>> Aggregation<K, T> getAggregation()
-    {
-        return entry.getAggregation();
-    }
-
-    public NumericInfo getReference()
-    {
-        return entry.getAggregation().getReferenceData();
-    }
-
     @Override
-    public K getKey()
-    {
-        return entry.getKey();
-    }
-
-    public NumericInfo getData()
-    {
-        return entry.getData();
-    }
-
-    public long getSelfTime()
-    {
-        return entry.getSelfTime();
-    }
-
-    public long getTotalTime()
-    {
-        return entry.getTotalTime();
-    }
-
-    public int getSelfCnt()
-    {
-        return entry.getSelfCnt();
-    }
-
-    public int getTotalCnt()
-    {
-        return entry.getTotalCnt();
-    }
-
-    public double getSelfTimePct()
-    {
-        return entry.getSelfTimePct();
-    }
-
-    public double getTotalTimePct()
-    {
-        return entry.getTotalTimePct();
-    }
-
-    public double getSelfCntPct()
-    {
-        return entry.getSelfCntPct();
-    }
-
-    public double getTotalCntPct()
-    {
-        return entry.getTotalCntPct();
-    }
-
     public int getRefCnt()
     {
         return getReference().getTotalCnt();
@@ -139,18 +74,13 @@ public class Node<K> implements Keyed<K>
 
     public void add(K key, FrameInfo frame, NumericInfo data)
     {
-        entry.setKey(key);
-        entry.add(frame, data);
-    }
-
-    public void addChild(Entry<K> entry)
-    {
-        children.add(new Node<>(entry));
+        super.setKey(key);
+        super.add(frame, data);
     }
 
     public Node<K> combine(Node<K> other)
     {
-        entry.combine(other.entry);
+        super.combine(other);
         children.addAll(other.children);
         return this;
     }
@@ -159,6 +89,6 @@ public class Node<K> implements Keyed<K>
     {
         List<Node<K>> newChildren = children.stream().map(child -> child.copyWithFilter(filter))
             .filter(child -> child != null).collect(toList());
-        return newChildren.size() > 0 || filter.test(this) ? new Node<>(entry, newChildren) : null;
+        return newChildren.size() > 0 || filter.test(this) ? new Node<>(this, newChildren) : null;
     }
 }

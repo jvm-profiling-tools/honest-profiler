@@ -10,7 +10,6 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
-import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
@@ -65,8 +64,7 @@ public class TreeByFqmnAggregator implements Aggregator<AggregationProfile, Stri
     private Node<String> getThreadNode(Tree<String> tree, LeanProfile profile, Long threadId,
         LeanNode node)
     {
-        Entry<String> entry = new Entry<>(profile.getThreadName(threadId), node.getData(), tree);
-        return new Node<>(entry);
+        return new Node<>(profile.getThreadName(threadId), node.getData(), tree);
     }
 
     /**

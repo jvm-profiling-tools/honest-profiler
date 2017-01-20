@@ -21,17 +21,9 @@ public class DiffNode<K> implements Keyed<K>
     private final DiffEntry<K> entry;
     private final Map<K, DiffNode<K>> children;
 
-    public DiffNode(DiffEntry<K> entry)
-    {
-        this.entry = entry;
-        this.children = new HashMap<>();
-    }
-
     public DiffNode(Node<K> baseNode, Node<K> newNode)
     {
-        this.entry = new DiffEntry<>(
-            baseNode == null ? null : baseNode.getEntry(),
-            newNode == null ? null : newNode.getEntry());
+        this.entry = new DiffEntry<>(baseNode, newNode);
         this.children = new HashMap<>();
         addBaseChildren(baseNode);
         addNewChildren(newNode);
@@ -67,14 +59,14 @@ public class DiffNode<K> implements Keyed<K>
 
     public DiffNode<K> setBase(Node<K> node)
     {
-        entry.setBase(node.getEntry());
+        entry.setBase(node);
         addBaseChildren(node);
         return this;
     }
 
     public DiffNode<K> setNew(Node<K> node)
     {
-        entry.setNew(node.getEntry());
+        entry.setNew(node);
         addNewChildren(node);
         return this;
     }

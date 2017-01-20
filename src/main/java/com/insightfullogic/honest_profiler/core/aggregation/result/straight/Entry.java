@@ -14,17 +14,22 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 public class Entry<K> implements Keyed<K>
 {
 
-    private final Aggregation<K, ? extends Keyed<K>> aggregation;
+    private Aggregation<K, ? extends Keyed<K>> aggregation;
     private K key;
-    private final NumericInfo data;
-    private final List<FrameInfo> frames;
+    private NumericInfo data;
+    private List<FrameInfo> frames;
 
-    public <T extends Keyed<K>> Entry(K key, Aggregation<K, T> aggregation)
+    protected <T extends Keyed<K>> Entry(Aggregation<K, T> aggregation)
     {
-        this.key = key;
         this.data = new NumericInfo();
         this.aggregation = aggregation;
         this.frames = new ArrayList<>();
+    }
+
+    public <T extends Keyed<K>> Entry(K key, Aggregation<K, T> aggregation)
+    {
+        this(aggregation);
+        this.key = key;
     }
 
     public <T extends Keyed<K>> Entry(K key, NumericInfo data, Aggregation<K, T> aggregation)
@@ -48,7 +53,7 @@ public class Entry<K> implements Keyed<K>
     @SuppressWarnings("unchecked")
     public <T extends Keyed<K>> Aggregation<K, T> getAggregation()
     {
-        return (Aggregation<K, T>) aggregation;
+        return (Aggregation<K, T>)aggregation;
     }
 
     public NumericInfo getReference()
@@ -111,12 +116,12 @@ public class Entry<K> implements Keyed<K>
 
     public double getSelfCntPct()
     {
-        return aggregation == null ? 0 : data.getSelfCnt() / (double) getReference().getTotalCnt();
+        return aggregation == null ? 0 : data.getSelfCnt() / (double)getReference().getTotalCnt();
     }
 
     public double getTotalCntPct()
     {
-        return aggregation == null ? 0 : data.getTotalCnt() / (double) getReference().getTotalCnt();
+        return aggregation == null ? 0 : data.getTotalCnt() / (double)getReference().getTotalCnt();
     }
 
     public int getRefCnt()
@@ -128,6 +133,14 @@ public class Entry<K> implements Keyed<K>
     {
         frames.add(frame);
         data.add(newData);
+    }
+
+    protected void copyInto(Entry<K> other)
+    {
+        other.aggregation = aggregation;
+        other.key = key;
+        other.data = data.copy();
+        other.frames = new ArrayList<>(frames);
     }
 
     public void combine(Entry<K> other)
