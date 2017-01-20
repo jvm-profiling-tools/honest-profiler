@@ -8,22 +8,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import com.insightfullogic.honest_profiler.core.aggregation.result.Keyed;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
-import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 
 /**
  * Provides the difference between two {@link Entry}s.
  */
-public class DiffNode<K> implements Keyed<K>
+public class DiffNode<K> extends DiffEntry<K>
 {
-    private final DiffEntry<K> entry;
     private final Map<K, DiffNode<K>> children;
 
     public DiffNode(Node<K> baseNode, Node<K> newNode)
     {
-        this.entry = new DiffEntry<>(baseNode, newNode);
+        super(baseNode, newNode);
+
         this.children = new HashMap<>();
         addBaseChildren(baseNode);
         addNewChildren(newNode);
@@ -31,42 +29,24 @@ public class DiffNode<K> implements Keyed<K>
 
     private DiffNode(DiffEntry<K> entry, List<DiffNode<K>> children)
     {
-        this.entry = entry;
+        super(entry.getBaseEntry(), entry.getNewEntry());
+
         this.children = new HashMap<>();
         children.forEach(child -> this.children.put(child.getKey(), child));
     }
 
-    @Override
-    public K getKey()
-    {
-        return entry.getKey();
-    }
-
-    public DiffEntry<K> getDiffEntry()
-    {
-        return entry;
-    }
-
-    public Entry<K> getBaseEntry()
-    {
-        return entry.getBaseEntry();
-    }
-
-    public Entry<K> getNewEntry()
-    {
-        return entry.getNewEntry();
-    }
-
     public DiffNode<K> setBase(Node<K> node)
     {
-        entry.setBase(node);
+        super.setBase(node);
+
         addBaseChildren(node);
         return this;
     }
 
     public DiffNode<K> setNew(Node<K> node)
     {
-        entry.setNew(node);
+        super.setNew(node);
+
         addNewChildren(node);
         return this;
     }
@@ -74,151 +54,6 @@ public class DiffNode<K> implements Keyed<K>
     public Collection<DiffNode<K>> getChildren()
     {
         return children.values();
-    }
-
-    public NumericInfo getBaseData()
-    {
-        return entry.getBaseData();
-    }
-
-    public long getBaseSelfTime()
-    {
-        return entry.getBaseSelfTime();
-    }
-
-    public long getBaseTotalTime()
-    {
-        return entry.getBaseTotalTime();
-    }
-
-    public int getBaseSelfCnt()
-    {
-        return entry.getBaseSelfCnt();
-    }
-
-    public int getBaseTotalCnt()
-    {
-        return entry.getBaseTotalCnt();
-    }
-
-    public double getBaseSelfTimePct()
-    {
-        return entry.getBaseSelfTimePct();
-    }
-
-    public double getBaseTotalTimePct()
-    {
-        return entry.getBaseTotalTimePct();
-    }
-
-    public double getBaseSelfCntPct()
-    {
-        return entry.getBaseSelfCntPct();
-    }
-
-    public double getBaseTotalCntPct()
-    {
-        return entry.getBaseTotalCntPct();
-    }
-
-    public int getBaseRefCnt()
-    {
-        return entry.getBaseRefCnt();
-    }
-
-    public NumericInfo getNewData()
-    {
-        return entry.getNewData();
-    }
-
-    public long getNewSelfTime()
-    {
-        return entry.getNewSelfTime();
-    }
-
-    public long getNewTotalTime()
-    {
-        return entry.getNewTotalTime();
-    }
-
-    public int getNewSelfCnt()
-    {
-        return entry.getNewSelfCnt();
-    }
-
-    public int getNewTotalCnt()
-    {
-        return entry.getNewTotalCnt();
-    }
-
-    public double getNewSelfTimePct()
-    {
-        return entry.getNewSelfTimePct();
-    }
-
-    public double getNewTotalTimePct()
-    {
-        return entry.getNewTotalTimePct();
-    }
-
-    public double getNewSelfCntPct()
-    {
-        return entry.getNewSelfCntPct();
-    }
-
-    public double getNewTotalCntPct()
-    {
-        return entry.getNewTotalCntPct();
-    }
-
-    public int getNewRefCnt()
-    {
-        return entry.getNewRefCnt();
-    }
-
-    public long getSelfTimeDiff()
-    {
-        return entry.getSelfTimeDiff();
-    }
-
-    public long getTotalTimeDiff()
-    {
-        return entry.getTotalTimeDiff();
-    }
-
-    public int getSelfCntDiff()
-    {
-        return entry.getSelfCntDiff();
-    }
-
-    public int getTotalCntDiff()
-    {
-        return entry.getTotalCntDiff();
-    }
-
-    public double getSelfTimePctDiff()
-    {
-        return entry.getSelfTimePctDiff();
-    }
-
-    public double getTotalTimePctDiff()
-    {
-        return entry.getTotalTimePctDiff();
-    }
-
-    public double getSelfCntPctDiff()
-    {
-        return entry.getSelfCntPctDiff();
-    }
-
-    public double getTotalCntPctDiff()
-    {
-        return entry.getTotalCntPctDiff();
-    }
-
-    public int getRefCntDiff()
-    {
-        return entry.getRefCntDiff();
     }
 
     private void addBaseChildren(Node<K> node)
@@ -258,7 +93,7 @@ public class DiffNode<K> implements Keyed<K>
         List<DiffNode<K>> newChildren = children.values().stream()
             .map(child -> child.copyWithFilter(filter)).filter(child -> child != null)
             .collect(toList());
-        return newChildren.size() > 0 || filter.test(this) ? new DiffNode<>(entry, newChildren)
+        return newChildren.size() > 0 || filter.test(this) ? new DiffNode<>(this, newChildren)
             : null;
     }
 }
