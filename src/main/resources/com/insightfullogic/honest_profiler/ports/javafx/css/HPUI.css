@@ -1,27 +1,27 @@
 .root {
-	-fx-font-family: Arial, Tahoma, Verdana;
-	-fx-font-size: 11px;
+	-fx-font-family: "Open Sans";
+	-fx-font-size: 10px;
 	-fx-font-smoothing-type: lcd;
 }
 
+/* Fix cell heights. Improves performance, and also allows UI calculations.
 .table-cell {
-	/* Fix cell heights. Improves performance, and also allows UI calculations (ListView inside Pagination). */
 	-fx-fixed-cell-size: 20px;
-  -fx-font-family: monospace;
 }
+*/
 
+/* Fix cell heights. Improves performance, and also allows UI calculations.
 .list-cell {
-	/* Fix cell heights. Improves performance, and also allows UI calculations (ListView inside Pagination). */
 	-fx-cell-size: 20px;
-  -fx-font-family: monospace;
 }
+*/
 
 .menu-bar {
 	-fx-font-weight: bold;
 }
 
 .monoSpace {
-	-fx-font-family: Consolas, Inconsolata, monospace;
+	-fx-font-family: "Open Sans", Consolas, monospace;
 	-fx-font-size: 11px;
 	-fx-size: 11px;
 	-fx-font-smoothing-type: lcd;
@@ -53,5 +53,6 @@
 }
 
 .tooltip {
-	-fx-font-size: 0.95em;
+/*	-fx-font-size: 0.95em; */
+  -fx-font-size: 8px;
 }

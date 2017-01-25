@@ -22,6 +22,7 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.FXML_
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.loaderFor;
 
 import com.insightfullogic.honest_profiler.ports.javafx.controller.RootController;
+import com.insightfullogic.honest_profiler.ports.javafx.util.FontUtil;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -34,6 +35,12 @@ public class JavaFXApplication extends Application
     private RootController rootController;
 
     @Override
+    public void init()
+    {
+        FontUtil.initialize(getClass());
+    }
+
+    @Override
     public void start(Stage stage) throws Exception
     {
         stage.setTitle("Honest Profiler");
@@ -41,7 +48,7 @@ public class JavaFXApplication extends Application
         stage.setHeight(720);
 
         FXMLLoader loader = loaderFor(this, FXML_ROOT);
-        Parent root = (Parent) loader.load();
+        Parent root = (Parent)loader.load();
         rootController = loader.getController();
 
         stage.setScene(new Scene(root));
