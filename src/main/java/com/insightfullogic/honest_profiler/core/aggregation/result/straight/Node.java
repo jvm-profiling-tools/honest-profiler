@@ -9,7 +9,7 @@ import java.util.function.Predicate;
 
 import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
 import com.insightfullogic.honest_profiler.core.aggregation.result.Keyed;
-import com.insightfullogic.honest_profiler.core.profiles.lean.FrameInfo;
+import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 
 /**
@@ -72,10 +72,10 @@ public class Node<K> extends Entry<K>
         return depth;
     }
 
-    public void add(K key, FrameInfo frame, NumericInfo data)
+    public void add(K key, LeanNode node)
     {
         super.setKey(key);
-        super.add(frame, data);
+        super.add(node);
     }
 
     public Node<K> combine(Node<K> other)

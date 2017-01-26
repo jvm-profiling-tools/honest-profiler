@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
 import com.insightfullogic.honest_profiler.core.aggregation.result.Keyed;
-import com.insightfullogic.honest_profiler.core.profiles.lean.FrameInfo;
+import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 
 /**
@@ -17,13 +17,13 @@ public class Entry<K> implements Keyed<K>
     private Aggregation<K, ? extends Keyed<K>> aggregation;
     private K key;
     private NumericInfo data;
-    private List<FrameInfo> frames;
+    private List<LeanNode> aggregatedNodes;
 
     protected <T extends Keyed<K>> Entry(Aggregation<K, T> aggregation)
     {
         this.data = new NumericInfo();
         this.aggregation = aggregation;
-        this.frames = new ArrayList<>();
+        this.aggregatedNodes = new ArrayList<>();
     }
 
     public <T extends Keyed<K>> Entry(K key, Aggregation<K, T> aggregation)
@@ -37,17 +37,17 @@ public class Entry<K> implements Keyed<K>
         this.key = key;
         this.data = data.copy();
         this.aggregation = aggregation;
-        this.frames = new ArrayList<>();
+        this.aggregatedNodes = new ArrayList<>();
 
     }
 
     public <T extends Keyed<K>> Entry(K key,
                                       NumericInfo data,
                                       Aggregation<K, T> aggregation,
-                                      FrameInfo frame)
+                                      LeanNode node)
     {
         this(key, data, aggregation);
-        frames.add(frame);
+        aggregatedNodes.add(node);
     }
 
     @SuppressWarnings("unchecked")
@@ -77,9 +77,9 @@ public class Entry<K> implements Keyed<K>
         return data;
     }
 
-    public List<FrameInfo> getFrames()
+    public List<LeanNode> getAggregatedNodes()
     {
-        return frames;
+        return this.aggregatedNodes;
     }
 
     public long getSelfTime()
@@ -129,10 +129,10 @@ public class Entry<K> implements Keyed<K>
         return aggregation == null ? 0 : getReference().getTotalCnt();
     }
 
-    public void add(FrameInfo frame, NumericInfo newData)
+    public void add(LeanNode node)
     {
-        frames.add(frame);
-        data.add(newData);
+        aggregatedNodes.add(node);
+        data.add(node.getData());
     }
 
     protected void copyInto(Entry<K> other)
@@ -140,12 +140,12 @@ public class Entry<K> implements Keyed<K>
         other.aggregation = aggregation;
         other.key = key;
         other.data = data.copy();
-        other.frames = new ArrayList<>(frames);
+        other.aggregatedNodes = new ArrayList<>(aggregatedNodes);
     }
 
     public void combine(Entry<K> other)
     {
-        frames.addAll(other.frames);
+        aggregatedNodes.addAll(other.aggregatedNodes);
         data.add(other.data);
     }
 

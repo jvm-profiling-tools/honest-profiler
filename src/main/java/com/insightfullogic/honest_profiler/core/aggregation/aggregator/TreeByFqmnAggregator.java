@@ -108,10 +108,10 @@ public class TreeByFqmnAggregator implements Aggregator<AggregationProfile, Stri
             // Supplier
             () -> new Node<>(tree),
             // Accumulator
-            (entry, node) ->
+            (accumulator, node) ->
             {
-                entry.add(profile.getFqmn(node), node.getFrame(), node.getData());
-                add(tree, profile, entry, node); // Recursion here !
+                accumulator.add(profile.getFqmn(node), node);
+                add(tree, profile, accumulator, node); // Recursion here !
             },
             // Combiner
             (e1, e2) -> e1.combine(e2));

@@ -9,7 +9,6 @@ import com.insightfullogic.honest_profiler.core.aggregation.FqmnLink;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
-import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 
 /**
  * Aggregator which takes an {@link AggregationProfile}, and uses the data to aggregate the values into a list of
@@ -31,11 +30,13 @@ public class FlatByFqmnAggregator implements Aggregator<AggregationProfile, Stri
 
         input.getFqmnLinks().values().forEach(link ->
         {
-            NumericInfo sum = link.getSiblings().values().stream().flatMap(Collection::stream)
-                .map(LeanNode::getData)
-                .collect(NumericInfo::new, (x, y) -> x.add(y), (x, y) -> x.add(y));
+            Entry<String> entry = link.getSiblings().values().stream().flatMap(Collection::stream)
+                .collect(
+                    () -> new Entry<String>(link.getFqmn(), aggregation),
+                    (x, y) -> x.add(y),
+                    (x, y) -> x.combine(y));
 
-            result.add(new Entry<>(link.getFqmn(), sum, aggregation));
+            result.add(entry);
         });
 
         return aggregation;
