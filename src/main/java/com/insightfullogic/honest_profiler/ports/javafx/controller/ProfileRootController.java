@@ -109,7 +109,7 @@ public class ProfileRootController extends AbstractController
             o -> o == null ? null : ((AggregationProfile)o).getTree());
 
         flameController.setProfileContext(prCtx);
-        flameController.bind(prCtx.profileProperty(), o -> (FlameGraph)o);
+        flameController.bind(prCtx.flameGraphProperty(), o -> (FlameGraph)o);
 
         prCtx.profileProperty().addListener(
             (property, oldValue, newValue) -> profileSampleCount.setText(
