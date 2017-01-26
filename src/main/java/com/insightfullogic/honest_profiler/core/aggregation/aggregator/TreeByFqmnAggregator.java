@@ -83,7 +83,7 @@ public class TreeByFqmnAggregator implements Aggregator<AggregationProfile, Stri
     {
         Map<String, Node<String>> nodeMap = parent.getChildren().stream().collect(
             groupingBy(node -> profile.getFqmn(node), getCollector(tree, profile)));
-        parentNode.getChildren().addAll(nodeMap.values());
+        parentNode.addAll(nodeMap);
     }
 
     /**

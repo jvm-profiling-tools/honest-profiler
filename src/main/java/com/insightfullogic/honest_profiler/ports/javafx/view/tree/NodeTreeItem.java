@@ -10,18 +10,12 @@ public class NodeTreeItem extends TreeItem<Node<String>>
     public NodeTreeItem(Aggregation<String, Node<String>> profile)
     {
         super(null);
-        for (Node<String> child : profile.getData())
-        {
-            getChildren().add(new NodeTreeItem(child));
-        }
+        profile.getData().forEach(child -> getChildren().add(new NodeTreeItem(child)));
     }
 
     public NodeTreeItem(Node<String> node)
     {
         super(node);
-        for (Node<String> child : node.getChildren())
-        {
-            getChildren().add(new NodeTreeItem(child));
-        }
+        node.getChildren().forEach(child -> getChildren().add(new NodeTreeItem(child)));
     }
 }

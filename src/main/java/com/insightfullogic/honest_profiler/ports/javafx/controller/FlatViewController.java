@@ -37,7 +37,6 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TABLE_FLAT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil.writeFlatProfileCsv;
 
-import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
@@ -111,8 +110,6 @@ public class FlatViewController extends AbstractProfileViewController<Flat<Strin
             flatProfileView.getColumns().forEach(column -> column.setSortable(false));
         }
         super.setProfileContext(profileContext);
-        super.setSource(profileContext.profileProperty());
-        super.setTargetExtractor(o -> o == null ? null : ((AggregationProfile)o).getFlat());
     }
 
     // Initialization Helper Methods
@@ -165,8 +162,14 @@ public class FlatViewController extends AbstractProfileViewController<Flat<Strin
     protected void refresh()
     {
         flatProfile.clear();
-        flatProfile.addAll(getTarget().filter(getFilterSpecification()).getData());
-        flatProfileView.refresh();
+        Flat<String> target = getTarget();
+
+        if (target != null)
+        {
+            flatProfile.addAll(target.filter(getFilterSpecification()).getData());
+            flatProfileView.refresh();
+        }
+
         refreshTable(flatProfileView);
     }
 }

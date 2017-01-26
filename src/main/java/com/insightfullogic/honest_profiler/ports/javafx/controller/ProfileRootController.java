@@ -35,6 +35,8 @@ import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor
 
 import java.util.List;
 
+import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
+import com.insightfullogic.honest_profiler.core.profiles.FlameGraph;
 import com.insightfullogic.honest_profiler.ports.javafx.ViewType;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
@@ -84,34 +86,43 @@ public class ProfileRootController extends AbstractController
     // Instance Accessors
 
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext)
+    public void setApplicationContext(ApplicationContext appCtx)
     {
-        super.setApplicationContext(applicationContext);
-        flatController.setApplicationContext(applicationContext);
-        treeController.setApplicationContext(applicationContext);
-        flameController.setApplicationContext(applicationContext);
+        super.setApplicationContext(appCtx);
+        flatController.setApplicationContext(appCtx);
+        treeController.setApplicationContext(appCtx);
+        flameController.setApplicationContext(appCtx);
     }
 
-    public void setProfileContext(ProfileContext profileContext)
+    public void setProfileContext(ProfileContext prCtx)
     {
-        this.profileContext = profileContext;
+        this.profileContext = prCtx;
 
-        flatController.setProfileContext(profileContext);
-        treeController.setProfileContext(profileContext);
-        flameController.setProfileContext(profileContext);
+        flatController.setProfileContext(prCtx);
+        flatController.bind(
+            prCtx.profileProperty(),
+            o -> o == null ? null : ((AggregationProfile)o).getFlat());
 
-        profileContext.profileProperty().addListener(
+        treeController.setProfileContext(prCtx);
+        treeController.bind(
+            prCtx.profileProperty(),
+            o -> o == null ? null : ((AggregationProfile)o).getTree());
+
+        flameController.setProfileContext(prCtx);
+        flameController.bind(prCtx.profileProperty(), o -> (FlameGraph)o);
+
+        prCtx.profileProperty().addListener(
             (property, oldValue, newValue) -> profileSampleCount.setText(
                 newValue == null ? null : getText(
                     CONTENT_LABEL_PROFILESAMPLECOUNT,
                     newValue.getProfileData().getTotalCnt())));
 
-        if (profileContext.getProfile() != null)
+        if (prCtx.getProfile() != null)
         {
             profileSampleCount.setText(
                 getText(
                     CONTENT_LABEL_PROFILESAMPLECOUNT,
-                    profileContext.getProfile().getProfileData().getTotalCnt()));
+                    prCtx.getProfile().getProfileData().getTotalCnt()));
         }
 
         viewChoice.setConverter(getStringConverterForType(ViewType.class));
@@ -120,7 +131,7 @@ public class ProfileRootController extends AbstractController
         viewChoice.getItems().addAll(ViewType.values());
         viewChoice.getSelectionModel().select(FLAT);
 
-        freezeButton.setDisable(profileContext.getMode() != LIVE);
+        freezeButton.setDisable(prCtx.getMode() != LIVE);
     }
 
     // View Switch

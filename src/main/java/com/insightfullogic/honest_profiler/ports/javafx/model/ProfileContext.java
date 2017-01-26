@@ -83,7 +83,7 @@ public class ProfileContext
 
     public int getDuration()
     {
-        return (int) refreshInterval.toSeconds();
+        return (int)refreshInterval.toSeconds();
     }
 
     public void setDuration(int seconds)
@@ -162,13 +162,11 @@ public class ProfileContext
             {
                 if (profile == null)
                 {
-                    System.err.println("NULL profile in context listener");
                     return;
                 }
 
                 if (profile == cachedProfile)
                 {
-                    System.err.println("Identical profile in context listener");
                     return;
                 }
 

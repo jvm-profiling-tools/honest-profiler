@@ -38,10 +38,9 @@ public abstract class AbstractProfileViewController<T, U> extends AbstractViewCo
 
     private ProfileContext profileContext;
 
-    private ObjectProperty<? extends Object> source;
     private ObjectProperty<T> target;
 
-    private ObjectBinding<T> sourceToTargetBinding;
+    private ObjectBinding<T> sourceBinding;
 
     // Class Methods
 
@@ -95,26 +94,18 @@ public abstract class AbstractProfileViewController<T, U> extends AbstractViewCo
         return target.get();
     }
 
-    /**
-     * Set the source object the target data structure T will be extracted from.
-     *
-     * @param source the source providing the target data structure
-     */
-    public void setSource(ObjectProperty<? extends Object> source)
-    {
-        this.source = source;
-    }
+    // Source-Target Binding
 
     /**
-     * Set the function which extracts the target data structure T from the source object.
+     * Set the source object the target data structure T will be extracted from, and the function which extracts the
+     * target data structure T from the source.
      *
+     * @param source the source providing the target data structure
      * @param targetExtractor a function which extracts the target from the source object
      */
-    public void setTargetExtractor(Function<Object, T> targetExtractor)
+    public void bind(ObjectProperty<? extends Object> source, Function<Object, T> targetExtractor)
     {
-        sourceToTargetBinding = createObjectBinding(
-            () -> targetExtractor.apply(source.get()),
-            source);
+        sourceBinding = createObjectBinding(() -> targetExtractor.apply(source.get()), source);
     }
 
     // Activation
@@ -126,7 +117,7 @@ public abstract class AbstractProfileViewController<T, U> extends AbstractViewCo
      */
     public void activate()
     {
-        target.bind(sourceToTargetBinding);
+        target.bind(sourceBinding);
     }
 
     /**

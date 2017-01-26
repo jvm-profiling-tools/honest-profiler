@@ -35,7 +35,7 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TABLE_TREE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil.expandFully;
 
-import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
+import com.insightfullogic.honest_profiler.core.aggregation.aggregator.NodeDescendantAggregator;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
@@ -45,9 +45,12 @@ import com.insightfullogic.honest_profiler.ports.javafx.view.cell.GraphicalShare
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTreeTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.tree.NodeTreeItem;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
@@ -90,6 +93,8 @@ public class TreeViewController extends AbstractProfileViewController<Tree<Strin
     @FXML
     private FlatViewController flatDescendantsController;
 
+    private NodeDescendantAggregator flatAggregator = new NodeDescendantAggregator();
+
     @Override
     @FXML
     protected void initialize()
@@ -105,15 +110,46 @@ public class TreeViewController extends AbstractProfileViewController<Tree<Strin
     public void setApplicationContext(ApplicationContext applicationContext)
     {
         super.setApplicationContext(applicationContext);
+        flatDescendantsController.setApplicationContext(applicationContext);
         initializeTable();
+    }
+
+    @Override
+    public void activate()
+    {
+        super.activate();
+        this.flatDescendantsController.activate();
+    }
+
+    @Override
+    public void deactivate()
+    {
+        super.deactivate();
+        this.flatDescendantsController.deactivate();
     }
 
     @Override
     public void setProfileContext(ProfileContext profileContext)
     {
         super.setProfileContext(profileContext);
-        super.setSource(profileContext.profileProperty());
-        super.setTargetExtractor(o -> o == null ? null : ((AggregationProfile)o).getTree());
+        flatDescendantsController.setProfileContext(profileContext);
+
+        ObjectProperty<TreeItem<Node<String>>> descendantsSource = new SimpleObjectProperty<>();
+        flatDescendantsController.bind(descendantsSource, treeItem ->
+        {
+            @SuppressWarnings("unchecked")
+            Node<String> node = treeItem == null ? null
+                : ((TreeItem<Node<String>>)treeItem).getValue();
+            if (node == null)
+            {
+                return null;
+            }
+
+            return flatAggregator.aggregate(node, node.getAggregation().getReference());
+        });
+
+        descendantsSource.bind(treeView.getSelectionModel().selectedItemProperty());
+        flatDescendantsController.activate();
     }
 
     // Initialization Helper Methods

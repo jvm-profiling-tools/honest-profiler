@@ -77,6 +77,13 @@ public class Node<K> extends Entry<K>
         return depth;
     }
 
+    public void addAll(Map<K, Node<K>> newChildren)
+    {
+        newChildren.values().forEach(
+            newChild -> this.children
+                .compute(newChild.getKey(), (k, v) -> v == null ? newChild : v.combine(newChild)));
+    }
+
     public void add(K key, LeanNode node)
     {
         super.setKey(key);

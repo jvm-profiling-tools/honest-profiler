@@ -28,17 +28,21 @@ public class NodeDescendantAggregator implements Aggregator<Node<String>, String
         List<Entry<String>> result = new ArrayList<>();
         Flat<String> aggregation = new Flat<>(result, reference);
 
-        parent.flatten().collect(
-            groupingBy(
-                Node::getKey,
-                of(
-                    // Supplier
-                    () -> new Entry<String>(aggregation),
-                    // Accumulator
-                    (x, y) -> x.combine(y),
-                    // Combiner
-                    (x, y) -> x.combine(y))
-            ));
+        result.addAll(
+            parent.flatten().collect(
+                groupingBy(
+                    Node::getKey,
+                    of(
+                        // Supplier
+                        () -> new Entry<String>(aggregation),
+                        // Accumulator
+                        (x, y) -> x.combine(y),
+                        // Combiner
+                        (x, y) -> x.combine(y)
+                    )
+                )
+            ).values());
+
         return aggregation;
     }
 }

@@ -145,6 +145,7 @@ public class Entry<K> implements Keyed<K>
 
     public Entry<K> combine(Entry<K> other)
     {
+        this.key = other.key;
         aggregatedNodes.addAll(other.aggregatedNodes);
         data.add(other.data);
         return this;
