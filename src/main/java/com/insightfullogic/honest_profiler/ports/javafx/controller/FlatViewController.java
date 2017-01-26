@@ -39,6 +39,7 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.report.Repor
 
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.GraphicalShareTableCell;
@@ -52,8 +53,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-public class FlatViewController
-    extends AbstractProfileViewController<AggregationProfile, Entry<String>>
+public class FlatViewController extends AbstractProfileViewController<Flat<String>, Entry<String>>
 {
     @FXML
     private Button filterButton;
@@ -93,7 +93,6 @@ public class FlatViewController
     protected void initialize()
     {
         super.initialize(
-            profileContext -> profileContext.profileProperty(),
             filterButton,
             quickFilterButton,
             quickFilterText,
@@ -112,6 +111,8 @@ public class FlatViewController
             flatProfileView.getColumns().forEach(column -> column.setSortable(false));
         }
         super.setProfileContext(profileContext);
+        super.setSource(profileContext.profileProperty());
+        super.setTargetExtractor(o -> o == null ? null : ((AggregationProfile)o).getFlat());
     }
 
     // Initialization Helper Methods
@@ -164,7 +165,7 @@ public class FlatViewController
     protected void refresh()
     {
         flatProfile.clear();
-        flatProfile.addAll(getTarget().getFlat().filter(getFilterSpecification()).getData());
+        flatProfile.addAll(getTarget().filter(getFilterSpecification()).getData());
         flatProfileView.refresh();
         refreshTable(flatProfileView);
     }

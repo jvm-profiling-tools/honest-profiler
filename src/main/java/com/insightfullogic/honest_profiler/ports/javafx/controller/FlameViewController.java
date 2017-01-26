@@ -39,13 +39,20 @@ public class FlameViewController extends AbstractProfileViewController<FlameGrap
     protected void initialize()
     {
         super.initialize(
-            profileContext -> profileContext.flameGraphProperty(),
             null,
             null,
             null,
             FLAMEGRAPH);
 
         rootContainer.getChildren().add(flameView);
+    }
+
+    @Override
+    public void setProfileContext(ProfileContext profileContext)
+    {
+        super.setProfileContext(profileContext);
+        super.setSource(profileContext.flameGraphProperty());
+        super.setTargetExtractor(flameGraph -> (FlameGraph)flameGraph);
     }
 
     public void refreshFlameView()

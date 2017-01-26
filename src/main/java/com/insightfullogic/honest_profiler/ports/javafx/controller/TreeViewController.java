@@ -37,7 +37,9 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil.exp
 
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
+import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.GraphicalShareTreeTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTreeTableCell;
@@ -50,8 +52,7 @@ import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 
-public class TreeViewController
-    extends AbstractProfileViewController<AggregationProfile, Node<String>>
+public class TreeViewController extends AbstractProfileViewController<Tree<String>, Node<String>>
 {
     @FXML
     private Button filterButton;
@@ -86,13 +87,14 @@ public class TreeViewController
     private TreeTableColumn<Node<String>, Number> totalTime;
     @FXML
     private TreeTableColumn<Node<String>, Number> selfTime;
+    @FXML
+    private FlatViewController flatDescendantsController;
 
     @Override
     @FXML
     protected void initialize()
     {
         super.initialize(
-            profileContext -> profileContext.profileProperty(),
             filterButton,
             quickFilterButton,
             quickFilterText,
@@ -104,6 +106,14 @@ public class TreeViewController
     {
         super.setApplicationContext(applicationContext);
         initializeTable();
+    }
+
+    @Override
+    public void setProfileContext(ProfileContext profileContext)
+    {
+        super.setProfileContext(profileContext);
+        super.setSource(profileContext.profileProperty());
+        super.setTargetExtractor(o -> o == null ? null : ((AggregationProfile)o).getTree());
     }
 
     // Initialization Helper Methods
@@ -153,6 +163,6 @@ public class TreeViewController
     @Override
     protected void refresh()
     {
-        treeView.setRoot(new NodeTreeItem(getTarget().getTree().filter(getFilterSpecification())));
+        treeView.setRoot(new NodeTreeItem(getTarget().filter(getFilterSpecification())));
     }
 }

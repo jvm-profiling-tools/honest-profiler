@@ -58,7 +58,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
 public class FlatDiffViewController
-    extends ProfileDiffViewController<AggregationProfile, DiffEntry<String>>
+    extends AbstractProfileDiffViewController<AggregationProfile, DiffEntry<String>>
 {
     @FXML
     private Button filterButton;

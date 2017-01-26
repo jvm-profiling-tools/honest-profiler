@@ -19,7 +19,7 @@ public class Entry<K> implements Keyed<K>
     private NumericInfo data;
     private List<LeanNode> aggregatedNodes;
 
-    protected <T extends Keyed<K>> Entry(Aggregation<K, T> aggregation)
+    public <T extends Keyed<K>> Entry(Aggregation<K, T> aggregation)
     {
         this.data = new NumericInfo();
         this.aggregation = aggregation;
@@ -143,10 +143,11 @@ public class Entry<K> implements Keyed<K>
         other.aggregatedNodes = new ArrayList<>(aggregatedNodes);
     }
 
-    public void combine(Entry<K> other)
+    public Entry<K> combine(Entry<K> other)
     {
         aggregatedNodes.addAll(other.aggregatedNodes);
         data.add(other.data);
+        return this;
     }
 
     @Override

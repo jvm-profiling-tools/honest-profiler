@@ -39,7 +39,7 @@ import javafx.scene.text.Text;
  *
  * @param <T> the data type of the target
  */
-public abstract class ProfileDiffViewController<T, U> extends AbstractViewController<U>
+public abstract class AbstractProfileDiffViewController<T, U> extends AbstractViewController<U>
 {
     private ProfileContext baseContext;
     private ProfileContext newContext;

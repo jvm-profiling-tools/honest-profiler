@@ -42,7 +42,7 @@ import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 
 public class TreeDiffViewController
-    extends ProfileDiffViewController<AggregationProfile, DiffNode<String>>
+    extends AbstractProfileDiffViewController<AggregationProfile, DiffNode<String>>
 {
     @FXML
     private Button filterButton;
