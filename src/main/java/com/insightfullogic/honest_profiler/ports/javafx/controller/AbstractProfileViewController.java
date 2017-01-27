@@ -11,6 +11,7 @@ import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableObjectValue;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 
@@ -103,7 +104,8 @@ public abstract class AbstractProfileViewController<T, U> extends AbstractViewCo
      * @param source the source providing the target data structure
      * @param targetExtractor a function which extracts the target from the source object
      */
-    public void bind(ObjectProperty<? extends Object> source, Function<Object, T> targetExtractor)
+    public void bind(ObservableObjectValue<? extends Object> source,
+        Function<Object, T> targetExtractor)
     {
         sourceBinding = createObjectBinding(() -> targetExtractor.apply(source.get()), source);
     }

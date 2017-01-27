@@ -20,6 +20,7 @@ package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
 import static com.insightfullogic.honest_profiler.ports.javafx.ViewType.FLAT;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext.ProfileMode.LIVE;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.DESCENDANT_FLAT_EXTRACTOR;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.FLAME_EXTRACTOR;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.FLAT_EXTRACTOR;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.TREE_EXTRACTOR;
@@ -73,6 +74,8 @@ public class ProfileRootController extends AbstractController
     @FXML
     private TreeViewController treeController;
     @FXML
+    private FlatViewController descendantsController;
+    @FXML
     private FlameViewController flameController;
 
     private ProfileContext profileContext;
@@ -92,6 +95,7 @@ public class ProfileRootController extends AbstractController
         super.setApplicationContext(appCtx);
         flatController.setApplicationContext(appCtx);
         treeController.setApplicationContext(appCtx);
+        descendantsController.setApplicationContext(appCtx);
         flameController.setApplicationContext(appCtx);
     }
 
@@ -104,6 +108,9 @@ public class ProfileRootController extends AbstractController
 
         treeController.setProfileContext(prCtx);
         treeController.bind(prCtx.profileProperty(), TREE_EXTRACTOR);
+
+        descendantsController.setProfileContext(prCtx);
+        descendantsController.bind(treeController.selectedProperty(), DESCENDANT_FLAT_EXTRACTOR);
 
         flameController.setProfileContext(prCtx);
         flameController.bind(prCtx.flameGraphProperty(), FLAME_EXTRACTOR);
@@ -146,6 +153,7 @@ public class ProfileRootController extends AbstractController
         {
             case FLAT:
                 treeController.deactivate();
+                descendantsController.deactivate();
                 flameController.deactivate();
                 flatController.activate();
                 break;
@@ -153,12 +161,14 @@ public class ProfileRootController extends AbstractController
                 flatController.deactivate();
                 flameController.deactivate();
                 treeController.activate();
+                descendantsController.activate();
                 break;
             case FLAME:
-                flameController.activate();
-                flameController.refreshFlameView();
                 flatController.deactivate();
                 treeController.deactivate();
+                descendantsController.deactivate();
+                flameController.activate();
+                flameController.refreshFlameView();
                 break;
             default:
         }

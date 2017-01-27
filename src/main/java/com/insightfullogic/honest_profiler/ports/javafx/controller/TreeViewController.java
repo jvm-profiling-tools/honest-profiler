@@ -35,7 +35,6 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TABLE_TREE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil.expandFully;
 
-import com.insightfullogic.honest_profiler.core.aggregation.aggregator.NodeDescendantAggregator;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
@@ -45,8 +44,7 @@ import com.insightfullogic.honest_profiler.ports.javafx.view.cell.GraphicalShare
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTreeTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.tree.NodeTreeItem;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -90,10 +88,6 @@ public class TreeViewController extends AbstractProfileViewController<Tree<Strin
     private TreeTableColumn<Node<String>, Number> totalTime;
     @FXML
     private TreeTableColumn<Node<String>, Number> selfTime;
-    @FXML
-    private FlatViewController flatDescendantsController;
-
-    private NodeDescendantAggregator flatAggregator = new NodeDescendantAggregator();
 
     @Override
     @FXML
@@ -110,7 +104,6 @@ public class TreeViewController extends AbstractProfileViewController<Tree<Strin
     public void setApplicationContext(ApplicationContext applicationContext)
     {
         super.setApplicationContext(applicationContext);
-        flatDescendantsController.setApplicationContext(applicationContext);
         initializeTable();
     }
 
@@ -118,38 +111,23 @@ public class TreeViewController extends AbstractProfileViewController<Tree<Strin
     public void activate()
     {
         super.activate();
-        this.flatDescendantsController.activate();
     }
 
     @Override
     public void deactivate()
     {
         super.deactivate();
-        this.flatDescendantsController.deactivate();
     }
 
     @Override
     public void setProfileContext(ProfileContext profileContext)
     {
         super.setProfileContext(profileContext);
-        flatDescendantsController.setProfileContext(profileContext);
+    }
 
-        ObjectProperty<TreeItem<Node<String>>> descendantsSource = new SimpleObjectProperty<>();
-        flatDescendantsController.bind(descendantsSource, treeItem ->
-        {
-            @SuppressWarnings("unchecked")
-            Node<String> node = treeItem == null ? null
-                : ((TreeItem<Node<String>>)treeItem).getValue();
-            if (node == null)
-            {
-                return null;
-            }
-
-            return flatAggregator.aggregate(node, node.getAggregation().getReference());
-        });
-
-        descendantsSource.bind(treeView.getSelectionModel().selectedItemProperty());
-        flatDescendantsController.activate();
+    public ReadOnlyObjectProperty<TreeItem<Node<String>>> selectedProperty()
+    {
+        return treeView.getSelectionModel().selectedItemProperty();
     }
 
     // Initialization Helper Methods
