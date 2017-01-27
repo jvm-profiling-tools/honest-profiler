@@ -20,6 +20,9 @@ package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
 import static com.insightfullogic.honest_profiler.ports.javafx.ViewType.FLAT;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext.ProfileMode.LIVE;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.FLAME_EXTRACTOR;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.FLAT_EXTRACTOR;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.TREE_EXTRACTOR;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ConversionUtil.getStringConverterForType;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.CONTENT_LABEL_PROFILESAMPLECOUNT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_COMPARE;
@@ -35,8 +38,6 @@ import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor
 
 import java.util.List;
 
-import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
-import com.insightfullogic.honest_profiler.core.profiles.FlameGraph;
 import com.insightfullogic.honest_profiler.ports.javafx.ViewType;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
@@ -99,17 +100,13 @@ public class ProfileRootController extends AbstractController
         this.profileContext = prCtx;
 
         flatController.setProfileContext(prCtx);
-        flatController.bind(
-            prCtx.profileProperty(),
-            o -> o == null ? null : ((AggregationProfile)o).getFlat());
+        flatController.bind(prCtx.profileProperty(), FLAT_EXTRACTOR);
 
         treeController.setProfileContext(prCtx);
-        treeController.bind(
-            prCtx.profileProperty(),
-            o -> o == null ? null : ((AggregationProfile)o).getTree());
+        treeController.bind(prCtx.profileProperty(), TREE_EXTRACTOR);
 
         flameController.setProfileContext(prCtx);
-        flameController.bind(prCtx.flameGraphProperty(), o -> (FlameGraph)o);
+        flameController.bind(prCtx.flameGraphProperty(), FLAME_EXTRACTOR);
 
         prCtx.profileProperty().addListener(
             (property, oldValue, newValue) -> profileSampleCount.setText(

@@ -26,9 +26,9 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil.expandFully;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil.expandPartial;
 
-import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
 import com.insightfullogic.honest_profiler.core.aggregation.result.diff.DiffNode;
 import com.insightfullogic.honest_profiler.core.aggregation.result.diff.TreeDiff;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTreeTableCell;
@@ -42,7 +42,7 @@ import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 
 public class TreeDiffViewController
-    extends AbstractProfileDiffViewController<AggregationProfile, DiffNode<String>>
+    extends AbstractProfileDiffViewController<Tree<String>, DiffNode<String>>
 {
     @FXML
     private Button filterButton;
@@ -116,7 +116,6 @@ public class TreeDiffViewController
         diff = new TreeDiff<>();
 
         super.initialize(
-            profileContext -> profileContext.profileProperty(),
             filterButton,
             quickFilterButton,
             quickFilterText,
@@ -173,11 +172,11 @@ public class TreeDiffViewController
         cfgTimeDiffCol(totalTimeDiff, "totalTimeDiff", getText(COLUMN_TOTAL_TIME_DIFF));
     }
 
-    private void updateDiff(AggregationProfile profile, boolean base)
+    private void updateDiff(Tree<String> profile, boolean base)
     {
         if (profile != null)
         {
-            diff.set(profile.getTree(), base);
+            diff.set(profile, base);
             diffTree.setRoot(new DiffNodeTreeItem(diff.filter(getFilterSpecification())));
             expandPartial(diffTree.getRoot(), 2);
         }

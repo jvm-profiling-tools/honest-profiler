@@ -87,6 +87,8 @@ public class FlatViewController extends AbstractProfileViewController<Flat<Strin
 
     private ObservableList<Entry<String>> flatProfile;
 
+    // FXML Implementation
+
     @Override
     @FXML
     protected void initialize()
@@ -101,6 +103,8 @@ public class FlatViewController extends AbstractProfileViewController<Flat<Strin
 
         initializeTable();
     }
+
+    // Accessors
 
     @Override
     public void setProfileContext(ProfileContext profileContext)

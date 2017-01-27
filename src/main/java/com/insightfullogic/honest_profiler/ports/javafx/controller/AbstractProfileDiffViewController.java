@@ -2,6 +2,7 @@ package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.addProfileNr;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.createColoredLabelContainer;
+import static javafx.beans.binding.Bindings.createObjectBinding;
 import static javafx.geometry.Pos.CENTER;
 
 import java.util.function.Function;
@@ -9,10 +10,10 @@ import java.util.function.Function;
 import com.insightfullogic.honest_profiler.core.aggregation.result.ItemType;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 
+import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
@@ -41,12 +42,17 @@ import javafx.scene.text.Text;
  */
 public abstract class AbstractProfileDiffViewController<T, U> extends AbstractViewController<U>
 {
+    // Instance Properties
+
     private ProfileContext baseContext;
     private ProfileContext newContext;
 
     private ObjectProperty<T> baseTarget;
     private ObjectProperty<T> newTarget;
-    private Function<ProfileContext, ObservableValue<T>> targetExtractor;
+    private ObjectBinding<T> baseSourceBinding;
+    private ObjectBinding<T> newSourceBinding;
+
+    // FXML Implementation
 
     /**
      * This method must be called by subclasses in their FXML initialize(). It provides the extraction function which
@@ -58,100 +64,19 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
      * @param quickFilterButton the button used to apply the quick filter
      * @param quickFilterText the TextField providing the value for the quick filter
      */
-    protected void initialize(Function<ProfileContext, ObservableValue<T>> targetExtractor,
-        Button filterButton, Button quickFilterButton, TextField quickFilterText, ItemType type)
+    @Override
+    protected void initialize(Button filterButton, Button quickFilterButton,
+        TextField quickFilterText, ItemType type)
     {
         super.initialize(filterButton, quickFilterButton, quickFilterText, type);
 
-        this.targetExtractor = targetExtractor;
         baseTarget = new SimpleObjectProperty<>();
         newTarget = new SimpleObjectProperty<>();
         baseTarget.addListener((property, oldValue, newValue) -> refresh());
         newTarget.addListener((property, oldValue, newValue) -> refresh());
     }
 
-    // UI Helper Methods
-
-    @Override
-    protected <C> void setColumnHeader(C column, String title, ProfileContext profileContext)
-    {
-        HBox header = createColoredLabelContainer(CENTER);
-
-        if (profileContext != null)
-        {
-            addProfileNr(header, profileContext);
-        }
-
-        header.getChildren().add(new Text(title));
-
-        // Somehow it's hard to get a TableColumn to resize properly.
-        // Therefore, we calculate a fair width ourselves.
-        double width = calculateWidth(header);
-
-        if (column instanceof TreeTableColumn<?, ?>)
-        {
-            reconfigure((TreeTableColumn<?, ?>) column, null, header, width, width + 5);
-        }
-        else
-        {
-            reconfigure((TableColumn<?, ?>) column, null, header, width, width + 5);
-        }
-    }
-
-    private void reconfigure(TreeTableColumn<?, ?> column, String text, Node graphic,
-        double minWidth, double prefWidth)
-    {
-        column.setText(text);
-        column.setGraphic(graphic);
-        column.setMinWidth(minWidth);
-        column.setPrefWidth(prefWidth);
-    }
-
-    private void reconfigure(TableColumn<?, ?> column, String text, Node graphic, double minWidth,
-        double prefWidth)
-    {
-        column.setText(text);
-        column.setGraphic(graphic);
-        column.setMinWidth(minWidth);
-        column.setPrefWidth(prefWidth);
-    }
-
-    private double calculateWidth(HBox box)
-    {
-        double width = 0;
-        for (Node node : box.getChildren())
-        {
-            width += node.getBoundsInLocal().getWidth();
-        }
-        width += box.getSpacing() * (box.getChildren().size() - 1);
-        width += box.getPadding().getLeft() + box.getPadding().getRight();
-        return width;
-    }
-
-    // Activation
-
-    /**
-     * Binds the local target {@link Property}s to the target {@link Property}s in the {@link ProfileContext}s, using
-     * the target extractor function. The net effect is that the controller will start tracking changes to the target
-     * instances in the {@link ProfileContext}.
-     */
-    public void activate()
-    {
-        baseTarget.bind(targetExtractor.apply(baseContext));
-        newTarget.bind(targetExtractor.apply(newContext));
-    }
-
-    /**
-     * Unbinds the local target {@link Property}s. The controller no longer tracks changes to the target
-     * {@link Property}s in the {@link ProfileContext}s.
-     */
-    public void deactivate()
-    {
-        baseTarget.unbind();
-        newTarget.unbind();
-    }
-
-    // Accessors
+    // Instance Accessors
 
     /**
      * Returns the {@link ProfileContext} for the baseline target. The name has been shortened to unclutter code in
@@ -205,5 +130,106 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
     {
         this.baseContext = baseContext;
         this.newContext = newContext;
+    }
+
+    // Source-Target Binding
+
+    /**
+     * Set the source object the target data structure T will be extracted from, and the function which extracts the
+     * target data structure T from the source.
+     *
+     * @param source the source providing the target data structure
+     * @param targetExtractor a function which extracts the target from the source object
+     */
+    public void bind(ObjectProperty<? extends Object> baseSource,
+        ObjectProperty<? extends Object> newSource, Function<Object, T> targetExtractor)
+    {
+        baseSourceBinding = createObjectBinding(
+            () -> targetExtractor.apply(baseSource.get()),
+            baseSource);
+        newSourceBinding = createObjectBinding(
+            () -> targetExtractor.apply(newSource.get()),
+            newSource);
+    }
+
+    // Activation
+
+    /**
+     * Binds the local target {@link Property}s to the target {@link Property}s in the {@link ProfileContext}s, using
+     * the target extractor function. The net effect is that the controller will start tracking changes to the target
+     * instances in the {@link ProfileContext}.
+     */
+    public void activate()
+    {
+        baseTarget.bind(baseSourceBinding);
+        newTarget.bind(newSourceBinding);
+    }
+
+    /**
+     * Unbinds the local target {@link Property}s. The controller no longer tracks changes to the target
+     * {@link Property}s in the {@link ProfileContext}s.
+     */
+    public void deactivate()
+    {
+        baseTarget.unbind();
+        newTarget.unbind();
+    }
+
+    // UI Helper Methods
+
+    @Override
+    protected <C> void setColumnHeader(C column, String title, ProfileContext profileContext)
+    {
+        HBox header = createColoredLabelContainer(CENTER);
+
+        if (profileContext != null)
+        {
+            addProfileNr(header, profileContext);
+        }
+
+        header.getChildren().add(new Text(title));
+
+        // Somehow it's hard to get a TableColumn to resize properly.
+        // Therefore, we calculate a fair width ourselves.
+        double width = calculateWidth(header);
+
+        if (column instanceof TreeTableColumn<?, ?>)
+        {
+            reconfigure((TreeTableColumn<?, ?>)column, null, header, width, width + 5);
+        }
+        else
+        {
+            reconfigure((TableColumn<?, ?>)column, null, header, width, width + 5);
+        }
+    }
+
+    private void reconfigure(TreeTableColumn<?, ?> column, String text, Node graphic,
+        double minWidth, double prefWidth)
+    {
+        column.setText(text);
+        column.setGraphic(graphic);
+        column.setMinWidth(minWidth);
+        column.setPrefWidth(prefWidth);
+    }
+
+    private void reconfigure(TableColumn<?, ?> column, String text, Node graphic, double minWidth,
+        double prefWidth)
+    {
+        column.setText(text);
+        column.setGraphic(graphic);
+        column.setMinWidth(minWidth);
+        column.setPrefWidth(prefWidth);
+    }
+
+    private double calculateWidth(HBox box)
+    {
+        double width = 0;
+        for (Node node : box.getChildren())
+        {
+            width += node.getBoundsInLocal().getWidth();
+        }
+        width += box.getSpacing() * (box.getChildren().size() - 1);
+        width += box.getPadding().getLeft() + box.getPadding().getRight();
+        return width;
     }
 }

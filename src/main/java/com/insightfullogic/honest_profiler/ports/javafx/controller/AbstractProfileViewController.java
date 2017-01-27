@@ -42,7 +42,7 @@ public abstract class AbstractProfileViewController<T, U> extends AbstractViewCo
 
     private ObjectBinding<T> sourceBinding;
 
-    // Class Methods
+    // FXML Implementation
 
     /**
      * This method must be called by subclasses in their FXML initialize(). It passes on the controller-local UI nodes

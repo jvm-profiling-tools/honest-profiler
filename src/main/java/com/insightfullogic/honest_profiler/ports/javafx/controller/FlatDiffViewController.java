@@ -43,9 +43,9 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TABLE_FLATDIFF;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil.writeFlatProfileDiffCsv;
 
-import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
 import com.insightfullogic.honest_profiler.core.aggregation.result.diff.DiffEntry;
 import com.insightfullogic.honest_profiler.core.aggregation.result.diff.FlatDiff;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTableCell;
@@ -58,7 +58,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
 public class FlatDiffViewController
-    extends AbstractProfileDiffViewController<AggregationProfile, DiffEntry<String>>
+    extends AbstractProfileDiffViewController<Flat<String>, DiffEntry<String>>
 {
     @FXML
     private Button filterButton;
@@ -130,7 +130,6 @@ public class FlatDiffViewController
         diff = new FlatDiff<>();
 
         super.initialize(
-            profileContext -> profileContext.profileProperty(),
             filterButton,
             quickFilterButton,
             quickFilterText,
@@ -184,11 +183,11 @@ public class FlatDiffViewController
         cfgTimeDiffCol(totalTimeDiff, "totalTimeDiff", getText(COLUMN_TOTAL_TIME_DIFF));
     }
 
-    private void updateDiff(AggregationProfile profile, boolean base)
+    private void updateDiff(Flat<String> flat, boolean base)
     {
-        if (profile != null)
+        if (flat != null)
         {
-            diff.set(profile.getFlat(), base);
+            diff.set(flat, base);
             diffTable.getItems().clear();
             diffTable.getItems().addAll(diff.filter(getFilterSpecification()).getData());
         }
