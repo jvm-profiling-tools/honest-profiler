@@ -30,21 +30,22 @@ public class TreeByFqmnAggregator implements Aggregator<AggregationProfile, Stri
      * @see Aggregator#aggregate(Object, LeanNode)
      */
     @Override
-    public Tree<String> aggregate(AggregationProfile input, LeanNode reference)
+    public Tree<String> aggregate(AggregationProfile source, AggregationProfile input,
+        LeanNode reference)
     {
         List<Node<String>> nodes = new ArrayList<>();
-        Tree<String> result = new Tree<>(nodes, reference);
+        Tree<String> result = new Tree<>(source, nodes, reference);
 
-        LeanProfile source = input.getSource();
+        LeanProfile profile = input.getSource();
 
         input.getSource().getThreads().forEach((threadId, threadNode) ->
         {
             // Create the top-level Node with the thread information
-            Node<String> node = getThreadNode(result, source, threadId, threadNode);
+            Node<String> node = getThreadNode(result, profile, threadId, threadNode);
             nodes.add(node);
 
             // Create the subtree with the method information, aggregated at each level by FQMN
-            add(result, source, node, threadNode);
+            add(result, profile, node, threadNode);
         });
 
         return result;

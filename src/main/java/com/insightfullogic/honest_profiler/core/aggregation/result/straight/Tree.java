@@ -4,15 +4,16 @@ import static java.util.stream.Collectors.toList;
 
 import java.util.List;
 
+import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
 import com.insightfullogic.honest_profiler.core.aggregation.filter.FilterSpecification;
 import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 
 public class Tree<K> extends Aggregation<K, Node<K>>
 {
-    public Tree(List<Node<K>> data, LeanNode reference)
+    public Tree(AggregationProfile source, List<Node<K>> data, LeanNode reference)
     {
-        super(data, reference);
+        super(source, data, reference);
     }
 
     @Override
@@ -25,6 +26,7 @@ public class Tree<K> extends Aggregation<K, Node<K>>
     public Tree<K> filter(FilterSpecification<Node<K>> filterSpec)
     {
         return new Tree<>(
+            getSource(),
             getData().stream().map(node -> node.copyWithFilter(filterSpec.getFilter()))
                 .filter(node -> node != null).collect(toList()),
             getReference());

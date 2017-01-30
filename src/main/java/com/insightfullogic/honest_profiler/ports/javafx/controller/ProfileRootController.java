@@ -20,6 +20,8 @@ package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
 import static com.insightfullogic.honest_profiler.ports.javafx.ViewType.FLAT;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext.ProfileMode.LIVE;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.CALLED_EXTRACTOR;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.CALLING_EXTRACTOR;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.DESCENDANT_FLAT_EXTRACTOR;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.FLAME_EXTRACTOR;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.FLAT_EXTRACTOR;
@@ -72,6 +74,10 @@ public class ProfileRootController extends AbstractController
     @FXML
     private FlatViewController flatController;
     @FXML
+    private TreeViewController callingController;
+    @FXML
+    private TreeViewController calledController;
+    @FXML
     private TreeViewController treeController;
     @FXML
     private FlatViewController descendantsController;
@@ -94,6 +100,8 @@ public class ProfileRootController extends AbstractController
     {
         super.setApplicationContext(appCtx);
         flatController.setApplicationContext(appCtx);
+        callingController.setApplicationContext(appCtx);
+        calledController.setApplicationContext(appCtx);
         treeController.setApplicationContext(appCtx);
         descendantsController.setApplicationContext(appCtx);
         flameController.setApplicationContext(appCtx);
@@ -105,6 +113,12 @@ public class ProfileRootController extends AbstractController
 
         flatController.setProfileContext(prCtx);
         flatController.bind(prCtx.profileProperty(), FLAT_EXTRACTOR);
+
+        callingController.setProfileContext(prCtx);
+        callingController.bind(flatController.selectedProperty(), CALLING_EXTRACTOR);
+
+        calledController.setProfileContext(prCtx);
+        calledController.bind(flatController.selectedProperty(), CALLED_EXTRACTOR);
 
         treeController.setProfileContext(prCtx);
         treeController.bind(prCtx.profileProperty(), TREE_EXTRACTOR);
@@ -156,15 +170,21 @@ public class ProfileRootController extends AbstractController
                 descendantsController.deactivate();
                 flameController.deactivate();
                 flatController.activate();
+                callingController.activate();
+                calledController.activate();
                 break;
             case TREE:
                 flatController.deactivate();
+                callingController.deactivate();
+                calledController.deactivate();
                 flameController.deactivate();
                 treeController.activate();
                 descendantsController.activate();
                 break;
             case FLAME:
                 flatController.deactivate();
+                callingController.deactivate();
+                calledController.deactivate();
                 treeController.deactivate();
                 descendantsController.deactivate();
                 flameController.activate();

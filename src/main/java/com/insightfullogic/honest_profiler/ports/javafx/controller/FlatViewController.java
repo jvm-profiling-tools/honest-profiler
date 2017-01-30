@@ -44,6 +44,7 @@ import com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.GraphicalShareTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTableCell;
 
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -114,6 +115,11 @@ public class FlatViewController extends AbstractProfileViewController<Flat<Strin
             flatProfileView.getColumns().forEach(column -> column.setSortable(false));
         }
         super.setProfileContext(profileContext);
+    }
+
+    public ReadOnlyObjectProperty<Entry<String>> selectedProperty()
+    {
+        return flatProfileView.getSelectionModel().selectedItemProperty();
     }
 
     // Initialization Helper Methods

@@ -38,7 +38,6 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil.exp
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
-import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.GraphicalShareTreeTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTreeTableCell;
@@ -107,24 +106,6 @@ public class TreeViewController extends AbstractProfileViewController<Tree<Strin
         initializeTable();
     }
 
-    @Override
-    public void activate()
-    {
-        super.activate();
-    }
-
-    @Override
-    public void deactivate()
-    {
-        super.deactivate();
-    }
-
-    @Override
-    public void setProfileContext(ProfileContext profileContext)
-    {
-        super.setProfileContext(profileContext);
-    }
-
     public ReadOnlyObjectProperty<TreeItem<Node<String>>> selectedProperty()
     {
         return treeView.getSelectionModel().selectedItemProperty();
@@ -178,5 +159,6 @@ public class TreeViewController extends AbstractProfileViewController<Tree<Strin
     protected void refresh()
     {
         treeView.setRoot(new NodeTreeItem(getTarget().filter(getFilterSpecification())));
+        treeView.refresh();
     }
 }

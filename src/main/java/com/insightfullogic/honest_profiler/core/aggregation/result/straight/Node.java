@@ -36,13 +36,19 @@ public class Node<K> extends Entry<K>
         this.children = new HashMap<>();
     }
 
+    public Node(Entry<K> entry, List<Node<K>> children)
+    {
+        this(entry.getAggregation());
+        entry.copyInto(this);
+    }
+
     /**
-     * Constructor used for copying.
+     * Copy Constructor.
      *
      * @param entry
      * @param children
      */
-    private Node(Node<K> entry, List<Node<K>> children)
+    public Node(Node<K> entry, List<Node<K>> children)
     {
         this(entry.getAggregation());
         entry.copyInto(this);

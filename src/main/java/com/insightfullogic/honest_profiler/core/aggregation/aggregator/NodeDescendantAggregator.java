@@ -6,6 +6,7 @@ import static java.util.stream.Collectors.groupingBy;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
@@ -23,10 +24,11 @@ public class NodeDescendantAggregator implements Aggregator<Node<String>, String
      * @see Aggregator#aggregate(Object, LeanNode)
      */
     @Override
-    public Flat<String> aggregate(Node<String> parent, LeanNode reference)
+    public Flat<String> aggregate(AggregationProfile source, Node<String> parent,
+        LeanNode reference)
     {
         List<Entry<String>> result = new ArrayList<>();
-        Flat<String> aggregation = new Flat<>(result, reference);
+        Flat<String> aggregation = new Flat<>(source, result, reference);
 
         result.addAll(
             parent.flatten().collect(

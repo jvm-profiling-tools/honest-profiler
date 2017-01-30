@@ -1,5 +1,6 @@
 package com.insightfullogic.honest_profiler.core.aggregation.aggregator;
 
+import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
 import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
 import com.insightfullogic.honest_profiler.core.aggregation.result.Keyed;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
@@ -32,5 +33,5 @@ public interface Aggregator<I, K, T extends Keyed<K>>
      * @param reference the reference for relative values calculated by the items
      * @return the resulting {@link Aggregation}
      */
-    Aggregation<K, T> aggregate(I input, LeanNode reference);
+    Aggregation<K, T> aggregate(AggregationProfile source, I input, LeanNode reference);
 }

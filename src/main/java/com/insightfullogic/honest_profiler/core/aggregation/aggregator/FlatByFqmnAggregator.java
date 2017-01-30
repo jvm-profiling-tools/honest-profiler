@@ -23,10 +23,11 @@ public class FlatByFqmnAggregator implements Aggregator<AggregationProfile, Stri
      * @see Aggregator#aggregate(Object, LeanNode)
      */
     @Override
-    public Flat<String> aggregate(AggregationProfile input, LeanNode reference)
+    public Flat<String> aggregate(AggregationProfile source, AggregationProfile input,
+        LeanNode reference)
     {
         List<Entry<String>> result = new ArrayList<>();
-        Flat<String> aggregation = new Flat<>(result, reference);
+        Flat<String> aggregation = new Flat<>(source, result, reference);
 
         input.getFqmnLinks().values().forEach(link ->
         {

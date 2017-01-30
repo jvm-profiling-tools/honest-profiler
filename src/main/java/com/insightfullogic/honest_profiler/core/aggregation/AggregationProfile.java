@@ -64,15 +64,17 @@ public class AggregationProfile
     @SuppressWarnings("unchecked")
     public Flat<String> getFlat()
     {
-        cachedAggregations.putIfAbsent(flatAggregator, flatAggregator.aggregate(this, profileNode));
-        return (Flat<String>) cachedAggregations.get(flatAggregator);
+        cachedAggregations
+            .putIfAbsent(flatAggregator, flatAggregator.aggregate(this, this, profileNode));
+        return (Flat<String>)cachedAggregations.get(flatAggregator);
     }
 
     @SuppressWarnings("unchecked")
     public Tree<String> getTree()
     {
-        cachedAggregations.putIfAbsent(treeAggregator, treeAggregator.aggregate(this, profileNode));
-        return (Tree<String>) cachedAggregations.get(treeAggregator);
+        cachedAggregations
+            .putIfAbsent(treeAggregator, treeAggregator.aggregate(this, this, profileNode));
+        return (Tree<String>)cachedAggregations.get(treeAggregator);
     }
 
     private void aggregateTopLevel()
@@ -98,7 +100,7 @@ public class AggregationProfile
         link.addSibling(threadId, node);
 
         LeanNode parent = node.getParent();
-        if (parent != null)
+        if (parent != null && !parent.isThreadNode())
         {
             // Add FQMN Link Parent-Child relations
             link.addParent(threadId, parent);

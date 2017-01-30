@@ -7,11 +7,9 @@ import java.util.Map;
 import com.insightfullogic.honest_profiler.core.parser.TraceStart;
 
 /**
- * Tree node which records stacktrace information. The tree root contains the
- * numerical data at thread-level, and has as unique child the root method of
- * that thread. Any other node contains numerical data about its associated
- * stack frame, and has as children the nodes representing stack frames called
- * at some time from that location.
+ * Tree node which records stacktrace information. The tree root contains the numerical data at thread-level, and has as
+ * unique child the root method of that thread. Any other node contains numerical data about its associated stack frame,
+ * and has as children the nodes representing stack frames called at some time from that location.
  */
 public class LeanNode
 {
@@ -75,12 +73,16 @@ public class LeanNode
         return childMap.values();
     }
 
+    public boolean isThreadNode()
+    {
+        return parent == null;
+    }
+
     /**
-     * The update is called from the LogCollector, on the parent with the next
-     * (potentially last) child from the trace.
+     * The update is called from the LogCollector, on the parent with the next (potentially last) child from the trace.
      *
-     * @param nanos the number of ns between the {@link TraceStart} preceding
-     *            the stackTrace and the {@link TraceStart} following it
+     * @param nanos the number of ns between the {@link TraceStart} preceding the stackTrace and the {@link TraceStart}
+     *            following it
      * @param child the child {@link FrameInfo} of the current Node
      * @param last a boolean indicating if the child is last in the trace
      * @return this node
