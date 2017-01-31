@@ -3,9 +3,9 @@ package com.insightfullogic.honest_profiler.ports.javafx.util;
 import java.util.function.Function;
 
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
-import com.insightfullogic.honest_profiler.core.aggregation.aggregator.CalledTreeAggregator;
-import com.insightfullogic.honest_profiler.core.aggregation.aggregator.CallingTreeAggregator;
-import com.insightfullogic.honest_profiler.core.aggregation.aggregator.NodeDescendantAggregator;
+import com.insightfullogic.honest_profiler.core.aggregation.aggregator.DescendantTreeAggregator;
+import com.insightfullogic.honest_profiler.core.aggregation.aggregator.AncestorTreeAggregator;
+import com.insightfullogic.honest_profiler.core.aggregation.aggregator.DescendantFlatAggregator;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
@@ -16,10 +16,10 @@ import javafx.scene.control.TreeItem;
 
 public class BindUtil
 {
-    private static final NodeDescendantAggregator DESCENDANT_AGGREGATOR = new NodeDescendantAggregator();
+    private static final DescendantFlatAggregator DESCENDANT_AGGREGATOR = new DescendantFlatAggregator();
 
-    private static final CallingTreeAggregator CALLING_AGGREGATOR = new CallingTreeAggregator();
-    private static final CalledTreeAggregator CALLED_AGGREGATOR = new CalledTreeAggregator();
+    private static final AncestorTreeAggregator CALLING_AGGREGATOR = new AncestorTreeAggregator();
+    private static final DescendantTreeAggregator CALLED_AGGREGATOR = new DescendantTreeAggregator();
 
     public static final Function<Object, Flat<String>> FLAT_EXTRACTOR = o -> o == null ? null
         : ((AggregationProfile)o).getFlat();

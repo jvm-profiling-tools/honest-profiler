@@ -18,17 +18,13 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 
 /**
- * Aggregator which takes an {@link AggregationProfile}, and uses the data to aggregate the values into trees of
- * {@link Node}s aggregated by FQMN.
+ * Aggregator which takes an {@link Entry} and aggregates the descendants into a {@link Tree}.
  */
-public class CallingTreeAggregator implements Aggregator<Entry<String>, String, Node<String>>
+public class DescendantTreeAggregator implements Aggregator<Entry<String>, String, Node<String>>
 {
     // Aggregator Implementation
 
     /**
-     * Iterate over the top-level {@link LeanNode}s containing the thread-level information, and recursively traverse
-     * the descendants, aggregating them on each level by FQMN.
-     *
      * @see Aggregator#aggregate(Object, LeanNode)
      */
     @Override
@@ -42,15 +38,15 @@ public class CallingTreeAggregator implements Aggregator<Entry<String>, String, 
         Tree<String> result = new Tree<>(source, list, reference);
         Set<String> processed = new HashSet<>();
 
-        addCallers(source, root, result, processed);
+        addCallees(source, root, result, processed);
         return result;
     }
 
-    private void addCallers(AggregationProfile source, Node<String> parent, Tree<String> tree,
+    private void addCallees(AggregationProfile source, Node<String> parent, Tree<String> tree,
         Set<String> processed)
     {
         FqmnLink fqmnLink = source.getFqmnLinks().get(parent.getKey());
-        Map<String, Node<String>> callers = fqmnLink.getParents().values().stream()
+        Map<String, Node<String>> callers = fqmnLink.getChildren().values().stream()
             .flatMap(set -> set.stream()).filter(
                 node -> node != null
                     && !node.isThreadNode()
@@ -71,10 +67,13 @@ public class CallingTreeAggregator implements Aggregator<Entry<String>, String, 
             // Accumulator
             (accumulator, node) ->
             {
-                String fqmn = source.getSource().getFqmn(node);
-                processed.add(fqmn);
-                accumulator.add(fqmn, node);
-                addCallers(source, accumulator, tree, processed); // Recursion here !
+                if (node.isThreadNode())
+                {
+                    return;
+                }
+                processed.add(source.getSource().getFqmn(node));
+                accumulator.add(source.getSource().getFqmn(node), node);
+                addCallees(source, accumulator, tree, processed); // Recursion here !
             },
             // Combiner
             (e1, e2) -> e1.combine(e2));

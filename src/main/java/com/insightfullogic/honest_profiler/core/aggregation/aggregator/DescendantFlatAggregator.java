@@ -13,10 +13,10 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 
 /**
- * Aggregator which takes a {@link Node}, and aggregates the values of the {@link Node} and its descendants into a list
- * of {@link Entry}s.
+ * Aggregator which takes a {@link Node}, and aggregates the values of the {@link Node} and its descendants into a
+ * {@link Flat}.
  */
-public class NodeDescendantAggregator implements Aggregator<Node<String>, String, Entry<String>>
+public class DescendantFlatAggregator implements Aggregator<Node<String>, String, Entry<String>>
 {
     /**
      * This method aggregates a {@link Node} and all its all descendants.
