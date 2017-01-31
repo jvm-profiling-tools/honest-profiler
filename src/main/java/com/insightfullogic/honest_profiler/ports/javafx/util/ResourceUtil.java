@@ -34,6 +34,9 @@ public final class ResourceUtil
     public static final String INFO_LABEL_BASESOURCE = "label.baseSource.info";
     public static final String INFO_LABEL_NEWSOURCE = "label.newSource.info";
 
+    public static final String INFO_LABEL_ANCESTORS = "label.ancestors.info";
+    public static final String INFO_LABEL_DESCENDANTS = "label.descendants.info";
+
     public static final String INFO_CHECK_HIDEERRORTHREADS = "check.hideErrorThreads.info";
 
     public static final String INFO_TABLE_FLAT = "table.flat.info";

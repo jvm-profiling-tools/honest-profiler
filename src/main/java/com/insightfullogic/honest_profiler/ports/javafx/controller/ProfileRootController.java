@@ -18,7 +18,9 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
+import static com.insightfullogic.honest_profiler.ports.javafx.ViewType.FLAME;
 import static com.insightfullogic.honest_profiler.ports.javafx.ViewType.FLAT;
+import static com.insightfullogic.honest_profiler.ports.javafx.ViewType.TREE;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext.ProfileMode.LIVE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.CALLED_EXTRACTOR;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.CALLING_EXTRACTOR;
@@ -38,8 +40,11 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FREEZE_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.UNFREEZE_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor;
+import static java.util.Arrays.asList;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.insightfullogic.honest_profiler.ports.javafx.ViewType;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
@@ -86,11 +91,18 @@ public class ProfileRootController extends AbstractController
 
     private ProfileContext profileContext;
 
+    private Map<ViewType, List<AbstractProfileViewController<?, ?>>> viewToControllerMap;
+
     @Override
     @FXML
     public void initialize()
     {
         super.initialize();
+
+        viewToControllerMap = new HashMap<>();
+        viewToControllerMap.put(FLAT, asList(flatController, callingController, calledController));
+        viewToControllerMap.put(TREE, asList(treeController, descendantsController));
+        viewToControllerMap.put(FLAME, asList(flameController));
     }
 
     // Instance Accessors
@@ -163,35 +175,17 @@ public class ProfileRootController extends AbstractController
             child.setVisible(viewType.ordinal() == i);
         }
 
-        switch (viewType)
+        viewToControllerMap.forEach((type, controllerList) ->
         {
-            case FLAT:
-                treeController.deactivate();
-                descendantsController.deactivate();
-                flameController.deactivate();
-                flatController.activate();
-                callingController.activate();
-                calledController.activate();
-                break;
-            case TREE:
-                flatController.deactivate();
-                callingController.deactivate();
-                calledController.deactivate();
-                flameController.deactivate();
-                treeController.activate();
-                descendantsController.activate();
-                break;
-            case FLAME:
-                flatController.deactivate();
-                callingController.deactivate();
-                calledController.deactivate();
-                treeController.deactivate();
-                descendantsController.deactivate();
-                flameController.activate();
-                flameController.refreshFlameView();
-                break;
-            default:
-        }
+            if (viewType == type)
+            {
+                controllerList.forEach(AbstractProfileViewController::activate);
+            }
+            else
+            {
+                controllerList.forEach(AbstractProfileViewController::deactivate);
+            }
+        });
     }
 
     // AbstractController Implementation

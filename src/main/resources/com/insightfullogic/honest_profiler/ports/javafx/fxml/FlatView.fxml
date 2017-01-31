@@ -79,10 +79,10 @@
       </HBox>
       <TableView fx:id="flatProfileView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
           <columns>
-              <TableColumn fx:id="method" maxWidth="1.7976931348623157E308" minWidth="250.0" prefWidth="-1.0" text="%column.method" />
-              <TableColumn fx:id="selfTimeGraphical" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.selfCntPctGraph" />
-              <TableColumn fx:id="selfCntPct" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.selfCntPct" />
-              <TableColumn fx:id="totalCntPct" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.totalCntPct" />
+            <TableColumn fx:id="method" maxWidth="1.7976931348623157E308" minWidth="250.0" prefWidth="-1.0" text="%column.method" />
+            <TableColumn fx:id="selfTimeGraphical" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.selfCntPctGraph" />
+            <TableColumn fx:id="selfCntPct" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.selfCntPct" />
+            <TableColumn fx:id="totalCntPct" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.totalCntPct" />
             <TableColumn fx:id="selfCnt" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.selfCnt" />
             <TableColumn fx:id="totalCnt" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.totalCnt" />
             <TableColumn fx:id="selfTime" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.selfTime" />
