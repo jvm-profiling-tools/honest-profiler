@@ -186,6 +186,11 @@ public class ProfileRootController extends AbstractController
                 controllerList.forEach(AbstractProfileViewController::deactivate);
             }
         });
+
+        if (viewType == FLAME)
+        {
+            flameController.refreshFlameView();
+        }
     }
 
     // AbstractController Implementation
