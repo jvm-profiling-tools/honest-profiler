@@ -38,11 +38,11 @@ public class DescendantTreeAggregator implements Aggregator<Entry<String>, Strin
         Tree<String> result = new Tree<>(source, list, reference);
         Set<String> processed = new HashSet<>();
 
-        addCallees(source, root, result, processed);
+        addDescendants(source, root, result, processed);
         return result;
     }
 
-    private void addCallees(AggregationProfile source, Node<String> parent, Tree<String> tree,
+    private void addDescendants(AggregationProfile source, Node<String> parent, Tree<String> tree,
         Set<String> processed)
     {
         FqmnLink fqmnLink = source.getFqmnLinks().get(parent.getKey());
@@ -73,7 +73,8 @@ public class DescendantTreeAggregator implements Aggregator<Entry<String>, Strin
                 }
                 processed.add(source.getSource().getFqmn(node));
                 accumulator.add(source.getSource().getFqmn(node), node);
-                addCallees(source, accumulator, tree, processed); // Recursion here !
+                // Wrong, will potentially add to the accumulator several times which leads to double-counting
+                addDescendants(source, accumulator, tree, processed); // Recursion here !
             },
             // Combiner
             (e1, e2) -> e1.combine(e2));
