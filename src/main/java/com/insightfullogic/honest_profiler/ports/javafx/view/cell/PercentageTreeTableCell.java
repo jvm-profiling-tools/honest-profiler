@@ -19,6 +19,8 @@
 package com.insightfullogic.honest_profiler.ports.javafx.view.cell;
 
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderPercentage;
+import static javafx.geometry.Pos.CENTER_RIGHT;
+import static javafx.scene.text.TextAlignment.RIGHT;
 
 import java.util.function.Function;
 
@@ -31,6 +33,10 @@ public class PercentageTreeTableCell<T> extends TreeTableCell<T, Number>
     public PercentageTreeTableCell(Function<Number, String> styleFunction)
     {
         super();
+
+        setTextAlignment(RIGHT);
+        setAlignment(CENTER_RIGHT);
+
         this.styleFunction = styleFunction;
     }
 
