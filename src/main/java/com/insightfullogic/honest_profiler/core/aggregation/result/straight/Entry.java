@@ -18,6 +18,7 @@ public class Entry<K> implements Keyed<K>
     private K key;
     private NumericInfo data;
     private List<LeanNode> aggregatedNodes;
+    private NumericInfo reference;
 
     public <T extends Keyed<K>> Entry(Aggregation<K, T> aggregation)
     {
@@ -41,24 +42,15 @@ public class Entry<K> implements Keyed<K>
 
     }
 
-    public <T extends Keyed<K>> Entry(K key,
-                                      NumericInfo data,
-                                      Aggregation<K, T> aggregation,
-                                      LeanNode node)
-    {
-        this(key, data, aggregation);
-        aggregatedNodes.add(node);
-    }
-
     @SuppressWarnings("unchecked")
     public <T extends Keyed<K>> Aggregation<K, T> getAggregation()
     {
         return (Aggregation<K, T>)aggregation;
     }
 
-    public NumericInfo getReference()
+    public void setReference(NumericInfo reference)
     {
-        return aggregation.getReferenceData();
+        this.reference = reference;
     }
 
     @Override
@@ -105,28 +97,28 @@ public class Entry<K> implements Keyed<K>
     public double getSelfTimePct()
     {
         return aggregation == null ? 0
-            : data.getSelfTime().doubleValue() / getReference().getTotalTime().longValue();
+            : data.getSelfTime().doubleValue() / reference.getTotalTime().longValue();
     }
 
     public double getTotalTimePct()
     {
         return aggregation == null ? 0
-            : data.getTotalTime().doubleValue() / getReference().getTotalTime().longValue();
+            : data.getTotalTime().doubleValue() / reference.getTotalTime().longValue();
     }
 
     public double getSelfCntPct()
     {
-        return aggregation == null ? 0 : data.getSelfCnt() / (double)getReference().getTotalCnt();
+        return aggregation == null ? 0 : data.getSelfCnt() / (double)reference.getTotalCnt();
     }
 
     public double getTotalCntPct()
     {
-        return aggregation == null ? 0 : data.getTotalCnt() / (double)getReference().getTotalCnt();
+        return aggregation == null ? 0 : data.getTotalCnt() / (double)reference.getTotalCnt();
     }
 
     public int getRefCnt()
     {
-        return aggregation == null ? 0 : getReference().getTotalCnt();
+        return aggregation == null ? 0 : reference.getTotalCnt();
     }
 
     public void add(LeanNode node)
@@ -141,13 +133,15 @@ public class Entry<K> implements Keyed<K>
         other.key = key;
         other.data = data.copy();
         other.aggregatedNodes = new ArrayList<>(aggregatedNodes);
+        other.reference = reference;
     }
 
     public Entry<K> combine(Entry<K> other)
     {
-        this.key = other.key;
+        key = other.key;
         aggregatedNodes.addAll(other.aggregatedNodes);
         data.add(other.data);
+        reference = other.reference;
         return this;
     }
 

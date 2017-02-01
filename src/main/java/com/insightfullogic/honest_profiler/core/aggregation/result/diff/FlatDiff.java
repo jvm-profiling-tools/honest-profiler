@@ -18,7 +18,7 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat
  *
  * @param <K> the type of the key
  */
-public class FlatDiff<K> extends AbstractDiff<K, Entry<K>, DiffEntry<K>>
+public class FlatDiff<K> extends AbstractDiff<K, Entry<K>, DiffEntry<K>, Flat<K>>
 {
     // Instance Properties
 

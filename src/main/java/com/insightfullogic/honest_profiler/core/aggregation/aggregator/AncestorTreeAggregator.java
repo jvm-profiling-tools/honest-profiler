@@ -28,14 +28,13 @@ public class AncestorTreeAggregator implements Aggregator<Entry<String>, String,
      * @see Aggregator#aggregate(Object, LeanNode)
      */
     @Override
-    public Tree<String> aggregate(AggregationProfile source, Entry<String> input,
-        LeanNode reference)
+    public Tree<String> aggregate(AggregationProfile source, Entry<String> input)
     {
         Node<String> root = new Node<>(input, new ArrayList<>());
         List<Node<String>> list = new ArrayList<>();
         list.add(root);
 
-        Tree<String> result = new Tree<>(source, list, reference);
+        Tree<String> result = new Tree<>(source, list);
         Set<String> processed = new HashSet<>();
 
         addAncestors(source, root, result, processed);
@@ -63,7 +62,12 @@ public class AncestorTreeAggregator implements Aggregator<Entry<String>, String,
     {
         return of(
             // Supplier
-            () -> new Node<>(tree),
+            () ->
+            {
+                Node<String> node = new Node<>(tree);
+                node.setReference(source.getGlobalData());
+                return node;
+            },
             // Accumulator
             (accumulator, node) ->
             {

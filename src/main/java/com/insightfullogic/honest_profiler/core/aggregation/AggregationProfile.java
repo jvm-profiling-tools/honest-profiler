@@ -26,7 +26,7 @@ public class AggregationProfile
     private final LeanProfile source;
     private final Map<String, FqmnLink> fqmnLinks;
 
-    private final LeanNode profileNode;
+    private final NumericInfo global;
 
     private Map<Aggregator<?, ?, ?>, Aggregation<?, ?>> cachedAggregations;
 
@@ -34,10 +34,10 @@ public class AggregationProfile
     {
         source = sourceProfile;
         fqmnLinks = new HashMap<>();
-        profileNode = new LeanNode(null, null);
+        global = new NumericInfo();
         cachedAggregations = new HashMap<>();
 
-        aggregateTopLevel();
+        aggregateGlobal();
         calculateLinks();
     }
 
@@ -46,9 +46,9 @@ public class AggregationProfile
         return source;
     }
 
-    public NumericInfo getProfileData()
+    public NumericInfo getGlobalData()
     {
-        return profileNode.getData();
+        return global;
     }
 
     public FqmnLink getFqmnLink(LeanNode node)
@@ -64,26 +64,24 @@ public class AggregationProfile
     @SuppressWarnings("unchecked")
     public Flat<String> getFlat()
     {
-        cachedAggregations
-            .putIfAbsent(flatAggregator, flatAggregator.aggregate(this, this, profileNode));
+        cachedAggregations.putIfAbsent(flatAggregator, flatAggregator.aggregate(this, this));
         return (Flat<String>)cachedAggregations.get(flatAggregator);
     }
 
     @SuppressWarnings("unchecked")
     public Tree<String> getTree()
     {
-        cachedAggregations
-            .putIfAbsent(treeAggregator, treeAggregator.aggregate(this, this, profileNode));
+        cachedAggregations.putIfAbsent(treeAggregator, treeAggregator.aggregate(this, this));
         return (Tree<String>)cachedAggregations.get(treeAggregator);
     }
 
-    private void aggregateTopLevel()
+    private void aggregateGlobal()
     {
         NumericInfo aggregated = source.getThreads().values().stream().collect(
             NumericInfo::new,
             (data, node) -> data.add(node.getData()),
             (data1, data2) -> data1.add(data2));
-        profileNode.getData().add(aggregated);
+        global.add(aggregated);
     }
 
     private void calculateLinks()

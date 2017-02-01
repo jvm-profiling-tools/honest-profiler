@@ -24,11 +24,10 @@ public class DescendantFlatAggregator implements Aggregator<Node<String>, String
      * @see Aggregator#aggregate(Object, LeanNode)
      */
     @Override
-    public Flat<String> aggregate(AggregationProfile source, Node<String> parent,
-        LeanNode reference)
+    public Flat<String> aggregate(AggregationProfile source, Node<String> parent)
     {
         List<Entry<String>> result = new ArrayList<>();
-        Flat<String> aggregation = new Flat<>(source, result, reference);
+        Flat<String> aggregation = new Flat<>(source, result);
 
         result.addAll(
             parent.flatten().collect(
@@ -36,7 +35,12 @@ public class DescendantFlatAggregator implements Aggregator<Node<String>, String
                     Node::getKey,
                     of(
                         // Supplier
-                        () -> new Entry<String>(aggregation),
+                        () ->
+                        {
+                            Entry<String> entry = new Entry<>(aggregation);
+                            entry.setReference(source.getGlobalData());
+                            return entry;
+                        },
                         // Accumulator
                         (x, y) -> x.combine(y),
                         // Combiner

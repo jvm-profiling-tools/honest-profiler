@@ -3,8 +3,6 @@ package com.insightfullogic.honest_profiler.core.aggregation.result.diff;
 import com.insightfullogic.honest_profiler.core.aggregation.filter.FilterSpecification;
 import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
 import com.insightfullogic.honest_profiler.core.aggregation.result.Keyed;
-import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
-import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 
 /**
  * Base class for Diffs, which are aggregations (but not {@link Aggregation}s !) comparing two {@link Aggregation}s
@@ -22,12 +20,12 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
  * @param <T> the type of aggregation items in the diffed {@link Aggregation}s
  * @param <U> the type of aggregation items inside this Diff
  */
-public abstract class AbstractDiff<K, T extends Keyed<K>, U extends Keyed<K>>
+public abstract class AbstractDiff<K, T extends Keyed<K>, U extends Keyed<K>, V extends Aggregation<K, T>>
 {
     // Instance Properties
 
-    private Aggregation<K, T> baseAggregation;
-    private Aggregation<K, T> newAggregation;
+    private V baseAggregation;
+    private V newAggregation;
 
     // Instance Accessors
 
@@ -36,7 +34,7 @@ public abstract class AbstractDiff<K, T extends Keyed<K>, U extends Keyed<K>>
      *
      * @param baseAggregation the Base Aggregation
      */
-    protected void setBaseAggregation(Aggregation<K, T> baseAggregation)
+    protected void setBaseAggregation(V baseAggregation)
     {
         this.baseAggregation = baseAggregation;
     }
@@ -46,57 +44,19 @@ public abstract class AbstractDiff<K, T extends Keyed<K>, U extends Keyed<K>>
      *
      * @param newAggregation the New Aggregation
      */
-    protected void setNewAggregation(Aggregation<K, T> newAggregation)
+    protected void setNewAggregation(V newAggregation)
     {
         this.newAggregation = newAggregation;
     }
 
-    /**
-     * @see Aggregation#getReference()
-     */
-    public LeanNode getBaseReference()
+    public V getBaseAggregation()
     {
-        return baseAggregation.getReference();
+        return baseAggregation;
     }
 
-    /**
-     * @see Aggregation#getReferenceData()
-     */
-    public NumericInfo getBaseReferenceData()
+    public V getNewAggregation()
     {
-        return baseAggregation.getReferenceData();
-    }
-
-    /**
-     * @see Aggregation#setReference()
-     */
-    public void setBaseReference(LeanNode reference)
-    {
-        baseAggregation.setReference(reference);
-    }
-
-    /**
-     * @see Aggregation#getReference()
-     */
-    public LeanNode getNewReference()
-    {
-        return newAggregation.getReference();
-    }
-
-    /**
-     * @see Aggregation#getReferenceData()
-     */
-    public NumericInfo getNewReferenceData()
-    {
-        return newAggregation.getReferenceData();
-    }
-
-    /**
-     * @see Aggregation#setReference()
-     */
-    public void setNewReference(LeanNode reference)
-    {
-        newAggregation.setReference(reference);
+        return newAggregation;
     }
 
     /**
@@ -105,5 +65,5 @@ public abstract class AbstractDiff<K, T extends Keyed<K>, U extends Keyed<K>>
      * @param filterSpecification the {@link FilterSpecification} specifying the filter
      * @return a new Diff containing the filtered results
      */
-    public abstract AbstractDiff<K, T, U> filter(FilterSpecification<U> filterSpecification);
+    public abstract AbstractDiff<K, T, U, V> filter(FilterSpecification<U> filterSpecification);
 }

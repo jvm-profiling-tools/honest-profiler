@@ -3,9 +3,9 @@ package com.insightfullogic.honest_profiler.ports.javafx.util;
 import java.util.function.Function;
 
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
-import com.insightfullogic.honest_profiler.core.aggregation.aggregator.DescendantTreeAggregator;
 import com.insightfullogic.honest_profiler.core.aggregation.aggregator.AncestorTreeAggregator;
 import com.insightfullogic.honest_profiler.core.aggregation.aggregator.DescendantFlatAggregator;
+import com.insightfullogic.honest_profiler.core.aggregation.aggregator.DescendantTreeAggregator;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
@@ -39,10 +39,7 @@ public class BindUtil
             return null;
         }
 
-        return DESCENDANT_AGGREGATOR.aggregate(
-            node.getAggregation().getSource(),
-            node,
-            node.getAggregation().getReference());
+        return DESCENDANT_AGGREGATOR.aggregate(node.getAggregation().getSource(), node);
     };
 
     public static final Function<Object, Tree<String>> CALLING_EXTRACTOR = o ->
@@ -53,10 +50,7 @@ public class BindUtil
         {
             return null;
         }
-        return CALLING_AGGREGATOR.aggregate(
-            entry.getAggregation().getSource(),
-            entry,
-            entry.getAggregation().getReference());
+        return CALLING_AGGREGATOR.aggregate(entry.getAggregation().getSource(), entry);
     };
 
     public static final Function<Object, Tree<String>> CALLED_EXTRACTOR = o ->
@@ -67,10 +61,7 @@ public class BindUtil
         {
             return null;
         }
-        return CALLED_AGGREGATOR.aggregate(
-            entry.getAggregation().getSource(),
-            entry,
-            entry.getAggregation().getReference());
+        return CALLED_AGGREGATOR.aggregate(entry.getAggregation().getSource(), entry);
     };
 
     private BindUtil()

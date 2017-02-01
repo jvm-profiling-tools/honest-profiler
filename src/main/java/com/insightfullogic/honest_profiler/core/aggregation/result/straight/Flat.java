@@ -7,13 +7,12 @@ import java.util.List;
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
 import com.insightfullogic.honest_profiler.core.aggregation.filter.FilterSpecification;
 import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
-import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 
 public class Flat<K> extends Aggregation<K, Entry<K>>
 {
-    public Flat(AggregationProfile source, List<Entry<K>> data, LeanNode reference)
+    public Flat(AggregationProfile source, List<Entry<K>> data)
     {
-        super(source, data, reference);
+        super(source, data);
     }
 
     @Override
@@ -27,7 +26,6 @@ public class Flat<K> extends Aggregation<K, Entry<K>>
     {
         return new Flat<>(
             getSource(),
-            getData().stream().filter(filterSpec.getFilter()).collect(toList()),
-            getReference());
+            getData().stream().filter(filterSpec.getFilter()).collect(toList()));
     }
 }

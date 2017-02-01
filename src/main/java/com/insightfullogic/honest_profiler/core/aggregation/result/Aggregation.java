@@ -6,41 +6,22 @@ import java.util.List;
 
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
 import com.insightfullogic.honest_profiler.core.aggregation.filter.FilterSpecification;
-import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
-import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 
 public class Aggregation<K, T extends Keyed<K>>
 {
     private final AggregationProfile source;
     private final List<T> data;
-    private LeanNode reference;
 
-    public Aggregation(AggregationProfile source, List<T> data, LeanNode reference)
+    public Aggregation(AggregationProfile source, List<T> data)
     {
         super();
         this.source = source;
         this.data = data;
-        this.reference = reference;
     }
 
     public AggregationProfile getSource()
     {
         return source;
-    }
-
-    public LeanNode getReference()
-    {
-        return reference;
-    }
-
-    public NumericInfo getReferenceData()
-    {
-        return reference.getData();
-    }
-
-    public void setReference(LeanNode reference)
-    {
-        this.reference = reference;
     }
 
     public List<T> getData()
@@ -52,8 +33,7 @@ public class Aggregation<K, T extends Keyed<K>>
     {
         return new Aggregation<>(
             source,
-            data.stream().filter(filterSpec.getFilter()).collect(toList()),
-            reference);
+            data.stream().filter(filterSpec.getFilter()).collect(toList()));
     }
 
     @Override

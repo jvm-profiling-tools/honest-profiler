@@ -18,7 +18,7 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree
  *
  * @param <K> the type of the key
  */
-public class TreeDiff<K> extends AbstractDiff<K, Node<K>, DiffNode<K>>
+public class TreeDiff<K> extends AbstractDiff<K, Node<K>, DiffNode<K>, Tree<K>>
 {
     // Instance Properties
 

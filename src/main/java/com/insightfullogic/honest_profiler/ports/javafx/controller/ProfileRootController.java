@@ -145,14 +145,14 @@ public class ProfileRootController extends AbstractController
             (property, oldValue, newValue) -> profileSampleCount.setText(
                 newValue == null ? null : getText(
                     CONTENT_LABEL_PROFILESAMPLECOUNT,
-                    newValue.getProfileData().getTotalCnt())));
+                    newValue.getGlobalData().getTotalCnt())));
 
         if (prCtx.getProfile() != null)
         {
             profileSampleCount.setText(
                 getText(
                     CONTENT_LABEL_PROFILESAMPLECOUNT,
-                    prCtx.getProfile().getProfileData().getTotalCnt()));
+                    prCtx.getProfile().getGlobalData().getTotalCnt()));
         }
 
         viewChoice.setConverter(getStringConverterForType(ViewType.class));

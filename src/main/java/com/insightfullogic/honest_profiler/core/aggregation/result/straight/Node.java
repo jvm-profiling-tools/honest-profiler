@@ -60,14 +60,7 @@ public class Node<K> extends Entry<K>
         return new ArrayList<>(children.values());
     }
 
-    @Override
-    public int getRefCnt()
-    {
-        return getReference().getTotalCnt();
-    }
-
-    // Calculate deepest stack depth in descendants. Return 0 if there are no
-    // children.
+    // Calculate deepest stack depth in descendants. Return 0 if there are no children.
     public int getDescendantDepth()
     {
         if (children.isEmpty())

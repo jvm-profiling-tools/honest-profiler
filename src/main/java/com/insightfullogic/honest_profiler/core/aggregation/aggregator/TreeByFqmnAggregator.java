@@ -14,6 +14,7 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfile;
+import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 
 /**
  * Aggregator which takes an {@link AggregationProfile}, and uses the data to aggregate the values into trees of
@@ -30,11 +31,10 @@ public class TreeByFqmnAggregator implements Aggregator<AggregationProfile, Stri
      * @see Aggregator#aggregate(Object, LeanNode)
      */
     @Override
-    public Tree<String> aggregate(AggregationProfile source, AggregationProfile input,
-        LeanNode reference)
+    public Tree<String> aggregate(AggregationProfile source, AggregationProfile input)
     {
         List<Node<String>> nodes = new ArrayList<>();
-        Tree<String> result = new Tree<>(source, nodes, reference);
+        Tree<String> result = new Tree<>(source, nodes);
 
         LeanProfile profile = input.getSource();
 
@@ -42,10 +42,11 @@ public class TreeByFqmnAggregator implements Aggregator<AggregationProfile, Stri
         {
             // Create the top-level Node with the thread information
             Node<String> node = getThreadNode(result, profile, threadId, threadNode);
+            node.setReference(input.getGlobalData());
             nodes.add(node);
 
             // Create the subtree with the method information, aggregated at each level by FQMN
-            add(result, profile, node, threadNode);
+            add(result, profile, node, threadNode, input.getGlobalData());
         });
 
         return result;
@@ -80,10 +81,10 @@ public class TreeByFqmnAggregator implements Aggregator<AggregationProfile, Stri
      * @param parent the {@link LeanNode} being aggregated
      */
     private void add(Tree<String> tree, LeanProfile profile, Node<String> parentNode,
-        LeanNode parent)
+        LeanNode parent, NumericInfo reference)
     {
         Map<String, Node<String>> nodeMap = parent.getChildren().stream().collect(
-            groupingBy(node -> profile.getFqmn(node), getCollector(tree, profile)));
+            groupingBy(node -> profile.getFqmn(node), getCollector(tree, profile, reference)));
         parentNode.addAll(nodeMap);
     }
 
@@ -100,19 +101,24 @@ public class TreeByFqmnAggregator implements Aggregator<AggregationProfile, Stri
      * @return a {@link Collector} which accumulates {@link LeanNode}s into a {@link Node}.
      */
     private Collector<LeanNode, Node<String>, Node<String>> getCollector(Tree<String> tree,
-        LeanProfile profile)
+        LeanProfile profile, NumericInfo reference)
     {
         // The key has to be specified in the update. I couldn't find a way to
         // easily or elegantly recuperate the String from the enclosing
         // groupingBy().
         return of(
             // Supplier
-            () -> new Node<>(tree),
+            () ->
+            {
+                Node<String> node = new Node<>(tree);
+                node.setReference(reference);
+                return node;
+            },
             // Accumulator
             (accumulator, node) ->
             {
                 accumulator.add(profile.getFqmn(node), node);
-                add(tree, profile, accumulator, node); // Recursion here !
+                add(tree, profile, accumulator, node, reference); // Recursion here !
             },
             // Combiner
             (e1, e2) -> e1.combine(e2));
