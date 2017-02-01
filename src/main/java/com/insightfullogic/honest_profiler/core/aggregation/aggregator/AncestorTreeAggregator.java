@@ -70,8 +70,10 @@ public class AncestorTreeAggregator implements Aggregator<Entry<String>, String,
                 String fqmn = source.getSource().getFqmn(node);
                 processed.add(fqmn);
                 accumulator.add(fqmn, node);
-                // Wrong, will potentially add to the accumulator several times which leads to double-counting
-                addAncestors(source, accumulator, tree, processed); // Recursion here !
+                if (accumulator.getChildren().isEmpty())
+                {
+                    addAncestors(source, accumulator, tree, processed); // Recursion here !
+                }
             },
             // Combiner
             (e1, e2) -> e1.combine(e2));

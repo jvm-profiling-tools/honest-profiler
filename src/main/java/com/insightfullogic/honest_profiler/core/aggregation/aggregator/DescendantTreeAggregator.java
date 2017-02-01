@@ -73,8 +73,10 @@ public class DescendantTreeAggregator implements Aggregator<Entry<String>, Strin
                 }
                 processed.add(source.getSource().getFqmn(node));
                 accumulator.add(source.getSource().getFqmn(node), node);
-                // Wrong, will potentially add to the accumulator several times which leads to double-counting
-                addDescendants(source, accumulator, tree, processed); // Recursion here !
+                if (accumulator.getChildren().isEmpty())
+                {
+                    addDescendants(source, accumulator, tree, processed); // Recursion here !
+                }
             },
             // Combiner
             (e1, e2) -> e1.combine(e2));
