@@ -30,12 +30,17 @@ public class AggregationProfile
 
     private Map<Aggregator<?, ?, ?>, Aggregation<?, ?>> cachedAggregations;
 
-    public AggregationProfile(LeanProfile sourceProfile)
+    public AggregationProfile(LeanProfile source)
     {
-        source = sourceProfile;
+        this.source = source;
         fqmnLinks = new HashMap<>();
         global = new NumericInfo();
         cachedAggregations = new HashMap<>();
+
+        // ThreadInfo objects are stored separately in the LeanLogCollector (to avoid the assumption that a ThreadMeta
+        // will always be emitted before the first sample for the thread comes in), so we put them into the root
+        // LeanThreadNodes here.
+        source.getThreads().forEach((id, node) -> node.setThreadInfo(source.getThreadInfo(id)));
 
         aggregateGlobal();
         calculateLinks();
@@ -53,7 +58,8 @@ public class AggregationProfile
 
     public FqmnLink getFqmnLink(LeanNode node)
     {
-        return fqmnLinks.get(source.getMethodMap().get(node.getFrame().getMethodId()).getFqmn());
+        return fqmnLinks
+            .get(source.getMethodInfoMap().get(node.getFrame().getMethodId()).getFqmn());
     }
 
     public Map<String, FqmnLink> getFqmnLinks()
@@ -92,7 +98,7 @@ public class AggregationProfile
 
     private void link(Long threadId, LeanNode node)
     {
-        String fqmn = source.getMethodMap().get(node.getFrame().getMethodId()).getFqmn();
+        String fqmn = source.getMethodInfoMap().get(node.getFrame().getMethodId()).getFqmn();
         FqmnLink link = fqmnLinks.computeIfAbsent(fqmn, FqmnLink::new);
 
         link.addSibling(threadId, node);

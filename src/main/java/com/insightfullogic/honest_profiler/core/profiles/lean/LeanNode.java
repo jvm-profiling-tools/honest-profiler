@@ -39,7 +39,7 @@ public class LeanNode
      *
      * @param source the source SlimNode which is being copied
      */
-    private LeanNode(LeanNode source, LeanNode newParent)
+    protected LeanNode(LeanNode source, LeanNode newParent)
     {
         this.frame = source.frame;
         this.data = source.data.copy();

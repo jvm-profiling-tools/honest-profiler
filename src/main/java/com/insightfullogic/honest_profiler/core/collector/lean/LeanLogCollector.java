@@ -15,6 +15,7 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.FrameInfo;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfile;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfileListener;
+import com.insightfullogic.honest_profiler.core.profiles.lean.LeanThreadNode;
 import com.insightfullogic.honest_profiler.core.profiles.lean.MethodInfo;
 import com.insightfullogic.honest_profiler.core.profiles.lean.ThreadInfo;
 
@@ -37,7 +38,7 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
     private final Map<Long, ThreadInfo> threadMap;
     // Maps thread ids to the profile trees for the threads. The root contains
     // the Thread-level data, anything below are stackframe-level data.
-    private final Map<Long, LeanNode> threadData;
+    private final Map<Long, LeanThreadNode> threadData;
 
     private Deque<StackFrame> stackTrace;
 
@@ -100,7 +101,7 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
         collectThreadDump();
 
         currentNode = threadData
-            .computeIfAbsent(traceStart.getThreadId(), v -> new LeanNode(null, null));
+            .computeIfAbsent(traceStart.getThreadId(), v -> new LeanThreadNode());
 
         emitProfileIfNeeded();
         stackTrace.clear();

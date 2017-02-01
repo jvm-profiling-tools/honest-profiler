@@ -14,6 +14,7 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfile;
+import com.insightfullogic.honest_profiler.core.profiles.lean.LeanThreadNode;
 import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 
 /**
@@ -64,7 +65,7 @@ public class TreeByFqmnAggregator implements Aggregator<AggregationProfile, Stri
      * @return a {@link Node} containing the aggregated thread-level information
      */
     private Node<String> getThreadNode(Tree<String> tree, LeanProfile profile, Long threadId,
-        LeanNode node)
+        LeanThreadNode node)
     {
         return new Node<>(profile.getThreadName(threadId), node.getData(), tree);
     }
