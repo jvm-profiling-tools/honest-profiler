@@ -1,20 +1,12 @@
 package com.insightfullogic.honest_profiler.core.aggregation;
 
-import static com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping.BY_FQMN;
-import static com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping.ALL_THREADS_TOGETHER;
-import static com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping.THREADS_BY_NAME;
-
 import java.util.HashMap;
 import java.util.Map;
 
 import com.insightfullogic.honest_profiler.core.aggregation.aggregator.FlatProfileAggregator;
-import com.insightfullogic.honest_profiler.core.aggregation.aggregator.ProfileAggregator;
 import com.insightfullogic.honest_profiler.core.aggregation.aggregator.TreeProfileAggregator;
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.CombinedGrouping;
-import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
-import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
-import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfile;
@@ -25,22 +17,24 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
  */
 public class AggregationProfile
 {
-    private static final ProfileAggregator<Entry> flatAggregator = new FlatProfileAggregator();
-    private static final ProfileAggregator<Node> treeAggregator = new TreeProfileAggregator();
+    private static final FlatProfileAggregator flatAggregator = new FlatProfileAggregator();
+    private static final TreeProfileAggregator treeAggregator = new TreeProfileAggregator();
 
     private final LeanProfile source;
     private final Map<String, FqmnLink> fqmnLinks;
 
     private final NumericInfo global;
 
-    private Map<ProfileAggregator<?>, Aggregation<?>> cachedAggregations;
+    private Map<CombinedGrouping, Flat> cachedFlats;
+    private Map<CombinedGrouping, Tree> cachedTrees;
 
     public AggregationProfile(LeanProfile source)
     {
         this.source = source;
         fqmnLinks = new HashMap<>();
         global = new NumericInfo();
-        cachedAggregations = new HashMap<>();
+        cachedFlats = new HashMap<>();
+        cachedTrees = new HashMap<>();
 
         // ThreadInfo objects are stored separately in the LeanLogCollector (to avoid the assumption that a ThreadMeta
         // will always be emitted before the first sample for the thread comes in), so we put them into the root
@@ -72,20 +66,14 @@ public class AggregationProfile
         return fqmnLinks;
     }
 
-    public Flat getFlat()
+    public Flat getFlat(CombinedGrouping grouping)
     {
-        cachedAggregations.putIfAbsent(
-            flatAggregator,
-            flatAggregator.aggregate(this, new CombinedGrouping(ALL_THREADS_TOGETHER, BY_FQMN)));
-        return (Flat)cachedAggregations.get(flatAggregator);
+        return cachedFlats.computeIfAbsent(grouping, g -> flatAggregator.aggregate(this, g));
     }
 
-    public Tree getTree()
+    public Tree getTree(CombinedGrouping grouping)
     {
-        cachedAggregations.putIfAbsent(
-            treeAggregator,
-            treeAggregator.aggregate(this, new CombinedGrouping(THREADS_BY_NAME, BY_FQMN)));
-        return (Tree)cachedAggregations.get(treeAggregator);
+        return cachedTrees.computeIfAbsent(grouping, g -> treeAggregator.aggregate(this, g));
     }
 
     private void aggregateGlobal()

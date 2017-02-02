@@ -7,6 +7,8 @@ import static javafx.geometry.Pos.CENTER;
 
 import java.util.function.Function;
 
+import com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping;
+import com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.result.ItemType;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 
@@ -16,6 +18,8 @@ import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeTableColumn;
@@ -66,9 +70,19 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
      */
     @Override
     protected void initialize(Button filterButton, Button quickFilterButton,
-        TextField quickFilterText, ItemType type)
+        TextField quickFilterText, ItemType type, Label threadGroupingLabel,
+        ChoiceBox<ThreadGrouping> threadGrouping, Label frameGroupingLabel,
+        ChoiceBox<FrameGrouping> frameGrouping)
     {
-        super.initialize(filterButton, quickFilterButton, quickFilterText, type);
+        super.initialize(
+            filterButton,
+            quickFilterButton,
+            quickFilterText,
+            type,
+            threadGroupingLabel,
+            threadGrouping,
+            frameGroupingLabel,
+            frameGrouping);
 
         baseTarget = new SimpleObjectProperty<>();
         newTarget = new SimpleObjectProperty<>();

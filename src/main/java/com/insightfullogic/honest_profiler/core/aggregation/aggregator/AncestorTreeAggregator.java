@@ -41,6 +41,11 @@ public class AncestorTreeAggregator implements SubAggregator<Entry, Node>
         return result;
     }
 
+    // private void addAncestors(AggregationProfile source, Node child, Tree tree)
+    // {
+    // child.getAggregatedNodes().stream().map(node -> node.getParent()).collect(collector);
+    // }
+
     private void addAncestors(AggregationProfile source, Node parent, Tree tree,
         Set<String> processed)
     {

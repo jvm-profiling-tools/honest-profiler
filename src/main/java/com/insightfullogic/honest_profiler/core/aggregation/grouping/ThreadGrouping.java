@@ -7,12 +7,13 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.LeanThreadNode;
 public enum ThreadGrouping implements Function<LeanThreadNode, String>
 {
 
-    ALL_THREADS_TOGETHER(node -> "All Threads"),
-    THREADS_BY_NAME(node -> node.getThreadInfo() == null
+    ALL_TOGETHER(node -> "All Threads"),
+    BY_NAME(node -> node.getThreadInfo() == null
         || node.getThreadInfo().getName() == null
         || node.getThreadInfo().getName().isEmpty() ? "Unknown Thread(s)"
             : node.getThreadInfo().getName()),
-    THREADS_BY_ID(node -> node.getThreadInfo().getIdentification());
+    BY_ID(node -> node.getThreadInfo() == null ? "Unknown Thread <Unknown ID>"
+        : node.getThreadInfo().getIdentification());
 
     private Function<LeanThreadNode, String> function;
 

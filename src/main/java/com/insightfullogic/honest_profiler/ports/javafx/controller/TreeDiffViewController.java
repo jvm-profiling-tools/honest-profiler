@@ -118,7 +118,11 @@ public class TreeDiffViewController extends AbstractProfileDiffViewController<Tr
             filterButton,
             quickFilterButton,
             quickFilterText,
-            DIFFNODE);
+            DIFFNODE,
+            null,
+            null,
+            null,
+            null);
     }
 
     @Override

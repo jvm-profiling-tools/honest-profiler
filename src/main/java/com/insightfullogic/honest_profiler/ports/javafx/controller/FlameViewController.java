@@ -42,7 +42,11 @@ public class FlameViewController extends AbstractProfileViewController<FlameGrap
             null,
             null,
             null,
-            FLAMEGRAPH);
+            FLAMEGRAPH,
+            null,
+            null,
+            null,
+            null);
 
         rootContainer.getChildren().add(flameView);
     }

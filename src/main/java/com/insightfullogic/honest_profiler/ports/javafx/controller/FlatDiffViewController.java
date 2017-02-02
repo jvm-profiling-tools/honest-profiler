@@ -132,7 +132,11 @@ public class FlatDiffViewController extends AbstractProfileDiffViewController<Fl
             filterButton,
             quickFilterButton,
             quickFilterText,
-            DIFFENTRY);
+            DIFFENTRY,
+            null,
+            null,
+            null,
+            null);
     }
 
     @Override

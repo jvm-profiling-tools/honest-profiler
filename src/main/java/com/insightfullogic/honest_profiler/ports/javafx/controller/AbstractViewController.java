@@ -1,5 +1,6 @@
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
+import static com.insightfullogic.honest_profiler.core.aggregation.grouping.CombinedGrouping.combine;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.FILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.TITLE_DIALOG_SPECIFYFILTERS;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.StyleUtil.doubleDiffStyler;
@@ -11,6 +12,9 @@ import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor
 import static javafx.scene.input.KeyCode.ENTER;
 
 import com.insightfullogic.honest_profiler.core.aggregation.filter.FilterSpecification;
+import com.insightfullogic.honest_profiler.core.aggregation.grouping.CombinedGrouping;
+import com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping;
+import com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.result.ItemType;
 import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
@@ -27,7 +31,11 @@ import com.insightfullogic.honest_profiler.ports.javafx.view.cell.TimeTreeTableC
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableObjectValue;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeTableColumn;
@@ -36,12 +44,10 @@ import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.image.ImageView;
 
 /**
- * Superclass for all View Controllers in the application. These controllers
- * provide a particular view on data. The class holds the code for the filters
- * and quick filter.
+ * Superclass for all View Controllers in the application. These controllers provide a particular view on data. The
+ * class holds the code for the filters and quick filter.
  *
- * The superclass also provides some common UI helper methods for column
- * configuration.
+ * The superclass also provides some common UI helper methods for column configuration.
  */
 public abstract class AbstractViewController<T> extends AbstractController
 {
@@ -49,26 +55,35 @@ public abstract class AbstractViewController<T> extends AbstractController
     private Button quickFilterButton;
     private TextField quickFilterText;
 
+    private Label threadGroupingLabel;
+    private ChoiceBox<ThreadGrouping> threadGrouping;
+    private Label frameGroupingLabel;
+    private ChoiceBox<FrameGrouping> frameGrouping;
+
     private FilterDialogController<T> dialogController;
     private ObjectProperty<FilterSpecification<T>> filterSpec;
+    private ObjectProperty<CombinedGrouping> grouping;
 
     private ItemType type;
 
     /**
-     * This method must be called by subclasses in their FXML initialize(). It
-     * provides the controller-local UI nodes needed by the
-     * AbstractViewController.
+     * This method must be called by subclasses in their FXML initialize(). It provides the controller-local UI nodes
+     * needed by the AbstractViewController.
      *
      * @param filterButton the button used to trigger filter editing
      * @param quickFilterButton the button used to apply the quick filter
-     * @param quickFilterText the TextField providing the value for the quick
-     *            filter
+     * @param quickFilterText the TextField providing the value for the quick filter
      * @param type the {@link ItemType} shown in the vies
      */
     protected void initialize(Button filterButton, Button quickFilterButton,
-        TextField quickFilterText, ItemType type)
+        TextField quickFilterText, ItemType type, Label threadGroupingLabel,
+        ChoiceBox<ThreadGrouping> threadGrouping, Label frameGroupingLabel,
+        ChoiceBox<FrameGrouping> frameGrouping)
     {
         super.initialize();
+
+        // Must be initialized, otherwise the target binding dependency in AbstractProfileViewController.bind() is null.
+        grouping = new SimpleObjectProperty<>();
 
         if (filterButton == null)
         {
@@ -79,6 +94,16 @@ public abstract class AbstractViewController<T> extends AbstractController
         this.quickFilterButton = quickFilterButton;
         this.quickFilterText = quickFilterText;
 
+        this.threadGroupingLabel = threadGroupingLabel;
+        this.threadGrouping = threadGrouping;
+        this.frameGroupingLabel = frameGroupingLabel;
+        this.frameGrouping = frameGrouping;
+
+        if (threadGroupingLabel != null)
+        {
+            update(false, threadGroupingLabel, threadGrouping, frameGroupingLabel, frameGrouping);
+        }
+
         this.type = type;
         filterSpec = new SimpleObjectProperty<>(new FilterSpecification<>(type));
     }
@@ -86,9 +111,8 @@ public abstract class AbstractViewController<T> extends AbstractController
     // Accessors
 
     /**
-     * In addition to the normal functionality, the method calls filter
-     * initialization, which needs the ApplicationContext to be present. If a
-     * particular view controller
+     * In addition to the normal functionality, the method calls filter initialization, which needs the
+     * ApplicationContext to be present. If a particular view controller
      *
      * @param applicationContext the ApplicationContext of this application
      */
@@ -105,9 +129,28 @@ public abstract class AbstractViewController<T> extends AbstractController
         initializeFilters(applicationContext);
     }
 
+    public void setAllowedThreadGroupings(ThreadGrouping... groupings)
+    {
+        threadGrouping.getItems().addAll(groupings);
+        update(true, threadGroupingLabel, threadGrouping);
+        bindGroupings();
+    }
+
+    public void setAllowedFrameGroupings(FrameGrouping... groupings)
+    {
+        frameGrouping.getItems().addAll(groupings);
+        update(true, frameGroupingLabel, frameGrouping);
+        bindGroupings();
+    }
+
+    public ObservableObjectValue<CombinedGrouping> getGrouping()
+    {
+        return grouping;
+    }
+
     /**
-     * Refreshes the view. The view should be updated based on the current state
-     * of the {@link Profile} and {@link ProfileFilter}.
+     * Refreshes the view. The view should be updated based on the current state of the {@link Profile} and
+     * {@link ProfileFilter}.
      */
     protected abstract void refresh();
 
@@ -226,9 +269,8 @@ public abstract class AbstractViewController<T> extends AbstractController
     /**
      * Initializes the filters.
      *
-     * @param applicationContext the {@link ApplicationContext}. The parameter
-     *            is used to explicitly point out the dependency on the presense
-     *            of the context.
+     * @param applicationContext the {@link ApplicationContext}. The parameter is used to explicitly point out the
+     *            dependency on the presense of the context.
      */
     private void initializeFilters(ApplicationContext applicationContext)
     {
@@ -257,7 +299,7 @@ public abstract class AbstractViewController<T> extends AbstractController
 
     private FilterDialogController<T> createFilterDialog()
     {
-        return (FilterDialogController<T>) DialogUtil.<FilterSpecification<T>>newDialog(
+        return (FilterDialogController<T>)DialogUtil.<FilterSpecification<T>>newDialog(
             appCtx(),
             FILTER,
             getText(TITLE_DIALOG_SPECIFYFILTERS),
@@ -274,5 +316,54 @@ public abstract class AbstractViewController<T> extends AbstractController
         String input = quickFilterText.getText();
         filterSpec.get().setQuickFilter(input == null || input.isEmpty() ? null : input);
         refresh();
+    }
+
+    private void update(boolean visible, Node... nodes)
+    {
+        for (Node node : nodes)
+        {
+            node.setVisible(visible);
+            node.setManaged(visible);
+        }
+    }
+
+    private void bindGroupings()
+    {
+        if (threadGrouping == null
+            || frameGrouping == null
+            || threadGrouping.getItems().size() == 0
+            || frameGrouping.getItems().size() == 0)
+        {
+            return;
+        }
+
+        threadGrouping.getSelectionModel().selectedItemProperty().addListener(
+            (property, oldValue, newValue) ->
+            {
+                if (newValue != null)
+                {
+                    FrameGrouping other = frameGrouping.getSelectionModel().getSelectedItem();
+                    if (other != null)
+                    {
+                        grouping.set(combine(newValue, other));
+                    }
+                }
+            });
+
+        frameGrouping.getSelectionModel().selectedItemProperty().addListener(
+            (property, oldValue, newValue) ->
+            {
+                if (newValue != null)
+                {
+                    ThreadGrouping other = threadGrouping.getSelectionModel().getSelectedItem();
+                    if (other != null)
+                    {
+                        grouping.set(combine(other, newValue));
+                    }
+                }
+            });
+
+        threadGrouping.getSelectionModel().select(0);
+        frameGrouping.getSelectionModel().select(0);
     }
 }

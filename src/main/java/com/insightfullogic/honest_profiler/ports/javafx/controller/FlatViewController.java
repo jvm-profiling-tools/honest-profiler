@@ -37,6 +37,8 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TABLE_FLAT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil.writeFlatProfileCsv;
 
+import com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping;
+import com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
@@ -48,6 +50,8 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -63,6 +67,16 @@ public class FlatViewController extends AbstractProfileViewController<Flat, Entr
     private TextField quickFilterText;
     @FXML
     private Button quickFilterButton;
+
+    @FXML
+    private Label threadGroupingLabel;
+    @FXML
+    private ChoiceBox<ThreadGrouping> threadGrouping;
+    @FXML
+    private Label frameGroupingLabel;
+    @FXML
+    private ChoiceBox<FrameGrouping> frameGrouping;
+
     @FXML
     private TableView<Entry> flatProfileView;
     @FXML
@@ -98,7 +112,11 @@ public class FlatViewController extends AbstractProfileViewController<Flat, Entr
             filterButton,
             quickFilterButton,
             quickFilterText,
-            ENTRY);
+            ENTRY,
+            threadGroupingLabel,
+            threadGrouping,
+            frameGroupingLabel,
+            frameGrouping);
 
         flatProfile = flatProfileView.getItems();
 

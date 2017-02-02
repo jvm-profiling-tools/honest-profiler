@@ -4,6 +4,8 @@ import static javafx.beans.binding.Bindings.createObjectBinding;
 
 import java.util.function.Function;
 
+import com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping;
+import com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.result.ItemType;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 
@@ -13,6 +15,8 @@ import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableObjectValue;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
 /**
@@ -55,9 +59,19 @@ public abstract class AbstractProfileViewController<T, U> extends AbstractViewCo
      */
     @Override
     protected void initialize(Button filterButton, Button quickFilterButton,
-        TextField quickFilterText, ItemType type)
+        TextField quickFilterText, ItemType type, Label threadGroupingLabel,
+        ChoiceBox<ThreadGrouping> threadGrouping, Label frameGroupingLabel,
+        ChoiceBox<FrameGrouping> frameGrouping)
     {
-        super.initialize(filterButton, quickFilterButton, quickFilterText, type);
+        super.initialize(
+            filterButton,
+            quickFilterButton,
+            quickFilterText,
+            type,
+            threadGroupingLabel,
+            threadGrouping,
+            frameGroupingLabel,
+            frameGrouping);
 
         target = new SimpleObjectProperty<>();
         target.addListener((property, oldValue, newValue) -> refresh());
@@ -107,7 +121,10 @@ public abstract class AbstractProfileViewController<T, U> extends AbstractViewCo
     public void bind(ObservableObjectValue<? extends Object> source,
         Function<Object, T> targetExtractor)
     {
-        sourceBinding = createObjectBinding(() -> targetExtractor.apply(source.get()), source);
+        sourceBinding = createObjectBinding(
+            () -> targetExtractor.apply(source.get()),
+            source,
+            getGrouping());
     }
 
     // Activation

@@ -35,6 +35,8 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TABLE_TREE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil.expandFully;
 
+import com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping;
+import com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
@@ -46,6 +48,8 @@ import com.insightfullogic.honest_profiler.ports.javafx.view.tree.NodeTreeItem;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
@@ -64,6 +68,15 @@ public class TreeViewController extends AbstractProfileViewController<Tree, Node
     private TextField quickFilterText;
     @FXML
     private Button quickFilterButton;
+
+    @FXML
+    private Label threadGroupingLabel;
+    @FXML
+    private ChoiceBox<ThreadGrouping> threadGrouping;
+    @FXML
+    private Label frameGroupingLabel;
+    @FXML
+    private ChoiceBox<FrameGrouping> frameGrouping;
 
     @FXML
     private TreeTableView<Node> treeView;
@@ -96,7 +109,11 @@ public class TreeViewController extends AbstractProfileViewController<Tree, Node
             filterButton,
             quickFilterButton,
             quickFilterText,
-            NODE);
+            NODE,
+            threadGroupingLabel,
+            threadGrouping,
+            frameGroupingLabel,
+            frameGrouping);
     }
 
     @Override
@@ -158,7 +175,9 @@ public class TreeViewController extends AbstractProfileViewController<Tree, Node
     @Override
     protected void refresh()
     {
-        treeView.setRoot(new NodeTreeItem(getTarget().filter(getFilterSpecification())));
+        Tree target = getTarget();
+        treeView.setRoot(
+            target == null ? null : new NodeTreeItem(getTarget().filter(getFilterSpecification())));
         treeView.refresh();
     }
 }
