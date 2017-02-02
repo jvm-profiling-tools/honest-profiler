@@ -21,19 +21,19 @@ public class BindUtil
     private static final AncestorTreeAggregator CALLING_AGGREGATOR = new AncestorTreeAggregator();
     private static final DescendantTreeAggregator CALLED_AGGREGATOR = new DescendantTreeAggregator();
 
-    public static final Function<Object, Flat<String>> FLAT_EXTRACTOR = o -> o == null ? null
+    public static final Function<Object, Flat> FLAT_EXTRACTOR = o -> o == null ? null
         : ((AggregationProfile)o).getFlat();
 
-    public static final Function<Object, Tree<String>> TREE_EXTRACTOR = o -> o == null ? null
+    public static final Function<Object, Tree> TREE_EXTRACTOR = o -> o == null ? null
         : ((AggregationProfile)o).getTree();
 
     public static final Function<Object, FlameGraph> FLAME_EXTRACTOR = o -> (FlameGraph)o;
 
-    public static final Function<Object, Flat<String>> DESCENDANT_FLAT_EXTRACTOR = o ->
+    public static final Function<Object, Flat> DESCENDANT_FLAT_EXTRACTOR = o ->
     {
         @SuppressWarnings("unchecked")
-        TreeItem<Node<String>> treeItem = (TreeItem<Node<String>>)o;
-        Node<String> node = treeItem == null ? null : treeItem.getValue();
+        TreeItem<Node> treeItem = (TreeItem<Node>)o;
+        Node node = treeItem == null ? null : treeItem.getValue();
         if (node == null)
         {
             return null;
@@ -42,10 +42,9 @@ public class BindUtil
         return DESCENDANT_AGGREGATOR.aggregate(node.getAggregation().getSource(), node);
     };
 
-    public static final Function<Object, Tree<String>> CALLING_EXTRACTOR = o ->
+    public static final Function<Object, Tree> CALLING_EXTRACTOR = o ->
     {
-        @SuppressWarnings("unchecked")
-        Entry<String> entry = (Entry<String>)o;
+        Entry entry = (Entry)o;
         if (o == null)
         {
             return null;
@@ -53,10 +52,9 @@ public class BindUtil
         return CALLING_AGGREGATOR.aggregate(entry.getAggregation().getSource(), entry);
     };
 
-    public static final Function<Object, Tree<String>> CALLED_EXTRACTOR = o ->
+    public static final Function<Object, Tree> CALLED_EXTRACTOR = o ->
     {
-        @SuppressWarnings("unchecked")
-        Entry<String> entry = (Entry<String>)o;
+        Entry entry = (Entry)o;
         if (o == null)
         {
             return null;

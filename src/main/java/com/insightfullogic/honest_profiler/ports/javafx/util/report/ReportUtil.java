@@ -114,8 +114,7 @@ public final class ReportUtil
         // TODO Implement
     }
 
-    public static void writeFlatProfileCsv(PrintWriter out, List<Entry<String>> entries,
-        Mode mode)
+    public static void writeFlatProfileCsv(PrintWriter out, List<Entry> entries, Mode mode)
     {
         mode.start(out);
         out.print("Method");
@@ -151,8 +150,8 @@ public final class ReportUtil
         out.flush();
     }
 
-    public static void writeFlatProfileDiffCsv(PrintWriter out,
-        Collection<DiffEntry<String>> entries, Mode mode)
+    public static void writeFlatProfileDiffCsv(PrintWriter out, Collection<DiffEntry> entries,
+        Mode mode)
     {
         mode.start(out);
         out.print("Method");

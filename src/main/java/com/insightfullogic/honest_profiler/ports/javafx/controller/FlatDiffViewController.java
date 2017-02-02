@@ -57,8 +57,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
-public class FlatDiffViewController
-    extends AbstractProfileDiffViewController<Flat<String>, DiffEntry<String>>
+public class FlatDiffViewController extends AbstractProfileDiffViewController<Flat, DiffEntry>
 {
     @FXML
     private Button filterButton;
@@ -69,65 +68,65 @@ public class FlatDiffViewController
     @FXML
     private Button quickFilterButton;
     @FXML
-    private TableView<DiffEntry<String>> diffTable;
+    private TableView<DiffEntry> diffTable;
     @FXML
-    private TableColumn<DiffEntry<String>, String> method;
+    private TableColumn<DiffEntry, String> method;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> baseSelfCntPct;
+    private TableColumn<DiffEntry, Number> baseSelfCntPct;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> newSelfCntPct;
+    private TableColumn<DiffEntry, Number> newSelfCntPct;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> selfCntPctDiff;
+    private TableColumn<DiffEntry, Number> selfCntPctDiff;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> baseTotalCntPct;
+    private TableColumn<DiffEntry, Number> baseTotalCntPct;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> newTotalCntPct;
+    private TableColumn<DiffEntry, Number> newTotalCntPct;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> totalCntPctDiff;
+    private TableColumn<DiffEntry, Number> totalCntPctDiff;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> baseSelfCnt;
+    private TableColumn<DiffEntry, Number> baseSelfCnt;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> newSelfCnt;
+    private TableColumn<DiffEntry, Number> newSelfCnt;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> selfCntDiff;
+    private TableColumn<DiffEntry, Number> selfCntDiff;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> baseTotalCnt;
+    private TableColumn<DiffEntry, Number> baseTotalCnt;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> newTotalCnt;
+    private TableColumn<DiffEntry, Number> newTotalCnt;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> totalCntDiff;
+    private TableColumn<DiffEntry, Number> totalCntDiff;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> baseSelfTimePct;
+    private TableColumn<DiffEntry, Number> baseSelfTimePct;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> newSelfTimePct;
+    private TableColumn<DiffEntry, Number> newSelfTimePct;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> selfTimePctDiff;
+    private TableColumn<DiffEntry, Number> selfTimePctDiff;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> baseTotalTimePct;
+    private TableColumn<DiffEntry, Number> baseTotalTimePct;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> newTotalTimePct;
+    private TableColumn<DiffEntry, Number> newTotalTimePct;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> totalTimePctDiff;
+    private TableColumn<DiffEntry, Number> totalTimePctDiff;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> baseSelfTime;
+    private TableColumn<DiffEntry, Number> baseSelfTime;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> newSelfTime;
+    private TableColumn<DiffEntry, Number> newSelfTime;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> selfTimeDiff;
+    private TableColumn<DiffEntry, Number> selfTimeDiff;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> baseTotalTime;
+    private TableColumn<DiffEntry, Number> baseTotalTime;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> newTotalTime;
+    private TableColumn<DiffEntry, Number> newTotalTime;
     @FXML
-    private TableColumn<DiffEntry<String>, Number> totalTimeDiff;
+    private TableColumn<DiffEntry, Number> totalTimeDiff;
 
-    private FlatDiff<String> diff;
+    private FlatDiff diff;
 
     @Override
     @FXML
     protected void initialize()
     {
-        diff = new FlatDiff<>();
+        diff = new FlatDiff();
 
         super.initialize(
             filterButton,
@@ -148,7 +147,7 @@ public class FlatDiffViewController
     private void initializeTable()
     {
         method.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getKey()));
-        method.setCellFactory(col -> new MethodNameTableCell<DiffEntry<String>>());
+        method.setCellFactory(col -> new MethodNameTableCell<DiffEntry>());
 
         cfgPctCol(baseSelfCntPct, "baseSelfCntPct", baseCtx(), getText(COLUMN_SELF_CNT_PCT));
         cfgPctCol(newSelfCntPct, "newSelfCntPct", newCtx(), getText(COLUMN_SELF_CNT_PCT));
@@ -183,7 +182,7 @@ public class FlatDiffViewController
         cfgTimeDiffCol(totalTimeDiff, "totalTimeDiff", getText(COLUMN_TOTAL_TIME_DIFF));
     }
 
-    private void updateDiff(Flat<String> flat, boolean base)
+    private void updateDiff(Flat flat, boolean base)
     {
         if (flat != null)
         {

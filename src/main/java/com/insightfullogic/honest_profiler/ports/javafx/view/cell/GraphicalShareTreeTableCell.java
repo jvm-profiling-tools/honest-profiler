@@ -29,7 +29,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.paint.Color;
 
-public class GraphicalShareTreeTableCell extends TreeTableCell<Node<String>, Number>
+public class GraphicalShareTreeTableCell extends TreeTableCell<Node, Number>
 {
     private static final int IMAGE_WIDTH = 50;
     private static final int IMAGE_HEIGHT = 15;

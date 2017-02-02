@@ -41,8 +41,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 
-public class TreeDiffViewController
-    extends AbstractProfileDiffViewController<Tree<String>, DiffNode<String>>
+public class TreeDiffViewController extends AbstractProfileDiffViewController<Tree, DiffNode>
 {
     @FXML
     private Button filterButton;
@@ -55,65 +54,65 @@ public class TreeDiffViewController
     @FXML
     private Button quickFilterButton;
     @FXML
-    private TreeTableView<DiffNode<String>> diffTree;
+    private TreeTableView<DiffNode> diffTree;
     @FXML
-    private TreeTableColumn<DiffNode<String>, String> methodColumn;
+    private TreeTableColumn<DiffNode, String> methodColumn;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> baseSelfCntPct;
+    private TreeTableColumn<DiffNode, Number> baseSelfCntPct;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> newSelfCntPct;
+    private TreeTableColumn<DiffNode, Number> newSelfCntPct;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> selfCntPctDiff;
+    private TreeTableColumn<DiffNode, Number> selfCntPctDiff;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> baseTotalCntPct;
+    private TreeTableColumn<DiffNode, Number> baseTotalCntPct;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> newTotalCntPct;
+    private TreeTableColumn<DiffNode, Number> newTotalCntPct;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> totalCntPctDiff;
+    private TreeTableColumn<DiffNode, Number> totalCntPctDiff;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> baseSelfCnt;
+    private TreeTableColumn<DiffNode, Number> baseSelfCnt;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> newSelfCnt;
+    private TreeTableColumn<DiffNode, Number> newSelfCnt;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> selfCntDiff;
+    private TreeTableColumn<DiffNode, Number> selfCntDiff;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> baseTotalCnt;
+    private TreeTableColumn<DiffNode, Number> baseTotalCnt;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> newTotalCnt;
+    private TreeTableColumn<DiffNode, Number> newTotalCnt;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> totalCntDiff;
+    private TreeTableColumn<DiffNode, Number> totalCntDiff;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> baseSelfTimePct;
+    private TreeTableColumn<DiffNode, Number> baseSelfTimePct;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> newSelfTimePct;
+    private TreeTableColumn<DiffNode, Number> newSelfTimePct;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> selfTimePctDiff;
+    private TreeTableColumn<DiffNode, Number> selfTimePctDiff;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> baseTotalTimePct;
+    private TreeTableColumn<DiffNode, Number> baseTotalTimePct;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> newTotalTimePct;
+    private TreeTableColumn<DiffNode, Number> newTotalTimePct;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> totalTimePctDiff;
+    private TreeTableColumn<DiffNode, Number> totalTimePctDiff;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> baseSelfTime;
+    private TreeTableColumn<DiffNode, Number> baseSelfTime;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> newSelfTime;
+    private TreeTableColumn<DiffNode, Number> newSelfTime;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> selfTimeDiff;
+    private TreeTableColumn<DiffNode, Number> selfTimeDiff;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> baseTotalTime;
+    private TreeTableColumn<DiffNode, Number> baseTotalTime;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> newTotalTime;
+    private TreeTableColumn<DiffNode, Number> newTotalTime;
     @FXML
-    private TreeTableColumn<DiffNode<String>, Number> totalTimeDiff;
+    private TreeTableColumn<DiffNode, Number> totalTimeDiff;
 
-    private TreeDiff<String> diff;
+    private TreeDiff diff;
 
     @Override
     @FXML
     protected void initialize()
     {
-        diff = new TreeDiff<>();
+        diff = new TreeDiff();
 
         super.initialize(
             filterButton,
@@ -172,7 +171,7 @@ public class TreeDiffViewController
         cfgTimeDiffCol(totalTimeDiff, "totalTimeDiff", getText(COLUMN_TOTAL_TIME_DIFF));
     }
 
-    private void updateDiff(Tree<String> profile, boolean base)
+    private void updateDiff(Tree profile, boolean base)
     {
         if (profile != null)
         {
@@ -208,7 +207,7 @@ public class TreeDiffViewController
     @Override
     protected void refresh()
     {
-        diff = new TreeDiff<>();
+        diff = new TreeDiff();
         updateDiff(getBaseTarget(), true);
         updateDiff(getNewTarget(), false);
     }

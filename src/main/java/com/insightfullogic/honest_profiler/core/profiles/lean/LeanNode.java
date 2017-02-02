@@ -1,8 +1,12 @@
 package com.insightfullogic.honest_profiler.core.profiles.lean;
 
+import static java.util.stream.Stream.concat;
+import static java.util.stream.Stream.of;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import com.insightfullogic.honest_profiler.core.parser.TraceStart;
 
@@ -75,7 +79,12 @@ public class LeanNode
 
     public boolean isThreadNode()
     {
-        return parent == null;
+        return false;
+    }
+
+    public Stream<LeanNode> flatten()
+    {
+        return concat(of(this), childMap.values().stream().flatMap(LeanNode::flatten));
     }
 
     /**

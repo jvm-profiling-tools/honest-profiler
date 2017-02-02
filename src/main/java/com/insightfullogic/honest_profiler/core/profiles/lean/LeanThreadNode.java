@@ -15,6 +15,12 @@ public class LeanThreadNode extends LeanNode
         this.threadInfo = source.threadInfo;
     }
 
+    @Override
+    public boolean isThreadNode()
+    {
+        return true;
+    }
+
     public ThreadInfo getThreadInfo()
     {
         return threadInfo;

@@ -5,15 +5,15 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node
 
 import javafx.scene.control.TreeItem;
 
-public class NodeTreeItem extends TreeItem<Node<String>>
+public class NodeTreeItem extends TreeItem<Node>
 {
-    public NodeTreeItem(Aggregation<String, Node<String>> profile)
+    public NodeTreeItem(Aggregation<Node> profile)
     {
         super(null);
         profile.getData().forEach(child -> getChildren().add(new NodeTreeItem(child)));
     }
 
-    public NodeTreeItem(Node<String> node)
+    public NodeTreeItem(Node node)
     {
         super(node);
         node.getChildren().forEach(child -> getChildren().add(new NodeTreeItem(child)));

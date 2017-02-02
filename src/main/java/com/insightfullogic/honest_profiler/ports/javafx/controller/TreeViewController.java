@@ -52,7 +52,7 @@ import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 
-public class TreeViewController extends AbstractProfileViewController<Tree<String>, Node<String>>
+public class TreeViewController extends AbstractProfileViewController<Tree, Node>
 {
     @FXML
     private Button filterButton;
@@ -66,27 +66,27 @@ public class TreeViewController extends AbstractProfileViewController<Tree<Strin
     private Button quickFilterButton;
 
     @FXML
-    private TreeTableView<Node<String>> treeView;
+    private TreeTableView<Node> treeView;
     @FXML
-    private TreeTableColumn<Node<String>, String> methodColumn;
+    private TreeTableColumn<Node, String> methodColumn;
     @FXML
-    private TreeTableColumn<Node<String>, Number> percentColumn;
+    private TreeTableColumn<Node, Number> percentColumn;
     @FXML
-    private TreeTableColumn<Node<String>, Number> totalCntPct;
+    private TreeTableColumn<Node, Number> totalCntPct;
     @FXML
-    private TreeTableColumn<Node<String>, Number> selfCntPct;
+    private TreeTableColumn<Node, Number> selfCntPct;
     @FXML
-    private TreeTableColumn<Node<String>, Number> totalCnt;
+    private TreeTableColumn<Node, Number> totalCnt;
     @FXML
-    private TreeTableColumn<Node<String>, Number> selfCnt;
+    private TreeTableColumn<Node, Number> selfCnt;
     @FXML
-    private TreeTableColumn<Node<String>, Number> totalTimePct;
+    private TreeTableColumn<Node, Number> totalTimePct;
     @FXML
-    private TreeTableColumn<Node<String>, Number> selfTimePct;
+    private TreeTableColumn<Node, Number> selfTimePct;
     @FXML
-    private TreeTableColumn<Node<String>, Number> totalTime;
+    private TreeTableColumn<Node, Number> totalTime;
     @FXML
-    private TreeTableColumn<Node<String>, Number> selfTime;
+    private TreeTableColumn<Node, Number> selfTime;
 
     @Override
     @FXML
@@ -106,7 +106,7 @@ public class TreeViewController extends AbstractProfileViewController<Tree<Strin
         initializeTable();
     }
 
-    public ReadOnlyObjectProperty<TreeItem<Node<String>>> selectedProperty()
+    public ReadOnlyObjectProperty<TreeItem<Node>> selectedProperty()
     {
         return treeView.getSelectionModel().selectedItemProperty();
     }

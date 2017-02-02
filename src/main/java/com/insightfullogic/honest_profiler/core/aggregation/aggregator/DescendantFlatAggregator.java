@@ -16,18 +16,18 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
  * Aggregator which takes a {@link Node}, and aggregates the values of the {@link Node} and its descendants into a
  * {@link Flat}.
  */
-public class DescendantFlatAggregator implements Aggregator<Node<String>, String, Entry<String>>
+public class DescendantFlatAggregator implements SubAggregator<Node, Entry>
 {
     /**
      * This method aggregates a {@link Node} and all its all descendants.
      *
-     * @see Aggregator#aggregate(Object, LeanNode)
+     * @see SubAggregator#aggregate(Object, LeanNode)
      */
     @Override
-    public Flat<String> aggregate(AggregationProfile source, Node<String> parent)
+    public Flat aggregate(AggregationProfile source, Node parent)
     {
-        List<Entry<String>> result = new ArrayList<>();
-        Flat<String> aggregation = new Flat<>(source, result);
+        List<Entry> result = new ArrayList<>();
+        Flat aggregation = new Flat(source, result);
 
         result.addAll(
             parent.flatten().collect(
@@ -37,7 +37,7 @@ public class DescendantFlatAggregator implements Aggregator<Node<String>, String
                         // Supplier
                         () ->
                         {
-                            Entry<String> entry = new Entry<>(aggregation);
+                            Entry entry = new Entry(aggregation);
                             entry.setReference(source.getGlobalData());
                             return entry;
                         },

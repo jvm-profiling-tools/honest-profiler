@@ -7,12 +7,12 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 /**
  * The aggregation item wrapping and providing the difference between two {@link Entry}s.
  */
-public class DiffEntry<K> implements Keyed<K>
+public class DiffEntry implements Keyed<String>
 {
     // Instance Properties
 
-    private Entry<K> baseEntry;
-    private Entry<K> newEntry;
+    private Entry baseEntry;
+    private Entry newEntry;
 
     // Instance Constructors
 
@@ -22,10 +22,10 @@ public class DiffEntry<K> implements Keyed<K>
      * @param baseEntry the Base {@link Entry}
      * @param newEntry the New {@link Entry}
      */
-    public DiffEntry(Entry<K> baseEntry, Entry<K> newEntry)
+    public DiffEntry(Entry baseEntry, Entry newEntry)
     {
-        this.baseEntry = baseEntry == null ? new Entry<K>(newEntry.getKey(), null) : baseEntry;
-        this.newEntry = newEntry == null ? new Entry<K>(baseEntry.getKey(), null) : newEntry;
+        this.baseEntry = baseEntry == null ? new Entry(newEntry.getKey(), null) : baseEntry;
+        this.newEntry = newEntry == null ? new Entry(baseEntry.getKey(), null) : newEntry;
     }
 
     // Instance Accessors
@@ -39,7 +39,7 @@ public class DiffEntry<K> implements Keyed<K>
      * @param entry the Base {@link Entry}
      * @return this {@link DiffEntry}
      */
-    public DiffEntry<K> setBase(Entry<K> entry)
+    public DiffEntry setBase(Entry entry)
     {
         baseEntry = entry;
         return this;
@@ -54,7 +54,7 @@ public class DiffEntry<K> implements Keyed<K>
      * @param entry the New {@link Entry}
      * @return this {@link DiffEntry}
      */
-    public DiffEntry<K> setNew(Entry<K> entry)
+    public DiffEntry setNew(Entry entry)
     {
         newEntry = entry;
         return this;
@@ -87,7 +87,7 @@ public class DiffEntry<K> implements Keyed<K>
      *
      * @return the Base {@link Entry}
      */
-    public Entry<K> getBaseEntry()
+    public Entry getBaseEntry()
     {
         return baseEntry;
     }
@@ -97,13 +97,13 @@ public class DiffEntry<K> implements Keyed<K>
      *
      * @return the New {@link Entry}
      */
-    public Entry<K> getNewEntry()
+    public Entry getNewEntry()
     {
         return newEntry;
     }
 
     @Override
-    public K getKey()
+    public String getKey()
     {
         return baseEntry == null ? newEntry.getKey() : baseEntry.getKey();
     }

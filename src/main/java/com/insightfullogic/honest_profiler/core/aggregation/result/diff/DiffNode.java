@@ -13,15 +13,15 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node
 /**
  * Subclass of {@link DiffEntry} which allows to arrange the items into a tree.
  */
-public class DiffNode<K> extends DiffEntry<K>
+public class DiffNode extends DiffEntry
 {
     // Instance Properties
 
-    private final Map<K, DiffNode<K>> children;
+    private final Map<String, DiffNode> children;
 
     // Instance Constructors
 
-    public DiffNode(Node<K> baseNode, Node<K> newNode)
+    public DiffNode(Node baseNode, Node newNode)
     {
         super(baseNode, newNode);
 
@@ -36,7 +36,7 @@ public class DiffNode<K> extends DiffEntry<K>
      * @param node the {@link DiffNode} being copied
      * @param children the new, filtered childrem
      */
-    private DiffNode(DiffNode<K> node, List<DiffNode<K>> children)
+    private DiffNode(DiffNode node, List<DiffNode> children)
     {
         super(node.getBaseEntry(), node.getNewEntry());
 
@@ -55,7 +55,7 @@ public class DiffNode<K> extends DiffEntry<K>
      * @param entry the Base {@link Node}
      * @return this {@link DiffNode}
      */
-    public DiffNode<K> setBase(Node<K> node)
+    public DiffNode setBase(Node node)
     {
         super.setBase(node);
 
@@ -72,7 +72,7 @@ public class DiffNode<K> extends DiffEntry<K>
      * @param entry the New {@link Node}
      * @return this {@link DiffNode}
      */
-    public DiffNode<K> setNew(Node<K> node)
+    public DiffNode setNew(Node node)
     {
         super.setNew(node);
 
@@ -85,7 +85,7 @@ public class DiffNode<K> extends DiffEntry<K>
      *
      * @return a {@link Collection} containing the children of this node.
      */
-    public Collection<DiffNode<K>> getChildren()
+    public Collection<DiffNode> getChildren()
     {
         return children.values();
     }
@@ -97,13 +97,12 @@ public class DiffNode<K> extends DiffEntry<K>
      * @param filter the filter to be applied to this node and its descendants.
      * @return
      */
-    public DiffNode<K> copyWithFilter(Predicate<DiffNode<K>> filter)
+    public DiffNode copyWithFilter(Predicate<DiffNode> filter)
     {
-        List<DiffNode<K>> newChildren = children.values().stream()
+        List<DiffNode> newChildren = children.values().stream()
             .map(child -> child.copyWithFilter(filter)).filter(child -> child != null)
             .collect(toList());
-        return newChildren.size() > 0 || filter.test(this) ? new DiffNode<>(this, newChildren)
-            : null;
+        return newChildren.size() > 0 || filter.test(this) ? new DiffNode(this, newChildren) : null;
     }
 
     // Helper Methods
@@ -114,7 +113,7 @@ public class DiffNode<K> extends DiffEntry<K>
      *
      * @param node the Base {@link Node} whose children need to be incorporated into the children of this node
      */
-    private void addBaseChildren(Node<K> node)
+    private void addBaseChildren(Node node)
     {
         if (node == null)
         {
@@ -129,7 +128,7 @@ public class DiffNode<K> extends DiffEntry<K>
      *
      * @param node the Base {@link Node} whose children need to be incorporated into the children of this node
      */
-    private void addNewChildren(Node<K> node)
+    private void addNewChildren(Node node)
     {
         if (node == null)
         {
@@ -144,11 +143,11 @@ public class DiffNode<K> extends DiffEntry<K>
      *
      * @param child the {@link Node} to be added as Base {@link Node} of a child DiffNode
      */
-    private void addBaseChild(Node<K> child)
+    private void addBaseChild(Node child)
     {
         children.compute(
             child.getKey(),
-            (k, v) -> v == null ? new DiffNode<>(child, null) : v.setBase(child));
+            (k, v) -> v == null ? new DiffNode(child, null) : v.setBase(child));
     }
 
     /**
@@ -157,10 +156,10 @@ public class DiffNode<K> extends DiffEntry<K>
      *
      * @param child the {@link Node} to be added as New {@link Node} of a child DiffNode
      */
-    private void addNewChild(Node<K> child)
+    private void addNewChild(Node child)
     {
         children.compute(
             child.getKey(),
-            (k, v) -> v == null ? new DiffNode<>(null, child) : v.setNew(child));
+            (k, v) -> v == null ? new DiffNode(null, child) : v.setNew(child));
     }
 }

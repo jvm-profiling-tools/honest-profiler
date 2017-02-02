@@ -16,13 +16,13 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat
  * Diff which wraps provides the difference between two flat {@link Aggregation}s (containing {@link Entry}s) as a flat
  * {@link List} of {@link DiffEntry}s, which each wrap and provide the difference between corresponding {@link Entry}s.
  *
- * @param <K> the type of the key
+ * @param the type of the key
  */
-public class FlatDiff<K> extends AbstractDiff<K, Entry<K>, DiffEntry<K>, Flat<K>>
+public class FlatDiff extends AbstractDiff<Entry, DiffEntry, Flat>
 {
     // Instance Properties
 
-    private Map<K, DiffEntry<K>> data;
+    private Map<String, DiffEntry> data;
 
     // Instance Constructors
 
@@ -39,7 +39,7 @@ public class FlatDiff<K> extends AbstractDiff<K, Entry<K>, DiffEntry<K>, Flat<K>
      *
      * @param entries the {@link List} of {@link DiffEntry}s to be copied into this Diff
      */
-    private FlatDiff(List<DiffEntry<K>> entries)
+    private FlatDiff(List<DiffEntry> entries)
     {
         data = new HashMap<>();
         entries.forEach(entry -> data.put(entry.getKey(), entry));
@@ -54,7 +54,7 @@ public class FlatDiff<K> extends AbstractDiff<K, Entry<K>, DiffEntry<K>, Flat<K>
      * @param aggregation the {@link Flat} to be set as Base or New in this Diff.
      * @param isBase a boolean indicating whether the {@link Flat} has to be set as Base.
      */
-    public void set(Flat<K> aggregation, boolean isBase)
+    public void set(Flat aggregation, boolean isBase)
     {
         if (isBase)
         {
@@ -71,14 +71,14 @@ public class FlatDiff<K> extends AbstractDiff<K, Entry<K>, DiffEntry<K>, Flat<K>
      *
      * @param aggregation the {@link Flat} to be set as Base
      */
-    public void setBase(Flat<K> aggregation)
+    public void setBase(Flat aggregation)
     {
         super.setBaseAggregation(aggregation);
         aggregation.getData().forEach(entry ->
         {
             data.compute(
                 entry.getKey(),
-                (k, v) -> v == null ? new DiffEntry<>(entry, null) : v.setBase(entry));
+                (k, v) -> v == null ? new DiffEntry(entry, null) : v.setBase(entry));
         });
     }
 
@@ -87,14 +87,14 @@ public class FlatDiff<K> extends AbstractDiff<K, Entry<K>, DiffEntry<K>, Flat<K>
      *
      * @param aggregation the {@link Flat} to be set as New
      */
-    public void setNew(Flat<K> aggregation)
+    public void setNew(Flat aggregation)
     {
         super.setNewAggregation(aggregation);
         aggregation.getData().forEach(entry ->
         {
             data.compute(
                 entry.getKey(),
-                (k, v) -> v == null ? new DiffEntry<>(null, entry) : v.setNew(entry));
+                (k, v) -> v == null ? new DiffEntry(null, entry) : v.setNew(entry));
         });
     }
 
@@ -103,7 +103,7 @@ public class FlatDiff<K> extends AbstractDiff<K, Entry<K>, DiffEntry<K>, Flat<K>
      *
      * @return a {@link Collection} containing the {@link DiffEntry}s from this Diff
      */
-    public Collection<DiffEntry<K>> getData()
+    public Collection<DiffEntry> getData()
     {
         return data.values();
     }
@@ -111,8 +111,8 @@ public class FlatDiff<K> extends AbstractDiff<K, Entry<K>, DiffEntry<K>, Flat<K>
     // AbstractDiff Implementation
 
     @Override
-    public FlatDiff<K> filter(FilterSpecification<DiffEntry<K>> filterSpec)
+    public FlatDiff filter(FilterSpecification<DiffEntry> filterSpec)
     {
-        return new FlatDiff<>(getData().stream().filter(filterSpec.getFilter()).collect(toList()));
+        return new FlatDiff(getData().stream().filter(filterSpec.getFilter()).collect(toList()));
     }
 }

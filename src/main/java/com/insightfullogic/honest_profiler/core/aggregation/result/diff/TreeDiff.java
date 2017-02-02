@@ -16,13 +16,13 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree
  * Diff which wraps provides the difference between two tree {@link Aggregation}s (containing {@link Node}s) as a tree
  * of {@link DiffNode}s, which each wrap and provide the difference between corresponding {@link Node}s.
  *
- * @param <K> the type of the key
+ * @param the type of the key
  */
-public class TreeDiff<K> extends AbstractDiff<K, Node<K>, DiffNode<K>, Tree<K>>
+public class TreeDiff extends AbstractDiff<Node, DiffNode, Tree>
 {
     // Instance Properties
 
-    private Map<K, DiffNode<K>> data;
+    private Map<String, DiffNode> data;
 
     // Instance Constructors
 
@@ -39,7 +39,7 @@ public class TreeDiff<K> extends AbstractDiff<K, Node<K>, DiffNode<K>, Tree<K>>
      *
      * @param entries the {@link List} of {@link DiffNode}s to be copied into this Diff
      */
-    private TreeDiff(List<DiffNode<K>> entries)
+    private TreeDiff(List<DiffNode> entries)
     {
         data = new HashMap<>();
         entries.forEach(entry -> data.put(entry.getKey(), entry));
@@ -52,7 +52,7 @@ public class TreeDiff<K> extends AbstractDiff<K, Node<K>, DiffNode<K>, Tree<K>>
      * @param aggregation the {@link Tree} to be set as Base or New in this Diff.
      * @param isBase a boolean indicating whether the {@link Tree} has to be set as Base.
      */
-    public void set(Tree<K> aggregation, boolean isBase)
+    public void set(Tree aggregation, boolean isBase)
     {
         if (isBase)
         {
@@ -69,12 +69,12 @@ public class TreeDiff<K> extends AbstractDiff<K, Node<K>, DiffNode<K>, Tree<K>>
      *
      * @param aggregation the {@link Tree} to be set as Base
      */
-    public void setBase(Tree<K> aggregation)
+    public void setBase(Tree aggregation)
     {
         super.setBaseAggregation(aggregation);
         aggregation.getData().forEach(node -> data.compute(
             node.getKey(),
-            (k, v) -> v == null ? new DiffNode<>(node, null) : v.setBase(node)));
+            (k, v) -> v == null ? new DiffNode(node, null) : v.setBase(node)));
     }
 
     /**
@@ -82,12 +82,12 @@ public class TreeDiff<K> extends AbstractDiff<K, Node<K>, DiffNode<K>, Tree<K>>
      *
      * @param aggregation the {@link Tree} to be set as New
      */
-    public void setNew(Tree<K> aggregation)
+    public void setNew(Tree aggregation)
     {
         super.setNewAggregation(aggregation);
         aggregation.getData().forEach(node -> data.compute(
             node.getKey(),
-            (k, v) -> v == null ? new DiffNode<>(null, node) : v.setNew(node)));
+            (k, v) -> v == null ? new DiffNode(null, node) : v.setNew(node)));
     }
 
     /**
@@ -95,7 +95,7 @@ public class TreeDiff<K> extends AbstractDiff<K, Node<K>, DiffNode<K>, Tree<K>>
      *
      * @return a {@link Collection} containing the {@link DiffNode}s from this Diff
      */
-    public Collection<DiffNode<K>> getData()
+    public Collection<DiffNode> getData()
     {
         return data.values();
     }
@@ -103,9 +103,9 @@ public class TreeDiff<K> extends AbstractDiff<K, Node<K>, DiffNode<K>, Tree<K>>
     // AbstractDiff Implementation
 
     @Override
-    public TreeDiff<K> filter(FilterSpecification<DiffNode<K>> filterSpec)
+    public TreeDiff filter(FilterSpecification<DiffNode> filterSpec)
     {
-        return new TreeDiff<>(
+        return new TreeDiff(
             getData().stream().map(node -> node.copyWithFilter(filterSpec.getFilter()))
                 .filter(node -> node != null).collect(toList()));
     }

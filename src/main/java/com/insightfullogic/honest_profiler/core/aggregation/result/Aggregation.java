@@ -7,7 +7,7 @@ import java.util.List;
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
 import com.insightfullogic.honest_profiler.core.aggregation.filter.FilterSpecification;
 
-public class Aggregation<K, T extends Keyed<K>>
+public class Aggregation<T extends Keyed<String>>
 {
     private final AggregationProfile source;
     private final List<T> data;
@@ -29,7 +29,7 @@ public class Aggregation<K, T extends Keyed<K>>
         return data;
     }
 
-    public Aggregation<K, T> filter(FilterSpecification<T> filterSpec)
+    public Aggregation<T> filter(FilterSpecification<T> filterSpec)
     {
         return new Aggregation<>(
             source,

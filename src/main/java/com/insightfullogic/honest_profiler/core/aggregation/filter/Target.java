@@ -63,10 +63,10 @@ public enum Target
      * These maps are used for mapping the Targets to the corresponding extractors for each of the aggregation item
      * types.
      */
-    private static Map<Target, Function<Entry<?>, ?>> entryExtractors = new HashMap<>();
-    private static Map<Target, Function<Node<?>, ?>> nodeExtractors = new HashMap<>();
-    private static Map<Target, Function<DiffEntry<?>, ?>> diffEntryExtractors = new HashMap<>();
-    private static Map<Target, Function<DiffNode<?>, ?>> diffNodeExtractors = new HashMap<>();
+    private static Map<Target, Function<Entry, ?>> entryExtractors = new HashMap<>();
+    private static Map<Target, Function<Node, ?>> nodeExtractors = new HashMap<>();
+    private static Map<Target, Function<DiffEntry, ?>> diffEntryExtractors = new HashMap<>();
+    private static Map<Target, Function<DiffNode, ?>> diffNodeExtractors = new HashMap<>();
 
     // Class Constructors
 
@@ -184,7 +184,7 @@ public enum Target
 
     /**
      * Returns the {@link ValueType} of the Target value.
-     * 
+     *
      * @return the {@link ValueType} of the Target value
      */
     public ValueType getType()
@@ -197,7 +197,7 @@ public enum Target
     /**
      * Returns the extractor {@link Function} which can extract the Target value from the aggregation items with the
      * specified {@link ValueType}.
-     * 
+     *
      * @param type the {@link ValueType} of the aggregation items the extractor will accept
      * @return the extractor {@link Function} for extracting the Target value
      */

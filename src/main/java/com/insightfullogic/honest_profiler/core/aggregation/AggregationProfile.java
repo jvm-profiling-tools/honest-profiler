@@ -1,11 +1,16 @@
 package com.insightfullogic.honest_profiler.core.aggregation;
 
+import static com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping.BY_FQMN;
+import static com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping.ALL_THREADS_TOGETHER;
+import static com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping.THREADS_BY_NAME;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import com.insightfullogic.honest_profiler.core.aggregation.aggregator.Aggregator;
-import com.insightfullogic.honest_profiler.core.aggregation.aggregator.FlatByFqmnAggregator;
-import com.insightfullogic.honest_profiler.core.aggregation.aggregator.TreeByFqmnAggregator;
+import com.insightfullogic.honest_profiler.core.aggregation.aggregator.FlatProfileAggregator;
+import com.insightfullogic.honest_profiler.core.aggregation.aggregator.ProfileAggregator;
+import com.insightfullogic.honest_profiler.core.aggregation.aggregator.TreeProfileAggregator;
+import com.insightfullogic.honest_profiler.core.aggregation.grouping.CombinedGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
@@ -20,15 +25,15 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
  */
 public class AggregationProfile
 {
-    private static final Aggregator<AggregationProfile, String, Entry<String>> flatAggregator = new FlatByFqmnAggregator();
-    private static final Aggregator<AggregationProfile, String, Node<String>> treeAggregator = new TreeByFqmnAggregator();
+    private static final ProfileAggregator<Entry> flatAggregator = new FlatProfileAggregator();
+    private static final ProfileAggregator<Node> treeAggregator = new TreeProfileAggregator();
 
     private final LeanProfile source;
     private final Map<String, FqmnLink> fqmnLinks;
 
     private final NumericInfo global;
 
-    private Map<Aggregator<?, ?, ?>, Aggregation<?, ?>> cachedAggregations;
+    private Map<ProfileAggregator<?>, Aggregation<?>> cachedAggregations;
 
     public AggregationProfile(LeanProfile source)
     {
@@ -67,18 +72,20 @@ public class AggregationProfile
         return fqmnLinks;
     }
 
-    @SuppressWarnings("unchecked")
-    public Flat<String> getFlat()
+    public Flat getFlat()
     {
-        cachedAggregations.putIfAbsent(flatAggregator, flatAggregator.aggregate(this, this));
-        return (Flat<String>)cachedAggregations.get(flatAggregator);
+        cachedAggregations.putIfAbsent(
+            flatAggregator,
+            flatAggregator.aggregate(this, new CombinedGrouping(ALL_THREADS_TOGETHER, BY_FQMN)));
+        return (Flat)cachedAggregations.get(flatAggregator);
     }
 
-    @SuppressWarnings("unchecked")
-    public Tree<String> getTree()
+    public Tree getTree()
     {
-        cachedAggregations.putIfAbsent(treeAggregator, treeAggregator.aggregate(this, this));
-        return (Tree<String>)cachedAggregations.get(treeAggregator);
+        cachedAggregations.putIfAbsent(
+            treeAggregator,
+            treeAggregator.aggregate(this, new CombinedGrouping(THREADS_BY_NAME, BY_FQMN)));
+        return (Tree)cachedAggregations.get(treeAggregator);
     }
 
     private void aggregateGlobal()

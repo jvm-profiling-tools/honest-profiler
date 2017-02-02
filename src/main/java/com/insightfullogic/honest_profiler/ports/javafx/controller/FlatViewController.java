@@ -53,7 +53,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-public class FlatViewController extends AbstractProfileViewController<Flat<String>, Entry<String>>
+public class FlatViewController extends AbstractProfileViewController<Flat, Entry>
 {
     @FXML
     private Button filterButton;
@@ -64,29 +64,29 @@ public class FlatViewController extends AbstractProfileViewController<Flat<Strin
     @FXML
     private Button quickFilterButton;
     @FXML
-    private TableView<Entry<String>> flatProfileView;
+    private TableView<Entry> flatProfileView;
     @FXML
-    private TableColumn<Entry<String>, String> method;
+    private TableColumn<Entry, String> method;
     @FXML
-    private TableColumn<Entry<String>, Double> selfTimeGraphical;
+    private TableColumn<Entry, Double> selfTimeGraphical;
     @FXML
-    private TableColumn<Entry<String>, Number> selfCntPct;
+    private TableColumn<Entry, Number> selfCntPct;
     @FXML
-    private TableColumn<Entry<String>, Number> totalCntPct;
+    private TableColumn<Entry, Number> totalCntPct;
     @FXML
-    private TableColumn<Entry<String>, Number> selfCnt;
+    private TableColumn<Entry, Number> selfCnt;
     @FXML
-    private TableColumn<Entry<String>, Number> totalCnt;
+    private TableColumn<Entry, Number> totalCnt;
     @FXML
-    private TableColumn<Entry<String>, Number> selfTimePct;
+    private TableColumn<Entry, Number> selfTimePct;
     @FXML
-    private TableColumn<Entry<String>, Number> totalTimePct;
+    private TableColumn<Entry, Number> totalTimePct;
     @FXML
-    private TableColumn<Entry<String>, Number> selfTime;
+    private TableColumn<Entry, Number> selfTime;
     @FXML
-    private TableColumn<Entry<String>, Number> totalTime;
+    private TableColumn<Entry, Number> totalTime;
 
-    private ObservableList<Entry<String>> flatProfile;
+    private ObservableList<Entry> flatProfile;
 
     // FXML Implementation
 
@@ -117,7 +117,7 @@ public class FlatViewController extends AbstractProfileViewController<Flat<Strin
         super.setProfileContext(profileContext);
     }
 
-    public ReadOnlyObjectProperty<Entry<String>> selectedProperty()
+    public ReadOnlyObjectProperty<Entry> selectedProperty()
     {
         return flatProfileView.getSelectionModel().selectedItemProperty();
     }
@@ -127,7 +127,7 @@ public class FlatViewController extends AbstractProfileViewController<Flat<Strin
     private void initializeTable()
     {
         method.setCellValueFactory(new PropertyValueFactory<>("key"));
-        method.setCellFactory(col -> new MethodNameTableCell<Entry<String>>());
+        method.setCellFactory(col -> new MethodNameTableCell<Entry>());
 
         selfTimeGraphical.setCellValueFactory(new PropertyValueFactory<>("selfCntPct"));
         selfTimeGraphical.setCellFactory(col -> new GraphicalShareTableCell<>());
@@ -172,7 +172,7 @@ public class FlatViewController extends AbstractProfileViewController<Flat<Strin
     protected void refresh()
     {
         flatProfile.clear();
-        Flat<String> target = getTarget();
+        Flat target = getTarget();
 
         if (target != null)
         {

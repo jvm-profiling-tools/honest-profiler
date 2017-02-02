@@ -20,32 +20,32 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 /**
  * Aggregator which takes an {@link Entry} and aggregates the ancestors into a {@link Tree}.
  */
-public class AncestorTreeAggregator implements Aggregator<Entry<String>, String, Node<String>>
+public class AncestorTreeAggregator implements SubAggregator<Entry, Node>
 {
     // Aggregator Implementation
 
     /**
-     * @see Aggregator#aggregate(Object, LeanNode)
+     * @see SubAggregator#aggregate(Object, LeanNode)
      */
     @Override
-    public Tree<String> aggregate(AggregationProfile source, Entry<String> input)
+    public Tree aggregate(AggregationProfile source, Entry input)
     {
-        Node<String> root = new Node<>(input, new ArrayList<>());
-        List<Node<String>> list = new ArrayList<>();
+        Node root = new Node(input);
+        List<Node> list = new ArrayList<>();
         list.add(root);
 
-        Tree<String> result = new Tree<>(source, list);
+        Tree result = new Tree(source, list);
         Set<String> processed = new HashSet<>();
 
         addAncestors(source, root, result, processed);
         return result;
     }
 
-    private void addAncestors(AggregationProfile source, Node<String> parent, Tree<String> tree,
+    private void addAncestors(AggregationProfile source, Node parent, Tree tree,
         Set<String> processed)
     {
         FqmnLink fqmnLink = source.getFqmnLinks().get(parent.getKey());
-        Map<String, Node<String>> callers = fqmnLink.getParents().values().stream()
+        Map<String, Node> callers = fqmnLink.getParents().values().stream()
             .flatMap(set -> set.stream()).filter(
                 node -> node != null
                     && !node.isThreadNode()
@@ -57,14 +57,14 @@ public class AncestorTreeAggregator implements Aggregator<Entry<String>, String,
         parent.addAll(callers);
     }
 
-    private Collector<LeanNode, Node<String>, Node<String>> getCollector(AggregationProfile source,
-        Tree<String> tree, Set<String> processed)
+    private Collector<LeanNode, Node, Node> getCollector(AggregationProfile source, Tree tree,
+        Set<String> processed)
     {
         return of(
             // Supplier
             () ->
             {
-                Node<String> node = new Node<>(tree);
+                Node node = new Node(tree);
                 node.setReference(source.getGlobalData());
                 return node;
             },

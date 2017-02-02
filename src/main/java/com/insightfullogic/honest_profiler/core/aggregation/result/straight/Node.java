@@ -12,31 +12,25 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import com.insightfullogic.honest_profiler.core.aggregation.grouping.CombinedGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
 import com.insightfullogic.honest_profiler.core.aggregation.result.Keyed;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
-import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 
 /**
  * Wrapper for {@link Entry} which allows organizing them into a tree structure.
  */
-public class Node<K> extends Entry<K>
+public class Node extends Entry
 {
-    private Map<K, Node<K>> children;
+    private Map<String, Node> children;
 
-    public <T extends Keyed<K>> Node(Aggregation<K, T> aggregation)
+    public <T extends Keyed<String>> Node(Aggregation<T> aggregation)
     {
         super(aggregation);
         this.children = new HashMap<>();
     }
 
-    public <T extends Keyed<K>> Node(K key, NumericInfo data, Aggregation<K, T> aggregation)
-    {
-        super(key, data, aggregation);
-        this.children = new HashMap<>();
-    }
-
-    public Node(Entry<K> entry, List<Node<K>> children)
+    public Node(Entry entry)
     {
         this(entry.getAggregation());
         entry.copyInto(this);
@@ -48,14 +42,14 @@ public class Node<K> extends Entry<K>
      * @param entry
      * @param children
      */
-    public Node(Node<K> entry, List<Node<K>> children)
+    public Node(Node entry, List<Node> children)
     {
         this(entry.getAggregation());
         entry.copyInto(this);
         children.forEach(child -> this.children.put(child.getKey(), child));
     }
 
-    public List<Node<K>> getChildren()
+    public List<Node> getChildren()
     {
         return new ArrayList<>(children.values());
     }
@@ -69,27 +63,40 @@ public class Node<K> extends Entry<K>
         }
 
         int depth = 0;
-        for (Node<K> child : children.values())
+        for (Node child : children.values())
         {
             depth = max(depth, child.getDescendantDepth() + 1);
         }
         return depth;
     }
 
-    public void addAll(Map<K, Node<K>> newChildren)
+    public void addAll(Map<String, Node> newChildren)
     {
         newChildren.values().forEach(
             newChild -> this.children
                 .compute(newChild.getKey(), (k, v) -> v == null ? newChild : v.combine(newChild)));
     }
 
-    public void add(K key, LeanNode node)
+    public void add(String key, LeanNode node)
     {
         super.setKey(key);
         super.add(node);
     }
 
-    public Node<K> combine(Node<K> other)
+    public void addChild(LeanNode child, CombinedGrouping grouping)
+    {
+        String key = grouping.apply(getAggregation().getSource(), child);
+
+        Node childNode = new Node(getAggregation());
+        childNode.add(child);
+        childNode.setKey(key);
+
+        children.compute(key, (k, v) -> v == null ? childNode : v.combine(childNode));
+        child.getChildren().forEach(
+            grandChild -> childNode.addChild(grandChild, grouping));
+    }
+
+    public Node combine(Node other)
     {
         super.combine(other);
         other.children.values().forEach(
@@ -98,22 +105,22 @@ public class Node<K> extends Entry<K>
         return this;
     }
 
-    public Node<K> copy()
+    public Node copy()
     {
-        List<Node<K>> newChildren = children.values().stream().map(child -> child.copy())
+        List<Node> newChildren = children.values().stream().map(child -> child.copy())
             .filter(child -> child != null).collect(toList());
-        return new Node<>(this, newChildren);
+        return new Node(this, newChildren);
     }
 
-    public Node<K> copyWithFilter(Predicate<Node<K>> filter)
+    public Node copyWithFilter(Predicate<Node> filter)
     {
-        List<Node<K>> newChildren = children.values().stream()
+        List<Node> newChildren = children.values().stream()
             .map(child -> child.copyWithFilter(filter)).filter(child -> child != null)
             .collect(toList());
-        return newChildren.size() > 0 || filter.test(this) ? new Node<>(this, newChildren) : null;
+        return newChildren.size() > 0 || filter.test(this) ? new Node(this, newChildren) : null;
     }
 
-    public Stream<Node<K>> flatten()
+    public Stream<Node> flatten()
     {
         return concat(of(this), children.values().stream().flatMap(Node::flatten));
     }

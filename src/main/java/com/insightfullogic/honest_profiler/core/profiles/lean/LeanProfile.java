@@ -47,6 +47,22 @@ public class LeanProfile
         return getMethodInfoMap().get(node.getFrame().getMethodId()).getFqmn();
     }
 
+    public String getFqmnPlusLineNr(LeanNode node)
+    {
+        StringBuilder result = new StringBuilder();
+        MethodInfo method = getMethodInfoMap().get(node.getFrame().getMethodId());
+        result.append(method.getFqmn()).append(":").append(node.getFrame().getLineNr());
+        return result.toString();
+    }
+
+    public String getBciKey(LeanNode node)
+    {
+        StringBuilder result = new StringBuilder();
+        MethodInfo method = getMethodInfoMap().get(node.getFrame().getMethodId());
+        result.append(method.getFileName()).append(":").append(node.getFrame().getBci());
+        return result.toString();
+    }
+
     public String getThreadName(Long threadId)
     {
         ThreadInfo info = getThreadInfo(threadId);

@@ -11,41 +11,32 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 /**
  * Lowest-level aggregation.
  */
-public class Entry<K> implements Keyed<K>
+public class Entry implements Keyed<String>
 {
 
-    private Aggregation<K, ? extends Keyed<K>> aggregation;
-    private K key;
+    private Aggregation<? extends Keyed<String>> aggregation;
+    private String key;
     private NumericInfo data;
     private List<LeanNode> aggregatedNodes;
     private NumericInfo reference;
 
-    public <T extends Keyed<K>> Entry(Aggregation<K, T> aggregation)
+    public <T extends Keyed<String>> Entry(Aggregation<T> aggregation)
     {
         this.data = new NumericInfo();
         this.aggregation = aggregation;
         this.aggregatedNodes = new ArrayList<>();
     }
 
-    public <T extends Keyed<K>> Entry(K key, Aggregation<K, T> aggregation)
+    public <T extends Keyed<String>> Entry(String key, Aggregation<T> aggregation)
     {
         this(aggregation);
         this.key = key;
     }
 
-    public <T extends Keyed<K>> Entry(K key, NumericInfo data, Aggregation<K, T> aggregation)
-    {
-        this.key = key;
-        this.data = data.copy();
-        this.aggregation = aggregation;
-        this.aggregatedNodes = new ArrayList<>();
-
-    }
-
     @SuppressWarnings("unchecked")
-    public <T extends Keyed<K>> Aggregation<K, T> getAggregation()
+    public <T extends Keyed<String>> Aggregation<T> getAggregation()
     {
-        return (Aggregation<K, T>)aggregation;
+        return (Aggregation<T>)aggregation;
     }
 
     public void setReference(NumericInfo reference)
@@ -54,12 +45,12 @@ public class Entry<K> implements Keyed<K>
     }
 
     @Override
-    public K getKey()
+    public String getKey()
     {
         return key;
     }
 
-    public void setKey(K key)
+    public void setKey(String key)
     {
         this.key = key;
     }
@@ -127,7 +118,7 @@ public class Entry<K> implements Keyed<K>
         data.add(node.getData());
     }
 
-    protected void copyInto(Entry<K> other)
+    protected void copyInto(Entry other)
     {
         other.aggregation = aggregation;
         other.key = key;
@@ -136,7 +127,7 @@ public class Entry<K> implements Keyed<K>
         other.reference = reference;
     }
 
-    public Entry<K> combine(Entry<K> other)
+    public Entry combine(Entry other)
     {
         key = other.key;
         aggregatedNodes.addAll(other.aggregatedNodes);

@@ -20,7 +20,7 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.Keyed;
  * @param <T> the type of aggregation items in the diffed {@link Aggregation}s
  * @param <U> the type of aggregation items inside this Diff
  */
-public abstract class AbstractDiff<K, T extends Keyed<K>, U extends Keyed<K>, V extends Aggregation<K, T>>
+public abstract class AbstractDiff<T extends Keyed<String>, U extends Keyed<String>, V extends Aggregation<T>>
 {
     // Instance Properties
 
@@ -65,5 +65,5 @@ public abstract class AbstractDiff<K, T extends Keyed<K>, U extends Keyed<K>, V 
      * @param filterSpecification the {@link FilterSpecification} specifying the filter
      * @return a new Diff containing the filtered results
      */
-    public abstract AbstractDiff<K, T, U, V> filter(FilterSpecification<U> filterSpecification);
+    public abstract AbstractDiff<T, U, V> filter(FilterSpecification<U> filterSpecification);
 }
