@@ -6,6 +6,7 @@ import static java.util.stream.Stream.of;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import com.insightfullogic.honest_profiler.core.parser.TraceStart;
@@ -20,6 +21,9 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.info.NumericInfo;
  */
 public class LeanNode
 {
+    private static final AtomicInteger ID_GENERATOR = new AtomicInteger(0);
+
+    private final int id;
     private final FrameInfo frame;
     private final NumericInfo data;
     private LeanNode parent;
@@ -27,6 +31,8 @@ public class LeanNode
 
     public LeanNode(FrameInfo frame, LeanNode parent)
     {
+        id = ID_GENERATOR.getAndIncrement();
+
         this.frame = frame;
         data = new NumericInfo();
         this.parent = parent;
@@ -35,6 +41,8 @@ public class LeanNode
 
     public LeanNode(FrameInfo frame, long nanos, LeanNode parent)
     {
+        id = ID_GENERATOR.getAndIncrement();
+
         this.frame = frame;
         data = new NumericInfo(nanos);
         this.parent = parent;
@@ -44,15 +52,22 @@ public class LeanNode
     /**
      * Copy constructor.
      *
-     * @param source the source SlimNode which is being copied
+     * @param source the source LeanNode which is being copied
      */
     protected LeanNode(LeanNode source, LeanNode newParent)
     {
+        this.id = source.id;
+
         this.frame = source.frame;
         this.data = source.data.copy();
         this.parent = newParent;
         this.childMap = new HashMap<>();
         source.childMap.forEach((key, value) -> this.childMap.put(key.copy(), value.copy(this)));
+    }
+
+    public int getId()
+    {
+        return id;
     }
 
     public FrameInfo getFrame()
@@ -155,5 +170,16 @@ public class LeanNode
             .append(")\n");
         childMap.values().forEach(child -> result.append(child.toDeepString(level + 1, methodMap)));
         return result.toString();
+    }
+
+    @Override
+    public boolean equals(Object other)
+    {
+        return other instanceof LeanNode && ((LeanNode)other).id == id;
+    }
+
+    public int hashcode()
+    {
+        return id;
     }
 }

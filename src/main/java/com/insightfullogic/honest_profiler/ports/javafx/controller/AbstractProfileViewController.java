@@ -139,22 +139,26 @@ public abstract class AbstractProfileViewController<T, U> extends AbstractViewCo
     // Activation
 
     /**
-     * Binds the local target {@link Property} to the target {@link Property} in the {@link ProfileContext}, using the
-     * target extractor function. The net effect is that the controller will start tracking changes to the target
-     * instance in the {@link ProfileContext}.
+     * Activate or deactivate the current view. When activated, the view tracks changes in the target.
+     *
+     * @param active a boolean indicating whether to activate or deactivate the view.
      */
-    public void activate()
+    public void setActive(boolean active)
     {
-        target.bind(sourceBinding);
-    }
+        if (active)
+        {
 
-    /**
-     * Unbinds the local target {@link Property}. The controller no longer tracks changes to the target {@link Property}
-     * in the {@link ProfileContext}.
-     */
-    public void deactivate()
-    {
-        target.unbind();
+            // Binds the local target Property to the target Property in the ProfileContext, using the target extractor
+            // function. The net effect is that the controller will start tracking changes to the target instance in the
+            // ProfileContext.
+            target.bind(sourceBinding);
+        }
+        else
+        {
+            // Unbinds the local target Property. The controller no longer tracks changes to the target Property in the
+            // ProfileContext.
+            target.unbind();
+        }
     }
 
     // AbstractViewController Implementation

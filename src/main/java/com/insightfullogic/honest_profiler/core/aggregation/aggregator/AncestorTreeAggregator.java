@@ -56,6 +56,8 @@ public class AncestorTreeAggregator implements SubAggregator<Entry, Node>
         Map<String, Node> result = child.getAggregatedNodes().stream().map(node -> node.getParent())
             // Parent of a root LeanNode is null
             .filter(node -> node != null)
+            // Filter out duplicate parents
+            .distinct()
             .collect(groupingBy(
                 // Group LeanNodes by calculated key
                 node -> grouping.apply(source, node),

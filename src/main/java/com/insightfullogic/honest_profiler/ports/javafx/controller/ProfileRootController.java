@@ -97,7 +97,7 @@ public class ProfileRootController extends AbstractController
 
     private ProfileContext profileContext;
 
-    private Map<ViewType, List<AbstractProfileViewController<?, ?>>> viewToControllerMap;
+    private Map<ViewType, List<AbstractProfileViewController<?, ?>>> controllerMap;
 
     @Override
     @FXML
@@ -105,10 +105,10 @@ public class ProfileRootController extends AbstractController
     {
         super.initialize();
 
-        viewToControllerMap = new HashMap<>();
-        viewToControllerMap.put(FLAT, asList(flatController, callingController, calledController));
-        viewToControllerMap.put(TREE, asList(treeController, descendantsController));
-        viewToControllerMap.put(FLAME, asList(flameController));
+        controllerMap = new HashMap<>();
+        controllerMap.put(FLAT, asList(flatController, callingController, calledController));
+        controllerMap.put(TREE, asList(treeController, descendantsController));
+        controllerMap.put(FLAME, asList(flameController));
     }
 
     // Instance Accessors
@@ -185,17 +185,8 @@ public class ProfileRootController extends AbstractController
             child.setVisible(viewType.ordinal() == i);
         }
 
-        viewToControllerMap.forEach((type, controllerList) ->
-        {
-            if (viewType == type)
-            {
-                controllerList.forEach(AbstractProfileViewController::activate);
-            }
-            else
-            {
-                controllerList.forEach(AbstractProfileViewController::deactivate);
-            }
-        });
+        controllerMap
+            .forEach((type, list) -> list.forEach(ctrl -> ctrl.setActive(viewType == type)));
 
         if (viewType == FLAME)
         {
