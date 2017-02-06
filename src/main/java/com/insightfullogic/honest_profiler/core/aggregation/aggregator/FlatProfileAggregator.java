@@ -33,7 +33,7 @@ public class FlatProfileAggregator implements ProfileAggregator<Entry>
     public Flat aggregate(AggregationProfile input, CombinedGrouping grouping)
     {
         // Prepare result.
-        Flat result = new Flat(input);
+        Flat result = new Flat(input, grouping);
 
         LeanProfile source = input.getSource();
 
@@ -49,9 +49,9 @@ public class FlatProfileAggregator implements ProfileAggregator<Entry>
                         // Supplier, creates an empty Entry
                         () -> new Entry(result),
                         // Accumulator, aggregates a LeanNode into the Entry accumulator
-                        (x, y) -> x.add(y),
+                        (entry, leanNode) -> entry.add(leanNode),
                         // Combiner, combines two Entries with the same key
-                        (x, y) -> x.combine(y))));
+                        (entry1, entry2) -> entry1.combine(entry2))));
 
         // Add the aggregated Entries to the result list, after setting their key and reference. The key is the
         // Map.Entry key, the Entry is the Map.Entry value.

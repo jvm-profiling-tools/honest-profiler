@@ -8,7 +8,6 @@ import com.insightfullogic.honest_profiler.core.aggregation.aggregator.TreeProfi
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.CombinedGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
-import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfile;
 import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
 
@@ -21,7 +20,6 @@ public class AggregationProfile
     private static final TreeProfileAggregator treeAggregator = new TreeProfileAggregator();
 
     private final LeanProfile source;
-    private final Map<String, FqmnLink> fqmnLinks;
 
     private final NumericInfo global;
 
@@ -31,7 +29,6 @@ public class AggregationProfile
     public AggregationProfile(LeanProfile source)
     {
         this.source = source;
-        fqmnLinks = new HashMap<>();
         global = new NumericInfo();
         cachedFlats = new HashMap<>();
         cachedTrees = new HashMap<>();
@@ -42,7 +39,6 @@ public class AggregationProfile
         source.getThreads().forEach((id, node) -> node.setThreadInfo(source.getThreadInfo(id)));
 
         aggregateGlobal();
-        calculateLinks();
     }
 
     public LeanProfile getSource()
@@ -53,17 +49,6 @@ public class AggregationProfile
     public NumericInfo getGlobalData()
     {
         return global;
-    }
-
-    public FqmnLink getFqmnLink(LeanNode node)
-    {
-        return fqmnLinks
-            .get(source.getMethodInfoMap().get(node.getFrame().getMethodId()).getFqmn());
-    }
-
-    public Map<String, FqmnLink> getFqmnLinks()
-    {
-        return fqmnLinks;
     }
 
     public Flat getFlat(CombinedGrouping grouping)
@@ -83,32 +68,5 @@ public class AggregationProfile
             (data, node) -> data.add(node.getData()),
             (data1, data2) -> data1.add(data2));
         global.add(aggregated);
-    }
-
-    private void calculateLinks()
-    {
-        source.getThreads()
-            .forEach((id, data) -> data.getChildren().forEach(node -> link(id, node)));
-    }
-
-    private void link(Long threadId, LeanNode node)
-    {
-        String fqmn = source.getMethodInfoMap().get(node.getFrame().getMethodId()).getFqmn();
-        FqmnLink link = fqmnLinks.computeIfAbsent(fqmn, FqmnLink::new);
-
-        link.addSibling(threadId, node);
-
-        LeanNode parent = node.getParent();
-        if (parent != null && !parent.isThreadNode())
-        {
-            // Add FQMN Link Parent-Child relations
-            link.addParent(threadId, parent);
-            if (parent.getFrame() != null)
-            {
-                getFqmnLink(parent).addChild(threadId, node);
-            }
-        }
-
-        node.getChildren().forEach(child -> link(threadId, child));
     }
 }

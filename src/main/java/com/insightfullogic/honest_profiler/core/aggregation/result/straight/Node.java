@@ -83,17 +83,24 @@ public class Node extends Entry
         super.add(node);
     }
 
-    public void addChild(LeanNode child, CombinedGrouping grouping)
+    public void addChild(Node child)
     {
-        String key = grouping.apply(getAggregation().getSource(), child);
+        children.compute(child.getKey(), (k, v) -> v == null ? child : v.combine(child));
+    }
 
+    public void addChild(LeanNode child, CombinedGrouping grouping, boolean recurse)
+    {
         Node childNode = new Node(getAggregation());
         childNode.add(child);
-        childNode.setKey(key);
+        childNode.setKey(grouping.apply(getAggregation().getSource(), child));
 
-        children.compute(key, (k, v) -> v == null ? childNode : v.combine(childNode));
-        child.getChildren().forEach(
-            grandChild -> childNode.addChild(grandChild, grouping));
+        addChild(childNode);
+
+        if (recurse)
+        {
+            child.getChildren().forEach(
+                grandChild -> childNode.addChild(grandChild, grouping, recurse));
+        }
     }
 
     public Node combine(Node other)
@@ -123,5 +130,10 @@ public class Node extends Entry
     public Stream<Node> flatten()
     {
         return concat(of(this), children.values().stream().flatMap(Node::flatten));
+    }
+
+    public Stream<Node> flattenDescendants()
+    {
+        return children.values().stream().flatMap(Node::flatten);
     }
 }

@@ -1,4 +1,4 @@
-package com.insightfullogic.honest_profiler.ports.javafx.util;
+package com.insightfullogic.honest_profiler.ports.javafx.util.extraction;
 
 import java.util.function.Function;
 

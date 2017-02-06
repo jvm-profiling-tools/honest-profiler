@@ -3,87 +3,86 @@ package com.insightfullogic.honest_profiler.core.aggregation.aggregator;
 import static java.util.stream.Collector.of;
 import static java.util.stream.Collectors.groupingBy;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collector;
 
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
-import com.insightfullogic.honest_profiler.core.aggregation.FqmnLink;
+import com.insightfullogic.honest_profiler.core.aggregation.grouping.CombinedGrouping;
+import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
+import com.insightfullogic.honest_profiler.core.aggregation.result.Keyed;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 
 /**
- * Aggregator which takes an {@link Entry} and aggregates the descendants into a {@link Tree}.
+ * Aggregator which takes an {@link Entry} and aggregates the descendants of all the {@link LeanNode}s aggregated by
+ * that {@link Entry} into a {@link Tree}.
  */
 public class DescendantTreeAggregator implements SubAggregator<Entry, Node>
 {
     // Aggregator Implementation
 
     /**
-     * @see SubAggregator#aggregate(Object, LeanNode)
+     * @see SubAggregator#aggregate(Object)
      */
     @Override
-    public Tree aggregate(AggregationProfile source, Entry input)
+    public Tree aggregate(Entry input)
     {
+        Aggregation<Keyed<String>> aggregation = input.getAggregation();
+        AggregationProfile source = aggregation.getSource();
+        CombinedGrouping grouping = aggregation.getGrouping();
+
+        Tree result = new Tree(source, input.getAggregation().getGrouping());
+
         Node root = new Node(input);
-        List<Node> list = new ArrayList<>();
-        list.add(root);
+        result.getData().add(root);
 
-        Tree result = new Tree(source, list);
-        Set<String> processed = new HashSet<>();
-
-        addDescendants(source, root, result, processed);
+        addChildren(source, root, result, grouping);
         return result;
     }
 
-    private void addDescendants(AggregationProfile source, Node parent, Tree tree,
-        Set<String> processed)
+    /**
+     * Recursive method for aggregating the children (and descendants) of the {@link LeanNode}s which are aggregated by
+     * the provided {@link Node}.
+     *
+     * @param source the original {@link AggregationProfile}
+     * @param child the input {@link Node}
+     * @param tree the resulting {@link Tree}
+     * @param grouping the key calculation grouping
+     */
+    private void addChildren(AggregationProfile source, Node child, Tree tree,
+        CombinedGrouping grouping)
     {
-        FqmnLink fqmnLink = source.getFqmnLinks().get(parent.getKey());
-        Map<String, Node> callers = fqmnLink.getChildren().values().stream()
-            .flatMap(set -> set.stream()).filter(
-                node -> node != null
-                    && !node.isThreadNode()
-                    && !processed.contains(source.getSource().getFqmn(node)))
-            .collect(
-                groupingBy(
-                    node -> source.getSource().getFqmn(node),
-                    getCollector(source, tree, processed)));
-        parent.addAll(callers);
-    }
+        Map<String, Node> result = child.getAggregatedNodes().stream()
+            .flatMap(node -> node.getChildren().stream())
+            .collect(groupingBy(
+                // Group LeanNodes by calculated key
+                node -> grouping.apply(source, node),
+                // Downstream collector, collects LeanNodes in a single group
+                of(
+                    // Supplier, creates an empty Node
+                    () ->
+                    {
+                        Node node = new Node(tree);
+                        node.setReference(source.getGlobalData());
+                        return node;
+                    },
+                    // Accumulator, aggregates a LeanNode into the Entry accumulator
+                    (x, y) ->
+                    {
+                        x.add(y);
+                        x.setKey(grouping.apply(source, y));
+                    },
+                    // Combiner, combines two Nodes with the same key
+                    (x, y) -> x.combine(y)
+                )
+            ));
 
-    private Collector<LeanNode, Node, Node> getCollector(AggregationProfile source, Tree tree,
-        Set<String> processed)
-    {
-        return of(
-            // Supplier
-            () ->
-            {
-                Node node = new Node(tree);
-                node.setReference(source.getGlobalData());
-                return node;
-            },
-
-            // Accumulator
-            (accumulator, node) ->
-            {
-                if (node.isThreadNode())
-                {
-                    return;
-                }
-                processed.add(source.getSource().getFqmn(node));
-                accumulator.add(source.getSource().getFqmn(node), node);
-                if (accumulator.getChildren().isEmpty())
-                {
-                    addDescendants(source, accumulator, tree, processed); // Recursion here !
-                }
-            },
-            // Combiner
-            (e1, e2) -> e1.combine(e2));
+        result.values().forEach(parent ->
+        {
+            child.addChild(parent);
+            // Recursively add descendants
+            addChildren(source, parent, tree, grouping);
+        });
     }
 }

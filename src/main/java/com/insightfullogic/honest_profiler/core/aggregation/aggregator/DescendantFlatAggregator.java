@@ -3,13 +3,14 @@ package com.insightfullogic.honest_profiler.core.aggregation.aggregator;
 import static java.util.stream.Collector.of;
 import static java.util.stream.Collectors.groupingBy;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
+import com.insightfullogic.honest_profiler.core.aggregation.grouping.CombinedGrouping;
+import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
+import com.insightfullogic.honest_profiler.core.aggregation.result.Keyed;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 
 /**
@@ -19,36 +20,40 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 public class DescendantFlatAggregator implements SubAggregator<Node, Entry>
 {
     /**
-     * This method aggregates a {@link Node} and all its all descendants.
+     * This method aggregates all descendants of a {@link Node} into a {@link Flat}, using the original
+     * {@link CombinedGrouping} from the {@link Tree} the {@link Node} belongs to.
      *
      * @see SubAggregator#aggregate(Object, LeanNode)
      */
     @Override
-    public Flat aggregate(AggregationProfile source, Node parent)
+    public Flat aggregate(Node parent)
     {
-        List<Entry> result = new ArrayList<>();
-        Flat aggregation = new Flat(source, result);
+        Aggregation<Keyed<String>> aggregation = parent.getAggregation();
+        AggregationProfile source = aggregation.getSource();
+        CombinedGrouping grouping = aggregation.getGrouping();
 
-        result.addAll(
-            parent.flatten().collect(
+        Flat result = new Flat(source, grouping);
+
+        result.getData().addAll(
+            parent.flattenDescendants().collect(
                 groupingBy(
                     Node::getKey,
                     of(
-                        // Supplier
+                        // Supplier, creates an empty Entry
                         () ->
                         {
                             Entry entry = new Entry(aggregation);
                             entry.setReference(source.getGlobalData());
                             return entry;
                         },
-                        // Accumulator
+                        // Accumulator, adds an Entry to the accumulator Entry
                         (x, y) -> x.combine(y),
-                        // Combiner
+                        // Combiner, combines to entries
                         (x, y) -> x.combine(y)
                     )
                 )
             ).values());
 
-        return aggregation;
+        return result;
     }
 }

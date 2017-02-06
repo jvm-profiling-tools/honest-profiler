@@ -1,6 +1,5 @@
 package com.insightfullogic.honest_profiler.core.aggregation.aggregator;
 
-import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
 import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
 import com.insightfullogic.honest_profiler.core.aggregation.result.Keyed;
 
@@ -20,5 +19,5 @@ public interface SubAggregator<I, T extends Keyed<String>>
      * @param input the input for the aggregation
      * @return the resulting {@link Aggregation}
      */
-    Aggregation<T> aggregate(AggregationProfile source, I input);
+    Aggregation<T> aggregate(I input);
 }

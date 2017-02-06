@@ -28,8 +28,8 @@ import static com.insightfullogic.honest_profiler.ports.javafx.ViewType.FLAME;
 import static com.insightfullogic.honest_profiler.ports.javafx.ViewType.FLAT;
 import static com.insightfullogic.honest_profiler.ports.javafx.ViewType.TREE;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext.ProfileMode.LIVE;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.CALLED_EXTRACTOR;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.CALLING_EXTRACTOR;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.DESCENDANT_TREE_EXTRACTOR;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.ANCESTOR_TREE_EXTRACTOR;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.DESCENDANT_FLAT_EXTRACTOR;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.FLAME_EXTRACTOR;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.flatExtractor;
@@ -135,10 +135,10 @@ public class ProfileRootController extends AbstractController
         flatController.bind(prCtx.profileProperty(), flatExtractor(flatController));
 
         callingController.setProfileContext(prCtx);
-        callingController.bind(flatController.selectedProperty(), CALLING_EXTRACTOR);
+        callingController.bind(flatController.selectedProperty(), ANCESTOR_TREE_EXTRACTOR);
 
         calledController.setProfileContext(prCtx);
-        calledController.bind(flatController.selectedProperty(), CALLED_EXTRACTOR);
+        calledController.bind(flatController.selectedProperty(), DESCENDANT_TREE_EXTRACTOR);
 
         treeController.setProfileContext(prCtx);
         treeController.setAllowedThreadGroupings(ALL_TOGETHER, BY_NAME, BY_ID);

@@ -8,18 +8,19 @@ import java.util.stream.Stream;
 
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
 import com.insightfullogic.honest_profiler.core.aggregation.filter.FilterSpecification;
+import com.insightfullogic.honest_profiler.core.aggregation.grouping.CombinedGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
 
 public class Tree extends Aggregation<Node>
 {
-    public Tree(AggregationProfile source)
+    public Tree(AggregationProfile source, CombinedGrouping grouping)
     {
-        super(source, new ArrayList<>());
+        super(source, grouping, new ArrayList<>());
     }
 
-    public Tree(AggregationProfile source, List<Node> data)
+    public Tree(AggregationProfile source, CombinedGrouping grouping, List<Node> data)
     {
-        super(source, data);
+        super(source, grouping, data);
     }
 
     @Override
@@ -33,6 +34,7 @@ public class Tree extends Aggregation<Node>
     {
         return new Tree(
             getSource(),
+            getGrouping(),
             getData().stream().map(node -> node.copyWithFilter(filterSpec.getFilter()))
                 .filter(node -> node != null).collect(toList()));
     }

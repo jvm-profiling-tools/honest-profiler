@@ -29,7 +29,7 @@ public class TreeProfileAggregator implements ProfileAggregator<Node>
     public Tree aggregate(AggregationProfile input, CombinedGrouping grouping)
     {
         // Prepare result.
-        Tree result = new Tree(input);
+        Tree result = new Tree(input, grouping);
 
         LeanProfile profile = input.getSource();
 
@@ -41,15 +41,17 @@ public class TreeProfileAggregator implements ProfileAggregator<Node>
                 of(
                     // Supplier, creates an empty Node
                     () -> new Node(result),
-                    // Accumulator, aggregates a LeanNode into the Entry accumulator
-                    (x, y) ->
+                    // Accumulator, aggregates a LeanNode into the Node accumulator
+                    (node, leanNode) ->
                     {
-                        x.add(y);
-                        x.setKey(grouping.apply(input, y));
-                        y.getChildren().forEach(child -> x.addChild(child, grouping));
+                        node.add(leanNode);
+                        node.setKey(grouping.apply(input, leanNode));
+                        // Aggregate descendants of a LeanNode recursively into children of accumulator
+                        leanNode.getChildren()
+                            .forEach(child -> node.addChild(child, grouping, true));
                     },
-                    // Combiner, combines two Entries with the same key
-                    (x, y) -> x.combine(y)
+                    // Combiner, combines two Nodes with the same key
+                    (node1, node2) -> node1.combine(node2)
                 )
             )
         );
@@ -57,7 +59,6 @@ public class TreeProfileAggregator implements ProfileAggregator<Node>
         // Set the reference by default for all nodes to the global aggregation.
         nodeMap.values().stream().flatMap(Node::flatten).forEach(node ->
         {
-
             node.setReference(input.getGlobalData());
         });
 
