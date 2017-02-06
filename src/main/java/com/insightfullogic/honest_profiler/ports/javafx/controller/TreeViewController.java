@@ -18,7 +18,7 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
-import static com.insightfullogic.honest_profiler.core.aggregation.result.ItemType.NODE;
+import static com.insightfullogic.honest_profiler.core.aggregation.result.ItemType.ENTRY;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_CNT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_CNT_PCT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_TIME;
@@ -109,7 +109,7 @@ public class TreeViewController extends AbstractProfileViewController<Tree, Node
             filterButton,
             quickFilterButton,
             quickFilterText,
-            NODE,
+            ENTRY,
             threadGroupingLabel,
             threadGrouping,
             frameGroupingLabel,

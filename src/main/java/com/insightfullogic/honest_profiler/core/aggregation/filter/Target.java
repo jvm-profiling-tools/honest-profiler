@@ -12,9 +12,7 @@ import java.util.function.Function;
 
 import com.insightfullogic.honest_profiler.core.aggregation.result.ItemType;
 import com.insightfullogic.honest_profiler.core.aggregation.result.diff.DiffEntry;
-import com.insightfullogic.honest_profiler.core.aggregation.result.diff.DiffNode;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
-import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 
 /**
  * A Target describes a value inside an aggregation item. It specifies a displayable name and the type of the value. A
@@ -23,7 +21,7 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node
  */
 public enum Target
 {
-    FQMN("Fully Qualified Method Name", STRING),
+    KEY("Key", STRING),
     SELF_TIME("Self Time", LONG),
     TOTAL_TIME("Total Time", LONG),
     SELF_COUNT("Self Count", INTEGER),
@@ -64,9 +62,7 @@ public enum Target
      * types.
      */
     private static Map<Target, Function<Entry, ?>> entryExtractors = new HashMap<>();
-    private static Map<Target, Function<Node, ?>> nodeExtractors = new HashMap<>();
     private static Map<Target, Function<DiffEntry, ?>> diffEntryExtractors = new HashMap<>();
-    private static Map<Target, Function<DiffNode, ?>> diffNodeExtractors = new HashMap<>();
 
     // Class Constructors
 
@@ -80,17 +76,7 @@ public enum Target
         entryExtractors.put(TOTAL_COUNT, Entry::getTotalCnt);
         entryExtractors.put(SELF_TIME, Entry::getSelfTime);
         entryExtractors.put(TOTAL_TIME, Entry::getTotalTime);
-        entryExtractors.put(FQMN, Entry::getKey);
-
-        nodeExtractors.put(SELF_TIME_PCT, Node::getSelfTimePct);
-        nodeExtractors.put(SELF_COUNT_PCT, Node::getSelfCntPct);
-        nodeExtractors.put(TOTAL_TIME_PCT, Node::getTotalTimePct);
-        nodeExtractors.put(TOTAL_COUNT_PCT, Node::getTotalCntPct);
-        nodeExtractors.put(SELF_COUNT, Node::getSelfCnt);
-        nodeExtractors.put(TOTAL_COUNT, Node::getTotalCnt);
-        nodeExtractors.put(SELF_TIME, Node::getSelfTime);
-        nodeExtractors.put(TOTAL_TIME, Node::getTotalTime);
-        nodeExtractors.put(FQMN, Node::getKey);
+        entryExtractors.put(KEY, Entry::getKey);
 
         diffEntryExtractors.put(BASE_SELF_TIME_PCT, DiffEntry::getBaseSelfTimePct);
         diffEntryExtractors.put(BASE_SELF_COUNT_PCT, DiffEntry::getBaseSelfCntPct);
@@ -124,41 +110,7 @@ public enum Target
         diffEntryExtractors.put(TOTAL_TIME_DIFF, DiffEntry::getTotalTimeDiff);
         diffEntryExtractors.put(SELF_TIME_DIFF, DiffEntry::getSelfTimeDiff);
         diffEntryExtractors.put(TOTAL_TIME_DIFF, DiffEntry::getTotalTimeDiff);
-        diffEntryExtractors.put(FQMN, DiffEntry::getKey);
-
-        diffNodeExtractors.put(BASE_SELF_TIME_PCT, DiffNode::getBaseSelfTimePct);
-        diffNodeExtractors.put(BASE_SELF_COUNT_PCT, DiffNode::getBaseSelfCntPct);
-        diffNodeExtractors.put(BASE_TOTAL_TIME_PCT, DiffNode::getBaseTotalTimePct);
-        diffNodeExtractors.put(BASE_TOTAL_COUNT_PCT, DiffNode::getBaseTotalCntPct);
-        diffNodeExtractors.put(NEW_SELF_TIME_PCT, DiffNode::getNewSelfTimePct);
-        diffNodeExtractors.put(NEW_SELF_COUNT_PCT, DiffNode::getNewSelfCntPct);
-        diffNodeExtractors.put(NEW_TOTAL_TIME_PCT, DiffNode::getNewTotalTimePct);
-        diffNodeExtractors.put(NEW_TOTAL_COUNT_PCT, DiffNode::getNewTotalCntPct);
-        diffNodeExtractors.put(SELF_TIME_PCT_DIFF, DiffNode::getSelfTimePctDiff);
-        diffNodeExtractors.put(SELF_COUNT_PCT_DIFF, DiffNode::getSelfCntPctDiff);
-        diffNodeExtractors.put(TOTAL_TIME_PCT_DIFF, DiffNode::getTotalTimePctDiff);
-        diffNodeExtractors.put(TOTAL_COUNT_PCT_DIFF, DiffNode::getTotalCntPctDiff);
-        diffNodeExtractors.put(SELF_TIME_PCT_DIFF, DiffNode::getSelfTimePctDiff);
-        diffNodeExtractors.put(SELF_COUNT_PCT_DIFF, DiffNode::getSelfCntPctDiff);
-        diffNodeExtractors.put(TOTAL_TIME_PCT_DIFF, DiffNode::getTotalTimePctDiff);
-        diffNodeExtractors.put(TOTAL_COUNT_PCT_DIFF, DiffNode::getTotalCntPctDiff);
-        diffNodeExtractors.put(BASE_SELF_COUNT, DiffNode::getBaseSelfCnt);
-        diffNodeExtractors.put(BASE_TOTAL_COUNT, DiffNode::getBaseTotalCnt);
-        diffNodeExtractors.put(NEW_SELF_COUNT, DiffNode::getNewSelfCnt);
-        diffNodeExtractors.put(NEW_TOTAL_COUNT, DiffNode::getNewTotalCnt);
-        diffNodeExtractors.put(SELF_COUNT_DIFF, DiffNode::getSelfCntDiff);
-        diffNodeExtractors.put(TOTAL_COUNT_DIFF, DiffNode::getTotalCntDiff);
-        diffNodeExtractors.put(SELF_COUNT_DIFF, DiffNode::getSelfCntDiff);
-        diffNodeExtractors.put(TOTAL_COUNT_DIFF, DiffNode::getTotalCntDiff);
-        diffNodeExtractors.put(BASE_SELF_TIME, DiffNode::getBaseSelfTime);
-        diffNodeExtractors.put(BASE_TOTAL_TIME, DiffNode::getBaseTotalTime);
-        diffNodeExtractors.put(NEW_SELF_TIME, DiffNode::getNewSelfTime);
-        diffNodeExtractors.put(NEW_TOTAL_TIME, DiffNode::getNewTotalTime);
-        diffNodeExtractors.put(SELF_TIME_DIFF, DiffNode::getSelfTimeDiff);
-        diffNodeExtractors.put(TOTAL_TIME_DIFF, DiffNode::getTotalTimeDiff);
-        diffNodeExtractors.put(SELF_TIME_DIFF, DiffNode::getSelfTimeDiff);
-        diffNodeExtractors.put(TOTAL_TIME_DIFF, DiffNode::getTotalTimeDiff);
-        diffNodeExtractors.put(FQMN, DiffNode::getKey);
+        diffEntryExtractors.put(KEY, DiffEntry::getKey);
     }
 
     // Instance Properties
@@ -208,12 +160,8 @@ public enum Target
         {
             case ENTRY:
                 return (Function<T, U>)entryExtractors.get(this);
-            case NODE:
-                return (Function<T, U>)nodeExtractors.get(this);
             case DIFFENTRY:
                 return (Function<T, U>)diffEntryExtractors.get(this);
-            case DIFFNODE:
-                return (Function<T, U>)diffNodeExtractors.get(this);
             default:
                 break;
         }

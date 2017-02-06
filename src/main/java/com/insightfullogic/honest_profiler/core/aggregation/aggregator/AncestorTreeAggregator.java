@@ -54,9 +54,11 @@ public class AncestorTreeAggregator implements SubAggregator<Entry, Node>
         CombinedGrouping grouping)
     {
         Map<String, Node> result = child.getAggregatedNodes().stream().map(node -> node.getParent())
-            // Parent of a root LeanNode is null
+            // Parent of a root LeanNode is null, we don;t want those.
             .filter(node -> node != null)
-            // Filter out duplicate parents
+            // Filter out duplicate parents, using the unique LeanNode id (which is used in the LeanNode.equals()).
+            // Needed e.g. when aggregating by FQMN, and 2 LeanNodes sharing a parent have same FQMN but different line
+            // number. They'd be aggregated into the same Entry. In that case, parent would be added twice.
             .distinct()
             .collect(groupingBy(
                 // Group LeanNodes by calculated key
@@ -78,8 +80,8 @@ public class AncestorTreeAggregator implements SubAggregator<Entry, Node>
                     },
                     // Combiner, combines two Nodes with the same key
                     (node1, node2) -> node1.combine(node2)
-                )
-            ));
+                    )
+                ));
 
         result.entrySet().forEach(mapEntry ->
         {

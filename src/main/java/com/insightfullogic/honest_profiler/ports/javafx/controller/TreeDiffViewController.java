@@ -1,6 +1,6 @@
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
-import static com.insightfullogic.honest_profiler.core.aggregation.result.ItemType.DIFFNODE;
+import static com.insightfullogic.honest_profiler.core.aggregation.result.ItemType.DIFFENTRY;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_CNT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_CNT_DIFF;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_CNT_PCT;
@@ -132,7 +132,7 @@ public class TreeDiffViewController extends AbstractProfileDiffViewController<Tr
             filterButton,
             quickFilterButton,
             quickFilterText,
-            DIFFNODE,
+            DIFFENTRY,
             threadGroupingLabel,
             threadGrouping,
             frameGroupingLabel,
