@@ -1,4 +1,4 @@
-package com.insightfullogic.honest_profiler.core.profiles.lean;
+package com.insightfullogic.honest_profiler.core.profiles.lean.info;
 
 import com.insightfullogic.honest_profiler.core.parser.StackFrame;
 

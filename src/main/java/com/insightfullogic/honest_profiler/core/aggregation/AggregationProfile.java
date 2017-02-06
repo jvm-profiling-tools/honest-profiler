@@ -9,7 +9,7 @@ import com.insightfullogic.honest_profiler.core.aggregation.grouping.CombinedGro
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfile;
-import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
+import com.insightfullogic.honest_profiler.core.profiles.lean.info.NumericInfo;
 
 /**
  * Class which lazily calculates aggregated views.

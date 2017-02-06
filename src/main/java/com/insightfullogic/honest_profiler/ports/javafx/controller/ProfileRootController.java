@@ -28,9 +28,9 @@ import static com.insightfullogic.honest_profiler.ports.javafx.ViewType.FLAME;
 import static com.insightfullogic.honest_profiler.ports.javafx.ViewType.FLAT;
 import static com.insightfullogic.honest_profiler.ports.javafx.ViewType.TREE;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext.ProfileMode.LIVE;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.DESCENDANT_TREE_EXTRACTOR;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.ANCESTOR_TREE_EXTRACTOR;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.DESCENDANT_FLAT_EXTRACTOR;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.DESCENDANT_TREE_EXTRACTOR;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.FLAME_EXTRACTOR;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.flatExtractor;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.treeExtractor;
@@ -130,7 +130,7 @@ public class ProfileRootController extends AbstractController
         this.profileContext = prCtx;
 
         flatController.setProfileContext(prCtx);
-        flatController.setAllowedThreadGroupings(BY_NAME, ALL_TOGETHER, BY_ID);
+        flatController.setAllowedThreadGroupings(BY_NAME, BY_ID, ALL_TOGETHER);
         flatController.setAllowedFrameGroupings(BY_FQMN, BY_FQMN_LINENR, BY_BCI);
         flatController.bind(prCtx.profileProperty(), flatExtractor(flatController));
 
@@ -141,7 +141,7 @@ public class ProfileRootController extends AbstractController
         calledController.bind(flatController.selectedProperty(), DESCENDANT_TREE_EXTRACTOR);
 
         treeController.setProfileContext(prCtx);
-        treeController.setAllowedThreadGroupings(ALL_TOGETHER, BY_NAME, BY_ID);
+        treeController.setAllowedThreadGroupings(BY_NAME, BY_ID, ALL_TOGETHER);
         treeController.setAllowedFrameGroupings(BY_FQMN, BY_FQMN_LINENR, BY_BCI);
         treeController.bind(prCtx.profileProperty(), treeExtractor(treeController));
 

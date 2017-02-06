@@ -9,6 +9,9 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import com.insightfullogic.honest_profiler.core.parser.TraceStart;
+import com.insightfullogic.honest_profiler.core.profiles.lean.info.FrameInfo;
+import com.insightfullogic.honest_profiler.core.profiles.lean.info.MethodInfo;
+import com.insightfullogic.honest_profiler.core.profiles.lean.info.NumericInfo;
 
 /**
  * Tree node which records stacktrace information. The tree root contains the numerical data at thread-level, and has as

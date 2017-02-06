@@ -2,7 +2,7 @@ package com.insightfullogic.honest_profiler.core.aggregation.result.diff;
 
 import com.insightfullogic.honest_profiler.core.aggregation.result.Keyed;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
-import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
+import com.insightfullogic.honest_profiler.core.profiles.lean.info.NumericInfo;
 
 /**
  * The aggregation item wrapping and providing the difference between two {@link Entry}s.

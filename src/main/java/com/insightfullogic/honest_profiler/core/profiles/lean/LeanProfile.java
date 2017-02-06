@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
+import com.insightfullogic.honest_profiler.core.profiles.lean.info.MethodInfo;
+import com.insightfullogic.honest_profiler.core.profiles.lean.info.ThreadInfo;
 
 /**
  * Alternative to {@link Profile} which stores/collects all info only once, eliminating redundancy. The granularity is
@@ -59,7 +61,7 @@ public class LeanProfile
     {
         StringBuilder result = new StringBuilder();
         MethodInfo method = getMethodInfoMap().get(node.getFrame().getMethodId());
-        result.append(method.getFileName()).append(":").append(node.getFrame().getBci());
+        result.append(method.getFqmn()).append(":").append(node.getFrame().getBci());
         return result.toString();
     }
 

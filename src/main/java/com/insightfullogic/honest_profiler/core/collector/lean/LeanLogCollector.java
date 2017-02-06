@@ -11,13 +11,13 @@ import com.insightfullogic.honest_profiler.core.parser.Method;
 import com.insightfullogic.honest_profiler.core.parser.StackFrame;
 import com.insightfullogic.honest_profiler.core.parser.ThreadMeta;
 import com.insightfullogic.honest_profiler.core.parser.TraceStart;
-import com.insightfullogic.honest_profiler.core.profiles.lean.FrameInfo;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfile;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfileListener;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanThreadNode;
-import com.insightfullogic.honest_profiler.core.profiles.lean.MethodInfo;
-import com.insightfullogic.honest_profiler.core.profiles.lean.ThreadInfo;
+import com.insightfullogic.honest_profiler.core.profiles.lean.info.FrameInfo;
+import com.insightfullogic.honest_profiler.core.profiles.lean.info.MethodInfo;
+import com.insightfullogic.honest_profiler.core.profiles.lean.info.ThreadInfo;
 
 /**
  * Collector which emits {@link LeanProfile}s.

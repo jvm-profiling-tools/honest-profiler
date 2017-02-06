@@ -1,5 +1,8 @@
 package com.insightfullogic.honest_profiler.core.profiles.lean;
 
+import com.insightfullogic.honest_profiler.core.profiles.lean.info.FrameInfo;
+import com.insightfullogic.honest_profiler.core.profiles.lean.info.ThreadInfo;
+
 public class LeanThreadNode extends LeanNode
 {
     private ThreadInfo threadInfo;

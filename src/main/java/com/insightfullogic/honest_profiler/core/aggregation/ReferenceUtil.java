@@ -3,7 +3,7 @@ package com.insightfullogic.honest_profiler.core.aggregation;
 import com.insightfullogic.honest_profiler.core.aggregation.result.diff.TreeDiff;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
-import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
+import com.insightfullogic.honest_profiler.core.profiles.lean.info.NumericInfo;
 
 public final class ReferenceUtil
 {

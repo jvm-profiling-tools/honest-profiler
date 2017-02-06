@@ -6,7 +6,7 @@ import java.util.List;
 import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
 import com.insightfullogic.honest_profiler.core.aggregation.result.Keyed;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
-import com.insightfullogic.honest_profiler.core.profiles.lean.NumericInfo;
+import com.insightfullogic.honest_profiler.core.profiles.lean.info.NumericInfo;
 
 /**
  * Lowest-level aggregation.
