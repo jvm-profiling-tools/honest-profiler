@@ -83,23 +83,25 @@ public class Node extends Entry
         super.add(node);
     }
 
-    public void addChild(Node child)
+    public Node addChild(Node child)
     {
-        children.compute(child.getKey(), (k, v) -> v == null ? child : v.combine(child));
+        return children.compute(child.getKey(), (k, v) -> v == null ? child : v.combine(child));
     }
 
     public void addChild(LeanNode child, CombinedGrouping grouping, boolean recurse)
     {
+        // Construct intermediate Node
         Node childNode = new Node(getAggregation());
         childNode.add(child);
         childNode.setKey(grouping.apply(getAggregation().getSource(), child));
 
-        addChild(childNode);
+        // Aggregate it into existing children
+        Node newChild = addChild(childNode);
 
         if (recurse)
         {
-            child.getChildren().forEach(
-                grandChild -> childNode.addChild(grandChild, grouping, recurse));
+            child.getChildren()
+                .forEach(grandChild -> newChild.addChild(grandChild, grouping, true));
         }
     }
 
