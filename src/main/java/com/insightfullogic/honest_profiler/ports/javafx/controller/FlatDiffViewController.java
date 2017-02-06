@@ -43,6 +43,8 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TABLE_FLATDIFF;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil.writeFlatProfileDiffCsv;
 
+import com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping;
+import com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.result.diff.DiffEntry;
 import com.insightfullogic.honest_profiler.core.aggregation.result.diff.FlatDiff;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
@@ -53,6 +55,8 @@ import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTabl
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -67,6 +71,16 @@ public class FlatDiffViewController extends AbstractProfileDiffViewController<Fl
     private TextField quickFilterText;
     @FXML
     private Button quickFilterButton;
+
+    @FXML
+    private Label threadGroupingLabel;
+    @FXML
+    private ChoiceBox<ThreadGrouping> threadGrouping;
+    @FXML
+    private Label frameGroupingLabel;
+    @FXML
+    private ChoiceBox<FrameGrouping> frameGrouping;
+
     @FXML
     private TableView<DiffEntry> diffTable;
     @FXML
@@ -133,10 +147,10 @@ public class FlatDiffViewController extends AbstractProfileDiffViewController<Fl
             quickFilterButton,
             quickFilterText,
             DIFFENTRY,
-            null,
-            null,
-            null,
-            null);
+            threadGroupingLabel,
+            threadGrouping,
+            frameGroupingLabel,
+            frameGrouping);
     }
 
     @Override

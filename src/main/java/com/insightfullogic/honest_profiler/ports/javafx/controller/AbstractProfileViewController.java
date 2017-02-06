@@ -121,10 +121,19 @@ public abstract class AbstractProfileViewController<T, U> extends AbstractViewCo
     public void bind(ObservableObjectValue<? extends Object> source,
         Function<Object, T> targetExtractor)
     {
-        sourceBinding = createObjectBinding(
-            () -> targetExtractor.apply(source.get()),
-            source,
-            getGrouping());
+        if (getGrouping() == null)
+        {
+            sourceBinding = createObjectBinding(
+                () -> targetExtractor.apply(source.get()),
+                source);
+        }
+        else
+        {
+            sourceBinding = createObjectBinding(
+                () -> targetExtractor.apply(source.get()),
+                source,
+                getGrouping());
+        }
     }
 
     // Activation

@@ -158,12 +158,27 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
     public void bind(ObjectProperty<? extends Object> baseSource,
         ObjectProperty<? extends Object> newSource, Function<Object, T> targetExtractor)
     {
-        baseSourceBinding = createObjectBinding(
-            () -> targetExtractor.apply(baseSource.get()),
-            baseSource);
-        newSourceBinding = createObjectBinding(
-            () -> targetExtractor.apply(newSource.get()),
-            newSource);
+        // The null test removes the need to define the Grouping object in the superclass.
+        if (getGrouping() == null)
+        {
+            baseSourceBinding = createObjectBinding(
+                () -> targetExtractor.apply(baseSource.get()),
+                baseSource);
+            newSourceBinding = createObjectBinding(
+                () -> targetExtractor.apply(newSource.get()),
+                newSource);
+        }
+        else
+        {
+            baseSourceBinding = createObjectBinding(
+                () -> targetExtractor.apply(baseSource.get()),
+                baseSource,
+                getGrouping());
+            newSourceBinding = createObjectBinding(
+                () -> targetExtractor.apply(newSource.get()),
+                newSource,
+                getGrouping());
+        }
     }
 
     // Activation

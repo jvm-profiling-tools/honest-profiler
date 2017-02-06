@@ -26,6 +26,8 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil.expandFully;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil.expandPartial;
 
+import com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping;
+import com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.result.diff.DiffNode;
 import com.insightfullogic.honest_profiler.core.aggregation.result.diff.TreeDiff;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
@@ -37,6 +39,8 @@ import com.insightfullogic.honest_profiler.ports.javafx.view.tree.DiffNodeTreeIt
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
@@ -53,6 +57,16 @@ public class TreeDiffViewController extends AbstractProfileDiffViewController<Tr
     private TextField quickFilterText;
     @FXML
     private Button quickFilterButton;
+
+    @FXML
+    private Label threadGroupingLabel;
+    @FXML
+    private ChoiceBox<ThreadGrouping> threadGrouping;
+    @FXML
+    private Label frameGroupingLabel;
+    @FXML
+    private ChoiceBox<FrameGrouping> frameGrouping;
+
     @FXML
     private TreeTableView<DiffNode> diffTree;
     @FXML
@@ -119,10 +133,10 @@ public class TreeDiffViewController extends AbstractProfileDiffViewController<Tr
             quickFilterButton,
             quickFilterText,
             DIFFNODE,
-            null,
-            null,
-            null,
-            null);
+            threadGroupingLabel,
+            threadGrouping,
+            frameGroupingLabel,
+            frameGrouping);
     }
 
     @Override

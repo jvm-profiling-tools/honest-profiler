@@ -82,9 +82,6 @@ public abstract class AbstractViewController<T> extends AbstractController
     {
         super.initialize();
 
-        // Must be initialized, otherwise the target binding dependency in AbstractProfileViewController.bind() is null.
-        grouping = new SimpleObjectProperty<>();
-
         if (filterButton == null)
         {
             return;
@@ -99,13 +96,16 @@ public abstract class AbstractViewController<T> extends AbstractController
         this.frameGroupingLabel = frameGroupingLabel;
         this.frameGrouping = frameGrouping;
 
+        this.type = type;
+
+        // Model initialization
+        filterSpec = new SimpleObjectProperty<>(new FilterSpecification<>(type));
+        grouping = new SimpleObjectProperty<>();
+
         if (threadGroupingLabel != null)
         {
             update(false, threadGroupingLabel, threadGrouping, frameGroupingLabel, frameGrouping);
         }
-
-        this.type = type;
-        filterSpec = new SimpleObjectProperty<>(new FilterSpecification<>(type));
     }
 
     // Accessors

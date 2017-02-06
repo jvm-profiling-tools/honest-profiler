@@ -18,10 +18,16 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
+import static com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping.BY_BCI;
+import static com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping.BY_FQMN;
+import static com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping.BY_FQMN_LINENR;
+import static com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping.ALL_TOGETHER;
+import static com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping.BY_ID;
+import static com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping.BY_NAME;
 import static com.insightfullogic.honest_profiler.ports.javafx.ViewType.FLAT;
 import static com.insightfullogic.honest_profiler.ports.javafx.ViewType.TREE;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.FLAT_EXTRACTOR;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.TREE_EXTRACTOR;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.flatExtractor;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.treeExtractor;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ConversionUtil.getStringConverterForType;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_CHOICE_VIEWTYPE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_LABEL_BASESOURCE;
@@ -75,12 +81,20 @@ public class ProfileDiffRootController extends AbstractController
         newSourceLabel.setText(newContext.getName());
 
         flatController.setProfileContexts(baseContext, newContext);
-        flatController
-            .bind(baseContext.profileProperty(), newContext.profileProperty(), FLAT_EXTRACTOR);
+        flatController.setAllowedThreadGroupings(BY_NAME, BY_ID, ALL_TOGETHER);
+        flatController.setAllowedFrameGroupings(BY_FQMN, BY_FQMN_LINENR, BY_BCI);
+        flatController.bind(
+            baseContext.profileProperty(),
+            newContext.profileProperty(),
+            flatExtractor(flatController));
 
         treeController.setProfileContexts(baseContext, newContext);
-        treeController
-            .bind(baseContext.profileProperty(), newContext.profileProperty(), TREE_EXTRACTOR);
+        treeController.setAllowedThreadGroupings(BY_NAME, BY_ID, ALL_TOGETHER);
+        treeController.setAllowedFrameGroupings(BY_FQMN, BY_FQMN_LINENR, BY_BCI);
+        treeController.bind(
+            baseContext.profileProperty(),
+            newContext.profileProperty(),
+            treeExtractor(treeController));
 
         viewChoice.setConverter(getStringConverterForType(ViewType.class));
         viewChoice.getItems().addAll(FLAT, TREE);

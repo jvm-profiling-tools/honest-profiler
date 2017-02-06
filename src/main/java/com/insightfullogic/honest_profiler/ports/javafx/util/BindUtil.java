@@ -1,16 +1,10 @@
 package com.insightfullogic.honest_profiler.ports.javafx.util;
 
-import static com.insightfullogic.honest_profiler.core.aggregation.grouping.CombinedGrouping.combine;
-import static com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping.BY_FQMN;
-import static com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping.ALL_TOGETHER;
-
 import java.util.function.Function;
 
-import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
 import com.insightfullogic.honest_profiler.core.aggregation.aggregator.AncestorTreeAggregator;
 import com.insightfullogic.honest_profiler.core.aggregation.aggregator.DescendantFlatAggregator;
 import com.insightfullogic.honest_profiler.core.aggregation.aggregator.DescendantTreeAggregator;
-import com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
@@ -28,12 +22,6 @@ public class BindUtil
 
     private static final AncestorTreeAggregator ANCESTOR_TREE_AGGREGATOR = new AncestorTreeAggregator();
     private static final DescendantTreeAggregator DESCENDANT_TREE_AGGREGATOR = new DescendantTreeAggregator();
-
-    public static final Function<Object, Flat> FLAT_EXTRACTOR = o -> o == null ? null
-        : ((AggregationProfile)o).getFlat(combine(ALL_TOGETHER, BY_FQMN));
-
-    public static final Function<Object, Tree> TREE_EXTRACTOR = o -> o == null ? null
-        : ((AggregationProfile)o).getTree(combine(ThreadGrouping.BY_NAME, BY_FQMN));
 
     public static final Function<Object, FlameGraph> FLAME_EXTRACTOR = o -> (FlameGraph)o;
 
