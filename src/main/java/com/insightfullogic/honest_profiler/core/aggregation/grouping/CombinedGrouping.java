@@ -1,22 +1,38 @@
 package com.insightfullogic.honest_profiler.core.aggregation.grouping;
 
-import java.util.Objects;
+import static java.util.Objects.hash;
+
 import java.util.function.BiFunction;
 
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanThreadNode;
 
+/**
+ * A CombinedGrouping is a utility class for combining a {@link ThreadGrouping} and a {@link FrameGrouping}. It can be
+ * applied to any {@link LeanNode} in a collection irrespective of whether it is a {@link LeanThreadNode} or not.
+ */
 public class CombinedGrouping implements BiFunction<AggregationProfile, LeanNode, String>
 {
+    /**
+     * Factory method for creating CombinedGroupings.
+     *
+     * @param threadGrouping the {@link ThreadGrouping} in the resulting CombinedGrouping
+     * @param frameGrouping the {@link FrameGrouping} in the resulting CombinedGrouping
+     * @return a CombinedGrouping wrapping the specified {@link ThreadGrouping} and {@link FrameGrouping}/
+     */
     public static final CombinedGrouping combine(ThreadGrouping threadGrouping,
         FrameGrouping frameGrouping)
     {
         return new CombinedGrouping(threadGrouping, frameGrouping);
     }
 
+    // Instance Properties
+
     private ThreadGrouping threadGrouping;
     private FrameGrouping frameGrouping;
+
+    // Instance Constructors
 
     private CombinedGrouping(ThreadGrouping threadGrouping, FrameGrouping frameGrouping)
     {
@@ -24,6 +40,8 @@ public class CombinedGrouping implements BiFunction<AggregationProfile, LeanNode
         this.threadGrouping = threadGrouping;
         this.frameGrouping = frameGrouping;
     }
+
+    // BiFunction implementation
 
     /**
      * Calculate the key for a {@link LeanNode}, based on the provided groupings.
@@ -39,14 +57,20 @@ public class CombinedGrouping implements BiFunction<AggregationProfile, LeanNode
             : frameGrouping.apply(profile, node);
     }
 
-    public boolean equals(CombinedGrouping other)
+    // Object implementation
+
+    @Override
+    public boolean equals(Object other)
     {
-        return (threadGrouping == other.threadGrouping) && (frameGrouping == other.frameGrouping);
+        return (other instanceof CombinedGrouping)
+            && (threadGrouping == ((CombinedGrouping)other).threadGrouping)
+            && (frameGrouping == ((CombinedGrouping)other).frameGrouping);
     }
 
-    public int hashcode()
+    @Override
+    public int hashCode()
     {
-        return Objects.hash(threadGrouping, frameGrouping);
+        return hash(threadGrouping, frameGrouping);
     }
 
     @Override

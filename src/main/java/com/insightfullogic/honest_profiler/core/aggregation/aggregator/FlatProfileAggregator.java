@@ -12,14 +12,10 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entr
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfile;
-import com.insightfullogic.honest_profiler.core.profiles.lean.LeanThreadNode;
 
 /**
  * Aggregator which takes an {@link AggregationProfile}, and uses the data to aggregate the values into a {@link Flat}
  * aggregation.
- *
- * NOTE : The {@link LeanThreadNode}s are also aggregated, so the resulting {@link Flat} will contain {@link Entry}s
- * aggregating the thread-level data as well !
  */
 public class FlatProfileAggregator implements ProfileAggregator<Entry>
 {
@@ -40,11 +36,14 @@ public class FlatProfileAggregator implements ProfileAggregator<Entry>
         // Flatten all LeanNodes into a Stream, then collect it into a Map where the key is calculated by the groupings,
         // and the value is the aggregation of the LeanNodes corresponding to the key.
         Map<String, Entry> entryMap = source.getThreads().values().stream()
-            .flatMap(LeanNode::flatten).filter(node -> !node.isThreadNode()).collect(
+            // Stream all LeanNodes in the profile
+            .flatMap(LeanNode::flatten)
+            // Filter out the LeanThreadNodes
+            .filter(node -> !node.isThreadNode()).collect(
                 groupingBy(
                     // Group LeanNodes by calculated key
                     node -> grouping.apply(input, node),
-                    // Downstream collector, collects LeanNodes in a single group
+                    // Downstream collector, aggregates LeanNodes in a single group
                     of(
                         // Supplier, creates an empty Entry
                         () -> new Entry(result),
@@ -53,13 +52,13 @@ public class FlatProfileAggregator implements ProfileAggregator<Entry>
                         // Combiner, combines two Entries with the same key
                         (entry1, entry2) -> entry1.combine(entry2))));
 
-        // Add the aggregated Entries to the result list, after setting their key and reference. The key is the
-        // Map.Entry key, the Entry is the Map.Entry value.
+        // Add the aggregated Entries to the result list, after setting their key and reference.
         result.getData().addAll(entryMap.entrySet().stream().map(mapEntry ->
         {
             Entry entry = mapEntry.getValue();
+            // The key must be set explicitly here because it isn't set in the collector.
             entry.setKey(mapEntry.getKey());
-            // By default, the reference for Entries is the global, over-thread aggregation.
+            // Set the reference by default for all nodes to the global aggregation.
             entry.setReference(input.getGlobalData());
             return entry;
         }).collect(toList()));

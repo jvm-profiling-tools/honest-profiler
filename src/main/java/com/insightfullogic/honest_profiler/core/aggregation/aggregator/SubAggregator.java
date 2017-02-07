@@ -5,10 +5,9 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.Keyed;
 
 /**
  * Generic interface for aggregation functions which operate on already aggregated items. An Aggregator aggregates input
- * of type <I> into an {@link Aggregation} containing results of type <T>, which are keyed by a key of type <K>.
+ * of type <I> into an {@link Aggregation} containing results of type <T>, which are keyed by a key of type String.
  *
  * @param <I> the type of the input being aggregated
- * @param <K> the type of the key of the content items in the resulting {@link Aggregation}
  * @param <T> the type of the content items in the resulting {@link Aggregation}
  */
 public interface SubAggregator<I, T extends Keyed<String>>

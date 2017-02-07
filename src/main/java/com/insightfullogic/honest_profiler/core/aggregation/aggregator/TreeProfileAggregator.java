@@ -37,7 +37,7 @@ public class TreeProfileAggregator implements ProfileAggregator<Node>
             groupingBy(
                 // Group LeanNodes by calculated key
                 node -> grouping.apply(input, node),
-                // Downstream collector, collects LeanNodes in a single group
+                // Downstream collector, aggregates LeanNodes in a single group
                 of(
                     // Supplier, creates an empty Node
                     () -> new Node(result),
@@ -46,7 +46,8 @@ public class TreeProfileAggregator implements ProfileAggregator<Node>
                     {
                         node.add(leanNode);
                         node.setKey(grouping.apply(input, leanNode));
-                        // Aggregate descendants of a LeanNode recursively into children of accumulator
+                        // Aggregate descendants of a LeanNode recursively into children of accumulator. The recursion
+                        // happens inside the Node.addChild() method, triggered by the boolean parameter.
                         leanNode.getChildren()
                             .forEach(child -> node.addChild(child, grouping, true));
                     },
@@ -57,6 +58,7 @@ public class TreeProfileAggregator implements ProfileAggregator<Node>
         );
 
         // Set the reference by default for all nodes to the global aggregation.
+        // We do this here because the addChild() method doesn't propagate the reference, and proably shouldn't.
         nodeMap.values().stream().flatMap(Node::flatten).forEach(node ->
         {
             node.setReference(input.getGlobalData());

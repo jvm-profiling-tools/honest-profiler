@@ -16,7 +16,6 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.Keyed;
  * E.g. less time spent in the "New" {@link Aggregation} is supposed to be an improvement and will be marked as such,
  * more time spent is supposed to be bad.
  *
- * @param <K> the type of the key in the aggregation items
  * @param <T> the type of aggregation items in the diffed {@link Aggregation}s
  * @param <U> the type of aggregation items inside this Diff
  */
@@ -40,11 +39,21 @@ public abstract class AbstractDiff<T extends Keyed<String>, U extends Keyed<Stri
         this.newAggregation = newAggregation;
     }
 
+    /**
+     * Returns the Base {@link Aggregation}.
+     *
+     * @return the Base {@link Aggregation}.
+     */
     public V getBaseAggregation()
     {
         return baseAggregation;
     }
 
+    /**
+     * Returns the New {@link Aggregation}.
+     *
+     * @return the New {@link Aggregation}.
+     */
     public V getNewAggregation()
     {
         return newAggregation;

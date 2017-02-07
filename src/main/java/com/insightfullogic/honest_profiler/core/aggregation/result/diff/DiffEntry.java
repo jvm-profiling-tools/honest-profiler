@@ -2,7 +2,6 @@ package com.insightfullogic.honest_profiler.core.aggregation.result.diff;
 
 import com.insightfullogic.honest_profiler.core.aggregation.result.Keyed;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
-import com.insightfullogic.honest_profiler.core.profiles.lean.info.NumericInfo;
 
 /**
  * The aggregation item wrapping and providing the difference between two {@link Entry}s.
@@ -61,28 +60,6 @@ public class DiffEntry implements Keyed<String>
     }
 
     /**
-     * Aggregate the specified {@link NumericInfo} into the Base {@link Entry}, i.e. combine the numeric info in the
-     * Base {@link Entry} and the provided information by replacing the {@link Entry} information with the sum.
-     *
-     * @param data the data to be aggregated
-     */
-    public void addBase(NumericInfo data)
-    {
-        baseEntry.getData().add(data);
-    }
-
-    /**
-     * Aggregate the specified {@link NumericInfo} into the New {@link Entry}, i.e. combine the numeric info in the New
-     * {@link Entry} and the provided information by replacing the {@link Entry} information with the sum.
-     *
-     * @param data the data to be aggregated
-     */
-    public void addNew(NumericInfo data)
-    {
-        newEntry.getData().add(data);
-    }
-
-    /**
      * Returns the Base {@link Entry}.
      *
      * @return the Base {@link Entry}
@@ -106,14 +83,6 @@ public class DiffEntry implements Keyed<String>
     public String getKey()
     {
         return baseEntry == null ? newEntry.getKey() : baseEntry.getKey();
-    }
-
-    /**
-     * @see Entry#getData()
-     */
-    public NumericInfo getBaseData()
-    {
-        return baseEntry.getData();
     }
 
     /**
@@ -178,14 +147,6 @@ public class DiffEntry implements Keyed<String>
     public double getBaseTotalCntPct()
     {
         return baseEntry.getTotalCntPct();
-    }
-
-    /**
-     * @see Entry#getData()
-     */
-    public NumericInfo getNewData()
-    {
-        return newEntry.getData();
     }
 
     /**

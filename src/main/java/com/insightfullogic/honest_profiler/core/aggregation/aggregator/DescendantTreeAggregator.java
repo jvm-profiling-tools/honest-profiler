@@ -54,6 +54,7 @@ public class DescendantTreeAggregator implements SubAggregator<Entry, Node>
         CombinedGrouping grouping)
     {
         Map<String, Node> result = child.getAggregatedNodes().stream()
+            // Create a stream of all LeanNodes aggregated by the Entry, and aggregate according to the Grouping
             .flatMap(node -> node.getChildren().stream())
             .collect(groupingBy(
                 // Group LeanNodes by calculated key
@@ -64,10 +65,11 @@ public class DescendantTreeAggregator implements SubAggregator<Entry, Node>
                     () ->
                     {
                         Node node = new Node(tree);
+                        // Set the reference by default for all nodes to the global aggregation.
                         node.setReference(source.getGlobalData());
                         return node;
                     },
-                    // Accumulator, aggregates a LeanNode into the Entry accumulator
+                    // Accumulator, aggregates a LeanNode into the Node accumulator
                     (x, y) ->
                     {
                         x.add(y);
@@ -78,6 +80,7 @@ public class DescendantTreeAggregator implements SubAggregator<Entry, Node>
                 )
             ));
 
+        // Add the aggregated children as children to the Node, and recurse
         result.values().forEach(parent ->
         {
             child.addChild(parent);

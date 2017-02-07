@@ -35,18 +35,22 @@ public class DescendantFlatAggregator implements SubAggregator<Node, Entry>
         Flat result = new Flat(source, grouping);
 
         result.getData().addAll(
+            // Create a stream of all descendant nodes, and aggregate according to the Grouping
             parent.flattenDescendants().collect(
                 groupingBy(
+                    // Group Nodes by their key
                     Node::getKey,
+                    // Downstream collector, aggregates the Nodes in a single group
                     of(
                         // Supplier, creates an empty Entry
                         () ->
                         {
                             Entry entry = new Entry(aggregation);
+                            // Set the reference by default for all nodes to the global aggregation.
                             entry.setReference(source.getGlobalData());
                             return entry;
                         },
-                        // Accumulator, adds an Entry to the accumulator Entry
+                        // Accumulator, adds a Node to the accumulator Node
                         (x, y) -> x.combine(y),
                         // Combiner, combines to entries
                         (x, y) -> x.combine(y)

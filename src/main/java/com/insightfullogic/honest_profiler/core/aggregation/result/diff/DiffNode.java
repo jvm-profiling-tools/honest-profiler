@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
+import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 
 /**
@@ -21,6 +22,12 @@ public class DiffNode extends DiffEntry
 
     // Instance Constructors
 
+    /**
+     * Constructor whach takes the two {@link Node}s to be compared as arguments.
+     *
+     * @param baseNode the {@link Node} from the Base {@link Aggregation}
+     * @param newNode the {@link Node} from the New {@link Aggregation}
+     */
     public DiffNode(Node baseNode, Node newNode)
     {
         super(baseNode, newNode);
@@ -34,7 +41,7 @@ public class DiffNode extends DiffEntry
      * Specialized internal constructor for {@link #copyWithFilter(Predicate)}.
      *
      * @param node the {@link DiffNode} being copied
-     * @param children the new, filtered childrem
+     * @param children the new, filtered children
      */
     private DiffNode(DiffNode node, List<DiffNode> children)
     {

@@ -46,11 +46,10 @@ public class TreeDiff extends AbstractDiff<Node, DiffNode, Tree>
     }
 
     /**
-     * Sets a {@link Tree} as Base or New. Provided as convenience for {@link #setBase(Tree)} and {@link #setNew(Tree)},
-     * to make it possible for the calling code to avoid the if-construction.
+     * Sets the Base and New {@link Tree}s, and calculates the diff contents.
      *
-     * @param aggregation the {@link Tree} to be set as Base or New in this Diff.
-     * @param isBase a boolean indicating whether the {@link Tree} has to be set as Base.
+     * @param baseFlat the Base {@link Tree}
+     * @param newFlat the New {@link Tree}
      */
     public void set(Tree baseTree, Tree newTree)
     {

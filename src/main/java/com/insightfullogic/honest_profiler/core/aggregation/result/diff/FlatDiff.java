@@ -15,8 +15,6 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat
 /**
  * Diff which wraps provides the difference between two flat {@link Aggregation}s (containing {@link Entry}s) as a flat
  * {@link List} of {@link DiffEntry}s, which each wrap and provide the difference between corresponding {@link Entry}s.
- *
- * @param the type of the key
  */
 public class FlatDiff extends AbstractDiff<Entry, DiffEntry, Flat>
 {
@@ -48,11 +46,10 @@ public class FlatDiff extends AbstractDiff<Entry, DiffEntry, Flat>
     // Instance Accessors
 
     /**
-     * Sets a {@link Flat} as Base or New. Provided as convenience for {@link #setBase(Flat)} and {@link #setNew(Flat)},
-     * to make it possible for the calling code to avoid the if-construction.
+     * Sets the Base and New {@link Flat}s, and calculates the diff contents.
      *
-     * @param aggregation the {@link Flat} to be set as Base or New in this Diff.
-     * @param isBase a boolean indicating whether the {@link Flat} has to be set as Base.
+     * @param baseFlat the Base {@link Flat}
+     * @param newFlat the New {@link Flat}
      */
     public void set(Flat baseFlat, Flat newFlat)
     {

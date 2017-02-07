@@ -46,7 +46,7 @@ public class AncestorTreeAggregator implements SubAggregator<Entry, Node>
      * provided {@link Node} and adding them as children.
      *
      * @param source the original {@link AggregationProfile}
-     * @param child the input {@link Node}
+     * @param child the input {@link Node} whose ancestors will be aggregated and added as children
      * @param tree the resulting {@link Tree}
      * @param grouping the key calculation grouping
      */
@@ -54,7 +54,7 @@ public class AncestorTreeAggregator implements SubAggregator<Entry, Node>
         CombinedGrouping grouping)
     {
         Map<String, Node> result = child.getAggregatedNodes().stream().map(node -> node.getParent())
-            // Parent of a root LeanNode is null, we don;t want those.
+            // Parent of a root LeanNode is null, we don't want those.
             .filter(node -> node != null)
             // Filter out duplicate parents, using the unique LeanNode id (which is used in the LeanNode.equals()).
             // Needed e.g. when aggregating by FQMN, and 2 LeanNodes sharing a parent have same FQMN but different line
@@ -63,12 +63,13 @@ public class AncestorTreeAggregator implements SubAggregator<Entry, Node>
             .collect(groupingBy(
                 // Group LeanNodes by calculated key
                 node -> grouping.apply(source, node),
-                // Downstream collector, collects LeanNodes in a single group
+                // Downstream collector, aggregates LeanNodes in a single group
                 of(
                     // Supplier, creates an empty Node
                     () ->
                     {
                         Node node = new Node(tree);
+                        // Set the reference by default for all nodes to the global aggregation.
                         node.setReference(source.getGlobalData());
                         return node;
                     },
@@ -83,8 +84,10 @@ public class AncestorTreeAggregator implements SubAggregator<Entry, Node>
                     )
                 ));
 
+        // Add the aggregated parents as children to the Node, and recurse
         result.entrySet().forEach(mapEntry ->
         {
+            // The "child" Node in the ancestor Tree has its parents (the values of the calculated map) as children.
             child.addChild(mapEntry.getValue());
             // Recursively add ancestors
             addAncestors(source, mapEntry.getValue(), tree, grouping);
