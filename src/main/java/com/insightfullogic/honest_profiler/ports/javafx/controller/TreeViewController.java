@@ -34,6 +34,7 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_INPUT_QUICKFILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TABLE_TREE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil.expandFully;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil.expandPartial;
 
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping;
@@ -178,6 +179,7 @@ public class TreeViewController extends AbstractProfileViewController<Tree, Node
         Tree target = getTarget();
         treeView.setRoot(
             target == null ? null : new NodeTreeItem(getTarget().filter(getFilterSpecification())));
+        expandPartial(treeView.getRoot(), 2);
         treeView.refresh();
     }
 }
