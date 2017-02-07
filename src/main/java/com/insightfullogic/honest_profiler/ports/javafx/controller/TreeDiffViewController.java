@@ -68,7 +68,7 @@ public class TreeDiffViewController extends AbstractProfileDiffViewController<Tr
     private ChoiceBox<FrameGrouping> frameGrouping;
 
     @FXML
-    private TreeTableView<DiffNode> diffTree;
+    private TreeTableView<DiffNode> treeDiffTable;
     @FXML
     private TreeTableColumn<DiffNode, String> methodColumn;
     @FXML
@@ -189,16 +189,6 @@ public class TreeDiffViewController extends AbstractProfileDiffViewController<Tr
         cfgTimeDiffCol(totalTimeDiff, "totalTimeDiff", getText(COLUMN_TOTAL_TIME_DIFF));
     }
 
-    private void updateDiff(Tree baseTree, Tree newTree)
-    {
-        if (baseTree != null && newTree != null)
-        {
-            diff.set(baseTree, newTree);
-            diffTree.setRoot(new DiffNodeTreeItem(diff.filter(getFilterSpecification())));
-            expandPartial(diffTree.getRoot(), 2);
-        }
-    }
-
     // AbstractController Implementation
 
     @Override
@@ -209,15 +199,16 @@ public class TreeDiffViewController extends AbstractProfileDiffViewController<Tr
         info(collapseAllButton, INFO_BUTTON_COLLAPSEALLALL);
         info(quickFilterText, INFO_INPUT_QUICKFILTER);
         info(quickFilterButton, INFO_BUTTON_QUICKFILTER);
-        info(diffTree, INFO_TABLE_TREEDIFF);
+        info(treeDiffTable, INFO_TABLE_TREEDIFF);
     }
 
     @Override
     protected void initializeHandlers()
     {
-        expandAllButton.setOnAction(event -> expandFully(diffTree.getRoot()));
+        expandAllButton.setOnAction(event -> expandFully(treeDiffTable.getRoot()));
         collapseAllButton.setOnAction(
-            event -> diffTree.getRoot().getChildren().stream().forEach(TreeUtil::collapseFully));
+            event -> treeDiffTable.getRoot().getChildren().stream()
+                .forEach(TreeUtil::collapseFully));
     }
 
     // AbstractViewController Implementation
@@ -227,5 +218,16 @@ public class TreeDiffViewController extends AbstractProfileDiffViewController<Tr
     {
         diff = new TreeDiff();
         updateDiff(getBaseTarget(), getNewTarget());
+    }
+
+    private void updateDiff(Tree baseTree, Tree newTree)
+    {
+        if (baseTree != null && newTree != null)
+        {
+            diff.set(baseTree, newTree);
+            treeDiffTable.setRoot(new DiffNodeTreeItem(diff.filter(getFilterSpecification())));
+            expandPartial(treeDiffTable.getRoot(), 2);
+            treeDiffTable.sort();
+        }
     }
 }

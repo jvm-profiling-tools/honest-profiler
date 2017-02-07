@@ -80,7 +80,7 @@ public class TreeViewController extends AbstractProfileViewController<Tree, Node
     private ChoiceBox<FrameGrouping> frameGrouping;
 
     @FXML
-    private TreeTableView<Node> treeView;
+    private TreeTableView<Node> treeTable;
     @FXML
     private TreeTableColumn<Node, String> methodColumn;
     @FXML
@@ -126,7 +126,7 @@ public class TreeViewController extends AbstractProfileViewController<Tree, Node
 
     public ReadOnlyObjectProperty<TreeItem<Node>> selectedProperty()
     {
-        return treeView.getSelectionModel().selectedItemProperty();
+        return treeTable.getSelectionModel().selectedItemProperty();
     }
 
     // Initialization Helper Methods
@@ -159,16 +159,16 @@ public class TreeViewController extends AbstractProfileViewController<Tree, Node
         info(collapseAllButton, INFO_BUTTON_COLLAPSEALLALL);
         info(quickFilterText, INFO_INPUT_QUICKFILTER);
         info(quickFilterButton, INFO_BUTTON_QUICKFILTER);
-        info(treeView, INFO_TABLE_TREE);
+        info(treeTable, INFO_TABLE_TREE);
     }
 
     @Override
     protected void initializeHandlers()
     {
-        expandAllButton.setOnAction(event -> expandFully(treeView.getRoot()));
+        expandAllButton.setOnAction(event -> expandFully(treeTable.getRoot()));
 
         collapseAllButton.setOnAction(
-            event -> treeView.getRoot().getChildren().stream().forEach(TreeUtil::collapseFully));
+            event -> treeTable.getRoot().getChildren().stream().forEach(TreeUtil::collapseFully));
     }
 
     // AbstractViewController Implementation
@@ -177,9 +177,15 @@ public class TreeViewController extends AbstractProfileViewController<Tree, Node
     protected void refresh()
     {
         Tree target = getTarget();
-        treeView.setRoot(
-            target == null ? null : new NodeTreeItem(getTarget().filter(getFilterSpecification())));
-        expandPartial(treeView.getRoot(), 2);
-        treeView.refresh();
+        if (target == null)
+        {
+            treeTable.setRoot(null);
+        }
+        else
+        {
+            treeTable.setRoot(new NodeTreeItem(getTarget().filter(getFilterSpecification())));
+            expandPartial(treeTable.getRoot(), 2);
+        }
+        treeTable.sort();
     }
 }

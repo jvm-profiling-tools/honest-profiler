@@ -78,7 +78,7 @@ public class FlatViewController extends AbstractProfileViewController<Flat, Entr
     private ChoiceBox<FrameGrouping> frameGrouping;
 
     @FXML
-    private TableView<Entry> flatProfileView;
+    private TableView<Entry> flatTable;
     @FXML
     private TableColumn<Entry, String> method;
     @FXML
@@ -118,7 +118,7 @@ public class FlatViewController extends AbstractProfileViewController<Flat, Entr
             frameGroupingLabel,
             frameGrouping);
 
-        flatProfile = flatProfileView.getItems();
+        flatProfile = flatTable.getItems();
 
         initializeTable();
     }
@@ -130,14 +130,14 @@ public class FlatViewController extends AbstractProfileViewController<Flat, Entr
     {
         if (profileContext.getMode() == LIVE)
         {
-            flatProfileView.getColumns().forEach(column -> column.setSortable(false));
+            flatTable.getColumns().forEach(column -> column.setSortable(false));
         }
         super.setProfileContext(profileContext);
     }
 
     public ReadOnlyObjectProperty<Entry> selectedProperty()
     {
-        return flatProfileView.getSelectionModel().selectedItemProperty();
+        return flatTable.getSelectionModel().selectedItemProperty();
     }
 
     // Initialization Helper Methods
@@ -169,7 +169,7 @@ public class FlatViewController extends AbstractProfileViewController<Flat, Entr
         info(exportButton, INFO_BUTTON_EXPORT);
         info(quickFilterText, INFO_INPUT_QUICKFILTER);
         info(quickFilterButton, INFO_BUTTON_QUICKFILTER);
-        info(flatProfileView, INFO_TABLE_FLAT);
+        info(flatTable, INFO_TABLE_FLAT);
     }
 
     @Override
@@ -195,9 +195,10 @@ public class FlatViewController extends AbstractProfileViewController<Flat, Entr
         if (target != null)
         {
             flatProfile.addAll(target.filter(getFilterSpecification()).getData());
-            flatProfileView.refresh();
+            flatTable.refresh();
         }
 
-        refreshTable(flatProfileView);
+        refreshTable(flatTable);
+        flatTable.sort();
     }
 }

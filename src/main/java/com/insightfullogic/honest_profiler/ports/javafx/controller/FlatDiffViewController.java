@@ -83,7 +83,7 @@ public class FlatDiffViewController extends AbstractProfileDiffViewController<Fl
     private ChoiceBox<FrameGrouping> frameGrouping;
 
     @FXML
-    private TableView<DiffEntry> diffTable;
+    private TableView<DiffEntry> flatDiffTable;
     @FXML
     private TableColumn<DiffEntry, String> method;
     @FXML
@@ -201,17 +201,6 @@ public class FlatDiffViewController extends AbstractProfileDiffViewController<Fl
         cfgTimeDiffCol(totalTimeDiff, "totalTimeDiff", getText(COLUMN_TOTAL_TIME_DIFF));
     }
 
-    private void updateDiff(Flat baseFlat, Flat newFlat)
-    {
-        if (baseFlat != null && newFlat != null)
-        {
-            diff.set(baseFlat, newFlat);
-            diffTable.getItems().clear();
-            diffTable.getItems().addAll(diff.filter(getFilterSpecification()).getData());
-            refreshTable(diffTable);
-        }
-    }
-
     // AbstractController Implementation
 
     @Override
@@ -221,7 +210,7 @@ public class FlatDiffViewController extends AbstractProfileDiffViewController<Fl
         info(exportButton, INFO_BUTTON_EXPORT);
         info(quickFilterText, INFO_INPUT_QUICKFILTER);
         info(quickFilterButton, INFO_BUTTON_QUICKFILTER);
-        info(diffTable, INFO_TABLE_FLATDIFF);
+        info(flatDiffTable, INFO_TABLE_FLATDIFF);
     }
 
     @Override
@@ -242,5 +231,17 @@ public class FlatDiffViewController extends AbstractProfileDiffViewController<Fl
     protected void refresh()
     {
         updateDiff(getBaseTarget(), getNewTarget());
+    }
+
+    private void updateDiff(Flat baseFlat, Flat newFlat)
+    {
+        if (baseFlat != null && newFlat != null)
+        {
+            diff.set(baseFlat, newFlat);
+            flatDiffTable.getItems().clear();
+            flatDiffTable.getItems().addAll(diff.filter(getFilterSpecification()).getData());
+            refreshTable(flatDiffTable);
+            flatDiffTable.sort();
+        }
     }
 }
