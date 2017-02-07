@@ -32,6 +32,11 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ConversionUt
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_CHOICE_VIEWTYPE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_LABEL_BASESOURCE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_LABEL_NEWSOURCE;
+import static java.util.Arrays.asList;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.insightfullogic.honest_profiler.ports.javafx.ViewType;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
@@ -58,11 +63,17 @@ public class ProfileDiffRootController extends AbstractController
     @FXML
     private TreeDiffViewController treeController;
 
+    private Map<ViewType, List<AbstractProfileDiffViewController<?, ?>>> controllerMap;
+
     @Override
     @FXML
     protected void initialize()
     {
         super.initialize();
+
+        controllerMap = new HashMap<>();
+        controllerMap.put(FLAT, asList(flatController));
+        controllerMap.put(TREE, asList(treeController));
     }
 
     // Instance Accessors
@@ -81,7 +92,7 @@ public class ProfileDiffRootController extends AbstractController
         newSourceLabel.setText(newContext.getName());
 
         flatController.setProfileContexts(baseContext, newContext);
-        flatController.setAllowedThreadGroupings(BY_NAME, BY_ID, ALL_TOGETHER);
+        flatController.setAllowedThreadGroupings(ALL_TOGETHER);
         flatController.setAllowedFrameGroupings(BY_FQMN, BY_FQMN_LINENR, BY_BCI);
         flatController.bind(
             baseContext.profileProperty(),
@@ -114,18 +125,8 @@ public class ProfileDiffRootController extends AbstractController
             child.setVisible(viewType.ordinal() == i);
         }
 
-        switch (viewType)
-        {
-            case FLAT:
-                treeController.deactivate();
-                flatController.activate();
-                break;
-            case TREE:
-                flatController.deactivate();
-                treeController.activate();
-                break;
-            default:
-        }
+        controllerMap
+            .forEach((type, list) -> list.forEach(ctrl -> ctrl.setActive(viewType == type)));
     }
 
     // AbstractController Implementation

@@ -104,7 +104,12 @@ public abstract class AbstractViewController<T> extends AbstractController
 
         if (threadGroupingLabel != null)
         {
-            update(false, threadGroupingLabel, threadGrouping, frameGroupingLabel, frameGrouping);
+            setChoiceVisibility(
+                false,
+                threadGroupingLabel,
+                threadGrouping,
+                frameGroupingLabel,
+                frameGrouping);
         }
     }
 
@@ -132,14 +137,16 @@ public abstract class AbstractViewController<T> extends AbstractController
     public void setAllowedThreadGroupings(ThreadGrouping... groupings)
     {
         threadGrouping.getItems().addAll(groupings);
-        update(true, threadGroupingLabel, threadGrouping);
+        // Don't show choice if there is no choice :)
+        setChoiceVisibility(groupings.length > 1, threadGroupingLabel, threadGrouping);
         bindGroupings();
     }
 
     public void setAllowedFrameGroupings(FrameGrouping... groupings)
     {
         frameGrouping.getItems().addAll(groupings);
-        update(true, frameGroupingLabel, frameGrouping);
+        // Don't show choice if there is no choice :)
+        setChoiceVisibility(groupings.length > 1, frameGroupingLabel, frameGrouping);
         bindGroupings();
     }
 
@@ -318,7 +325,7 @@ public abstract class AbstractViewController<T> extends AbstractController
         refresh();
     }
 
-    private void update(boolean visible, Node... nodes)
+    private void setChoiceVisibility(boolean visible, Node... nodes)
     {
         for (Node node : nodes)
         {

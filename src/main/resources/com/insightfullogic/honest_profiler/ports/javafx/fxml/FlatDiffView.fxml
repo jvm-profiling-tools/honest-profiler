@@ -80,18 +80,18 @@
                 </Button>
               </children>
             </HBox>
-            <Label fx:id="threadGroupingLabel" alignment="CENTER_RIGHT" text="%label.threadGrouping.info" textAlignment="RIGHT" GridPane.columnIndex="4">
+            <Label fx:id="frameGroupingLabel" text="%label.frameGrouping.info" GridPane.columnIndex="4">
               <padding>
                 <Insets left="5.0" right="5.0" />
               </padding>
             </Label>
-            <Label fx:id="frameGroupingLabel" text="%label.frameGrouping.info" GridPane.columnIndex="6">
+            <ChoiceBox fx:id="frameGrouping" maxHeight="20.0" maxWidth="1.7976931348623157E308" minHeight="20.0" prefHeight="20.0" GridPane.columnIndex="5" />
+            <Label fx:id="threadGroupingLabel" alignment="CENTER_RIGHT" text="%label.threadGrouping.info" textAlignment="RIGHT" GridPane.columnIndex="6">
               <padding>
                 <Insets left="5.0" right="5.0" />
               </padding>
             </Label>
-            <ChoiceBox fx:id="threadGrouping" maxHeight="20.0" maxWidth="1.7976931348623157E308" minHeight="20.0" prefHeight="20.0" GridPane.columnIndex="5" />
-            <ChoiceBox fx:id="frameGrouping" maxHeight="20.0" maxWidth="1.7976931348623157E308" minHeight="20.0" prefHeight="20.0" GridPane.columnIndex="7" />
+            <ChoiceBox fx:id="threadGrouping" maxHeight="20.0" maxWidth="1.7976931348623157E308" minHeight="20.0" prefHeight="20.0" GridPane.columnIndex="7" />
           </children>
         </GridPane>
       </children>

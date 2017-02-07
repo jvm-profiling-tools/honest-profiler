@@ -20,6 +20,7 @@ package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
 import static com.insightfullogic.honest_profiler.core.aggregation.result.ItemType.DIFFENTRY;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.showExportDialog;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.refreshTable;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_CNT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_CNT_DIFF;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_CNT_PCT;
@@ -207,6 +208,7 @@ public class FlatDiffViewController extends AbstractProfileDiffViewController<Fl
             diff.set(flat, base);
             diffTable.getItems().clear();
             diffTable.getItems().addAll(diff.filter(getFilterSpecification()).getData());
+            refreshTable(diffTable);
         }
     }
 

@@ -130,7 +130,7 @@ public class ProfileRootController extends AbstractController
         this.profileContext = prCtx;
 
         flatController.setProfileContext(prCtx);
-        flatController.setAllowedThreadGroupings(BY_NAME, BY_ID, ALL_TOGETHER);
+        flatController.setAllowedThreadGroupings(ALL_TOGETHER);
         flatController.setAllowedFrameGroupings(BY_FQMN, BY_FQMN_LINENR, BY_BCI);
         flatController.bind(prCtx.profileProperty(), flatExtractor(flatController));
 

@@ -184,24 +184,28 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
     // Activation
 
     /**
-     * Binds the local target {@link Property}s to the target {@link Property}s in the {@link ProfileContext}s, using
-     * the target extractor function. The net effect is that the controller will start tracking changes to the target
-     * instances in the {@link ProfileContext}.
+     * Activate or deactivate the current view. When activated, the view tracks changes in the target.
+     *
+     * @param active a boolean indicating whether to activate or deactivate the view.
      */
-    public void activate()
+    public void setActive(boolean active)
     {
-        baseTarget.bind(baseSourceBinding);
-        newTarget.bind(newSourceBinding);
-    }
+        if (active)
+        {
 
-    /**
-     * Unbinds the local target {@link Property}s. The controller no longer tracks changes to the target
-     * {@link Property}s in the {@link ProfileContext}s.
-     */
-    public void deactivate()
-    {
-        baseTarget.unbind();
-        newTarget.unbind();
+            // Binds the local target Property to the target Properties in the ProfileContext, using the target
+            // extractor function. The net effect is that the controller will start tracking changes to the target
+            // instances in the ProfileContext.
+            baseTarget.bind(baseSourceBinding);
+            newTarget.bind(newSourceBinding);
+        }
+        else
+        {
+            // Unbinds the local target Properties. The controller no longer tracks changes to the target Properties in
+            // the ProfileContext.
+            baseTarget.unbind();
+            newTarget.unbind();
+        }
     }
 
     // UI Helper Methods

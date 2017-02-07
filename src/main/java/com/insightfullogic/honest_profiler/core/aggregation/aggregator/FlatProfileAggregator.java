@@ -40,7 +40,7 @@ public class FlatProfileAggregator implements ProfileAggregator<Entry>
         // Flatten all LeanNodes into a Stream, then collect it into a Map where the key is calculated by the groupings,
         // and the value is the aggregation of the LeanNodes corresponding to the key.
         Map<String, Entry> entryMap = source.getThreads().values().stream()
-            .flatMap(LeanNode::flatten).collect(
+            .flatMap(LeanNode::flatten).filter(node -> !node.isThreadNode()).collect(
                 groupingBy(
                     // Group LeanNodes by calculated key
                     node -> grouping.apply(input, node),
