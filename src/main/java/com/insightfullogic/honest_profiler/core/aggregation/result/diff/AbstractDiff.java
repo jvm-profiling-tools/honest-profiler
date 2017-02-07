@@ -30,22 +30,13 @@ public abstract class AbstractDiff<T extends Keyed<String>, U extends Keyed<Stri
     // Instance Accessors
 
     /**
-     * Sets the Base {@link Aggregation}.
+     * Sets the {@link Aggregation}s which will be compared.
      *
      * @param baseAggregation the Base Aggregation
      */
-    protected void setBaseAggregation(V baseAggregation)
+    protected void setAggregations(V baseAggregation, V newAggregation)
     {
         this.baseAggregation = baseAggregation;
-    }
-
-    /**
-     * Sets the New {@link Aggregation}.
-     *
-     * @param newAggregation the New Aggregation
-     */
-    protected void setNewAggregation(V newAggregation)
-    {
         this.newAggregation = newAggregation;
     }
 

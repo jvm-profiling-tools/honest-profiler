@@ -54,43 +54,18 @@ public class FlatDiff extends AbstractDiff<Entry, DiffEntry, Flat>
      * @param aggregation the {@link Flat} to be set as Base or New in this Diff.
      * @param isBase a boolean indicating whether the {@link Flat} has to be set as Base.
      */
-    public void set(Flat aggregation, boolean isBase)
+    public void set(Flat baseFlat, Flat newFlat)
     {
-        if (isBase)
-        {
-            setBase(aggregation);
-        }
-        else
-        {
-            setNew(aggregation);
-        }
-    }
+        super.setAggregations(baseFlat, newFlat);
+        data.clear();
 
-    /**
-     * Sets a {@link Flat} as Base in this Diff.
-     *
-     * @param aggregation the {@link Flat} to be set as Base
-     */
-    public void setBase(Flat aggregation)
-    {
-        super.setBaseAggregation(aggregation);
-        aggregation.getData().forEach(entry ->
+        baseFlat.getData().forEach(entry ->
         {
             data.compute(
                 entry.getKey(),
                 (k, v) -> v == null ? new DiffEntry(entry, null) : v.setBase(entry));
         });
-    }
-
-    /**
-     * Sets a {@link Flat} as New in this Diff.
-     *
-     * @param aggregation the {@link Flat} to be set as New
-     */
-    public void setNew(Flat aggregation)
-    {
-        super.setNewAggregation(aggregation);
-        aggregation.getData().forEach(entry ->
+        newFlat.getData().forEach(entry ->
         {
             data.compute(
                 entry.getKey(),

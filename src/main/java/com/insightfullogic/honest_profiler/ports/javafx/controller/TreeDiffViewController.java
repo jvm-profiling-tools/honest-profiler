@@ -189,11 +189,11 @@ public class TreeDiffViewController extends AbstractProfileDiffViewController<Tr
         cfgTimeDiffCol(totalTimeDiff, "totalTimeDiff", getText(COLUMN_TOTAL_TIME_DIFF));
     }
 
-    private void updateDiff(Tree profile, boolean base)
+    private void updateDiff(Tree baseTree, Tree newTree)
     {
-        if (profile != null)
+        if (baseTree != null && newTree != null)
         {
-            diff.set(profile, base);
+            diff.set(baseTree, newTree);
             diffTree.setRoot(new DiffNodeTreeItem(diff.filter(getFilterSpecification())));
             expandPartial(diffTree.getRoot(), 2);
         }
@@ -226,7 +226,6 @@ public class TreeDiffViewController extends AbstractProfileDiffViewController<Tr
     protected void refresh()
     {
         diff = new TreeDiff();
-        updateDiff(getBaseTarget(), true);
-        updateDiff(getNewTarget(), false);
+        updateDiff(getBaseTarget(), getNewTarget());
     }
 }

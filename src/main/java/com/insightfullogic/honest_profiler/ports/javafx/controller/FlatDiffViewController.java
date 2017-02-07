@@ -201,11 +201,11 @@ public class FlatDiffViewController extends AbstractProfileDiffViewController<Fl
         cfgTimeDiffCol(totalTimeDiff, "totalTimeDiff", getText(COLUMN_TOTAL_TIME_DIFF));
     }
 
-    private void updateDiff(Flat flat, boolean base)
+    private void updateDiff(Flat baseFlat, Flat newFlat)
     {
-        if (flat != null)
+        if (baseFlat != null && newFlat != null)
         {
-            diff.set(flat, base);
+            diff.set(baseFlat, newFlat);
             diffTable.getItems().clear();
             diffTable.getItems().addAll(diff.filter(getFilterSpecification()).getData());
             refreshTable(diffTable);
@@ -241,7 +241,6 @@ public class FlatDiffViewController extends AbstractProfileDiffViewController<Fl
     @Override
     protected void refresh()
     {
-        updateDiff(getBaseTarget(), true);
-        updateDiff(getNewTarget(), false);
+        updateDiff(getBaseTarget(), getNewTarget());
     }
 }

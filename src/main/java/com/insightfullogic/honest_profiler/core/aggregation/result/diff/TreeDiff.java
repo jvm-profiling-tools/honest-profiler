@@ -52,42 +52,19 @@ public class TreeDiff extends AbstractDiff<Node, DiffNode, Tree>
      * @param aggregation the {@link Tree} to be set as Base or New in this Diff.
      * @param isBase a boolean indicating whether the {@link Tree} has to be set as Base.
      */
-    public void set(Tree aggregation, boolean isBase)
+    public void set(Tree baseTree, Tree newTree)
     {
-        if (isBase)
-        {
-            setBase(aggregation);
-        }
-        else
-        {
-            setNew(aggregation);
-        }
-    }
+        super.setAggregations(baseTree, newTree);
+        data.clear();
 
-    /**
-     * Sets a {@link Tree} as Base in this Diff.
-     *
-     * @param aggregation the {@link Tree} to be set as Base
-     */
-    public void setBase(Tree aggregation)
-    {
-        super.setBaseAggregation(aggregation);
-        aggregation.getData().forEach(node -> data.compute(
+        baseTree.getData().forEach(node -> data.compute(
             node.getKey(),
             (k, v) -> v == null ? new DiffNode(node, null) : v.setBase(node)));
-    }
 
-    /**
-     * Sets a {@link Tree} as New in this Diff.
-     *
-     * @param aggregation the {@link Tree} to be set as New
-     */
-    public void setNew(Tree aggregation)
-    {
-        super.setNewAggregation(aggregation);
-        aggregation.getData().forEach(node -> data.compute(
+        newTree.getData().forEach(node -> data.compute(
             node.getKey(),
             (k, v) -> v == null ? new DiffNode(null, node) : v.setNew(node)));
+
     }
 
     /**
