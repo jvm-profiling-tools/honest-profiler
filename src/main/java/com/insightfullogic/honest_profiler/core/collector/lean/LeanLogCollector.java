@@ -20,7 +20,12 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.info.MethodInfo;
 import com.insightfullogic.honest_profiler.core.profiles.lean.info.ThreadInfo;
 
 /**
- * Collector which emits {@link LeanProfile}s.
+ * Collector which emits {@link LeanProfile}s, based on a request mechanism.
+ *
+ * A {@link LeanProfile} will only be emitted when requested, or when the end of the log file is reached. When the final
+ * {@link LeanProfile} has been emitted after a log file has been processed, requests no longer have any effect.
+ *
+ * As long as no stacks have been received, nothing will be emitted.
  */
 public class LeanLogCollector implements LogEventListener, ProfileSource
 {
@@ -36,8 +41,8 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
     private final Map<Long, MethodInfo> methodMap;
     // Maps thread ids to ThreadInfo objects.
     private final Map<Long, ThreadInfo> threadMap;
-    // Maps thread ids to the profile trees for the threads. The root contains
-    // the Thread-level data, anything below are stackframe-level data.
+    // Maps thread ids to the profile trees for the threads. The root contains the Thread-level data, anything below are
+    // stackframe-level data.
     private final Map<Long, LeanThreadNode> threadData;
 
     private Deque<StackFrame> stackTrace;
@@ -49,20 +54,24 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
     // Difference in ns between the previous and the current TraceStart.
     private long nanosSpent;
 
-    // Properties related to profile emission.
+    // Indicates whether a profile was requested and should be emitted.
     private AtomicBoolean profileRequested;
 
-    // Property for internal use. When a TraceStart is received, this is set to
-    // the LeanNode corresponding to the reported thread id. When stackframes
-    // are processed, it is replaced by the node representing the processed
+    // Property for internal use. When a TraceStart is received, this is set to the LeanThreadNode corresponding to the
+    // reported thread id. When stackframes are processed, it is replaced by the node representing the processed
     // stackframe.
     private LeanNode currentNode;
 
-    private boolean dirty;
-    private LeanProfile cachedProfile;
+    // Indicates whether at least one stack has been processed. If not, no profile will be emitted.
+    private boolean empty = true;
 
     // Instance Constructors
 
+    /**
+     * Constructor which sets the {@link LeanProfileListener} to which the {@link LeanProfile}s will be emitted.
+     *
+     * @param listener the {@link LeanProfileListener} which will receive any emitted {@link LeanProfile}s
+     */
     public LeanLogCollector(final LeanProfileListener listener)
     {
         this.listener = listener;
@@ -92,7 +101,11 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
     // LogEventListener Implementation
 
     /**
-     * On the very first {@link TraceStart}, dirty should be false, so nothing will be emitted.
+     * Processes a {@link TraceStart}, i.e. the indication that a new stack will be coming in. The time is updated, and
+     * the previously collected stack (if any) is processed. Then, the top-level {@link LeanThreadNode} is put in place
+     * (possibly after creating it) using the thread id in the {@link TraceStart}.
+     *
+     * A profile will be emitted if requested.
      */
     @Override
     public void handle(TraceStart traceStart)
@@ -104,28 +117,41 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
             .computeIfAbsent(traceStart.getThreadId(), v -> new LeanThreadNode());
 
         emitProfileIfNeeded();
-        stackTrace.clear();
+
+        // The stacktrace should be empty anyway, given the collectThreadDump() logic, so got rid of this.
+        // stackTrace.clear();
     }
 
+    /**
+     * Processes a {@link StackFrame} by pushing it onto the {@link Deque}.
+     */
     @Override
     public void handle(StackFrame stackFrame)
     {
-        dirty = true;
         stackTrace.push(stackFrame);
     }
 
+    /**
+     * Processes a {@link Method} which maps the method id to method information by putting the information into the
+     * method map if it isn't there yet.
+     */
     @Override
     public void handle(Method newMethod)
     {
-        dirty = true;
         methodMap.putIfAbsent(newMethod.getMethodId(), new MethodInfo(newMethod));
         emitProfileIfNeeded();
     }
 
+    /**
+     * Processes a {@link ThreadMeta} which maps the thread id to thread information by putting the information into the
+     * method map if it isn't there yet, or updating the existing information using the thread name.
+     *
+     * Sometimes several {@link ThreadMeta}s are received for the same thread id, but only the first contains the actual
+     * thread name, which is why the update mechanism is in place.
+     */
     @Override
     public void handle(ThreadMeta newThreadMeta)
     {
-        dirty = true;
         threadMap.compute(
             newThreadMeta.getThreadId(),
             (k, v) -> v == null ? new ThreadInfo(newThreadMeta)
@@ -134,27 +160,48 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
     }
 
     /**
-     * If no ThreadStart occurred after the last stack frames were added, we obviously don't have an accurate
-     * "nanosSpent", but reusing the last one should do fine as an approximation.
+     * Processes the "end of log" event, received when the end of a log file is reached. If no ThreadStart occurred
+     * after the last stack frames were added, we obviously don't have an accurate "nanosSpent", but reusing the last
+     * one should do fine as an approximation.
      */
     @Override
     public void endOfLog()
     {
-        dirty = true;
         collectThreadDump();
         emitProfile();
     }
 
     // Helper Methods
 
+    /**
+     * Processes the {@link StackFrame}s in the current stack.
+     */
     private void collectThreadDump()
     {
+        // Slightly nicer IMHO than executing the "empty = false" inside the while loop.
+        if (stackTrace.isEmpty())
+        {
+            return;
+        }
+
         while (!stackTrace.isEmpty())
         {
             collectStackFrame(stackTrace.pop());
         }
+
+        empty = false;
     }
 
+    /**
+     * Processes a single {@link StackFrame}. The currentNode is the parent {@link LeanNode} which either represents the
+     * parent {@link StackFrame} or, if this is the first {@link StackFrame} from the internal {@link Deque}, the parent
+     * {@link LeanThreadNode} representing the thread for which the stack was received. The {@link StackFrame}
+     * information will be aggregated into the children of the currentNode, and the resulting {@link LeanNode} becomes
+     * the currentNode, acting as parent for the next {@link StackFrame} which will be processed, if there are any left
+     * in the {@link Deque}.
+     *
+     * @param stackFrame the {@link StackFrame} to be added as a child to the current {@link LeanNode}
+     */
     private void collectStackFrame(StackFrame stackFrame)
     {
         currentNode = currentNode
@@ -185,6 +232,9 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
         prevNanos = newNanos;
     }
 
+    /**
+     * Emit a {@link LeanProfile} if a request is outstanding.
+     */
     private void emitProfileIfNeeded()
     {
         if (profileRequested.getAndSet(false))
@@ -193,14 +243,14 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
         }
     }
 
+    /**
+     * Emit a {@link LeanProfile} if at least one full stack was processed.
+     */
     private void emitProfile()
     {
-        if (dirty)
+        if (!empty)
         {
-            cachedProfile = new LeanProfile(methodMap, threadMap, threadData);
-            dirty = false;
+            listener.accept(new LeanProfile(methodMap, threadMap, threadData));
         }
-
-        listener.accept(cachedProfile);
     }
 }
