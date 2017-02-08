@@ -143,15 +143,9 @@ public class FlatDiffViewController extends AbstractProfileDiffViewController<Fl
     {
         diff = new FlatDiff();
 
-        super.initialize(
-            filterButton,
-            quickFilterButton,
-            quickFilterText,
-            DIFFENTRY,
-            threadGroupingLabel,
-            threadGrouping,
-            frameGroupingLabel,
-            frameGrouping);
+        super.initialize(DIFFENTRY);
+        super.initialize(filterButton, quickFilterButton, quickFilterText);
+        super.initialize(threadGroupingLabel, threadGrouping, frameGroupingLabel, frameGrouping);
     }
 
     @Override

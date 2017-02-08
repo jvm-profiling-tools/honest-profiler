@@ -8,14 +8,84 @@ import javafx.scene.Node;
 import javafx.scene.control.Tab;
 
 /**
- * Superclass for all Controllers in the application. It holds the context which is shared by all controllers.
+ * Superclass for all Controllers in the application. It holds the {@link ApplicationContext}, a context which is shared
+ * by all controllers.
+ *
+ * The class interacts with the {@link ApplicationContext} for I18N, retrieving the resources for keys. It also manages
+ * what is displayed in the InfoBar, an application-level text area displayed at the bottem of the root window, used for
+ * displaying contextual help and information messages.
+ *
+ * NOTE : Any controllers extending this class, and which in turn contain other ApplicationController controllers,
+ * should override {@link #setApplicationContext(ApplicationContext)} using the following pattern :
+ *
+ * <code>
+ * public setApplicationContext(ApplicationContext context)
+ * {
+ *   super.setApplicationContext(context);
+ *   &lt;includedController1&gt;.setApplicationContext(context);
+ *   &lt;includedController2&gt;.setApplicationContext(context);
+ *   ...
+ * }
+ * </code>
  */
 public abstract class AbstractController
 {
+    // Instance Properties
+
     private ApplicationContext applicationContext;
+
+    // FXML Implementation
+
+    /**
+     * This method must be called by subclasses in their FXML initialize(). The idea is to streamline similar tasks
+     * happening in the initialization method, and encourage decluttering of the initialize() methods by extracting
+     * similar tasks to separate methods.
+     */
+    protected void initialize()
+    {
+        initializeInfoText();
+        initializeHandlers();
+    }
+
+    /**
+     * Link nodes with "InfoBar" messages. The InfoBar is the info- or status bar at the bottom of the UI. While
+     * hovering over various {@link Node}s or when specific events occur, helpful information should appear in the
+     * InfoBar.
+     */
+    protected abstract void initializeInfoText();
+
+    /**
+     * Associate various Handlers and/or Listeners with the {@link Node}s managed by the subclassing controller.
+     */
+    protected abstract void initializeHandlers();
+
+    // Instance Accessors
+
+    /**
+     * Returns the {@link ApplicationContext}. The name has been shortened to unclutter code in subclasses.
+     *
+     * @return the {@link ApplicationContext} of this application
+     */
+    protected ApplicationContext appCtx()
+    {
+        return applicationContext;
+    }
 
     /**
      * Sets the application context.
+     *
+     * NOTE : Any controllers extending this class, and which in turn contain other ApplicationController controllers,
+     * should override this method using the following pattern :
+     *
+     * <code>
+     * public setApplicationContext(ApplicationContext context)
+     * {
+     *   super.setApplicationContext(context);
+     *   &lt;includedController1&gt;.setApplicationContext(context);
+     *   &lt;includedController2&gt;.setApplicationContext(context);
+     *   ...
+     * }
+     * </code>
      *
      * @param applicationContext the ApplicationContext of this application
      */
@@ -24,21 +94,13 @@ public abstract class AbstractController
         this.applicationContext = applicationContext;
     }
 
-    /**
-     * Gets the {@link ApplicationContext}. The name has been shortened to unclutter code in subclasses.
-     *
-     * @return the {@link ApplicationContext} of this application.
-     */
-    protected ApplicationContext appCtx()
-    {
-        return applicationContext;
-    }
+    // I18N-related Methods
 
     /**
      * Look up the String associated with this key in the current {@link ResourceBundle}.
      *
      * @param key the key in the ResourceBundle
-     * @return the String associated with the key in the curremt {@link ResourceBundle}
+     * @return the String associated with the key in the current {@link ResourceBundle}
      */
     protected final String getText(String key)
     {
@@ -57,6 +119,8 @@ public abstract class AbstractController
     {
         return applicationContext.textFor(key, args);
     }
+
+    // InfoBar-related Methods
 
     /**
      * Display a message in the InfoBar, by retrieving the message from the current {@link ResourceBundle} using the
@@ -82,7 +146,7 @@ public abstract class AbstractController
     }
 
     /**
-     * Clears the InfoBar
+     * Clears the InfoBar.
      */
     protected final void clearInfo()
     {
@@ -90,10 +154,10 @@ public abstract class AbstractController
     }
 
     /**
-     * Associates a message with a given Node. The message is retrieved from the current {@link ResourceBundle} using
-     * the provided key, and is displayed while the InfoBar whenever the mouse hovers over the Node.
+     * Associates a message with a given {@link Node}. The message is retrieved from the current {@link ResourceBundle}
+     * using the provided key, and is displayed while the InfoBar whenever the mouse hovers over the {@link Node}.
      *
-     * @param node the target Node
+     * @param node the target {@link Node}
      * @param key the key to the message in the {@link ResourceBundle}
      */
     protected void info(Node node, final String key)
@@ -103,9 +167,9 @@ public abstract class AbstractController
     }
 
     /**
-     * Associates a message with a given Node. The message pattern is retrieved from the current {@link ResourceBundle}
-     * using the provided key, formatted using the provided arguments, and displayed while the InfoBar whenever the
-     * mouse hovers over the Node.
+     * Associates a message with a given {@link Node}. The message pattern is retrieved from the current
+     * {@link ResourceBundle} using the provided key, formatted using the provided arguments, and displayed while the
+     * InfoBar whenever the mouse hovers over the {@link Node}.
      *
      * @param node the target Node
      * @param key the key to the message in the {@link ResourceBundle}
@@ -118,9 +182,9 @@ public abstract class AbstractController
     }
 
     /**
-     * Associates a message with a Tab Header, as per {@link #info(Node, String)}.
+     * Associates a message with a {@link Tab} Header, as per {@link #info(Node, String)}.
      *
-     * @param tab the target Tab
+     * @param tab the target {@link Tab}
      * @param key the key to the message in the {@link ResourceBundle}
      */
     protected void info(Tab tab, final String key)
@@ -129,9 +193,9 @@ public abstract class AbstractController
     }
 
     /**
-     * Associates a message with a Tab Header, as per {@link #info(Node, String, Object...)}.
+     * Associates a message with a {@link Tab} Header, as per {@link #info(Node, String, Object...)}.
      *
-     * @param tab the target Tab
+     * @param tab the target {@link Tab}
      * @param key the key to the message in the {@link ResourceBundle}
      * @param args the arguments needed by the pattern
      */
@@ -139,26 +203,4 @@ public abstract class AbstractController
     {
         info(tab.getGraphic(), key, args);
     }
-
-    /**
-     * This method must be called by subclasses in their FXML initialize(). The idea is to streamline similar tasks
-     * happening in the initialization method, and encourage decluttering of those methods by extracting similar tasks
-     * to separate methods.
-     */
-    protected void initialize()
-    {
-        initializeInfoText();
-        initializeHandlers();
-    }
-
-    /**
-     * Link nodes with "InfoBar" messages. The InfoBar is the info- or statusbar at the bottom of the UI. While hovering
-     * over various nodes, helpful information should appear in the InfoBar.
-     */
-    protected abstract void initializeInfoText();
-
-    /**
-     * Associate various Handlers and/or Listeners with the nodes managed by the controller.
-     */
-    protected abstract void initializeHandlers();
 }

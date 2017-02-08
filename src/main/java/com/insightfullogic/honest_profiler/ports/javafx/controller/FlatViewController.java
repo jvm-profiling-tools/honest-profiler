@@ -108,15 +108,9 @@ public class FlatViewController extends AbstractProfileViewController<Flat, Entr
     @FXML
     protected void initialize()
     {
-        super.initialize(
-            filterButton,
-            quickFilterButton,
-            quickFilterText,
-            ENTRY,
-            threadGroupingLabel,
-            threadGrouping,
-            frameGroupingLabel,
-            frameGrouping);
+        super.initialize(ENTRY);
+        super.initialize(filterButton, quickFilterButton, quickFilterText);
+        super.initialize(threadGroupingLabel, threadGrouping, frameGroupingLabel, frameGrouping);
 
         flatProfile = flatTable.getItems();
 

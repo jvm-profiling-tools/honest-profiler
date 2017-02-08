@@ -106,15 +106,9 @@ public class TreeViewController extends AbstractProfileViewController<Tree, Node
     @FXML
     protected void initialize()
     {
-        super.initialize(
-            filterButton,
-            quickFilterButton,
-            quickFilterText,
-            ENTRY,
-            threadGroupingLabel,
-            threadGrouping,
-            frameGroupingLabel,
-            frameGrouping);
+        super.initialize(ENTRY);
+        super.initialize(filterButton, quickFilterButton, quickFilterText);
+        super.initialize(threadGroupingLabel, threadGrouping, frameGroupingLabel, frameGrouping);
     }
 
     @Override

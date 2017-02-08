@@ -7,42 +7,44 @@ import static javafx.geometry.Pos.CENTER;
 
 import java.util.function.Function;
 
-import com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping;
-import com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping;
+import com.insightfullogic.honest_profiler.core.aggregation.grouping.CombinedGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.result.ItemType;
+import com.insightfullogic.honest_profiler.core.aggregation.result.diff.AbstractDiff;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableObjectValue;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TextField;
+import javafx.scene.control.TableColumnBase;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 
 /**
  * Superclass for all Diff View Controllers in the application which provide a view on a comparison between two
- * "targets", data structures of type T which are each stored in their respective {@link ProfileContext}.
+ * "targets", data structures of type T which are each stored in their respective target {@link ObjectProperty}s.The
+ * targets are extracted from source {@link ObservableObjectValue}s using an extractor function.
  *
- * This superclass stores the {@link ProfileContext}s encapsulating the two targets. It also ensures that subclass
- * refresh() implementations are called when a new instance of either target is available in the context.
+ * This superclass also serves as a repository for the {@link ProfileContext}s associated to the profiles being compared
+ * in the "Diff View".
  *
- * This is achieved by keeping two local target {@link Property}s, which can be bound or unbound to the target
- * {@link Property}s in the {@link ProfileContext}s.
+ * * This superclass ensures that subclass refresh() implementations are called when the source
+ * {@link ObservableObjectValue}s or the {@link CombinedGrouping} from the {@link AbstractViewController} superclass are
+ * updated. The extractor function is then used to extract new targets from the sources, using the new
+ * {@link CombinedGrouping} if available.
  *
- * By binding or unbinding the local targets, it is possible to star and stop all tracking of changes to the targets in
+ * By binding or unbinding the local targets, it is possible to start and stop all tracking of changes to the targets in
  * the UI. This has been provided to make it possible to stop executing refresh() and other UI updates when the view
  * associated to the controller is hidden.
  *
  * The superclass also provides some common UI helper methods for column configuration.
  *
- * @param <T> the data type of the target
+ * @see AbstractDiff class javadoc for an explanation of the "Base" and "New" terminology
+ *
+ * @param <T> the data type of the targets
+ * @param <U> the type of the items contained in the View
  */
 public abstract class AbstractProfileDiffViewController<T, U> extends AbstractViewController<U>
 {
@@ -59,9 +61,8 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
     // FXML Implementation
 
     /**
-     * This method must be called by subclasses in their FXML initialize(). It provides the extraction function which
-     * specifies how to get the targets from their {@link ProfileContext}s. It also passes on the controller-local UI
-     * nodes needed by the AbstractViewController superclass.
+     * Initialize method for subclasses which sets the basic properties needed by this superclass. This method must be
+     * called by such subclasses in their FXML initialize().
      *
      * @param targetExtractor function which extracts the target from the {@link ProfileContext}
      * @param filterButton the button used to trigger filter editing
@@ -69,20 +70,9 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
      * @param quickFilterText the TextField providing the value for the quick filter
      */
     @Override
-    protected void initialize(Button filterButton, Button quickFilterButton,
-        TextField quickFilterText, ItemType type, Label threadGroupingLabel,
-        ChoiceBox<ThreadGrouping> threadGrouping, Label frameGroupingLabel,
-        ChoiceBox<FrameGrouping> frameGrouping)
+    protected void initialize(ItemType type)
     {
-        super.initialize(
-            filterButton,
-            quickFilterButton,
-            quickFilterText,
-            type,
-            threadGroupingLabel,
-            threadGrouping,
-            frameGroupingLabel,
-            frameGrouping);
+        super.initialize(type);
 
         baseTarget = new SimpleObjectProperty<>();
         newTarget = new SimpleObjectProperty<>();
@@ -104,8 +94,8 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
     }
 
     /**
-     * Returns the {@link ProfileContext} for the target which will be compared against the baseline. The name has been
-     * shortened to unclutter code in subclasses.
+     * Returns the {@link ProfileContext} for the "new" target which will be compared against the baseline. The name has
+     * been shortened to unclutter code in subclasses.
      *
      * @return the {@link ProfileContext} encapsulating the target being compared against the baseline.
      */
@@ -149,16 +139,24 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
     // Source-Target Binding
 
     /**
-     * Set the source object the target data structure T will be extracted from, and the function which extracts the
-     * target data structure T from the source.
+     * Bind the supplied extractor function which extracts the target data structure T from the source to the source
+     * {@link ObservableObjectValue}s, and optionally to the {@link CombinedGrouping} {@link ObservableObjectValue} from
+     * the {@link AbstractViewController} superclass if present.
      *
-     * @param source the source providing the target data structure
-     * @param targetExtractor a function which extracts the target from the source object
+     * @param baseSource the {@link ObservableObjectValue} encapsulating the source from which the Base target data
+     *            structure can be extracted
+     * @param newSource the {@link ObservableObjectValue} encapsulating the source from which the New target data
+     *            structure can be extracted
+     * @param targetExtractor a function which extracts the target from the source Object
      */
     public void bind(ObjectProperty<? extends Object> baseSource,
         ObjectProperty<? extends Object> newSource, Function<Object, T> targetExtractor)
     {
-        // The null test removes the need to define the Grouping object in the superclass.
+        // The createObjectBinding() dependency varargs parameter specifies a number of Observables. If the value of any
+        // of those changes, the Binding is triggered and the specified function is executed. This is IMHO not so
+        // clearly documented in the createObjectBinding() javadoc.
+
+        // The View does not support CombinedGrouping.
         if (getGrouping() == null)
         {
             baseSourceBinding = createObjectBinding(
@@ -168,6 +166,7 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
                 () -> targetExtractor.apply(newSource.get()),
                 newSource);
         }
+        // The View does supports CombinedGrouping.
         else
         {
             baseSourceBinding = createObjectBinding(
@@ -181,7 +180,7 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
         }
     }
 
-    // Activation
+    // Activation Methods
 
     /**
      * Activate or deactivate the current view. When activated, the view tracks changes in the target.
@@ -192,23 +191,21 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
     {
         if (active)
         {
-
-            // Binds the local target Property to the target Properties in the ProfileContext, using the target
-            // extractor function. The net effect is that the controller will start tracking changes to the target
-            // instances in the ProfileContext.
+            // Binds the local target ObjectProperties to the sourceBindings created with the bind() method. The net
+            // effect is that the controller will start tracking changes to the target instances.
             baseTarget.bind(baseSourceBinding);
             newTarget.bind(newSourceBinding);
         }
         else
         {
-            // Unbinds the local target Properties. The controller no longer tracks changes to the target Properties in
-            // the ProfileContext.
+            // Unbinds the local target ObjectProperties. The controller no longer tracks changes to the source
+            // ObservableObjectvalues.
             baseTarget.unbind();
             newTarget.unbind();
         }
     }
 
-    // UI Helper Methods
+    // AbstractViewController Implementation
 
     @Override
     protected <C> void setColumnHeader(C column, String title, ProfileContext profileContext)
@@ -226,17 +223,19 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
         // Therefore, we calculate a fair width ourselves.
         double width = calculateWidth(header);
 
-        if (column instanceof TreeTableColumn<?, ?>)
-        {
-            reconfigure((TreeTableColumn<?, ?>)column, null, header, width, width + 5);
-        }
-        else
-        {
-            reconfigure((TableColumn<?, ?>)column, null, header, width, width + 5);
-        }
+        reconfigure((TableColumnBase<?, ?>)column, null, header, width, width + 5);
     }
 
-    private void reconfigure(TreeTableColumn<?, ?> column, String text, Node graphic,
+    /**
+     * Set various {@link TableColumnBase} properties.
+     *
+     * @param column the {@link TreeTableColumn} to be reconfigured
+     * @param text the text to be displayed in the column header
+     * @param graphic the graphic to be displayed in the column header
+     * @param minWidth the minimum width of the column
+     * @param prefWidth the preferred width of the coumn
+     */
+    private void reconfigure(TableColumnBase<?, ?> column, String text, Node graphic,
         double minWidth, double prefWidth)
     {
         column.setText(text);
@@ -245,15 +244,12 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
         column.setPrefWidth(prefWidth);
     }
 
-    private void reconfigure(TableColumn<?, ?> column, String text, Node graphic, double minWidth,
-        double prefWidth)
-    {
-        column.setText(text);
-        column.setGraphic(graphic);
-        column.setMinWidth(minWidth);
-        column.setPrefWidth(prefWidth);
-    }
-
+    /**
+     * Calculate a column width for a column with the specified box as header graphic.
+     *
+     * @param box the header graphic for the column
+     * @return the calculated width
+     */
     private double calculateWidth(HBox box)
     {
         double width = 0;

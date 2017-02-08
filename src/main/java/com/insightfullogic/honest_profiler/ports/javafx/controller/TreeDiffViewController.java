@@ -128,15 +128,9 @@ public class TreeDiffViewController extends AbstractProfileDiffViewController<Tr
     {
         diff = new TreeDiff();
 
-        super.initialize(
-            filterButton,
-            quickFilterButton,
-            quickFilterText,
-            DIFFENTRY,
-            threadGroupingLabel,
-            threadGrouping,
-            frameGroupingLabel,
-            frameGrouping);
+        super.initialize(DIFFENTRY);
+        super.initialize(filterButton, quickFilterButton, quickFilterText);
+        super.initialize(threadGroupingLabel, threadGrouping, frameGroupingLabel, frameGrouping);
     }
 
     @Override

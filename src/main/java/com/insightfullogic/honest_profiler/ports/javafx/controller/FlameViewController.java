@@ -38,15 +38,7 @@ public class FlameViewController extends AbstractProfileViewController<FlameGrap
     @FXML
     protected void initialize()
     {
-        super.initialize(
-            null,
-            null,
-            null,
-            FLAMEGRAPH,
-            null,
-            null,
-            null,
-            null);
+        super.initialize(FLAMEGRAPH);
 
         rootContainer.getChildren().add(flameView);
     }

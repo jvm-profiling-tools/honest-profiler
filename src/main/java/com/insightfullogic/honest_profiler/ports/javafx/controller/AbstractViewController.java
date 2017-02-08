@@ -16,8 +16,7 @@ import com.insightfullogic.honest_profiler.core.aggregation.grouping.CombinedGro
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.result.ItemType;
-import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
-import com.insightfullogic.honest_profiler.core.profiles.Profile;
+import com.insightfullogic.honest_profiler.core.aggregation.result.diff.DiffEntry;
 import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
@@ -31,6 +30,7 @@ import com.insightfullogic.honest_profiler.ports.javafx.view.cell.TimeTreeTableC
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableObjectValue;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -44,13 +44,17 @@ import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.image.ImageView;
 
 /**
- * Superclass for all View Controllers in the application. These controllers provide a particular view on data. The
- * class holds the code for the filters and quick filter.
+ * Superclass for all View Controllers in the application. These controllers provide a particular view on data
+ * consisting of items of type T. The class manages the filter, quickFilter and grouping controls.
  *
- * The superclass also provides some common UI helper methods for column configuration.
+ * This superclass also provides some common UI helper methods for column configuration.
+ *
+ * @param <T> the type of the items contained in the View which can be filtered
  */
 public abstract class AbstractViewController<T> extends AbstractController
 {
+    // Instance Properties
+
     private Button filterButton;
     private Button quickFilterButton;
     private TextField quickFilterText;
@@ -66,58 +70,74 @@ public abstract class AbstractViewController<T> extends AbstractController
 
     private ItemType type;
 
+    // FXML Implementation
+
     /**
-     * This method must be called by subclasses in their FXML initialize(). It provides the controller-local UI nodes
-     * needed by the AbstractViewController.
+     * Initialize method for subclasses which sets the basic properties needed by this superdclass. This method must be
+     * called by such subclasses in their FXML initialize().
      *
+     * @param type the {@link ItemType} of the items shown in the view
+     */
+    protected void initialize(ItemType type)
+    {
+        super.initialize();
+        this.type = type;
+    }
+
+    /**
+     * Initialize method for subclasses which have filter-related controls, which will be managed by this superclass.
+     * This method must be called by such subclasses in their FXML initialize(). It should provide the controller-local
+     * UI nodes needed by the AbstractViewController.
+     *
+     * @param type the {@link ItemType} of the items shown in the view
      * @param filterButton the button used to trigger filter editing
      * @param quickFilterButton the button used to apply the quick filter
      * @param quickFilterText the TextField providing the value for the quick filter
-     * @param type the {@link ItemType} shown in the vies
      */
     protected void initialize(Button filterButton, Button quickFilterButton,
-        TextField quickFilterText, ItemType type, Label threadGroupingLabel,
-        ChoiceBox<ThreadGrouping> threadGrouping, Label frameGroupingLabel,
-        ChoiceBox<FrameGrouping> frameGrouping)
+        TextField quickFilterText)
     {
-        super.initialize();
-
-        if (filterButton == null)
-        {
-            return;
-        }
-
         this.filterButton = filterButton;
         this.quickFilterButton = quickFilterButton;
         this.quickFilterText = quickFilterText;
 
+        // Model initialization
+        filterSpec = new SimpleObjectProperty<>(new FilterSpecification<>(type));
+    }
+
+    /**
+     * Initialize method for subclasses which have grouping-related controls, which will be managed by this superclass.
+     * This method must be called by such subclasses in their FXML initialize(). It should provide the controller-local
+     * UI nodes needed by the AbstractViewController.
+     *
+     * @param filterButton the button used to trigger filter editing
+     * @param quickFilterButton the button used to apply the quick filter
+     * @param quickFilterText the TextField providing the value for the quick filter
+     * @param type the {@link ItemType} shown in the view
+     */
+    protected void initialize(Label threadGroupingLabel, ChoiceBox<ThreadGrouping> threadGrouping,
+        Label frameGroupingLabel, ChoiceBox<FrameGrouping> frameGrouping)
+    {
         this.threadGroupingLabel = threadGroupingLabel;
         this.threadGrouping = threadGrouping;
         this.frameGroupingLabel = frameGroupingLabel;
         this.frameGrouping = frameGrouping;
 
-        this.type = type;
-
         // Model initialization
-        filterSpec = new SimpleObjectProperty<>(new FilterSpecification<>(type));
         grouping = new SimpleObjectProperty<>();
 
-        if (threadGroupingLabel != null)
-        {
-            setChoiceVisibility(
-                false,
-                threadGroupingLabel,
-                threadGrouping,
-                frameGroupingLabel,
-                frameGrouping);
-        }
+        setVisibility(
+            false,
+            threadGroupingLabel,
+            threadGrouping,
+            frameGroupingLabel,
+            frameGrouping);
     }
 
-    // Accessors
+    // Instance Accessors
 
     /**
-     * In addition to the normal functionality, the method calls filter initialization, which needs the
-     * ApplicationContext to be present. If a particular view controller
+     * @see AbstractController#setApplicationContext(ApplicationContext)
      *
      * @param applicationContext the ApplicationContext of this application
      */
@@ -126,6 +146,8 @@ public abstract class AbstractViewController<T> extends AbstractController
     {
         super.setApplicationContext(applicationContext);
 
+        // If the subclass doesn't need filter management, no UI control should have been passed on in the initialize()
+        // method.
         if (filterButton == null)
         {
             return;
@@ -134,37 +156,86 @@ public abstract class AbstractViewController<T> extends AbstractController
         initializeFilters(applicationContext);
     }
 
+    // Grouping-related Methods
+
+    /**
+     * Specify which {@link ThreadGrouping}s are allowed for the View. This method should be called by the controller
+     * which configures the View, if the View supports groupings.
+     *
+     * @param groupings the {@link ThreadGrouping}s allowed for the View
+     */
     public void setAllowedThreadGroupings(ThreadGrouping... groupings)
     {
         threadGrouping.getItems().addAll(groupings);
-        // Don't show choice if there is no choice :)
-        setChoiceVisibility(groupings.length > 1, threadGroupingLabel, threadGrouping);
+        // Don't show choice if there actually is no choice :)
+        setVisibility(groupings.length > 1, threadGroupingLabel, threadGrouping);
         bindGroupings();
     }
 
+    /**
+     * Specify which {@link FrameGrouping}s are allowed for the View. This method should be called by the controller
+     * which configures the View, if the View supports groupings.
+     *
+     * @param groupings the {@link FrameGrouping}s allowed for the View
+     */
     public void setAllowedFrameGroupings(FrameGrouping... groupings)
     {
         frameGrouping.getItems().addAll(groupings);
-        // Don't show choice if there is no choice :)
-        setChoiceVisibility(groupings.length > 1, frameGroupingLabel, frameGrouping);
+        // Don't show choice if there actually is no choice :)
+        setVisibility(groupings.length > 1, frameGroupingLabel, frameGrouping);
         bindGroupings();
     }
 
+    /**
+     * Returns the property containing the {@link CombinedGrouping} made up by the currently selected
+     * {@link FrameGrouping} and {@link ThreadGrouping}s.
+     *
+     * @return the property containing the the {@link CombinedGrouping} made up by the currently selected
+     *         {@link FrameGrouping} and {@link ThreadGrouping}s
+     */
     public ObservableObjectValue<CombinedGrouping> getGrouping()
     {
         return grouping;
     }
 
     /**
-     * Refreshes the view. The view should be updated based on the current state of the {@link Profile} and
-     * {@link ProfileFilter}.
+     * Refreshes the view. The view should be updated based on the current states of the data in the subclass, and the
+     * {@link FilterSpecification} and {@link CombinedGrouping}s as currently selected at the
+     * {@link AbstractViewController} level.
      */
     protected abstract void refresh();
 
     // UI Helper Methods
 
+    /**
+     * Sets the contents of the column header. This method is abstract because different implementing controllers have
+     * different requirements. E.g. the Diff views need to include indications of which of the profiles being compared
+     * the column data is for.
+     *
+     * If <null> is passed as {@link ProfileContext}, this indicates to the subclass that the data for the column is a
+     * comparison between both profiles from a {@link DiffEntry}.
+     *
+     * @param column the column for which the header contents should be set
+     * @param title the display title for the column
+     * @param context the {@link ProfileContext} of the profile for which the column contains data, or null for a Diff
+     *            column which contains comparison data between both profiles in a Diff
+     */
     protected abstract <C> void setColumnHeader(C column, String title, ProfileContext context);
 
+    // Unfortunately the Cell- and CellValueFactories for TableColumns and TreeTableColumns are not compatible. As a
+    // result, we get full code duplication. All the following UI helper methods are provided once for TableColumns, and
+    // once for TreeTableColumns. Thusly ye cookie crumbleth.
+
+    // UI Helper Methods : Table Column Configuration
+
+    /**
+     * Configures a {@link TableColumn} containing percentages calculated for a single profile.
+     *
+     * @param column the column being configured
+     * @param propertyName the name of the property containing the value for this column
+     * @param profileContext the {@link ProfileContext} for the profile whose data is shown
+     * @param title the column title
+     */
     protected <U> void cfgPctCol(TableColumn<U, Number> column, String propertyName,
         ProfileContext profileContext, String title)
     {
@@ -173,6 +244,13 @@ public abstract class AbstractViewController<T> extends AbstractController
         setColumnHeader(column, title, profileContext);
     }
 
+    /**
+     * Configures a {@link TableColumn} containing the percentage difference comparing two profiles.
+     *
+     * @param column the column being configured
+     * @param propertyName the name of the property containing the value for this column
+     * @param title the column title
+     */
     protected <U> void cfgPctDiffCol(TableColumn<U, Number> column, String propertyName,
         String title)
     {
@@ -181,6 +259,14 @@ public abstract class AbstractViewController<T> extends AbstractController
         setColumnHeader(column, title, null);
     }
 
+    /**
+     * Configures a {@link TableColumn} containing numbers calculated for a single profile.
+     *
+     * @param column the column being configured
+     * @param propertyName the name of the property containing the value for this column
+     * @param profileContext the {@link ProfileContext} for the profile whose data is shown
+     * @param title the column title
+     */
     protected <U> void cfgNrCol(TableColumn<U, Number> column, String propertyName,
         ProfileContext profileContext, String title)
     {
@@ -189,6 +275,14 @@ public abstract class AbstractViewController<T> extends AbstractController
         setColumnHeader(column, title, profileContext);
     }
 
+    /**
+     * Configures a {@link TableColumn} containing the number difference comparing two profiles.
+     *
+     * @param column the column being configured
+     * @param propertyName the name of the property containing the value for this column
+     * @param profileContext the {@link ProfileContext} for the profile whose data is shown
+     * @param title the column title
+     */
     protected <U> void cfgNrDiffCol(TableColumn<U, Number> column, String propertyName,
         String title)
     {
@@ -197,6 +291,14 @@ public abstract class AbstractViewController<T> extends AbstractController
         setColumnHeader(column, title, null);
     }
 
+    /**
+     * Configures a {@link TableColumn} containing durations calculated for a single profile.
+     *
+     * @param column the column being configured
+     * @param propertyName the name of the property containing the value for this column
+     * @param profileContext the {@link ProfileContext} for the profile whose data is shown
+     * @param title the column title
+     */
     protected <U> void cfgTimeCol(TableColumn<U, Number> column, String propertyName,
         ProfileContext profileContext, String title)
     {
@@ -205,6 +307,14 @@ public abstract class AbstractViewController<T> extends AbstractController
         setColumnHeader(column, title, profileContext);
     }
 
+    /**
+     * Configures a {@link TableColumn} containing the duration difference comparing two profiles.
+     *
+     * @param column the column being configured
+     * @param propertyName the name of the property containing the value for this column
+     * @param profileContext the {@link ProfileContext} for the profile whose data is shown
+     * @param title the column title
+     */
     protected <U> void cfgTimeDiffCol(TableColumn<U, Number> column, String propertyName,
         String title)
     {
@@ -213,6 +323,16 @@ public abstract class AbstractViewController<T> extends AbstractController
         setColumnHeader(column, title, null);
     }
 
+    // UI Helper Methods : TreeTable Column Configuration
+
+    /**
+     * Configures a {@link TreeTableColumn} containing percentages calculated for a single profile.
+     *
+     * @param column the column being configured
+     * @param propertyName the name of the property containing the value for this column
+     * @param profileContext the {@link ProfileContext} for the profile whose data is shown
+     * @param title the column title
+     */
     protected <U> void cfgPctCol(TreeTableColumn<U, Number> column, String propertyName,
         ProfileContext profileContext, String title)
     {
@@ -221,6 +341,13 @@ public abstract class AbstractViewController<T> extends AbstractController
         setColumnHeader(column, title, profileContext);
     }
 
+    /**
+     * Configures a {@link TreeTableColumn} containing the percentage difference comparing two profiles.
+     *
+     * @param column the column being configured
+     * @param propertyName the name of the property containing the value for this column
+     * @param title the column title
+     */
     protected <U> void cfgPctDiffCol(TreeTableColumn<U, Number> column, String propertyName,
         String title)
     {
@@ -229,6 +356,14 @@ public abstract class AbstractViewController<T> extends AbstractController
         setColumnHeader(column, title, null);
     }
 
+    /**
+     * Configures a {@link TreeTableColumn} containing numbers calculated for a single profile.
+     *
+     * @param column the column being configured
+     * @param propertyName the name of the property containing the value for this column
+     * @param profileContext the {@link ProfileContext} for the profile whose data is shown
+     * @param title the column title
+     */
     protected <U> void cfgNrCol(TreeTableColumn<U, Number> column, String propertyName,
         ProfileContext profileContext, String title)
     {
@@ -237,6 +372,14 @@ public abstract class AbstractViewController<T> extends AbstractController
         setColumnHeader(column, title, profileContext);
     }
 
+    /**
+     * Configures a {@link TreeTableColumn} containing the number difference comparing two profiles.
+     *
+     * @param column the column being configured
+     * @param propertyName the name of the property containing the value for this column
+     * @param profileContext the {@link ProfileContext} for the profile whose data is shown
+     * @param title the column title
+     */
     protected <U> void cfgNrDiffCol(TreeTableColumn<U, Number> column, String propertyName,
         String title)
     {
@@ -245,6 +388,14 @@ public abstract class AbstractViewController<T> extends AbstractController
         setColumnHeader(column, title, null);
     }
 
+    /**
+     * Configures a {@link TreeTableColumn} containing durations calculated for a single profile.
+     *
+     * @param column the column being configured
+     * @param propertyName the name of the property containing the value for this column
+     * @param profileContext the {@link ProfileContext} for the profile whose data is shown
+     * @param title the column title
+     */
     protected <U> void cfgTimeCol(TreeTableColumn<U, Number> column, String propertyName,
         ProfileContext profileContext, String title)
     {
@@ -253,6 +404,14 @@ public abstract class AbstractViewController<T> extends AbstractController
         setColumnHeader(column, title, profileContext);
     }
 
+    /**
+     * Configures a {@link TableColumn} containing the duration difference comparing two profiles.
+     *
+     * @param column the column being configured
+     * @param propertyName the name of the property containing the value for this column
+     * @param profileContext the {@link ProfileContext} for the profile whose data is shown
+     * @param title the column title
+     */
     protected <U> void cfgTimeDiffCol(TreeTableColumn<U, Number> column, String propertyName,
         String title)
     {
@@ -276,25 +435,32 @@ public abstract class AbstractViewController<T> extends AbstractController
     /**
      * Initializes the filters.
      *
-     * @param applicationContext the {@link ApplicationContext}. The parameter is used to explicitly point out the
-     *            dependency on the presense of the context.
+     * The {@link ApplicationContext} parameter is used to explicitly point out the dependency on the presence of the
+     * context, to anybody who wants to modify {@link AbstractViewController}.
+     *
+     * @param applicationContext the {@link ApplicationContext}
      */
     private void initializeFilters(ApplicationContext applicationContext)
     {
-
+        // Prepare the filter selection Dialog
         dialogController = createFilterDialog();
         dialogController.setApplicationContext(applicationContext);
         dialogController.setItemType(type);
 
+        // When the FilterSpecification is updated, refresh the view and update the button icon.
         filterSpec.addListener((property, oldValue, newValue) ->
         {
             filterButton.setGraphic(iconFor(newValue));
             refresh();
         });
 
+        // Show the filter selection Dialog when pushing the Button.
         filterButton.setOnAction(event -> filterSpec.set(dialogController.showAndWait().get()));
 
+        // Apply the QuickFilter when the quickFilter button is Pressed.
         quickFilterButton.setOnAction(event -> applyQuickFilter());
+
+        // Apply the QuickFilter when the user presses RETURN in the quickFilter text area.
         quickFilterText.setOnKeyPressed(event ->
         {
             if (event.getCode() == ENTER)
@@ -304,6 +470,11 @@ public abstract class AbstractViewController<T> extends AbstractController
         });
     }
 
+    /**
+     * Create a new filter selection Dialog.
+     *
+     * @return
+     */
     private FilterDialogController<T> createFilterDialog()
     {
         return (FilterDialogController<T>)DialogUtil.<FilterSpecification<T>>newDialog(
@@ -313,11 +484,21 @@ public abstract class AbstractViewController<T> extends AbstractController
             false);
     }
 
+    /**
+     * Select the appropriate icon for the state of the specified {@link FilterSpecification}.
+     *
+     * @param spec the {@link FilterSpecification}
+     * @return an {@link ImageView} for the appropriate icon
+     */
     private ImageView iconFor(FilterSpecification<T> spec)
     {
         return spec == null || !spec.isFiltering() ? viewFor(FUNNEL_16) : viewFor(FUNNEL_ACTIVE_16);
     }
 
+    /**
+     * Apply the quickFilter by updating the {@link FilterSpecification} (which will trigger the {@link ChangeListener}
+     * which will refresh the view).
+     */
     private void applyQuickFilter()
     {
         String input = quickFilterText.getText();
@@ -325,7 +506,13 @@ public abstract class AbstractViewController<T> extends AbstractController
         refresh();
     }
 
-    private void setChoiceVisibility(boolean visible, Node... nodes)
+    /**
+     * Shows or hides the selected {@link Node}s. Used to show or hide the grouping {@link ChoiceBox}es.
+     *
+     * @param visible a boolean indicating whether the {@link Node}s should be visible
+     * @param nodes the {@link Node}s to be made (in)visible
+     */
+    private void setVisibility(boolean visible, Node... nodes)
     {
         for (Node node : nodes)
         {
@@ -334,6 +521,14 @@ public abstract class AbstractViewController<T> extends AbstractController
         }
     }
 
+    /**
+     * Configures the grouping controls, ensuring a new {@link CombinedGrouping} is set whenever either a new
+     * {@link ThreadGrouping} or {@link FrameGrouping} is selected.
+     *
+     * Also sets the initial selection to the first grouping supplied by the
+     * {@link #setAllowedFrameGroupings(FrameGrouping...)} and {@link #setAllowedThreadGroupings(ThreadGrouping...)}
+     * methods.
+     */
     private void bindGroupings()
     {
         if (threadGrouping == null

@@ -4,38 +4,34 @@ import static javafx.beans.binding.Bindings.createObjectBinding;
 
 import java.util.function.Function;
 
-import com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping;
-import com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping;
+import com.insightfullogic.honest_profiler.core.aggregation.grouping.CombinedGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.result.ItemType;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableObjectValue;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 
 /**
- * Superclass for all View Controllers in the application which provide a view on the "target", a data structure of type
- * T which is stored in the source object.
+ * Superclass for all View Controllers in the application which provide a view on a "target", a data structure of type T
+ * which is stored in the target property. This target is extracted from a source {@link ObservableObjectValue} using an
+ * extractor function.
  *
- * This superclass also serves as a repository for the {@link ProfileContext}.
+ * This superclass also serves as a repository for the {@link ProfileContext} associated to the profile for which the
+ * View is shown.
  *
- * It ensures that subclass refresh() implementations are called when a new instance of the target is available in the
- * context.
+ * This superclass ensures that subclass refresh() implementations are called when the source
+ * {@link ObservableObjectValue} or the {@link CombinedGrouping} from the {@link AbstractViewController} superclass are
+ * updated. The extractor function is then used to extract a new target from the source, using the new
+ * {@link CombinedGrouping} if available.
  *
- * This is achieved by keeping a local target {@link Property}, which can be bound or unbound to the target
- * {@link Property} in the {@link ProfileContext}.
- *
- * By binding or unbinding the local target, it is possible to star and stop all tracking of changes to the target in
+ * By binding or unbinding the local target, it is possible to start and stop all tracking of changes to the target in
  * the UI. This has been provided to make it possible to stop executing refresh() and other UI updates when the view
  * associated to the controller is hidden.
  *
  * @param <T> the data type of the target
+ * @param <U> the type of the items contained in the View
  */
 public abstract class AbstractProfileViewController<T, U> extends AbstractViewController<U>
 {
@@ -50,28 +46,15 @@ public abstract class AbstractProfileViewController<T, U> extends AbstractViewCo
     // FXML Implementation
 
     /**
-     * This method must be called by subclasses in their FXML initialize(). It passes on the controller-local UI nodes
-     * needed by the AbstractViewController superclass.
+     * Initialize method for subclasses which sets the basic properties needed by this superclass. This method must be
+     * called by such subclasses in their FXML initialize().
      *
-     * @param filterButton the button used to trigger filter editing
-     * @param quickFilterButton the button used to apply the quick filter
-     * @param quickFilterText the TextField providing the value for the quick filter
+     * @param type the {@link ItemType} of the items shown in the view
      */
     @Override
-    protected void initialize(Button filterButton, Button quickFilterButton,
-        TextField quickFilterText, ItemType type, Label threadGroupingLabel,
-        ChoiceBox<ThreadGrouping> threadGrouping, Label frameGroupingLabel,
-        ChoiceBox<FrameGrouping> frameGrouping)
+    protected void initialize(ItemType type)
     {
-        super.initialize(
-            filterButton,
-            quickFilterButton,
-            quickFilterText,
-            type,
-            threadGroupingLabel,
-            threadGrouping,
-            frameGroupingLabel,
-            frameGrouping);
+        super.initialize(type);
 
         target = new SimpleObjectProperty<>();
         target.addListener((property, oldValue, newValue) -> refresh());
@@ -112,21 +95,27 @@ public abstract class AbstractProfileViewController<T, U> extends AbstractViewCo
     // Source-Target Binding
 
     /**
-     * Set the source object the target data structure T will be extracted from, and the function which extracts the
-     * target data structure T from the source.
+     * Bind the supplied extractor function which extracts the target data structure T from the source to the source
+     * {@link ObservableObjectValue}, and optionally to the {@link CombinedGrouping} {@link ObservableObjectValue} from
+     * the {@link AbstractViewController} superclass if present.
      *
-     * @param source the source providing the target data structure
-     * @param targetExtractor a function which extracts the target from the source object
+     * @param source the {@link ObservableObjectValue} encapsulating the source from which the target data structure can
+     *            be extracted
+     * @param targetExtractor a function which extracts the target from the source Object
      */
     public void bind(ObservableObjectValue<? extends Object> source,
         Function<Object, T> targetExtractor)
     {
+        // The createObjectBinding() dependency varargs parameter specifies a number of Observables. If the value of any
+        // of those changes, the Binding is triggered and the specified function is executed. This is IMHO not so
+        // clearly documented in the createObjectBinding() javadoc.
+
+        // The View does not support CombinedGrouping.
         if (getGrouping() == null)
         {
-            sourceBinding = createObjectBinding(
-                () -> targetExtractor.apply(source.get()),
-                source);
+            sourceBinding = createObjectBinding(() -> targetExtractor.apply(source.get()), source);
         }
+        // The View supports CombinedGrouping.
         else
         {
             sourceBinding = createObjectBinding(
@@ -136,7 +125,7 @@ public abstract class AbstractProfileViewController<T, U> extends AbstractViewCo
         }
     }
 
-    // Activation
+    // Activation Methods
 
     /**
      * Activate or deactivate the current view. When activated, the view tracks changes in the target.
@@ -147,16 +136,14 @@ public abstract class AbstractProfileViewController<T, U> extends AbstractViewCo
     {
         if (active)
         {
-
-            // Binds the local target Property to the target Property in the ProfileContext, using the target extractor
-            // function. The net effect is that the controller will start tracking changes to the target instance in the
-            // ProfileContext.
+            // Binds the local target ObjectProperty to the sourceBinding created with the bind() method. The net effect
+            // is that the controller will start tracking changes to the target instance.
             target.bind(sourceBinding);
         }
         else
         {
-            // Unbinds the local target Property. The controller no longer tracks changes to the target Property in the
-            // ProfileContext.
+            // Unbinds the local target ObjectProperty. The controller no longer tracks changes to the source
+            // ObservableObjectvalue.
             target.unbind();
         }
     }
@@ -164,7 +151,8 @@ public abstract class AbstractProfileViewController<T, U> extends AbstractViewCo
     // AbstractViewController Implementation
 
     /**
-     * Override doing nothing. The profile view controllers have fixed column headings defined in the FXML.
+     * Override doing nothing. The {@link AbstractProfileViewController} implementations have fixed column headings
+     * defined in the FXML.
      */
     @Override
     protected <C> void setColumnHeader(C column, String title, ProfileContext context)

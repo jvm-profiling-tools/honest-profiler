@@ -8,19 +8,24 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.util.Callback;
 
-public abstract class AbstractDialogController<T> extends AbstractController
-    implements DialogController<T>
+/**
+ * Abstract superclass for DailogController implementations.
+ *
+ * @param <R> the return type of the {@link Dialog}
+ */
+public abstract class AbstractDialogController<R> extends AbstractController
+    implements DialogController<R>
 {
-    private Dialog<T> dialog;
+    private Dialog<R> dialog;
 
     @Override
-    public Dialog<T> getDialog()
+    public Dialog<R> getDialog()
     {
         return this.dialog;
     }
 
     @Override
-    public void setDialog(Dialog<T> dialog)
+    public void setDialog(Dialog<R> dialog)
     {
         this.dialog = dialog;
     }
@@ -32,13 +37,13 @@ public abstract class AbstractDialogController<T> extends AbstractController
     }
 
     @Override
-    public Optional<T> showAndWait()
+    public Optional<R> showAndWait()
     {
         return this.dialog.showAndWait();
     }
 
     @Override
-    public abstract Callback<ButtonType, T> createResultHandler();
+    public abstract Callback<ButtonType, R> createResultHandler();
 
     @Override
     public abstract void reset();
