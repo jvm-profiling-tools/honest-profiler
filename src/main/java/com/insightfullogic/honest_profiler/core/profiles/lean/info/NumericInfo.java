@@ -4,16 +4,39 @@ import static java.math.BigInteger.ZERO;
 
 import java.math.BigInteger;
 
+import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
+import com.insightfullogic.honest_profiler.core.parser.StackFrame;
+import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
+
+/**
+ * NumericInfo collects the four basic amounts tracked by the profiles and {@link Aggregation}s
+ * <ul>
+ * <li>Self Time, which is the estimated amount of time in nanoseconds spent executing a method (or an aggregated set of
+ * methods), excluding the amount of time spent in methods (in)directly called by the method(s)</li>
+ * <li>Total Time, which is the estimated amount of time in nanoseconds spent executing a method (or an aggregated set
+ * of methods), including the amount of time spent in methods (in)directly called by the method(s)</li>
+ * <li>Self Sample Count, which is the number of sample stack traces in which the code from a method (or an aggregated
+ * set of methods) was seen as being executed</li>
+ * <li>Total Sample Count, which is the number of sample stack traces in which the code from a method (or an aggregated
+ * set of methods) or a method called (in)directly by the method(s) was seen as being executed</li>
+ * </ul>
+ *
+ * The class also provides aggregation methods which aggregate a sample or other NumericInfo into this one.
+ */
 public class NumericInfo
 {
+    // Instance Properties
+
     private BigInteger selfTime;
     private BigInteger totalTime;
 
     private int selfCnt;
     private int totalCnt;
 
+    // Instance Constructors
+
     /**
-     * Constructor for an item which will be updated with non-self data.
+     * Constructor for an accumulator item, which will be updated while aggregating.
      */
     public NumericInfo()
     {
@@ -21,7 +44,8 @@ public class NumericInfo
     }
 
     /**
-     * Constructor for a "final" item with self and total time known.
+     * Constructor for an item with self and total time known, used when creating a new {@link LeanNode}. Self and total
+     * time are set to the provided time, and self and total sample count are set to 1.
      *
      * @param selfNanos the self (and total) time
      */
@@ -56,35 +80,62 @@ public class NumericInfo
         this.totalCnt = totalCnt;
     }
 
+    // Instance Accessors
+
+    /**
+     * Returns the self time for the method or aggregated set of methods.
+     *
+     * @return the self time for the method or aggregated set of methods
+     */
     public BigInteger getSelfTime()
     {
         return selfTime;
     }
 
+    /**
+     * Returns the total time for the method or aggregated set of methods.
+     *
+     * @return the total time for the method or aggregated set of methods
+     */
     public BigInteger getTotalTime()
     {
         return totalTime;
     }
 
+    /**
+     * Returns the self sample count for the method or aggregated set of methods.
+     *
+     * @return the self sample count for the method or aggregated set of methods
+     */
     public int getSelfCnt()
     {
         return selfCnt;
     }
 
+    /**
+     * Returns the total sample count for the method or aggregated set of methods.
+     *
+     * @return the total sample count for the method or aggregated set of methods
+     */
     public int getTotalCnt()
     {
         return totalCnt;
     }
 
+    // Aggregation Methods
+
     /**
-     * Update method for initial lean aggregation.
+     * Aggregation method for initial lean aggregation, used when the info from a new {@link StackFrame} is aggregated
+     * into the info from an existing one.
      *
-     * @param nanos the number of ns spent in the stack
-     * @param self a boolean indicating whether the associated frame is the last
-     *            in the stack
+     * The nanoseconds is added to total time, and if self is true, to self time as well. The total sample count is
+     * incremented, and if self is true, the self sample count as well.
+     *
+     * @param nanos the number of nanoseconds spent in the stack
+     * @param self a boolean indicating whether the associated frame is the last in the stack
      * @return this object
      */
-    public NumericInfo update(long nanos, boolean self)
+    public NumericInfo add(long nanos, boolean self)
     {
         BigInteger converted = BigInteger.valueOf(nanos);
 
@@ -100,6 +151,13 @@ public class NumericInfo
         return this;
     }
 
+    /**
+     * Aggregation method for aggregating another @link NumericInfo object into this one. The corresponding values are
+     * added together.
+     *
+     * @param other the NumericInfo object to be aggregated into this one
+     * @return this object
+     */
     public NumericInfo add(NumericInfo other)
     {
         selfTime = selfTime.add(other.selfTime);
@@ -109,10 +167,19 @@ public class NumericInfo
         return this;
     }
 
+    // Copy Methods
+
+    /**
+     * Returns a copy of this object.
+     *
+     * @return a copy of this object
+     */
     public NumericInfo copy()
     {
         return new NumericInfo(this);
     }
+
+    // Object Implementation
 
     @Override
     public String toString()

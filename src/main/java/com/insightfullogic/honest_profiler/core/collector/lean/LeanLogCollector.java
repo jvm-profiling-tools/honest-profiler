@@ -205,7 +205,7 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
     private void collectStackFrame(StackFrame stackFrame)
     {
         currentNode = currentNode
-            .update(nanosSpent, new FrameInfo(stackFrame), stackTrace.isEmpty());
+            .add(nanosSpent, new FrameInfo(stackFrame), stackTrace.isEmpty());
     }
 
     /**
