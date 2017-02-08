@@ -47,13 +47,17 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.Pane;
+import javafx.stage.FileChooser;
 
+/**
+ * Controller which manages the View-independent controls for the application.
+ */
 public class RootController extends AbstractController implements MachineListener
 {
-
     @FXML
     private MenuBar menuBar;
     @FXML
@@ -73,6 +77,8 @@ public class RootController extends AbstractController implements MachineListene
 
     private LocalMachineSource machineSource;
 
+    // FXML Implementation
+
     @Override
     @FXML
     public void initialize()
@@ -80,8 +86,11 @@ public class RootController extends AbstractController implements MachineListene
         super.initialize();
 
         setApplicationContext(new ApplicationContext(this));
+
+        // Bind the InfoBar Node to the ApplicationContext.
         info.textProperty().bind(appCtx().getInfo());
 
+        // Monitor running VMs on the local machine.
         machineSource = new LocalMachineSource(getLogger(getClass()), this);
         machineSource.start();
     }
@@ -102,6 +111,11 @@ public class RootController extends AbstractController implements MachineListene
 
     // Machine-related Helper Methods
 
+    /**
+     * Add a JVM to the Monitor menu.
+     *
+     * @param vm the JVM to be added
+     */
     private void addToMachineMenu(final VirtualMachine vm)
     {
         String vmName = vm.getDisplayName();
@@ -123,11 +137,19 @@ public class RootController extends AbstractController implements MachineListene
         }
     }
 
+    /**
+     * remove a JVM from the Monitor menu.
+     *
+     * @param vm the JVM to be removed
+     */
     private void removeFromMachineMenu(final VirtualMachine vm)
     {
         monitorMenu.getItems().removeIf(node -> vm.getId().equals(node.getId()));
     }
 
+    /**
+     * Stop the thread which monitors running VMs.
+     */
     public void close()
     {
         machineSource.stop();
@@ -135,6 +157,12 @@ public class RootController extends AbstractController implements MachineListene
 
     // Profile-related Helper Methods
 
+    /**
+     * Create a {@link Tab} which will contain the Views for a newly opened profile.
+     *
+     * @param source the source of the profile
+     * @param live a boolean indicating whether the source is "live"
+     */
     private void createNewProfile(Object source, boolean live)
     {
         Tab tab = newLoadingTab();
@@ -171,6 +199,13 @@ public class RootController extends AbstractController implements MachineListene
         appCtx().execute(task);
     }
 
+    /**
+     * Initializes the {@link ProfileRootController} for a new {@link Tab} with the specified {@link ProfileContext}.
+     *
+     * @param tab the {@link Tab} in which the profile data will be shown
+     * @param controller the {@link ProfileRootController} controlling the Views for the profile
+     * @param profileContext the {@link ProfileContext} for the profile
+     */
     private void handleNewProfile(Tab tab, ProfileRootController controller,
         ProfileContext profileContext)
     {
@@ -181,7 +216,13 @@ public class RootController extends AbstractController implements MachineListene
         tab.getContent().setVisible(true);
     }
 
-    public void generateDiffTab(String baseName, String newName)
+    /**
+     * Create a {@link Tab} which will contain the Views for the Diff between two opened profiles.
+     *
+     * @param baseName the name of the Base {@link ProfileContext}
+     * @param newName the name of the New {@link ProfileContext}
+     */
+    public void createDiffTab(String baseName, String newName)
     {
         Tab tab = newLoadingTab();
         ProfileDiffRootController controller = loadViewIntoTab(FXML_PROFILE_DIFF_ROOT, tab);
@@ -204,6 +245,12 @@ public class RootController extends AbstractController implements MachineListene
         runLater(() -> tab.getContent().setVisible(true));
     }
 
+    /**
+     * Set the title of a {@link Tab} for a profile.
+     *
+     * @param tab the {@link Tab} whose title will be set
+     * @param profileContext the {@link ProfileContext} for the profile
+     */
     private void initializeProfileTabTitle(Tab tab, ProfileContext profileContext)
     {
         tab.setText(null);
@@ -216,6 +263,13 @@ public class RootController extends AbstractController implements MachineListene
         info(tab, INFO_TAB_PROFILE, profileContext.getName());
     }
 
+    /**
+     * Loads the View using the specifie FXML file into the {@link Tab}.
+     *
+     * @param fxml the path of the FXML file
+     * @param tab the {@link Tab} into which the View will be loaded
+     * @return the controller which was created for the View
+     */
     private <T extends AbstractController> T loadViewIntoTab(String fxml, Tab tab)
     {
         try
@@ -235,6 +289,11 @@ public class RootController extends AbstractController implements MachineListene
 
     // UI State Helper Methods
 
+    /**
+     * Create a {@link Tab} with a {@link ProgressIndicator} in the {@link Tab} header.
+     *
+     * @return a new {@link Tab} with a {@link ProgressIndicator} in the {@link Tab} header
+     */
     private Tab newLoadingTab()
     {
         Tab tab = new Tab(appCtx().textFor(CONTENT_TAB_LOADING));
@@ -242,9 +301,14 @@ public class RootController extends AbstractController implements MachineListene
         return tab;
     }
 
+    /**
+     * Helper method which presents the user with a {@link FileChooser} dialog, and executes an action based on the
+     * selected {@link File}.
+     *
+     * @param fileBasedAction the action to be executed if a {@link File} was selected
+     */
     private void doWithFile(Consumer<File> fileBasedAction)
     {
-
         setRootDisabled(true);
         File file = selectLogFile(appCtx());
         setRootDisabled(false);
@@ -266,6 +330,11 @@ public class RootController extends AbstractController implements MachineListene
         }
     }
 
+    /**
+     * Disable or enable the root-level controls.
+     *
+     * @param disable a boolean indicating whether the controls should be disabled
+     */
     private void setRootDisabled(boolean disable)
     {
         menuBar.setDisable(disable);

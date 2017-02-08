@@ -37,8 +37,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.image.ImageView;
@@ -153,6 +155,9 @@ public abstract class AbstractViewController<T> extends AbstractController
             return;
         }
 
+        // Called here because I18N is needed, so there's a dependency on the availability of the ApplicationContext.
+        initializeTable();
+
         initializeFilters(applicationContext);
     }
 
@@ -198,6 +203,8 @@ public abstract class AbstractViewController<T> extends AbstractController
         return grouping;
     }
 
+    // UI Helper Methods
+
     /**
      * Refreshes the view. The view should be updated based on the current states of the data in the subclass, and the
      * {@link FilterSpecification} and {@link CombinedGrouping}s as currently selected at the
@@ -205,7 +212,14 @@ public abstract class AbstractViewController<T> extends AbstractController
      */
     protected abstract void refresh();
 
-    // UI Helper Methods
+    /**
+     * Initialize the {@link TableView} or {@link TreeTableView} which contains the View data.
+     *
+     * This method is provided because, due to I18N, the {@link ApplicationContext} is needed for proper initialization,
+     * since the column headers are internationalized. This method is therefore called in this class in the
+     * {@link #setApplicationContext(ApplicationContext)} method.
+     */
+    protected abstract void initializeTable();
 
     /**
      * Sets the contents of the column header. This method is abstract because different implementing controllers have

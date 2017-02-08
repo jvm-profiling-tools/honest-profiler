@@ -20,17 +20,30 @@ import javafx.animation.Timeline;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.util.Duration;
 
+/**
+ * A ProfileContext contains state which needs to be shared by all controllers created for the same profile, and methods
+ * to access and change that state.
+ */
 public class ProfileContext
 {
+    // Class Properties
+
+    /**
+     * Enumeration listing the different profiling modes.
+     */
     public static enum ProfileMode
     {
-        LIVE, LOG
+        /** Live profile, monitoring a running JVM. */
+        LIVE,
+        /** Log profile, read from a Log File produced by a finished Profiler Agent session. */
+        LOG
     }
 
     private static final AtomicInteger counter = new AtomicInteger();
+
+    // Instance Properties
 
     private final ApplicationContext appCtx;
 
@@ -49,11 +62,21 @@ public class ProfileContext
     private Duration refreshInterval;
     private Timeline timeline;
 
-    // While frozen, incoming profiles/graphs are cached in the following 2
-    // instance properties.
+    // While frozen, incoming profiles/graphs are cached in the following 2 instance properties.
     private LeanProfile cachedProfile;
     private FlameGraph cachedFlameGraph;
 
+    // Instance Constructors
+
+    /**
+     * Constructor which specifies the {@link ApplicationContext}, the name of the context, its
+     * {@link ProfileContext.ProfileMode} and the Log File containing the information emitted by the Profiler Agent.
+     *
+     * @param appCtx the {@link ApplicationContext} for the application
+     * @param name the name of the ProfileContext
+     * @param mode the {@link ProfileContext.ProfileMode}
+     * @param file the Log File containing the information emitted by the Profiler Agent
+     */
     public ProfileContext(ApplicationContext appCtx, String name, ProfileMode mode, File file)
     {
         this.appCtx = appCtx;
@@ -63,82 +86,157 @@ public class ProfileContext
 
         profileSource = null;
 
+        // Store a unique id for the ProfileContext
         id = counter.incrementAndGet();
+
         profile = new SimpleObjectProperty<>();
         flameGraph = new SimpleObjectProperty<>();
 
         refreshInterval = seconds(1);
     }
 
+    // Instance Accessors
+
+    /**
+     * Returns the {@link File} containing the information emitted by the Profiler Agent.
+     *
+     * @return the {@link File} containing the information emitted by the Profiler Agent
+     */
     public File getFile()
     {
         return file;
     }
 
+    /**
+     * Sets the {@link ProfileSource} which generates new {@link LeanProfile}s, and starts the polling mechanism.
+     *
+     * @param profileSource the {@link ProfileSource} which generates new {@link LeanProfile}s
+     */
     public void setProfileSource(ProfileSource profileSource)
     {
         this.profileSource = profileSource;
         newTimeline();
     }
 
+    /**
+     * Returns the interval, in seconds, at which the ProfileContext will request new {@link LeanProfile} instances from
+     * the {@link ProfileSource}.
+     *
+     * @return the interval, in seconds, at which the ProfileContext will request new {@link LeanProfile} instances
+     */
     public int getDuration()
     {
         return (int)refreshInterval.toSeconds();
     }
 
+    /**
+     * Sets the interval, in seconds, at which the ProfileContext will request new {@link LeanProfile} instances from
+     * the {@link ProfileSource}.
+     *
+     * @param seconds the interval, in seconds, at which the ProfileContext will request new {@link LeanProfile}
+     *            instances
+     */
     public void setDuration(int seconds)
     {
         refreshInterval = seconds(seconds);
         updateTimeline();
     }
 
+    /**
+     * Returns the unique id of this ProfileContext.
+     *
+     * @return the unique id of this ProfileContext
+     */
     public int getId()
     {
         return id;
     }
 
+    /**
+     * Returns the name of this ProfileContext.
+     *
+     * @return the name of this ProfileContext
+     */
     public String getName()
     {
         return name.get();
     }
 
+    /**
+     * Returns the {@link ProfileMode} for this ProfileContext.
+     *
+     * @return the {@link ProfileMode} for this ProfileContext
+     */
     public ProfileMode getMode()
     {
         return mode;
     }
 
+    /**
+     * Returns the current {@link AggregationProfile}.
+     *
+     * @return the current {@link AggregationProfile}
+     */
     public AggregationProfile getProfile()
     {
         return profile.get();
     }
 
-    public StringProperty profileNameProperty()
-    {
-        return name;
-    }
-
+    /**
+     * Returns the {@link ObjectProperty} encapsulating the current {@link AggregationProfile}.
+     *
+     * @return the {@link ObjectProperty} encapsulating the current {@link AggregationProfile}
+     */
     public ObjectProperty<AggregationProfile> profileProperty()
     {
         return profile;
     }
 
+    /**
+     * Returns the {@link ObjectProperty} encapsulating the current {@link FlameGraph}.
+     *
+     * @return the {@link ObjectProperty} encapsulating the current {@link FlameGraph}
+     */
     public ObjectProperty<FlameGraph> flameGraphProperty()
     {
         return flameGraph;
     }
 
+    /**
+     * Returns a boolean indicating whether the ProfileContext is currently frozen, i.e. not requesting any
+     * {@link LeanProfile} updates from the {@link ProfileSource}.
+     *
+     * @return a boolean indicating whether the ProfileContext is currently frozen
+     */
     public boolean isFrozen()
     {
         return frozen;
     }
 
-    // Call only on FX Thread !
+    /**
+     * Freezes or unfreezes the {@link ProfileContext}. This method may only be called on the FX thread.
+     *
+     * @param freeze a boolean indicating whether the ProfileContext should be frozen
+     */
     public void setFrozen(boolean freeze)
     {
         frozen = freeze;
-        if (!freeze)
+        if (freeze)
         {
+            // The timeline is the timing mechanism which will request LeanProfiles at a rate specified by the refresh
+            // interval.
+            timeline.pause();
+        }
+        else
+        {
+            // The timeline is the timing mechanism which will request LeanProfiles at a rate specified by the refresh
+            // interval.
             timeline.play();
+
+            // If any unrequested LeanProfiles were emitted by the ProfileSource while frozen (which should only happen
+            // if the Profiler Agent has finished, which will trigger an end-of-log event), these are cached in the
+            // cachedProfile property. When unfreezing, such cached profiles are processed here, to ensure the most
+            // recent emitted LeanProfile is definitely shown.
             appCtx.execute(new AggregateProfileTask(ProfileContext.this, cachedProfile));
 
             if (cachedFlameGraph != null)
@@ -147,12 +245,14 @@ public class ProfileContext
                 cachedFlameGraph = null;
             }
         }
-        else
-        {
-            timeline.pause();
-        }
     }
 
+    /**
+     * Returns a {@link LeanProfileListener} which accepts new emitted {@link LeanProfile}s and updates the
+     * ProfileContext accordingly.
+     *
+     * @return a {@link LeanProfileListener} which accepts new emitted {@link LeanProfile}s
+     */
     public LeanProfileListener getProfileListener()
     {
         return new LeanProfileListener()
@@ -160,17 +260,14 @@ public class ProfileContext
             @Override
             public void accept(LeanProfile profile)
             {
-                if (profile == null)
-                {
-                    return;
-                }
-
-                if (profile == cachedProfile)
+                // Don't do anything in trivial situations.
+                if (profile == null || profile == cachedProfile)
                 {
                     return;
                 }
 
                 cachedProfile = profile;
+
                 if (!frozen)
                 {
                     appCtx.execute(new AggregateProfileTask(ProfileContext.this, profile));
@@ -179,6 +276,12 @@ public class ProfileContext
         };
     }
 
+    /**
+     * Returns a {@link FlameGraphListener} which accepts new emitted {@link FlameGraph}s and updates the ProfileContext
+     * accordingly.
+     *
+     * @return a {@link FlameGraphListener} which accepts new emitted {@link FlameGraph}s
+     */
     public FlameGraphListener getFlameGraphListener()
     {
         return new FlameGraphListener()
@@ -186,6 +289,7 @@ public class ProfileContext
             @Override
             public void accept(FlameGraph t)
             {
+                // Ensure the update is run on the FX Thread.
                 if (isFxApplicationThread())
                 {
                     update(t);
@@ -198,31 +302,52 @@ public class ProfileContext
         };
     }
 
-    // Call only on FX Thread !
+    /**
+     * Update the {@link AggregationProfile} {@link ObjectProperty}. This method may only be called on the FX thread.
+     *
+     * @param profile the new {@link AggregationProfile}
+     */
     public void update(AggregationProfile profile)
     {
         this.profile.set(profile);
     }
 
-    private void update(FlameGraph t)
+    /**
+     * Update the {@link FlameGraph} {@link ObjectProperty} if the ProfileContext is not frozen, or cache it if frozen.
+     * This method may only be called on the FX thread.
+     *
+     * @param profile the new {@link FlameGraph}
+     */
+    private void update(FlameGraph flameGraph)
     {
         if (frozen)
         {
-            cachedFlameGraph = t;
+            cachedFlameGraph = flameGraph;
         }
         else
         {
-            flameGraph.set(t);
+            this.flameGraph.set(flameGraph);
         }
     }
 
+    /**
+     * Stops the current {@link Timeline}, and ensures that the moment it stops, it starts a new {@link Timeline} which
+     * will pick up the currently set refresh rate.
+     */
     private void updateTimeline()
     {
+        // Since a TimeLine is not guaranteed to stop immediately, we use this mechanism that a new TimeLine is started
+        // only when the Timeline has definitely stopped, to avoid any potential concurrency issues.
         timeline.setOnFinished(event -> newTimeline());
-        timeline.stop();
 
+        // Aaaaand... Cut !
+        timeline.stop();
     }
 
+    /**
+     * Start a new {@link Timeline} which will request {@link LeanProfile} updates from the {@link ProfileSource} at the
+     * rate specified by the refresh interval.
+     */
     private void newTimeline()
     {
         timeline = new Timeline(

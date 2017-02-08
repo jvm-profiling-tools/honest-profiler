@@ -2,12 +2,32 @@ package com.insightfullogic.honest_profiler.ports.javafx.util.handle;
 
 import javafx.beans.Observable;
 
+/**
+ * Superclass implementing the {@link ListenerHandle} attach/detach logic regardless of the type of listener or
+ * {@link Observable}.
+ *
+ * @param <T> the type of the {@link Observable} the handle can be attached to
+ * @param <U> the type of the contained listener
+ */
 public abstract class AbstractListenerHandle<T extends Observable, U> implements ListenerHandle<T>
 {
+    // Instance Properties
+
     private boolean attached;
     private T observable;
     private U listener;
 
+    // Instance Constructors
+
+    /**
+     * Constructor specifying the {@link Observable} the listener will be added to or removed from, and the actual
+     * listener.
+     *
+     * This implementation is not threadsafe.
+     *
+     * @param observable the {@link Observable} the listener will be added to
+     * @param listener the listener
+     */
     public AbstractListenerHandle(T observable, U listener)
     {
         super();
@@ -20,11 +40,13 @@ public abstract class AbstractListenerHandle<T extends Observable, U> implements
     @Override
     public void attach()
     {
+        // Never add the same listener twice.
         if (this.attached)
         {
             detach();
         }
 
+        // Do nothing of there is no contained Observable.
         if (this.observable == null)
         {
             return;
@@ -39,7 +61,6 @@ public abstract class AbstractListenerHandle<T extends Observable, U> implements
     {
         if (this.attached)
         {
-
             removeListener(this.observable, this.listener);
             this.attached = false;
         }
@@ -53,7 +74,19 @@ public abstract class AbstractListenerHandle<T extends Observable, U> implements
         attach();
     }
 
+    /**
+     * Implements the actual addition of the listener of type U to an {@link Observable} of type T
+     *
+     * @param observable the {@link Observable} the listener has to be added to
+     * @param listener the listener to be added
+     */
     protected abstract void addListener(T observable, U listener);
 
+    /**
+     * Implements the actual removal of the listener of type U from an {@link Observable} of type T
+     *
+     * @param observable the {@link Observable} the listener has to be removed from
+     * @param listener the listener to be removed
+     */
     protected abstract void removeListener(T observable, U listener);
 }

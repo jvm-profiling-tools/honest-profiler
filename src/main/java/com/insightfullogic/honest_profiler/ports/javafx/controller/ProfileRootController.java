@@ -68,6 +68,9 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 
+/**
+ * Controller for Views which encapsulate other Views related to the same profile.
+ */
 public class ProfileRootController extends AbstractController
 {
     @FXML
@@ -99,6 +102,8 @@ public class ProfileRootController extends AbstractController
 
     private Map<ViewType, List<AbstractProfileViewController<?, ?>>> controllerMap;
 
+    // FXML Implementation
+
     @Override
     @FXML
     public void initialize()
@@ -113,10 +118,16 @@ public class ProfileRootController extends AbstractController
 
     // Instance Accessors
 
+    /**
+     * Sets the {@link ApplicationContext} and propagates it to any contained controllers.
+     *
+     * @param appCtx the {@link ApplicationContext}
+     */
     @Override
     public void setApplicationContext(ApplicationContext appCtx)
     {
         super.setApplicationContext(appCtx);
+
         flatController.setApplicationContext(appCtx);
         callingController.setApplicationContext(appCtx);
         calledController.setApplicationContext(appCtx);
@@ -125,32 +136,45 @@ public class ProfileRootController extends AbstractController
         flameController.setApplicationContext(appCtx);
     }
 
+    /**
+     * Sets the {@link ProfileContext} and propagates it to any contained controllers. The method also configures the
+     * various contained controllers.
+     *
+     * @param prCtx the {@link ProfileContext}
+     */
     public void setProfileContext(ProfileContext prCtx)
     {
         this.profileContext = prCtx;
 
+        // Configure "main" FlatView and bind it to the profile in the ProfileContext
         flatController.setProfileContext(prCtx);
         flatController.setAllowedThreadGroupings(ALL_TOGETHER);
         flatController.setAllowedFrameGroupings(BY_FQMN, BY_FQMN_LINENR, BY_BCI);
         flatController.bind(prCtx.profileProperty(), flatExtractor(flatController));
 
+        // Configure Ancestor TreeView and bind it to the selection in the main FlatView
         callingController.setProfileContext(prCtx);
         callingController.bind(flatController.selectedProperty(), ANCESTOR_TREE_EXTRACTOR);
 
+        // Configure Descendants TreeView and bind it to the selection in the main FlatView
         calledController.setProfileContext(prCtx);
         calledController.bind(flatController.selectedProperty(), DESCENDANT_TREE_EXTRACTOR);
 
+        // Configure "main" TreeView and bind it to the profile in the ProfileContext
         treeController.setProfileContext(prCtx);
         treeController.setAllowedThreadGroupings(BY_NAME, BY_ID, ALL_TOGETHER);
         treeController.setAllowedFrameGroupings(BY_FQMN, BY_FQMN_LINENR, BY_BCI);
         treeController.bind(prCtx.profileProperty(), treeExtractor(treeController));
 
+        // Configure Descendants FlatView and bind it to the selection in the main TreeView
         descendantsController.setProfileContext(prCtx);
         descendantsController.bind(treeController.selectedProperty(), DESCENDANT_FLAT_EXTRACTOR);
 
+        // Configure FlameController and bind it to the flameGraph in the ProfileContext
         flameController.setProfileContext(prCtx);
         flameController.bind(prCtx.flameGraphProperty(), FLAME_EXTRACTOR);
 
+        // Bind the profile sample count display
         prCtx.profileProperty().addListener(
             (property, oldValue, newValue) -> profileSampleCount.setText(
                 newValue == null ? null : getText(
@@ -165,6 +189,7 @@ public class ProfileRootController extends AbstractController
                     prCtx.getProfile().getGlobalData().getTotalCnt()));
         }
 
+        // Configure the View choice
         viewChoice.setConverter(getStringConverterForType(ViewType.class));
         viewChoice.getSelectionModel().selectedItemProperty()
             .addListener((property, oldValue, newValue) -> show(newValue));
@@ -174,10 +199,16 @@ public class ProfileRootController extends AbstractController
         freezeButton.setDisable(prCtx.getMode() != LIVE);
     }
 
-    // View Switch
+    // View Methods
 
+    /**
+     * Show the selected View.
+     *
+     * @param viewType the type of View which was selected
+     */
     private void show(ViewType viewType)
     {
+        // Show/hide the Views based on the selected ViewType.
         for (int i = 0; i < viewChoice.getItems().size(); i++)
         {
             Node child = content.getChildren().get(i);
@@ -185,9 +216,11 @@ public class ProfileRootController extends AbstractController
             child.setVisible(viewType.ordinal() == i);
         }
 
+        // Activate and deactivate the relevant controllers.
         controllerMap
             .forEach((type, list) -> list.forEach(ctrl -> ctrl.setActive(viewType == type)));
 
+        // Needed to actually display the Flame view.
         if (viewType == FLAME)
         {
             flameController.refreshFlameView();
@@ -214,6 +247,11 @@ public class ProfileRootController extends AbstractController
 
     // Handler-related Helper Methods
 
+    /**
+     * Show the {@link ContextMenu} listing any profiles the currently shown profile can be compared to.
+     *
+     * @param event the {@link MouseEvent} triggering the displaying of the {@link ContextMenu}
+     */
     private void showCompareMenu(MouseEvent event)
     {
         ContextMenu ctxMenu = compareButton.getContextMenu();
@@ -226,13 +264,20 @@ public class ProfileRootController extends AbstractController
         compareButton.getContextMenu().show(compareButton, event.getScreenX(), event.getScreenY());
     }
 
+    /**
+     * Add profiles available for comparison to the specified {@link ContextMenu}.
+     *
+     * @param menu the {@link ContextMenu} to which available profiles will be added
+     */
     private void refreshContextMenu(ContextMenu menu)
     {
         menu.getItems().clear();
+        // Only compare against profiles which have actually been opened
         List<String> profileNames = appCtx().getOpenProfileNames();
 
         profileNames.forEach(name ->
         {
+            // Don't compare a profile against itself
             if (!name.equals(profileContext.getName()))
             {
                 MenuItem item = new MenuItem(name);
@@ -242,6 +287,11 @@ public class ProfileRootController extends AbstractController
         });
     }
 
+    /**
+     * Freeze or unfreeze the profile.
+     *
+     * @param event the {@link ActionEvent} triggering the (un)freezing
+     */
     private void handleFreezeAction(ActionEvent event)
     {
         if (profileContext.isFrozen())
@@ -254,6 +304,9 @@ public class ProfileRootController extends AbstractController
         }
     }
 
+    /**
+     * Freeze the profile.
+     */
     private void freeze()
     {
         profileContext.setFrozen(true);
@@ -262,6 +315,9 @@ public class ProfileRootController extends AbstractController
         info(freezeButton, INFO_BUTTON_FREEZE_FROZEN);
     }
 
+    /**
+     * Unfreeze the profile.
+     */
     private void unfreeze()
     {
         profileContext.setFrozen(false);

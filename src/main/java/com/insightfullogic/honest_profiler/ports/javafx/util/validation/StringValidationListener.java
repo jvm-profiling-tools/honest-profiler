@@ -15,8 +15,13 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 
+/**
+ * Listener which validates a String in a {@link Node}, and changes the styling of the {@link Node} and the associated
+ * {@link Button} state based on the validity of the input. Typically this is the "OK" {@link Button} is associated.
+ */
 public class StringValidationListener implements ChangeListener<String>
 {
+    // Instance Properties
 
     private ChangeListenerHandle<String> handle;
 
@@ -24,6 +29,16 @@ public class StringValidationListener implements ChangeListener<String>
     private List<Button> buttons;
     private Predicate<String> test;
 
+    // Instance Constructors
+
+    /**
+     * Constructor specifying the source {@link Node}, the predicate for testing the validity, and any {@link Button}s
+     * which should be disabled if the validity test fails.
+     *
+     * @param inputNode the source {@link Node}
+     * @param test the predicate for testing the validity of the String value
+     * @param buttons the {@link Button}s which should be disabled if the validity test fails
+     */
     public StringValidationListener(Node inputNode, Predicate<String> test, Button... buttons)
     {
         this.inputNode = inputNode;
@@ -31,19 +46,17 @@ public class StringValidationListener implements ChangeListener<String>
         this.buttons = buttons == null ? new ArrayList<>() : asList(buttons);
     }
 
-    public void setInputNode(Node inputNode)
-    {
-        this.inputNode = inputNode;
-    }
+    // Management Methods
 
-    public void detach()
-    {
-        if (handle != null)
-        {
-            handle.detach();
-        }
-    }
-
+    /**
+     * Create a {@link ChangeListenerHandle} for the input {@link Node} and the specified text {@link ObservableValue},
+     * and attaches it.
+     *
+     * @param value the {@link ObservableValue} this Listener is added to
+     * @param inputNode the new input {@link Node} being validated by the StringValidationListener
+     * @return a new {@link ChangeListenerHandle} for this StringValidationListener and the specified
+     *         {@link ObservableValue}
+     */
     public ChangeListenerHandle<String> attach(ObservableValue<String> value, Node inputNode)
     {
         this.inputNode = inputNode;
@@ -54,9 +67,12 @@ public class StringValidationListener implements ChangeListener<String>
         return handle;
     }
 
+    // ChangeListener Implementation
+
     @Override
     public void changed(ObservableValue<? extends String> value, String oldValue, String newValue)
     {
+        // An empty value is styled as valid, but the associated Button is disabled.
         if ((newValue == null) || newValue.isEmpty())
         {
             inputNode.setStyle(STYLE_NORMAL);
@@ -66,6 +82,7 @@ public class StringValidationListener implements ChangeListener<String>
 
         try
         {
+            // Input valid => enable Button and style as valid.
             if (test.test(newValue))
             {
                 inputNode.setStyle(STYLE_NORMAL);
@@ -78,10 +95,16 @@ public class StringValidationListener implements ChangeListener<String>
             // Do nothing, treat as failed test.
         }
 
+        // Input invalid => disable Button and style as error.
         inputNode.setStyle(STYLE_ERROR);
         setDisabled(true);
     }
 
+    /**
+     * Disable or enable the {@link Button}s.
+     *
+     * @param disable a boolean indicating whether the {@link Button}s should be disabled
+     */
     private void setDisabled(boolean disable)
     {
         buttons.forEach(button -> button.setDisable(disable));

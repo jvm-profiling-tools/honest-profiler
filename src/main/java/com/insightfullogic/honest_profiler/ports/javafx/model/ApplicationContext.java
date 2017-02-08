@@ -19,19 +19,40 @@ import com.insightfullogic.honest_profiler.ports.javafx.controller.RootControlle
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableStringValue;
 import javafx.concurrent.Task;
+import javafx.scene.control.Tab;
 
+/**
+ * The ApplicationContext contains state which needs to be shared by all controllers in the application, and methods to
+ * access and change that state.
+ */
 public final class ApplicationContext
 {
+    // Instance Properties
+
+    // - I18N
     private Locale currentLocale;
     private ResourceBundle currentBundle;
 
+    // - InfoBar current text
     private SimpleStringProperty info;
+
+    // - Profile Context mappings
     private Map<String, ProfileContext> nameToContextMap;
     private Map<String, ProfileContext> pathToContextMap;
+
+    // - Root Controller
     private RootController rootController;
 
+    // - Task Execution
     private ExecutorService executorService = newCachedThreadPool();
 
+    // Instance Constructors
+
+    /**
+     * Create the ApplicationContext with teh specified {@link RootController}.
+     *
+     * @param rootController the {@link RootController} for the application
+     */
     public ApplicationContext(RootController rootController)
     {
         currentLocale = getDefaultLocale();
@@ -42,70 +63,134 @@ public final class ApplicationContext
         pathToContextMap = new HashMap<String, ProfileContext>();
     }
 
+    // Instance Accessors
+
+    /**
+     * Returns the id of the {@link ProfileContext} which tracks the profile based on the specified {@link File}.
+     *
+     * @param file the {@link File} containing the Profiling Agent output
+     * @return the id of the {@link ProfileContext} which tracks the profile based on the specified {@link File}
+     */
     public Integer getContextIdByPath(File file)
     {
         ProfileContext ctx = pathToContextMap.get(file.getAbsolutePath());
         return ctx == null ? null : ctx.getId();
     }
 
+    /**
+     * Returns the internationalized String stored in the application {@link ResourceBundle} for the specified key based
+     * on the current {@link Locale}.
+     *
+     * @param key the key for the internationalized String in the application {@link ResourceBundle}
+     * @return the internationalized String for the specified key
+     */
     public String textFor(String key)
     {
         return currentBundle.getString(key);
     }
 
+    /**
+     * Returns the internationalized String constructed by looking up the specified key in the application
+     * {@link ResourceBundle} based on the current {@link Locale}, interpreting it as a format and formatting it using
+     * the specified argument.
+     *
+     * @param key the key for the pattern in the application {@link ResourceBundle}
+     * @param args the arguments for formatting the pattern
+     * @return the constructed internationalized String
+     */
     public String textFor(String key, Object... args)
     {
         return format(currentLocale, currentBundle, key, args);
     }
 
+    /**
+     * Set the text in the InfoBar as per {@link #textFor(String)}.
+     *
+     * @param key the key for the internationalized String in the application {@link ResourceBundle}
+     */
     public void setInfoFromBundle(String key)
     {
         info.set(textFor(key));
     }
 
+    /**
+     * Set the text in the InfoBar as per {@link #textFor(String, Object...)}.
+     *
+     * @param key the key for the pattern in the application {@link ResourceBundle}
+     */
     public void setInfoFromBundle(String key, Object... args)
     {
         info.set(textFor(key, args));
     }
 
-    public void setInfo(String message)
+    /**
+     * Clears the text in the InfoBar.
+     */
+    public void clearInfo()
     {
-        info.set(message);
+        info.set("");
     }
 
+    /**
+     * Returns the InfoBar {@link ObservableStringValue}.
+     *
+     * @return the InfoBar {@link ObservableStringValue}.
+     */
     public ObservableStringValue getInfo()
     {
         return info;
     }
 
+    /**
+     * Returns the {@link ProfileContext} with the specified name.
+     *
+     * @param name the name of the {@link ProfileContext}
+     * @return the corresponding {@link ProfileContext}
+     */
     public ProfileContext getProfileContext(String name)
     {
         return nameToContextMap.get(name);
     }
 
+    /**
+     * Registers a {@link ProfileContext} with this ApplicationContext, making it available as shared state.
+     *
+     * @param context the {@link ProfileContext} to be registered
+     */
     public void registerProfileContext(ProfileContext context)
     {
         nameToContextMap.put(context.getName(), context);
         pathToContextMap.put(context.getFile().getAbsolutePath(), context);
     }
 
+    /**
+     * Returns a list of the names of all known {@link ProfileContext}s.
+     *
+     * @return a list of the names of all known {@link ProfileContext}s
+     */
     public List<String> getOpenProfileNames()
     {
         return nameToContextMap.keySet().stream().sorted().collect(toList());
     }
 
+    /**
+     * Executes a task on a background worker thread.
+     *
+     * @param task the task to be executed
+     */
     public void execute(Task<?> task)
     {
         executorService.execute(task);
     }
 
-    public ExecutorService getExecutorService()
-    {
-        return executorService;
-    }
-
+    /**
+     * Create a {@link Tab} containing the Diff Views for the specified profiles.
+     *
+     * @param baseName the name of the {@link ProfileContext} for the Base profile
+     * @param newName the name of the {@link ProfileContext} for the New profile
+     */
     public void createDiffView(String baseName, String newName)
     {
-        rootController.generateDiffTab(baseName, newName);
+        rootController.createDiffTab(baseName, newName);
     }
 }

@@ -19,7 +19,6 @@
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
 import static com.insightfullogic.honest_profiler.core.aggregation.result.ItemType.ENTRY;
-import static com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext.ProfileMode.LIVE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.showExportDialog;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.refreshTable;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_SELF_CNT;
@@ -39,9 +38,9 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.report.Repor
 
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping;
+import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
-import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.GraphicalShareTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTableCell;
@@ -57,6 +56,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 
+/**
+ * Controller for Views which displays the contents of a {@link Flat} {@link Aggregation}.
+ */
 public class FlatViewController extends AbstractProfileViewController<Flat, Entry>
 {
     @FXML
@@ -108,50 +110,23 @@ public class FlatViewController extends AbstractProfileViewController<Flat, Entr
     @FXML
     protected void initialize()
     {
+        flatProfile = flatTable.getItems();
+
         super.initialize(ENTRY);
         super.initialize(filterButton, quickFilterButton, quickFilterText);
         super.initialize(threadGroupingLabel, threadGrouping, frameGroupingLabel, frameGrouping);
-
-        flatProfile = flatTable.getItems();
-
-        initializeTable();
     }
 
-    // Accessors
+    // Instance Accessors
 
-    @Override
-    public void setProfileContext(ProfileContext profileContext)
-    {
-        if (profileContext.getMode() == LIVE)
-        {
-            flatTable.getColumns().forEach(column -> column.setSortable(false));
-        }
-        super.setProfileContext(profileContext);
-    }
-
+    /**
+     * Returns the {@link ReadOnlyObjectProperty} tracking which item is currently selected.
+     *
+     * @return the {@link ReadOnlyObjectProperty} tracking which item is currently selected
+     */
     public ReadOnlyObjectProperty<Entry> selectedProperty()
     {
         return flatTable.getSelectionModel().selectedItemProperty();
-    }
-
-    // Initialization Helper Methods
-
-    private void initializeTable()
-    {
-        method.setCellValueFactory(new PropertyValueFactory<>("key"));
-        method.setCellFactory(col -> new MethodNameTableCell<Entry>());
-
-        selfTimeGraphical.setCellValueFactory(new PropertyValueFactory<>("selfCntPct"));
-        selfTimeGraphical.setCellFactory(col -> new GraphicalShareTableCell<>());
-
-        cfgPctCol(selfCntPct, "selfCntPct", prfCtx(), COLUMN_SELF_CNT_PCT);
-        cfgPctCol(totalCntPct, "totalCntPct", prfCtx(), COLUMN_TOTAL_CNT_PCT);
-        cfgNrCol(selfCnt, "selfCnt", prfCtx(), COLUMN_SELF_CNT);
-        cfgNrCol(totalCnt, "totalCnt", prfCtx(), COLUMN_TOTAL_CNT);
-        cfgPctCol(selfTimePct, "selfTimePct", prfCtx(), COLUMN_SELF_TIME_PCT);
-        cfgPctCol(totalTimePct, "totalTimePct", prfCtx(), COLUMN_TOTAL_TIME_PCT);
-        cfgTimeCol(selfTime, "selfTime", prfCtx(), COLUMN_SELF_TIME);
-        cfgTimeCol(totalTime, "totalTime", prfCtx(), COLUMN_TOTAL_TIME);
     }
 
     // AbstractController Implementation
@@ -193,6 +168,29 @@ public class FlatViewController extends AbstractProfileViewController<Flat, Entr
         }
 
         refreshTable(flatTable);
+
         flatTable.sort();
+    }
+
+    /**
+     * Initializes the {@link TableView} which displays the {@link Flat} {@link Aggregation}.
+     */
+    @Override
+    protected void initializeTable()
+    {
+        method.setCellValueFactory(new PropertyValueFactory<>("key"));
+        method.setCellFactory(col -> new MethodNameTableCell<Entry>());
+
+        selfTimeGraphical.setCellValueFactory(new PropertyValueFactory<>("selfCntPct"));
+        selfTimeGraphical.setCellFactory(col -> new GraphicalShareTableCell<>());
+
+        cfgPctCol(selfCntPct, "selfCntPct", prfCtx(), COLUMN_SELF_CNT_PCT);
+        cfgPctCol(totalCntPct, "totalCntPct", prfCtx(), COLUMN_TOTAL_CNT_PCT);
+        cfgNrCol(selfCnt, "selfCnt", prfCtx(), COLUMN_SELF_CNT);
+        cfgNrCol(totalCnt, "totalCnt", prfCtx(), COLUMN_TOTAL_CNT);
+        cfgPctCol(selfTimePct, "selfTimePct", prfCtx(), COLUMN_SELF_TIME_PCT);
+        cfgPctCol(totalTimePct, "totalTimePct", prfCtx(), COLUMN_TOTAL_TIME_PCT);
+        cfgTimeCol(selfTime, "selfTime", prfCtx(), COLUMN_SELF_TIME);
+        cfgTimeCol(totalTime, "totalTime", prfCtx(), COLUMN_TOTAL_TIME);
     }
 }

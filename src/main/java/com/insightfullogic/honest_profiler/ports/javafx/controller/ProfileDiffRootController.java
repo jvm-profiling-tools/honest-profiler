@@ -48,6 +48,9 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 
+/**
+ * Controller for Views which encapsulate other Views related to the comparison between the same two profiles.
+ */
 public class ProfileDiffRootController extends AbstractController
 {
     @FXML
@@ -78,19 +81,33 @@ public class ProfileDiffRootController extends AbstractController
 
     // Instance Accessors
 
+    /**
+     * Sets the {@link ApplicationContext} and propagates it to any contained controllers.
+     *
+     * @param appCtx the {@link ApplicationContext}
+     */
     @Override
     public void setApplicationContext(ApplicationContext applicationContext)
     {
         super.setApplicationContext(applicationContext);
+
         flatController.setApplicationContext(applicationContext);
         treeController.setApplicationContext(applicationContext);
     }
 
+    /**
+     * Sets the {@link ProfileContext}s and propagates it to any contained controllers. The method also configures the
+     * various contained controllers.
+     *
+     * @param baseContext the {@link ProfileContext} for the Base profile
+     * @param newContext the {@link ProfileContext} for the New profile
+     */
     public void setProfileContexts(ProfileContext baseContext, ProfileContext newContext)
     {
         baseSourceLabel.setText(baseContext.getName());
         newSourceLabel.setText(newContext.getName());
 
+        // Configure "main" FlatDiffView and bind it to the profiles in the ProfileContext
         flatController.setProfileContexts(baseContext, newContext);
         flatController.setAllowedThreadGroupings(ALL_TOGETHER);
         flatController.setAllowedFrameGroupings(BY_FQMN, BY_FQMN_LINENR, BY_BCI);
@@ -99,6 +116,7 @@ public class ProfileDiffRootController extends AbstractController
             newContext.profileProperty(),
             flatExtractor(flatController));
 
+        // Configure "main" TreeDiffView and bind it to the profiles in the ProfileContext
         treeController.setProfileContexts(baseContext, newContext);
         treeController.setAllowedThreadGroupings(BY_NAME, BY_ID, ALL_TOGETHER);
         treeController.setAllowedFrameGroupings(BY_FQMN, BY_FQMN_LINENR, BY_BCI);
@@ -107,6 +125,7 @@ public class ProfileDiffRootController extends AbstractController
             newContext.profileProperty(),
             treeExtractor(treeController));
 
+        // Configure the View choice
         viewChoice.setConverter(getStringConverterForType(ViewType.class));
         viewChoice.getItems().addAll(FLAT, TREE);
         viewChoice.getSelectionModel().selectedItemProperty()
@@ -116,8 +135,14 @@ public class ProfileDiffRootController extends AbstractController
 
     // View Switch
 
+    /**
+     * Show the selected View.
+     *
+     * @param viewType the type of View which was selected
+     */
     private void show(ViewType viewType)
     {
+        // Show/hide the Views based on the selected ViewType.
         for (int i = 0; i < viewChoice.getItems().size(); i++)
         {
             Node child = content.getChildren().get(i);
@@ -125,6 +150,7 @@ public class ProfileDiffRootController extends AbstractController
             child.setVisible(viewType.ordinal() == i);
         }
 
+        // Activate and deactivate the relevant controllers.
         controllerMap
             .forEach((type, list) -> list.forEach(ctrl -> ctrl.setActive(viewType == type)));
     }

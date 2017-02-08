@@ -28,10 +28,10 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil.exp
 
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping;
+import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
 import com.insightfullogic.honest_profiler.core.aggregation.result.diff.DiffNode;
 import com.insightfullogic.honest_profiler.core.aggregation.result.diff.TreeDiff;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
-import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTreeTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.tree.DiffNodeTreeItem;
@@ -45,6 +45,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 
+/**
+ * Controller for Views which displays the contents of a {@link TreeDiff} {@link Aggregation}.
+ */
 public class TreeDiffViewController extends AbstractProfileDiffViewController<Tree, DiffNode>
 {
     @FXML
@@ -122,6 +125,8 @@ public class TreeDiffViewController extends AbstractProfileDiffViewController<Tr
 
     private TreeDiff diff;
 
+    // FXML Implementation
+
     @Override
     @FXML
     protected void initialize()
@@ -133,17 +138,43 @@ public class TreeDiffViewController extends AbstractProfileDiffViewController<Tr
         super.initialize(threadGroupingLabel, threadGrouping, frameGroupingLabel, frameGrouping);
     }
 
-    @Override
-    public void setProfileContexts(ProfileContext baseContext, ProfileContext newContext)
-    {
-        super.setProfileContexts(baseContext, newContext);
+    // AbstractController Implementation
 
-        initializeTable();
+    @Override
+    protected void initializeInfoText()
+    {
+        info(filterButton, INFO_BUTTON_FILTER);
+        info(expandAllButton, INFO_BUTTON_EXPANDALL);
+        info(collapseAllButton, INFO_BUTTON_COLLAPSEALLALL);
+        info(quickFilterText, INFO_INPUT_QUICKFILTER);
+        info(quickFilterButton, INFO_BUTTON_QUICKFILTER);
+        info(treeDiffTable, INFO_TABLE_TREEDIFF);
     }
 
-    // Initialization Helper Methods
+    @Override
+    protected void initializeHandlers()
+    {
+        expandAllButton.setOnAction(event -> expandFully(treeDiffTable.getRoot()));
 
-    private void initializeTable()
+        collapseAllButton.setOnAction(
+            event -> treeDiffTable.getRoot().getChildren().stream()
+                .forEach(TreeUtil::collapseFully));
+    }
+
+    // AbstractViewController Implementation
+
+    @Override
+    protected void refresh()
+    {
+        diff = new TreeDiff();
+        updateDiff(getBaseTarget(), getNewTarget());
+    }
+
+    /**
+     * Initializes the {@link TreeTableView} which displays the {@link TreeDiff} {@link Aggregation}.
+     */
+    @Override
+    protected void initializeTable()
     {
         methodColumn.setCellValueFactory(
             data -> new ReadOnlyStringWrapper(
@@ -183,37 +214,12 @@ public class TreeDiffViewController extends AbstractProfileDiffViewController<Tr
         cfgTimeDiffCol(totalTimeDiff, "totalTimeDiff", getText(COLUMN_TOTAL_TIME_DIFF));
     }
 
-    // AbstractController Implementation
-
-    @Override
-    protected void initializeInfoText()
-    {
-        info(filterButton, INFO_BUTTON_FILTER);
-        info(expandAllButton, INFO_BUTTON_EXPANDALL);
-        info(collapseAllButton, INFO_BUTTON_COLLAPSEALLALL);
-        info(quickFilterText, INFO_INPUT_QUICKFILTER);
-        info(quickFilterButton, INFO_BUTTON_QUICKFILTER);
-        info(treeDiffTable, INFO_TABLE_TREEDIFF);
-    }
-
-    @Override
-    protected void initializeHandlers()
-    {
-        expandAllButton.setOnAction(event -> expandFully(treeDiffTable.getRoot()));
-        collapseAllButton.setOnAction(
-            event -> treeDiffTable.getRoot().getChildren().stream()
-                .forEach(TreeUtil::collapseFully));
-    }
-
-    // AbstractViewController Implementation
-
-    @Override
-    protected void refresh()
-    {
-        diff = new TreeDiff();
-        updateDiff(getBaseTarget(), getNewTarget());
-    }
-
+    /**
+     * Helper method for {@link #refresh()}.
+     *
+     * @param baseTree the Base {@link Tree} to be compared
+     * @param newTree the New {@link Tree} to be compared
+     */
     private void updateDiff(Tree baseTree, Tree newTree)
     {
         if (baseTree != null && newTree != null)

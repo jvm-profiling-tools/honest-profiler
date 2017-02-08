@@ -95,6 +95,12 @@ public class FlameViewController extends AbstractProfileViewController<FlameGrap
     }
 
     @Override
+    protected void initializeTable()
+    {
+        // NOOP
+    }
+
+    @Override
     protected <C> void setColumnHeader(C column, String title, ProfileContext context)
     {
         // NOOP

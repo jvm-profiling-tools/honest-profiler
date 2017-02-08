@@ -3,14 +3,26 @@ package com.insightfullogic.honest_profiler.ports.javafx.util.handle;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 
+/**
+ * Trivial {@link AbstractListenerHandle} implementation for {@link ChangeListener}s and {@link ObservableValue}s
+ * encapsulating {@link Object}s of type T.
+ *
+ * @param <T> the type of the {@link Object} encapsulated by the {@link ObservableValue}
+ */
 public class ChangeListenerHandle<T>
     extends AbstractListenerHandle<ObservableValue<T>, ChangeListener<T>>
 {
+    // Instance Constructors
 
+    /**
+     * @see AbstractListenerHandle#AbstractListenerHandle(javafx.beans.Observable, Object)
+     */
     public ChangeListenerHandle(ObservableValue<T> observableValue, ChangeListener<T> listener)
     {
         super(observableValue, listener);
     }
+
+    // AbstractListenerHandle Implementation
 
     @Override
     protected void addListener(ObservableValue<T> observable, ChangeListener<T> listener)

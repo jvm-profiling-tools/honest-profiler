@@ -150,7 +150,7 @@ public abstract class AbstractController
      */
     protected final void clearInfo()
     {
-        applicationContext.setInfo("");
+        applicationContext.clearInfo();
     }
 
     /**

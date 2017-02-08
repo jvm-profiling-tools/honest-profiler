@@ -2,6 +2,7 @@ package com.insightfullogic.honest_profiler.ports.javafx.util.report;
 
 import static com.insightfullogic.honest_profiler.ports.javafx.util.report.Table.Alignment.LEFT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.report.Table.Alignment.RIGHT;
+import static java.text.NumberFormat.getPercentInstance;
 
 import java.io.PrintWriter;
 import java.text.NumberFormat;
@@ -10,33 +11,18 @@ import java.util.Collection;
 import java.util.List;
 
 import com.insightfullogic.honest_profiler.core.aggregation.result.diff.DiffEntry;
+import com.insightfullogic.honest_profiler.core.aggregation.result.diff.FlatDiff;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
-import com.insightfullogic.honest_profiler.core.profiles.ProfileTree;
 
+/**
+ * Utility class for creating various text reports (either ASCII-art based or CSV) based on profile data.
+ */
 public final class ReportUtil
 {
-
-    private static char BOX_HORIZONTAL = 0x2500;
-    private static char BOX_VERTICAL = 0x2502;
-    private static char BOX_UPANDRIGHT = 0x2514;
-    private static char BOX_VERTICALANDRIGHT = 0x251C;
-
-    private static String DROP_STRAIGHT = new String(new char[]
-    { BOX_VERTICAL, ' ' });
-    private static String DROP_NONLAST = new String(new char[]
-    { BOX_VERTICALANDRIGHT, BOX_HORIZONTAL });
-    private static String DROP_LAST = new String(new char[]
-    { BOX_UPANDRIGHT, BOX_HORIZONTAL });
-
-    private static NumberFormat FMT_PERCENT;
-
-    static
-    {
-        FMT_PERCENT = NumberFormat.getPercentInstance();
-        FMT_PERCENT.setMinimumFractionDigits(2);
-        FMT_PERCENT.setMaximumFractionDigits(2);
-    }
+    // Class Properties
 
     public static enum Mode
     {
@@ -72,6 +58,43 @@ public final class ReportUtil
         }
     }
 
+    // - Special characters
+
+    private static char BOX_HORIZONTAL = 0x2500;
+    private static char BOX_VERTICAL = 0x2502;
+    private static char BOX_UPANDRIGHT = 0x2514;
+    private static char BOX_VERTICALANDRIGHT = 0x251C;
+
+    // - Predefined character sequences
+    private static String DROP_STRAIGHT = new String(new char[]
+    { BOX_VERTICAL, ' ' });
+    private static String DROP_NONLAST = new String(new char[]
+    { BOX_VERTICALANDRIGHT, BOX_HORIZONTAL });
+    private static String DROP_LAST = new String(new char[]
+    { BOX_UPANDRIGHT, BOX_HORIZONTAL });
+
+    // - Formatter which renders percentages with 2 digits after the dot.
+    private static NumberFormat FMT_PERCENT;
+
+    // Class Constructors
+
+    // - Initialize the FMT_PERCENT NumberFormat
+    static
+    {
+        FMT_PERCENT = getPercentInstance();
+        FMT_PERCENT.setMinimumFractionDigits(2);
+        FMT_PERCENT.setMaximumFractionDigits(2);
+    }
+
+    /**
+     * Writes a stack (fragment) with the specified {@link Node} as root to the specified {@link PrintWriter}. Nicely
+     * formatted at that, using droplines.
+     *
+     * TODO FIX - {@link ProfileNode}s are no longer used.
+     *
+     * @param out the {@link PrintWriter} to wite the stack to
+     * @param node the root {@link Node} of the stack (fragment)
+     */
     public static void writeStack(PrintWriter out, ProfileNode node)
     {
         Table table = new Table();
@@ -83,6 +106,17 @@ public final class ReportUtil
         table.print(out);
     }
 
+    /**
+     * Helper method which recursively adds {@link Node}s into a {@link Table}
+     *
+     * TODO FIX - {@link ProfileNode}s are no longer used.
+     *
+     * @param node the root {@link Node} being added to the {@link Table}
+     * @param level the depth the root {@link Node} is at
+     * @param table the {@link Table} the {@link Node} will be added to
+     * @param dropLines a {@link List} containing the {@link DropLine}s to be added left of the {@link Node}
+     *            information.
+     */
     private static void buildStackTable(ProfileNode node, int level, Table table,
         List<DropLine> dropLines)
     {
@@ -109,11 +143,18 @@ public final class ReportUtil
         }
     }
 
-    public static void writeThread(PrintWriter out, ProfileTree thread, Mode mode)
-    {
-        // TODO Implement
-    }
+    // public static void writeThread(PrintWriter out, ProfileTree thread, Mode mode)
+    // {
+    // // TODO Implement
+    // }
 
+    /**
+     * Write the contents of a {@link Flat} aggregation to a CSV or text file, depending on the specified {@link Mode}.
+     *
+     * @param out the {@link PrintWriter} to wite the data to
+     * @param entries the data to be written
+     * @param mode the {@link Mode} for formatting the output
+     */
     public static void writeFlatProfileCsv(PrintWriter out, List<Entry> entries, Mode mode)
     {
         mode.start(out);
@@ -150,6 +191,14 @@ public final class ReportUtil
         out.flush();
     }
 
+    /**
+     * Write the contents of a {@link FlatDiff} aggregation to a CSV or text file, depending on the specified
+     * {@link Mode}.
+     *
+     * @param out the {@link PrintWriter} to wite the data to
+     * @param entries the data to be written
+     * @param mode the {@link Mode} for formatting the output
+     */
     public static void writeFlatProfileDiffCsv(PrintWriter out, Collection<DiffEntry> entries,
         Mode mode)
     {
@@ -225,6 +274,14 @@ public final class ReportUtil
         out.flush();
     }
 
+    /**
+     * Internal helper method for indenting stack frames, preceded by the specified {@link DropLine}s.
+     *
+     * @param dropLines the {@link DropLine}s to be rendered
+     * @param level the indentation level
+     * @return a String containing the rendered {@link DropLine}s and whitespace to be used as prefix for indenting the
+     *         stack frame information.
+     */
     private static String indent(List<DropLine> dropLines, int level)
     {
         StringBuilder result = new StringBuilder();
@@ -242,21 +299,40 @@ public final class ReportUtil
         return result.toString();
     }
 
+    /**
+     * Helper class which manages the offset of a dropline to be rendered.
+     *
+     * TODO Unfortunately I've completely forgotten how the algorithm I came up with works. Figure it out sometime and
+     * update the documentation accordingly.
+     */
     private static class DropLine
     {
+        // Instance Properties
+
         private int childrenLeft;
 
+        /**
+         * Constructor.
+         *
+         * @param childrenLeft some parameter
+         */
         private DropLine(int childrenLeft)
         {
             this.childrenLeft = childrenLeft;
         }
 
+        /**
+         * Decrement method.
+         */
         private void decrement()
         {
             childrenLeft--;
         }
     }
 
+    /**
+     * Empty Constructor for utility class.
+     */
     private ReportUtil()
     {
         // Empty Constructor for utility class

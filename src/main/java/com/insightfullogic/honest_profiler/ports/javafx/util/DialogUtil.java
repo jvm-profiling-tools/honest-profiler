@@ -32,6 +32,9 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
 
+/**
+ * Utility class for generating various {@link Dialog}s.
+ */
 public final class DialogUtil
 {
     public static String FILTER = "/com/insightfullogic/honest_profiler/ports/javafx/fxml/FilterDialog.fxml";
@@ -45,13 +48,13 @@ public final class DialogUtil
         try
         {
             FXMLLoader loader = new FXMLLoader(DialogUtil.class.getResource(fxml));
-            Parent dialogPane = (Parent) loader.load();
+            Parent dialogPane = (Parent)loader.load();
             DialogController<T> controller = loader.getController();
 
             Dialog<T> dialog = new Dialog<>();
             controller.setDialog(dialog);
 
-            dialog.setDialogPane((DialogPane) dialogPane);
+            dialog.setDialogPane((DialogPane)dialogPane);
             dialog.setResultConverter(controller.createResultHandler());
             dialog.setTitle(title);
             if (resetOnShow)

@@ -38,9 +38,9 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil.exp
 
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping;
+import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
-import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.GraphicalShareTreeTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTreeTableCell;
@@ -57,6 +57,9 @@ import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 
+/**
+ * Controller for Views which display the contents of a {@link Tree} {@link Aggregation}.
+ */
 public class TreeViewController extends AbstractProfileViewController<Tree, Node>
 {
     @FXML
@@ -102,6 +105,8 @@ public class TreeViewController extends AbstractProfileViewController<Tree, Node
     @FXML
     private TreeTableColumn<Node, Number> selfTime;
 
+    // FXML Implementation
+
     @Override
     @FXML
     protected void initialize()
@@ -109,38 +114,20 @@ public class TreeViewController extends AbstractProfileViewController<Tree, Node
         super.initialize(ENTRY);
         super.initialize(filterButton, quickFilterButton, quickFilterText);
         super.initialize(threadGroupingLabel, threadGrouping, frameGroupingLabel, frameGrouping);
-    }
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext)
-    {
-        super.setApplicationContext(applicationContext);
         initializeTable();
     }
 
+    // Instance Accessors
+
+    /**
+     * Returns the {@link ReadOnlyObjectProperty} tracking which item is currently selected.
+     *
+     * @return the {@link ReadOnlyObjectProperty} tracking which item is currently selected
+     */
     public ReadOnlyObjectProperty<TreeItem<Node>> selectedProperty()
     {
         return treeTable.getSelectionModel().selectedItemProperty();
-    }
-
-    // Initialization Helper Methods
-
-    private void initializeTable()
-    {
-        methodColumn.setCellFactory(column -> new MethodNameTreeTableCell<>(appCtx()));
-        methodColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("key"));
-
-        percentColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("totalCntPct"));
-        percentColumn.setCellFactory(param -> new GraphicalShareTreeTableCell());
-
-        cfgPctCol(totalCntPct, "totalCntPct", prfCtx(), COLUMN_TOTAL_CNT_PCT);
-        cfgPctCol(selfCntPct, "selfCntPct", prfCtx(), COLUMN_SELF_CNT_PCT);
-        cfgNrCol(totalCnt, "totalCnt", prfCtx(), COLUMN_TOTAL_CNT);
-        cfgNrCol(selfCnt, "selfCnt", prfCtx(), COLUMN_SELF_CNT);
-        cfgPctCol(totalTimePct, "totalTimePct", prfCtx(), COLUMN_TOTAL_TIME_PCT);
-        cfgPctCol(selfTimePct, "selfTimePct", prfCtx(), COLUMN_SELF_TIME_PCT);
-        cfgTimeCol(totalTime, "totalTime", prfCtx(), COLUMN_TOTAL_TIME);
-        cfgTimeCol(selfTime, "selfTime", prfCtx(), COLUMN_SELF_TIME);
     }
 
     // AbstractController Implementation
@@ -181,5 +168,27 @@ public class TreeViewController extends AbstractProfileViewController<Tree, Node
             expandPartial(treeTable.getRoot(), 2);
         }
         treeTable.sort();
+    }
+
+    /**
+     * Initializes the {@link TreeTableView} which displays the {@link Tree} {@link Aggregation}.
+     */
+    @Override
+    protected void initializeTable()
+    {
+        methodColumn.setCellFactory(column -> new MethodNameTreeTableCell<>(appCtx()));
+        methodColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("key"));
+
+        percentColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("totalCntPct"));
+        percentColumn.setCellFactory(param -> new GraphicalShareTreeTableCell());
+
+        cfgPctCol(totalCntPct, "totalCntPct", prfCtx(), COLUMN_TOTAL_CNT_PCT);
+        cfgPctCol(selfCntPct, "selfCntPct", prfCtx(), COLUMN_SELF_CNT_PCT);
+        cfgNrCol(totalCnt, "totalCnt", prfCtx(), COLUMN_TOTAL_CNT);
+        cfgNrCol(selfCnt, "selfCnt", prfCtx(), COLUMN_SELF_CNT);
+        cfgPctCol(totalTimePct, "totalTimePct", prfCtx(), COLUMN_TOTAL_TIME_PCT);
+        cfgPctCol(selfTimePct, "selfTimePct", prfCtx(), COLUMN_SELF_TIME_PCT);
+        cfgTimeCol(totalTime, "totalTime", prfCtx(), COLUMN_TOTAL_TIME);
+        cfgTimeCol(selfTime, "selfTime", prfCtx(), COLUMN_SELF_TIME);
     }
 }
