@@ -21,7 +21,7 @@ public class Flat extends Aggregation<Entry>
     // Instance Constructors
 
     /**
-     * Create an empty {@link Flat} for the specified {@link AggregationProfile} and {@link CombinedGrouping}.
+     * Create an empty Flat for the specified {@link AggregationProfile} and {@link CombinedGrouping}.
      *
      * @param source the {@link AggregationProfile} whose {@link LeanNode}s are aggregated into this Flat
      * @param grouping the {@link CombinedGrouping} used for aggregation
@@ -32,18 +32,26 @@ public class Flat extends Aggregation<Entry>
     }
 
     /**
-     * @see Aggregation#Aggregation(AggregationProfile, CombinedGrouping, List)
+     * Internal constructor used by the {@link #filter(FilterSpecification)} method.
+     *
+     * @param source the {@link AggregationProfile} whose {@link LeanNode}s are aggregated into this Flat
+     * @param grouping the {@link CombinedGrouping} used for aggregation
+     * @param data the list of {@link Entry}s in the Flat
      */
-    public Flat(AggregationProfile source, CombinedGrouping grouping, List<Entry> data)
+    private Flat(AggregationProfile source, CombinedGrouping grouping, List<Entry> data)
     {
         super(source, grouping, data);
     }
+
+    // Instance Accessors
 
     @Override
     public List<Entry> getData()
     {
         return super.getData();
     }
+
+    // Aggregation Implementation
 
     @Override
     public Flat filter(FilterSpecification<Entry> filterSpec)

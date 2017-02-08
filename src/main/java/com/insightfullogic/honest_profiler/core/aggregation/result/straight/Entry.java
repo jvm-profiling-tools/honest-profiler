@@ -9,7 +9,8 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 import com.insightfullogic.honest_profiler.core.profiles.lean.info.NumericInfo;
 
 /**
- * Lowest-level aggregation.
+ * Lowest-level aggregation data item. It associates an aggregation key with data residing in a {@link NumericInfo}.
+ * Additionally it keeps track of all {@link LeanNode}s which were aggregated into the Entry.
  */
 public class Entry implements Keyed<String>
 {
@@ -202,6 +203,8 @@ public class Entry implements Keyed<String>
         return aggregation == null ? 0 : reference.getTotalCnt();
     }
 
+    // Aggregation Methods
+
     /**
      * Aggregates a {@link LeanNode} into this Entry.
      *
@@ -211,20 +214,6 @@ public class Entry implements Keyed<String>
     {
         aggregatedNodes.add(node);
         data.add(node.getData());
-    }
-
-    /**
-     * Copies the contents of this Entry into another one.
-     *
-     * @param other the other Entry into which the contents of this Entry will be copied
-     */
-    protected void copyInto(Entry other)
-    {
-        other.aggregation = aggregation;
-        other.key = key;
-        other.data = data.copy();
-        other.aggregatedNodes = new ArrayList<>(aggregatedNodes);
-        other.reference = reference;
     }
 
     /**
@@ -241,6 +230,24 @@ public class Entry implements Keyed<String>
         reference = other.reference;
         return this;
     }
+
+    // Copy Methods
+
+    /**
+     * Copies the contents of this Entry into another one.
+     *
+     * @param other the other Entry into which the contents of this Entry will be copied
+     */
+    protected void copyInto(Entry other)
+    {
+        other.aggregation = aggregation;
+        other.key = key;
+        other.data = data.copy();
+        other.aggregatedNodes = new ArrayList<>(aggregatedNodes);
+        other.reference = reference;
+    }
+
+    // Object Implementation
 
     @Override
     public String toString()

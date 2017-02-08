@@ -38,7 +38,18 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.insightfullogic.honest_profiler.core.aggregation.filter.Target;
+import com.insightfullogic.honest_profiler.core.aggregation.result.diff.DiffEntry;
+import com.insightfullogic.honest_profiler.core.aggregation.result.diff.DiffNode;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 
+/**
+ * ItemType enumerates the different types of aggregation data items, and associates them with the {@link Target}s which
+ * are applicable to items of this type.
+ *
+ * {@link Node} and {@link DiffNode} are not explicitly enumerated, since they subclass {@link Entry} and
+ * {@link DiffEntry} respectively, and have the same {@link Target}s.
+ */
 public enum ItemType
 {
     ENTRY(KEY, SELF_TIME, TOTAL_TIME, SELF_COUNT, TOTAL_COUNT, SELF_TIME_PCT, TOTAL_TIME_PCT,
@@ -51,13 +62,29 @@ public enum ItemType
         SELF_COUNT_PCT_DIFF, TOTAL_COUNT_PCT_DIFF),
     FLAMEGRAPH();
 
+    // Instance Properties
+
     private List<Target> allowedTargets;
 
+    // Instance Constructors
+
+    /**
+     * Constructor which associates {@link Target}s with the ItemType.
+     *
+     * @param allowedTargets the {@link Target}s which are applicable for data items of this type
+     */
     private ItemType(Target... allowedTargets)
     {
         this.allowedTargets = Arrays.asList(allowedTargets);
     }
 
+    // Instance Accessors
+
+    /**
+     * Returns the {@link Target}s which are applicable for data items of this type.
+     *
+     * @return the {@link Target}s which are applicable for data items of this type
+     */
     public List<Target> getAllowedTargets()
     {
         return allowedTargets;

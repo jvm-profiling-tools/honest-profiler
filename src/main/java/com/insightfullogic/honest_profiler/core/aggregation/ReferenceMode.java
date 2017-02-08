@@ -27,12 +27,23 @@ public enum ReferenceMode
      */
     PARENT("Parent");
 
+    // Instance Properties
+
     private String name;
 
+    // Instance Constructors
+
+    /**
+     * Constructor specifying a display name for the ReferenceMode.
+     *
+     * @param name the display name for the ReferenceMode
+     */
     private ReferenceMode(String name)
     {
         this.name = name;
     }
+
+    // Object Implementation
 
     @Override
     public String toString()

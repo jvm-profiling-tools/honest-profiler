@@ -15,7 +15,8 @@ public final class ReferenceUtil
      * modes.
      *
      * WARNING : the {@link ReferenceMode#THREAD} mode can only be used for {@link Tree}s or {@link TreeDiff}s where the
-     * top-level children represent thread-level aggregations.
+     * top-level children represent thread-level aggregations. Similarly, the {@link ReferenceMode#PARENT} mode can only
+     * be used in {@link Tree}s or {@link TreeDiff}s.
      *
      * @param tree the {@link Tree} whose references are to be changed
      * @param mode the strategy for setting the references
@@ -57,6 +58,16 @@ public final class ReferenceUtil
         switchReference(treeDiff.getNewAggregation(), mode);
     }
 
+    // Helper Methods
+
+    /**
+     * Recursively sets the reference in the child {@link Node} to the data from the parent {@link Node} for the
+     * specified child {@link Node} as well as its descendants. If the child has no parent, i.e. the specified parent
+     * {@link Node} is null, the child uses its own data for reference.
+     *
+     * @param parent the parent {@link Node}
+     * @param child the child {@link Node}
+     */
     private static <K> void setReferenceToParent(Node parent, Node child)
     {
 
@@ -67,10 +78,14 @@ public final class ReferenceUtil
         else
         {
             child.setReference(parent.getData());
-            child.getChildren().forEach(grandChild -> setReferenceToParent(child, grandChild));
         }
+
+        child.getChildren().forEach(grandChild -> setReferenceToParent(child, grandChild));
     }
 
+    /**
+     * Private Constructor for utility class.
+     */
     private ReferenceUtil()
     {
         // Private Constructor for utility class

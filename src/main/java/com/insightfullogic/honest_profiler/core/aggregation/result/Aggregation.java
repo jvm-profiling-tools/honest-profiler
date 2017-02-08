@@ -1,19 +1,35 @@
 package com.insightfullogic.honest_profiler.core.aggregation.result;
 
-import static java.util.stream.Collectors.toList;
-
 import java.util.List;
 
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
 import com.insightfullogic.honest_profiler.core.aggregation.filter.FilterSpecification;
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.CombinedGrouping;
 
-public class Aggregation<T extends Keyed<String>>
+/**
+ * Superclass for the aggregation container data structures which aggregate an {@link AggregationProfile} using a
+ * {@link CombinedGrouping}.
+ *
+ * @param <T> the type of data item contained in the Aggregation.
+ */
+public abstract class Aggregation<T extends Keyed<String>>
 {
+    // Instance Properties
+
     private final AggregationProfile source;
     private final CombinedGrouping grouping;
     private final List<T> data;
 
+    // Instance Constructors
+
+    /**
+     * Constructor specifying the source {@link AggregationProfile}, the {@link CombinedGrouping} used for aggregating
+     * and the data in the aggregation.
+     *
+     * @param source the source {@link AggregationProfile} whose contents are aggregated
+     * @param grouping the {@link CombinedGrouping} used for aggregating
+     * @param data the data in the Aggregation
+     */
     public Aggregation(AggregationProfile source, CombinedGrouping grouping, List<T> data)
     {
         super();
@@ -22,28 +38,50 @@ public class Aggregation<T extends Keyed<String>>
         this.data = data;
     }
 
+    // Instance Accessors
+
+    /**
+     * Returns the source {@link AggregationProfile}.
+     *
+     * @return the source {@link AggregationProfile}
+     */
     public AggregationProfile getSource()
     {
         return source;
     }
 
+    /**
+     * Returns the {@link CombinedGrouping} used to aggregate the data.
+     *
+     * @return the {@link CombinedGrouping} used to aggregate the data
+     */
     public CombinedGrouping getGrouping()
     {
         return grouping;
     }
 
+    /**
+     * Returns the list of data items contained in this Aggregation.
+     *
+     * @return the list of data items contained in this Aggregation
+     */
     public List<T> getData()
     {
         return data;
     }
 
-    public Aggregation<T> filter(FilterSpecification<T> filterSpec)
-    {
-        return new Aggregation<>(
-            source,
-            grouping,
-            data.stream().filter(filterSpec.getFilter()).collect(toList()));
-    }
+    // Main Methods
+
+    /**
+     * Filters the Aggregation, keeping only contained items which are accepted by the filter, and returns a new
+     * {@link Aggregation} containing the result.
+     *
+     * @param filterSpec the {@link FilterSpecification} which specifies the filter to be applied
+     * @return a new {@link Aggregation} containing the filtered result
+     */
+    public abstract Aggregation<T> filter(FilterSpecification<T> filterSpec);
+
+    // Object Implementation
 
     @Override
     public String toString()
