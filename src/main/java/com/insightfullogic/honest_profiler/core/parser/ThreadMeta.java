@@ -26,7 +26,7 @@ import java.util.Objects;
 public final class ThreadMeta implements LogEvent
 {
     private final long threadId;
-    private String threadName;
+    private final String threadName;
 
     public ThreadMeta(long threadId, String name)
     {
@@ -71,7 +71,7 @@ public final class ThreadMeta implements LogEvent
     {
         if (newMeta.threadName != null && !newMeta.threadName.isEmpty())
         {
-            threadName = newMeta.threadName;
+            return new ThreadMeta(newMeta.threadId, newMeta.threadName);
         }
 
         return this;

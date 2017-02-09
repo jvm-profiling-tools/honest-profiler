@@ -66,17 +66,42 @@ public class VirtualMachine implements Comparable<VirtualMachine>
         return agentLoaded;
     }
 
-    public LogSource getLogSourceFromVmArgs()
+    public LogSource getLogSourceFromVmArgs() throws CantReadFromSourceException
     {
+        // Bail out if agentpath is not defined.
+        if (vmArgs.indexOf("-agentpath") < 0)
+        {
+            return getLogSource();
+        }
+
+        // Extract the value of the agentpath parameter
+        
         int agentPathStart = vmArgs.indexOf("-agentpath") + "-agentpath".length();
+        
+        // TODO FIX : if the logPath contains spaces, this will cause trouble.
         int agentPathEnd = vmArgs.indexOf(' ', agentPathStart);
+
+        // If the agentpath is the last parameter in the VM Args, no space would be found.
+        agentPathEnd = (agentPathEnd < 0) ? vmArgs.length() : agentPathEnd;
+
         String agentPath = vmArgs.substring(agentPathStart, agentPathEnd);
+        
+        // Bail out if logPath is not defined.
+        if (agentPath.indexOf("logPath") < 0)
+        {
+            return getLogSource();
+        }
+
+        // Extract the value of the logPath parameter
+
         int logPathStart = agentPath.indexOf("logPath=") + "logPath=".length();
         int commaPos = agentPath.indexOf(",", logPathStart);
         int spacePos = agentPath.indexOf(' ', logPathStart);
         int logPathEnd = commaPos > 0 ? commaPos : (spacePos > 0 ? spacePos : agentPath.length());
 
-        return new FileLogSource(new File(agentPath.substring(logPathStart, logPathEnd)));
+        File result = new File(agentPath.substring(logPathStart, logPathEnd));
+
+        return result.exists() ? new FileLogSource(result) : getLogSource();
     }
 
     public LogSource getLogSource() throws CantReadFromSourceException

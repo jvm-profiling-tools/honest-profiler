@@ -154,8 +154,7 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
     {
         threadMap.compute(
             newThreadMeta.getThreadId(),
-            (k, v) -> v == null ? new ThreadInfo(newThreadMeta)
-                : v.checkAndSetName(newThreadMeta.getThreadName()));
+            (k, v) -> v == null ? new ThreadInfo(newThreadMeta) : v.checkAndSetName(newThreadMeta));
         emitProfileIfNeeded();
     }
 
@@ -204,8 +203,7 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
      */
     private void collectStackFrame(StackFrame stackFrame)
     {
-        currentNode = currentNode
-            .add(nanosSpent, new FrameInfo(stackFrame), stackTrace.isEmpty());
+        currentNode = currentNode.add(nanosSpent, new FrameInfo(stackFrame), stackTrace.isEmpty());
     }
 
     /**

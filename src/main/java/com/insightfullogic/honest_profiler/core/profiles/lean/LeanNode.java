@@ -79,7 +79,7 @@ public class LeanNode
      * Copy constructor.
      *
      * @param source the source LeanNode which is being copied
-     * @param new Parent the parent of the copy (which itself generally is a copy)
+     * @param newParent the parent of the copy (which itself generally is a copy)
      */
     protected LeanNode(LeanNode source, LeanNode newParent)
     {
@@ -90,7 +90,7 @@ public class LeanNode
         this.parent = newParent;
         this.childMap = new HashMap<>();
         // The FrameInfo key is an immutable object, no need to copy it.
-        source.childMap.forEach((key, value) -> this.childMap.put(key, value.copy(this)));
+        source.childMap.forEach((key, value) -> this.childMap.put(key, new LeanNode(value, this)));
     }
 
     // Instance Accessors
@@ -159,7 +159,7 @@ public class LeanNode
     // Aggregation Methods
 
     /**
-     * Aggregates teh information from a child {@link StackFrame} into the children of this LeanNode, updating the total
+     * Aggregates the information from a child {@link StackFrame} into the children of this LeanNode, updating the total
      * data for this LeanNode in the process.
      *
      * The add method is called from the LogCollector, on the parent with the next (potentially last) child from the
@@ -216,29 +216,6 @@ public class LeanNode
     public Stream<LeanNode> flatten()
     {
         return concat(of(this), childMap.values().stream().flatMap(LeanNode::flatten));
-    }
-
-    // Copy Methods
-
-    /**
-     * Copy method for the top of the tree, which has no parent.
-     *
-     * @return a copy of this object
-     */
-    public LeanNode copy()
-    {
-        return new LeanNode(this, null);
-    }
-
-    /**
-     * Copy method for children.
-     *
-     * @param newParent the new parent for the children
-     * @return a copy of this object
-     */
-    public LeanNode copy(LeanNode newParent)
-    {
-        return new LeanNode(this, newParent);
     }
 
     // Debug Methods

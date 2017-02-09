@@ -14,7 +14,7 @@ public class ThreadInfo
     // Instance Properties
 
     private final long id;
-    private String name;
+    private final String name;
 
     // Instance Constructors
 
@@ -52,16 +52,18 @@ public class ThreadInfo
     }
 
     /**
-     * Sets the thread name, if it is not null or empty.
+     * Checks whether the name in the new {@link ThreadMeta} is empty. If it is, this (immutable) ThreadInfo is
+     * returned, otherwise a new one is returned based on the new {@link ThreadMeta}
      *
-     * @param name the (new) thread name
+     * @param meta the {@link ThreadMeta} whose metadata will be stored
      * @return this object
      */
-    public ThreadInfo checkAndSetName(String name)
+    public ThreadInfo checkAndSetName(ThreadMeta meta)
     {
-        if (name != null && !name.isEmpty())
+        String newName = meta.getThreadName();
+        if (newName != null && !newName.isEmpty())
         {
-            this.name = name;
+            return new ThreadInfo(meta);
         }
         return this;
     }

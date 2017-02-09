@@ -66,7 +66,6 @@ public class LeanThreadNode extends LeanNode
 
     // Copy Methods
 
-    @Override
     public LeanThreadNode copy()
     {
         return new LeanThreadNode(this);

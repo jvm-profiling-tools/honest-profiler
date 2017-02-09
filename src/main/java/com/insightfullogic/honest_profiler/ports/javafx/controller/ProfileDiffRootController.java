@@ -84,7 +84,7 @@ public class ProfileDiffRootController extends AbstractController
     /**
      * Sets the {@link ApplicationContext} and propagates it to any contained controllers.
      *
-     * @param appCtx the {@link ApplicationContext}
+     * @param applicationContext the {@link ApplicationContext}
      */
     @Override
     public void setApplicationContext(ApplicationContext applicationContext)
