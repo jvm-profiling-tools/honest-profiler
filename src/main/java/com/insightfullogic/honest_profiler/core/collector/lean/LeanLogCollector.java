@@ -31,7 +31,7 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
 {
     // Class Properties
 
-    private static final long SECONDSTONANOS = 1000 * 1000 * 1000;
+    private static final long SECONDS_TO_NANOS = 1000 * 1000 * 1000;
 
     // Instance Properties
 
@@ -223,7 +223,7 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
             long secondsDiff = newSeconds - prevSeconds;
             long nanosDiff = newNanos - prevNanos;
 
-            nanosSpent = (secondsDiff * SECONDSTONANOS) + nanosDiff;
+            nanosSpent = (secondsDiff * SECONDS_TO_NANOS) + nanosDiff;
         }
 
         prevSeconds = newSeconds;

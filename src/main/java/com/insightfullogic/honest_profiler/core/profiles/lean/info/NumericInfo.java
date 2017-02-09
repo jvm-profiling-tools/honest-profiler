@@ -6,7 +6,6 @@ import java.math.BigInteger;
 
 import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
 import com.insightfullogic.honest_profiler.core.parser.StackFrame;
-import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 
 /**
  * NumericInfo collects the four basic amounts tracked by the profiles and {@link Aggregation}s
@@ -41,17 +40,6 @@ public class NumericInfo
     public NumericInfo()
     {
         this(ZERO, ZERO, 0, 0);
-    }
-
-    /**
-     * Constructor for an item with self and total time known, used when creating a new {@link LeanNode}. Self and total
-     * time are set to the provided time, and self and total sample count are set to 1.
-     *
-     * @param selfNanos the self (and total) time
-     */
-    public NumericInfo(long selfNanos)
-    {
-        this(BigInteger.valueOf(selfNanos), BigInteger.valueOf(selfNanos), 1, 1);
     }
 
     /**

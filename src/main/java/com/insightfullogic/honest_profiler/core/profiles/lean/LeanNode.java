@@ -58,24 +58,6 @@ public class LeanNode
     }
 
     /**
-     * "Self constructor" for a LeanNode associated with the "bottom frame" of a stack trace, i.e. the one for which
-     * self time is recorded.
-     *
-     * @param frame the {@link FrameInfo} for this LeanNode
-     * @param nanos the self time associated with the frame
-     * @param parent the parent LeanNode
-     */
-    private LeanNode(FrameInfo frame, long nanos, LeanNode parent)
-    {
-        id = ID_GENERATOR.getAndIncrement();
-
-        this.frame = frame;
-        data = new NumericInfo(nanos);
-        this.parent = parent;
-        childMap = new HashMap<>();
-    }
-
-    /**
      * Copy constructor.
      *
      * @param source the source LeanNode which is being copied
@@ -169,29 +151,19 @@ public class LeanNode
      *            {@link TraceStart} following it
      * @param child the child {@link FrameInfo} of the current LeanNode
      * @param last a boolean indicating if the child is the last in the stack trace sample
-     * @return this node
+     * @return the aggregated child {@link LeanNode}
      */
     public LeanNode add(long nanos, FrameInfo child, boolean last)
     {
         // Non-self add, which updates total time and sample count only.
         data.add(nanos, false);
 
-        return childMap.compute(
-            child,
-            (k, v) ->
-            // Create a new LeanNode if no children have been recorded for this FrameInfo
-            v == null ? (last ?
-            // New child is the last in stack, use "Self constructor".
-                new LeanNode(child, nanos, this)
-                // New child is not the last in stack, use "Non-self constructor".
-                : new LeanNode(child, this))
-                // Aggregate the information into an existing child
-                : (last ?
-                // Child is last in stack, use the "self add" on existing child
-                    v.addSelf(nanos) :
-                    // Child is not last in stack, return existing child (its "total" numbers will be updated when its
-                    // child is added)
-                    v));
+        LeanNode childNode = childMap.computeIfAbsent(child, k -> new LeanNode(k, this));
+        if (last)
+        {
+            childNode.addSelf(nanos);
+        }
+        return childNode;
     }
 
     /**
