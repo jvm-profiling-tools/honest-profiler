@@ -11,7 +11,6 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entr
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
-import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 
 /**
  * Aggregator which takes a {@link Node}, and aggregates the values of the {@link Node} and its descendants into a
@@ -23,7 +22,7 @@ public class DescendantFlatAggregator implements SubAggregator<Node, Entry>
      * This method aggregates all descendants of a {@link Node} into a {@link Flat}, using the original
      * {@link CombinedGrouping} from the {@link Tree} the {@link Node} belongs to.
      *
-     * @see SubAggregator#aggregate(Object, LeanNode)
+     * @see SubAggregator#aggregate(Object)
      */
     @Override
     public Flat aggregate(Node parent)

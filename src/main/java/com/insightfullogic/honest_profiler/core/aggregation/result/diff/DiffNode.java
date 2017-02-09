@@ -57,9 +57,9 @@ public class DiffNode extends DiffEntry
      * Sets the Base {@link Node}.
      *
      * The return value is provided as a convenience for
-     * {@link TreeDiff#setBase(com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree)}.
+     * {@link TreeDiff#set(com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree, com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree)}.
      *
-     * @param entry the Base {@link Node}
+     * @param node the Base {@link Node}
      * @return this {@link DiffNode}
      */
     public DiffNode setBase(Node node)
@@ -74,9 +74,9 @@ public class DiffNode extends DiffEntry
      * Sets the New {@link Node}.
      *
      * The return value is provided as a convenience for
-     * {@link TreeDiff#setNew(com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree)}.
+     * {@link TreeDiff#set(com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree, com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree)}.
      *
-     * @param entry the New {@link Node}
+     * @param node the New {@link Node}
      * @return this {@link DiffNode}
      */
     public DiffNode setNew(Node node)
@@ -99,10 +99,10 @@ public class DiffNode extends DiffEntry
 
     /**
      * Filter the descendants of this DiffNode recursively, creating copies of the "survivors". If this node has
-     * survivor descendants or is accepted by the filter, the copy is returned, otherwise the method returns <null>.
+     * survivor descendants or is accepted by the filter, the copy is returned, otherwise the method returns null.
      *
      * @param filter the filter to be applied to this node and its descendants.
-     * @return
+     * @return a new {@link DiffNode} containing the filtered information, or null
      */
     public DiffNode copyWithFilter(Predicate<DiffNode> filter)
     {

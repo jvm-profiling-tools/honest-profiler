@@ -79,7 +79,7 @@ public final class NodeCollector
         return this;
     }
 
-    /**
+    /*
      * Only gets called on a root node.
      */
     ProfileNode normalise(LongFunction<Method> nameRegistry)

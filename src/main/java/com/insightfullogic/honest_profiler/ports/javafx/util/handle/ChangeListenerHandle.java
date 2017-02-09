@@ -16,10 +16,13 @@ public class ChangeListenerHandle<T>
 
     /**
      * @see AbstractListenerHandle#AbstractListenerHandle(javafx.beans.Observable, Object)
+     *
+     * @param observable the {@link ObservableValue} the listener will be added to
+     * @param listener the listener
      */
-    public ChangeListenerHandle(ObservableValue<T> observableValue, ChangeListener<T> listener)
+    public ChangeListenerHandle(ObservableValue<T> observable, ChangeListener<T> listener)
     {
-        super(observableValue, listener);
+        super(observable, listener);
     }
 
     // AbstractListenerHandle Implementation

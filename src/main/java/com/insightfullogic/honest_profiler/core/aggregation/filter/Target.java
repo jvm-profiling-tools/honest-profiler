@@ -150,6 +150,8 @@ public enum Target
      * Returns the extractor {@link Function} which can extract the Target value from the aggregation items with the
      * specified {@link ValueType}.
      *
+     * @param <T> the type of the input of the extractor {@link Function}
+     * @param <U> the type of the result of the extractor {@link Function}
      * @param type the {@link ValueType} of the aggregation items the extractor will accept
      * @return the extractor {@link Function} for extracting the Target value
      */

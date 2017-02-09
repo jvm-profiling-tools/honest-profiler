@@ -27,6 +27,7 @@ public class Entry implements Keyed<String>
     /**
      * Constructor which sets the link to the containing {@link Aggregation}.
      *
+     * @param <T> the type of the data items contained in the {@link Aggregation}
      * @param aggregation the containing {@link Aggregation}
      */
     public <T extends Keyed<String>> Entry(Aggregation<T> aggregation)
@@ -39,6 +40,7 @@ public class Entry implements Keyed<String>
     /**
      * Constructor which sets the aggregation key and the link to the containing {@link Aggregation}.
      *
+     * @param <T> the type of the data items contained in the {@link Aggregation}
      * @param key the aggregation key
      * @param aggregation the containing {@link Aggregation}
      */
@@ -53,6 +55,7 @@ public class Entry implements Keyed<String>
     /**
      * Returns the containing {@link Aggregation}.
      *
+     * @param <T> the type of the data items contained in the {@link Aggregation}
      * @return the containing {@link Aggregation}
      */
     @SuppressWarnings("unchecked")
@@ -152,9 +155,9 @@ public class Entry implements Keyed<String>
     }
 
     /**
-     * Returns the self time divided by the reference self time.
+     * Returns the self time divided by the reference total time.
      *
-     * @return the self time divided by the reference self time
+     * @return the self time divided by the reference total time
      */
     public double getSelfTimePct()
     {
@@ -163,9 +166,9 @@ public class Entry implements Keyed<String>
     }
 
     /**
-     * Returns the total time divided by the reference self time.
+     * Returns the total time divided by the reference total time.
      *
-     * @return the total time divided by the reference self time
+     * @return the total time divided by the reference total time
      */
     public double getTotalTimePct()
     {
@@ -174,9 +177,9 @@ public class Entry implements Keyed<String>
     }
 
     /**
-     * Returns the self sample count divided by the reference self sample count.
+     * Returns the self sample count divided by the reference total sample count.
      *
-     * @return the self sample count divided by the reference self sample count
+     * @return the self sample count divided by the reference total sample count
      */
     public double getSelfCntPct()
     {
@@ -184,9 +187,9 @@ public class Entry implements Keyed<String>
     }
 
     /**
-     * Returns the total sample count divided by the reference self sample count.
+     * Returns the total sample count divided by the reference total sample count.
      *
-     * @return the total sample count divided by the reference self sample count
+     * @return the total sample count divided by the reference total sample count
      */
     public double getTotalCntPct()
     {
@@ -194,9 +197,9 @@ public class Entry implements Keyed<String>
     }
 
     /**
-     * Returns the reference sample count.
+     * Returns the reference total sample count.
      *
-     * @return the reference sample count
+     * @return the reference total sample count
      */
     public int getRefCnt()
     {

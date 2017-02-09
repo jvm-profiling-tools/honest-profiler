@@ -126,7 +126,7 @@ public abstract class AbstractController
      * Display a message in the InfoBar, by retrieving the message from the current {@link ResourceBundle} using the
      * provided key.
      *
-     * @param message the key to the message in the {@link ResourceBundle}
+     * @param key the key to the message in the {@link ResourceBundle}
      */
     protected final void infoFromBundle(String key)
     {
@@ -137,7 +137,7 @@ public abstract class AbstractController
      * Display a message in the InfoBar, by retrieving the pattern from the current {@link ResourceBundle} using the
      * provided key and formatting it using the provided arguments.
      *
-     * @param message the key to the message pattern in the {@link ResourceBundle}
+     * @param key the key to the message pattern in the {@link ResourceBundle}
      * @param args the arguments needed by the pattern
      */
     protected final void infoFromBundle(String key, Object... args)

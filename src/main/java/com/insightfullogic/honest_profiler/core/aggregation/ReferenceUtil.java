@@ -21,7 +21,7 @@ public final class ReferenceUtil
      * @param tree the {@link Tree} whose references are to be changed
      * @param mode the strategy for setting the references
      */
-    public static <K> void switchReference(Tree tree, ReferenceMode mode)
+    public static void switchReference(Tree tree, ReferenceMode mode)
     {
         switch (mode)
         {
@@ -52,7 +52,7 @@ public final class ReferenceUtil
      * @param treeDiff the {@link TreeDiff} whose references are to be changed
      * @param mode the strategy for setting the references
      */
-    public static <K> void switchReference(TreeDiff treeDiff, ReferenceMode mode)
+    public static void switchReference(TreeDiff treeDiff, ReferenceMode mode)
     {
         switchReference(treeDiff.getBaseAggregation(), mode);
         switchReference(treeDiff.getNewAggregation(), mode);
@@ -68,7 +68,7 @@ public final class ReferenceUtil
      * @param parent the parent {@link Node}
      * @param child the child {@link Node}
      */
-    private static <K> void setReferenceToParent(Node parent, Node child)
+    private static void setReferenceToParent(Node parent, Node child)
     {
 
         if (parent == null)

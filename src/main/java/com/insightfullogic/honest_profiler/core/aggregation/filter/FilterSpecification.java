@@ -52,6 +52,8 @@ public class FilterSpecification<T>
      * specified {@link ItemType}.
      *
      * @param type the type of items the filter can filter
+     * @param hideErrors a boolean specifying if error frames should be filtered out
+     * @param filters a {@link List} of the contained {@link FilterItem}s
      */
     public FilterSpecification(ItemType type, boolean hideErrors, List<FilterItem<T, ?>> filters)
     {
@@ -91,7 +93,7 @@ public class FilterSpecification<T>
     /**
      * Sets the quickfilter String, which when not empty will generate an extra {@link Predicate} for filtering the key.
      *
-     * @param value
+     * @param value the value used for filtering
      */
     public void setQuickFilter(String value)
     {
@@ -101,7 +103,7 @@ public class FilterSpecification<T>
     // Filter Construction Methods
 
     /**
-     * Generates a {@link Predicate} which accepts items of type <T> if they are accepted by all of the filters from all
+     * Generates a {@link Predicate} which accepts items of type T if they are accepted by all of the filters from all
      * contained {@link FilterItem}s, and optionally if they do not contain errors and/or if the key contains the String
      * specified by the quickfilter String.
      *

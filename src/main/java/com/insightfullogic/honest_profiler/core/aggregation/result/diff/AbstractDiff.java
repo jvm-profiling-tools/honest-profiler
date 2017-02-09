@@ -32,6 +32,7 @@ public abstract class AbstractDiff<T extends Keyed<String>, U extends Keyed<Stri
      * Sets the {@link Aggregation}s which will be compared.
      *
      * @param baseAggregation the Base Aggregation
+     * @param newAggregation the New Aggregation
      */
     protected void setAggregations(V baseAggregation, V newAggregation)
     {

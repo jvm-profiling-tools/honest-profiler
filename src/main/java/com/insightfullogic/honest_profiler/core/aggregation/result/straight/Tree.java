@@ -37,7 +37,7 @@ public class Tree extends Aggregation<Node>
      *
      * @param source the {@link AggregationProfile} whose {@link LeanNode}s are aggregated into this Flat
      * @param grouping the {@link CombinedGrouping} used for aggregation
-     * @param data the list of root {@link Nodes}s in the Tree
+     * @param data the list of root {@link Node}s in the Tree
      */
     private Tree(AggregationProfile source, CombinedGrouping grouping, List<Node> data)
     {

@@ -18,17 +18,17 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 public enum FrameGrouping implements BiFunction<AggregationProfile, LeanNode, String>
 {
     /**
-     * Group frames by Fully Qualified Method Name. The constructed key is "<Fully Qualified ClassName>.<Method Name>".
+     * Group frames by Fully Qualified Method Name. The constructed key is "[Fully Qualified ClassName].[Method Name]".
      */
     BY_FQMN("By FQMN", (profile, node) -> profile.getSource().getMethodInfoMap().get(node.getFrame().getMethodId()).getFqmn()),
     /**
-     * Group frames by Fully Qualified Method Name and line number. The constructed key is "<Fully Qualified
-     * ClassName>.<Method Name>:<Line Number>".
+     * Group frames by Fully Qualified Method Name and line number. The constructed key is "[Fully Qualified
+     * ClassName].[Method Name]:[Line Number]".
      */
     BY_FQMN_LINENR("By FQMN + Line Nr", (profile, node) -> profile.getSource().getFqmnPlusLineNr(node)),
     /**
-     * Group frames by Fully Qualified Method Name and BCI (byte code index). The constructed key is "<Fully Qualified
-     * ClassName>.<Method Name>:<BCI>".
+     * Group frames by Fully Qualified Method Name and BCI (byte code index). The constructed key is "[Fully Qualified
+     * ClassName].[Method Name]:[BCI]".
      */
     BY_BCI("By FQMN + BCI", (profile, node) -> profile.getSource().getBciKey(node));
 

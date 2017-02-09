@@ -67,7 +67,7 @@ public class Table
 
     /**
      * Adds a data row to the {@link Table}. The number of data {@link Object}s must match the number of columns which
-     * were added to the Table. <null> data {@link Object}s are rendered as "&lt;NULL&gt;".
+     * were added to the Table. null data {@link Object}s are rendered as "&lt;NULL&gt;".
      *
      * @param data The {@link Object}s in the row, one for each column
      * @throws RuntimeException if the number of data {@link Object}s doesn't match the number of columns in the Table
@@ -134,8 +134,8 @@ public class Table
     }
 
     /**
-     * Prints a row, overriding the {@link Alignment} as specified by the column definitions if teh specified
-     * {@link Alignment} is not <null>.
+     * Prints a row, overriding the {@link Alignment} as specified by the column definitions if the specified
+     * {@link Alignment} is not null.
      *
      * @param out the {@link PrintWriter} the Table is printed to
      * @param entries the {@link List} of String entries to be printed

@@ -117,6 +117,7 @@ public final class ApplicationContext
      * Set the text in the InfoBar as per {@link #textFor(String, Object...)}.
      *
      * @param key the key for the pattern in the application {@link ResourceBundle}
+     * @param args the arguments for formatting the pattern
      */
     public void setInfoFromBundle(String key, Object... args)
     {

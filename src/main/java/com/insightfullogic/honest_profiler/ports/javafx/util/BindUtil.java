@@ -89,6 +89,7 @@ public class BindUtil
      * selected in the specified {@link AbstractViewController}.
      *
      * @param view the {@link AbstractViewController} which provides the {@link CombinedGrouping} for the aggregation
+     * @return the extraction {@link Function}
      */
     public static final Function<Object, Flat> flatExtractor(AbstractViewController<?> view)
     {
@@ -101,6 +102,7 @@ public class BindUtil
      * selected in the specified {@link AbstractViewController}.
      *
      * @param view the {@link AbstractViewController} which provides the {@link CombinedGrouping} for the aggregation
+     * @return the extraction {@link Function}
      */
     public static final Function<Object, Tree> treeExtractor(AbstractViewController<?> view)
     {

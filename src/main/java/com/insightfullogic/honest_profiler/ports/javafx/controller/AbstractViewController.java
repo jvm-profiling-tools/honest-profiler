@@ -35,6 +35,7 @@ import javafx.beans.value.ObservableObjectValue;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -91,7 +92,6 @@ public abstract class AbstractViewController<T> extends AbstractController
      * This method must be called by such subclasses in their FXML initialize(). It should provide the controller-local
      * UI nodes needed by the AbstractViewController.
      *
-     * @param type the {@link ItemType} of the items shown in the view
      * @param filterButton the button used to trigger filter editing
      * @param quickFilterButton the button used to apply the quick filter
      * @param quickFilterText the TextField providing the value for the quick filter
@@ -112,10 +112,10 @@ public abstract class AbstractViewController<T> extends AbstractController
      * This method must be called by such subclasses in their FXML initialize(). It should provide the controller-local
      * UI nodes needed by the AbstractViewController.
      *
-     * @param filterButton the button used to trigger filter editing
-     * @param quickFilterButton the button used to apply the quick filter
-     * @param quickFilterText the TextField providing the value for the quick filter
-     * @param type the {@link ItemType} shown in the view
+     * @param threadGroupingLabel the label next to the {@link ThreadGrouping} {@link ChoiceBox}
+     * @param threadGrouping the {@link ThreadGrouping} {@link ChoiceBox}
+     * @param frameGroupingLabel the label next to the {@link FrameGrouping} {@link ChoiceBox}
+     * @param frameGrouping the {@link FrameGrouping} {@link ChoiceBox}
      */
     protected void initialize(Label threadGroupingLabel, ChoiceBox<ThreadGrouping> threadGrouping,
         Label frameGroupingLabel, ChoiceBox<FrameGrouping> frameGrouping)
@@ -226,9 +226,10 @@ public abstract class AbstractViewController<T> extends AbstractController
      * different requirements. E.g. the Diff views need to include indications of which of the profiles being compared
      * the column data is for.
      *
-     * If <null> is passed as {@link ProfileContext}, this indicates to the subclass that the data for the column is a
+     * If null is passed as {@link ProfileContext}, this indicates to the subclass that the data for the column is a
      * comparison between both profiles from a {@link DiffEntry}.
      *
+     * @param <C> the type of the column
      * @param column the column for which the header contents should be set
      * @param title the display title for the column
      * @param context the {@link ProfileContext} of the profile for which the column contains data, or null for a Diff
@@ -245,6 +246,7 @@ public abstract class AbstractViewController<T> extends AbstractController
     /**
      * Configures a {@link TableColumn} containing percentages calculated for a single profile.
      *
+     * @param <U> the type of the items in the {@link TableView} containing the {@link TableColumn}
      * @param column the column being configured
      * @param propertyName the name of the property containing the value for this column
      * @param profileContext the {@link ProfileContext} for the profile whose data is shown
@@ -261,6 +263,7 @@ public abstract class AbstractViewController<T> extends AbstractController
     /**
      * Configures a {@link TableColumn} containing the percentage difference comparing two profiles.
      *
+     * @param <U> the type of the items in the {@link TableView} containing the {@link TableColumn}
      * @param column the column being configured
      * @param propertyName the name of the property containing the value for this column
      * @param title the column title
@@ -276,6 +279,7 @@ public abstract class AbstractViewController<T> extends AbstractController
     /**
      * Configures a {@link TableColumn} containing numbers calculated for a single profile.
      *
+     * @param <U> the type of the items in the {@link TableView} containing the {@link TableColumn}
      * @param column the column being configured
      * @param propertyName the name of the property containing the value for this column
      * @param profileContext the {@link ProfileContext} for the profile whose data is shown
@@ -292,9 +296,9 @@ public abstract class AbstractViewController<T> extends AbstractController
     /**
      * Configures a {@link TableColumn} containing the number difference comparing two profiles.
      *
+     * @param <U> the type of the items in the {@link TableView} containing the {@link TableColumn}
      * @param column the column being configured
      * @param propertyName the name of the property containing the value for this column
-     * @param profileContext the {@link ProfileContext} for the profile whose data is shown
      * @param title the column title
      */
     protected <U> void cfgNrDiffCol(TableColumn<U, Number> column, String propertyName,
@@ -308,6 +312,7 @@ public abstract class AbstractViewController<T> extends AbstractController
     /**
      * Configures a {@link TableColumn} containing durations calculated for a single profile.
      *
+     * @param <U> the type of the items in the {@link TableView} containing the {@link TableColumn}
      * @param column the column being configured
      * @param propertyName the name of the property containing the value for this column
      * @param profileContext the {@link ProfileContext} for the profile whose data is shown
@@ -324,9 +329,9 @@ public abstract class AbstractViewController<T> extends AbstractController
     /**
      * Configures a {@link TableColumn} containing the duration difference comparing two profiles.
      *
+     * @param <U> the type of the items in the {@link TableView} containing the {@link TableColumn}
      * @param column the column being configured
      * @param propertyName the name of the property containing the value for this column
-     * @param profileContext the {@link ProfileContext} for the profile whose data is shown
      * @param title the column title
      */
     protected <U> void cfgTimeDiffCol(TableColumn<U, Number> column, String propertyName,
@@ -342,6 +347,7 @@ public abstract class AbstractViewController<T> extends AbstractController
     /**
      * Configures a {@link TreeTableColumn} containing percentages calculated for a single profile.
      *
+     * @param <U> the type of the items in the {@link TableView} containing the {@link TableColumn}
      * @param column the column being configured
      * @param propertyName the name of the property containing the value for this column
      * @param profileContext the {@link ProfileContext} for the profile whose data is shown
@@ -358,6 +364,7 @@ public abstract class AbstractViewController<T> extends AbstractController
     /**
      * Configures a {@link TreeTableColumn} containing the percentage difference comparing two profiles.
      *
+     * @param <U> the type of the items in the {@link TableView} containing the {@link TableColumn}
      * @param column the column being configured
      * @param propertyName the name of the property containing the value for this column
      * @param title the column title
@@ -373,6 +380,7 @@ public abstract class AbstractViewController<T> extends AbstractController
     /**
      * Configures a {@link TreeTableColumn} containing numbers calculated for a single profile.
      *
+     * @param <U> the type of the items in the {@link TableView} containing the {@link TableColumn}
      * @param column the column being configured
      * @param propertyName the name of the property containing the value for this column
      * @param profileContext the {@link ProfileContext} for the profile whose data is shown
@@ -389,9 +397,9 @@ public abstract class AbstractViewController<T> extends AbstractController
     /**
      * Configures a {@link TreeTableColumn} containing the number difference comparing two profiles.
      *
+     * @param <U> the type of the items in the {@link TableView} containing the {@link TableColumn}
      * @param column the column being configured
      * @param propertyName the name of the property containing the value for this column
-     * @param profileContext the {@link ProfileContext} for the profile whose data is shown
      * @param title the column title
      */
     protected <U> void cfgNrDiffCol(TreeTableColumn<U, Number> column, String propertyName,
@@ -405,6 +413,7 @@ public abstract class AbstractViewController<T> extends AbstractController
     /**
      * Configures a {@link TreeTableColumn} containing durations calculated for a single profile.
      *
+     * @param <U> the type of the items in the {@link TableView} containing the {@link TableColumn}
      * @param column the column being configured
      * @param propertyName the name of the property containing the value for this column
      * @param profileContext the {@link ProfileContext} for the profile whose data is shown
@@ -421,9 +430,9 @@ public abstract class AbstractViewController<T> extends AbstractController
     /**
      * Configures a {@link TableColumn} containing the duration difference comparing two profiles.
      *
+     * @param <U> the type of the items in the {@link TableView} containing the {@link TableColumn}
      * @param column the column being configured
      * @param propertyName the name of the property containing the value for this column
-     * @param profileContext the {@link ProfileContext} for the profile whose data is shown
      * @param title the column title
      */
     protected <U> void cfgTimeDiffCol(TreeTableColumn<U, Number> column, String propertyName,
@@ -485,9 +494,9 @@ public abstract class AbstractViewController<T> extends AbstractController
     }
 
     /**
-     * Create a new filter selection Dialog.
+     * Create a new filter selection {@link Dialog}.
      *
-     * @return
+     * @return the controller for the {@link Dialog}
      */
     private FilterDialogController<T> createFilterDialog()
     {

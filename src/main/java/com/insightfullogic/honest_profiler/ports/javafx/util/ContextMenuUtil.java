@@ -24,6 +24,7 @@ import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableRow;
+import javafx.scene.control.TreeTableView;
 
 /**
  * Utility class for dynamically constructing and binding {@link ContextMenu}s.
@@ -36,6 +37,8 @@ public final class ContextMenuUtil
      * Binds a dynamically generated {@link ContextMenu} to a {@link TreeTableCell}. The menu provides expand and
      * collapse options for a tree node.
      *
+     * @param <T> the type of the items in the containing {@link TreeTableView}
+     * @param <U> the type of the item contained in the {@link TreeTableCell}
      * @param appCtx the {@link ApplicationContext} of the application
      * @param cell the {@link TreeTableCell} for which the {@link ContextMenu} should be displayed when it is
      *            right-clicked
@@ -54,6 +57,7 @@ public final class ContextMenuUtil
      * Binds a dynamically generated {@link ContextMenu} to a {@link TreeCell}. The menu provides expand and collapse
      * options for a tree node.
      *
+     * @param <T> the type of the item contained in the {@link TreeCell}
      * @param appCtx the {@link ApplicationContext} of the application
      * @param cell the {@link TreeCell} for which the {@link ContextMenu} should be displayed when it is right-clicked
      */
@@ -70,6 +74,7 @@ public final class ContextMenuUtil
      * {@link TreeTableCell}, which itself has no {@link TreeItem} property. The {@link TreeItem} {@link Property} we
      * want to bind can be found in the containing {@link TreeTableRow} instead.
      *
+     * @param <T> the type of the item contained in the {@link TreeTableRow}
      * @param appCtx the {@link ApplicationContext} of the application
      * @param ctxMenuProperty the {@link ContextMenu} {@link Property} of the {@link TreeTableCell}
      * @param tableRowProperty the {@link TreeTableRow} {@link Property} of the {@link TreeTableCell}
@@ -96,6 +101,7 @@ public final class ContextMenuUtil
      * Helper method which binds the dynamical computation of a {@link ContextMenu} to a {@link TreeItem}
      * {@link Property}.
      *
+     * @param <T> the type of the item contained in the {@link TreeItem}
      * @param appCtx the {@link ApplicationContext} of the application
      * @param ctxMenuProperty the {@link ContextMenu} {@link Property} of the {@link TreeTableCell} or {@link TreeCell}
      * @param treeItemProperty the {@link TreeItem} {@link Property}
@@ -139,6 +145,7 @@ public final class ContextMenuUtil
      *
      * For {@link Node}s, the menu will (when fixed) add an Export To File option.
      *
+     * @param <T> the type of the item contained in the {@link TreeItem}
      * @param appCtx the {@link ApplicationContext} of the application
      * @param treeItem the {@link TreeItem} for which the {@link ContextMenu} is constructed
      * @return the constructed {@link ContextMenu}

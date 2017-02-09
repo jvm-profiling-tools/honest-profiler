@@ -64,10 +64,7 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
      * Initialize method for subclasses which sets the basic properties needed by this superclass. This method must be
      * called by such subclasses in their FXML initialize().
      *
-     * @param targetExtractor function which extracts the target from the {@link ProfileContext}
-     * @param filterButton the button used to trigger filter editing
-     * @param quickFilterButton the button used to apply the quick filter
-     * @param quickFilterText the TextField providing the value for the quick filter
+     * @param type the {@link ItemType} specifying the type of items shown in the View
      */
     @Override
     protected void initialize(ItemType type)
@@ -127,8 +124,8 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
     /**
      * Sets the {@link ProfileContext}s encapsulating the baseline target and the target being compared against it.
      *
-     * @param profileContext the {@link ProfileContext}s encapsulating the baseline target and the target being compared
-     *            against it
+     * @param baseContext the {@link ProfileContext}s encapsulating the baseline target
+     * @param newContext the {@link ProfileContext}s encapsulating the target being compared
      */
     public void setProfileContexts(ProfileContext baseContext, ProfileContext newContext)
     {

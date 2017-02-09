@@ -24,6 +24,7 @@ public final class TreeUtil
      * Expands the specified {@link TreeItem}, then recursively descends into the first child, expanding the first
      * grandchild and collapsing the other grandchildren, if any.
      *
+     * @param <T> the type of the {@link Object} contained in the {@link TreeItem}
      * @param treeItem the {@link TreeItem} to be expanded
      */
     public static <T> void expandFirstOnly(TreeItem<T> treeItem)
@@ -45,7 +46,8 @@ public final class TreeUtil
      * Expands the specified {@link TreeItem} and any descendants up to the specified depth. If the depth is 0 or
      * negative, nothing happens.
      *
-     * @param treeItem the {@link TreeItem} to be expanded
+     * @param treeItem the {@link TreeItem} to be partially expanded
+     * @param depth the depthe of the expansion
      */
     public static void expandPartial(TreeItem<?> treeItem, int depth)
     {

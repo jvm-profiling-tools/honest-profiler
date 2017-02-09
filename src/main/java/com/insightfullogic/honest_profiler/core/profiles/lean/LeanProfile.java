@@ -70,6 +70,7 @@ public class LeanProfile
     /**
      * Returns the mapping between thread ids and their corresponding {@link ThreadInfo} objects.
      *
+     * @param id the thread id
      * @return the mapping between thread ids and their corresponding {@link ThreadInfo} objects
      */
     public ThreadInfo getThreadInfo(long id)

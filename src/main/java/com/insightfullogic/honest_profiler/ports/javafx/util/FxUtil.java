@@ -162,7 +162,7 @@ public final class FxUtil
      * See : <a href="http://stackoverflow.com/questions/11065140/javafx-2-1-tableview-refresh-items">this StackOverflow
      * topic</a>.
      *
-     * @param table
+     * @param table the {@link TableView} to be refreshed
      */
     public static void refreshTable(TableView<?> table)
     {

@@ -34,12 +34,12 @@ import javafx.stage.Window;
 
 /**
  * Utility class for generating various {@link Dialog}s.
- * 
+ *
  * Whenever a {@link File} is selected (for reading or export) by one of the methods in the class, the parent directory
  * is cached so that subsequent invocations of methods involving file selection start from the currently cached
  * directory. This generally avoids a lot of repetitive file system navigation on the part of the user when working with
  * multiple profiles or exporting a lot of information.
- * 
+ *
  * This concept could be extended a bit by keeping a mapping the type of file operation (open profile, export data) to
  * separate cached directory, and by providing preferences in the application for preferred locations.
  */
@@ -58,12 +58,13 @@ public final class DialogUtil
      * I'm not going to document this method yet because I'm planning to work on doing dialog creation "properly" based
      * on FXML + controller injection (instead of the way it seems to be done in all the examples on the 'Net), and how
      * it is done here, with explicit reference to the FXML files.
-     * 
-     * @param appCtx
-     * @param fxml
-     * @param title
-     * @param resetOnShow
-     * @return
+     *
+     * @param <T> blah
+     * @param appCtx blah
+     * @param fxml blah
+     * @param title blah
+     * @param resetOnShow blah
+     * @return blah
      */
     public static <T> DialogController<T> newDialog(ApplicationContext appCtx, String fxml,
         String title, boolean resetOnShow)
@@ -96,14 +97,14 @@ public final class DialogUtil
     /**
      * Present a {@link Dialog} to the user which allows the selection of a log file, and return the selected
      * {@link File}, if any.
-     * 
+     *
      * The initial directory is the current working directory, if this is the first invocation, or cached directory.
      * When a {@link File} is selected, its parent directory is cached.
-     * 
+     *
      * The rationale behind this is that the directory from which the profiler front-end is started often may be "far
      * away" from the directory where the profiler log files are stored. Also it is quite likely that log files are
      * stored "close to each other" on the file system.
-     * 
+     *
      * @param appCtx the {@link ApplicationContext} for the application
      * @return the selected {@link File}
      */
@@ -132,16 +133,18 @@ public final class DialogUtil
     /**
      * Present a {@link Dialog} to the user which allows the selection of a {@link File} into which data will be
      * exported, and write the data to the {@link File}.
-     * 
+     *
      * The initial directory is the current working directory, if this is the first invocation, or cached directory.
      * When a {@link File} is selected, its parent directory is cached.
-     * 
+     *
      * The rationale behind this is that the directory from which the profiler front-end is started often may be "far
      * away" from the directory where the profiler log files are stored. Also it is quite likely that log files are
      * stored "close to each other" on the file system.
-     * 
+     *
      * @param appCtx the {@link ApplicationContext} for the application
-     * @return the selected {@link File}
+     * @param window the containing {@link Window}
+     * @param initialFileName the filename initially proposed in the filename input text input
+     * @param exportMethod the method which writes the exported data to the {@link File}
      */
     public static void showExportDialog(ApplicationContext appCtx, Window window,
         String initialFileName, Consumer<PrintWriter> exportMethod)
@@ -175,7 +178,7 @@ public final class DialogUtil
 
     /**
      * Show an error {@link Dialog} with the specified properties.
-     * 
+     *
      * @param title the title of the {@link Dialog}
      * @param header the header of the {@link Dialog}
      * @param content the content of the {@link Dialog}
@@ -193,7 +196,7 @@ public final class DialogUtil
     /**
      * Shows an exception {@link Dialog} with the specified properties. This is an error {@link Dialog} which contains
      * the stack trace of the {@link Throwable} as expandable content.
-     * 
+     *
      * @param appCtx the {@link ApplicationContext} for the application
      * @param title the title of the {@link Dialog}
      * @param header the header of the {@link Dialog}

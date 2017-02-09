@@ -31,6 +31,7 @@ public final class ConversionUtil
      * Generates a {@link StringConverter} for an {@link Enum}, converting between the String representation obtained by
      * calling {@link Enum#toString()} and the {@link Enum} value.
      *
+     * @param <T> the type of the {@link Enum} subclass
      * @param type the type of the {@link Enum} subclass.
      * @return a {@link StringConverter} which converts between {@link Enum} values and their {@link Enum#toString()}
      *         representations

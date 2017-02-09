@@ -19,13 +19,13 @@ import javafx.beans.value.ChangeListener;
  *
  * This was extended to allow reattaching the handle to a different {@link Observable}.
  *
- * @param <T> the type of Observable the handle can reattach the listener to
+ * @param T the type of Observable the handle can reattach the listener to
  */
 public interface ListenerHandle<T extends Observable>
 {
     /**
      * Add the contained listener to the contained {@link Observable}. If the listener has already been added to an
-     * {@link Observable}, {@link #detach()} will be called first. If the contained {@link Observable} is <null> the
+     * {@link Observable}, {@link #detach()} will be called first. If the contained {@link Observable} is null the
      * method returns without doing anything.
      */
     void attach();

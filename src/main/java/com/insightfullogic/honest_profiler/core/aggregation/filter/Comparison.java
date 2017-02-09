@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
  * whether the item fulfills the condition.
  *
  * It would have been nice to be able to parametrize the Enum, it might have been possible to make the internal factory
- * methods lighter. May be revisited if {@link http://openjdk.java.net/jeps/301} gets implemented.
+ * methods lighter. May be revisited if <a href="http://openjdk.java.net/jeps/301">JEP 301</a> gets implemented.
  */
 public enum Comparison
 {
@@ -194,6 +194,7 @@ public enum Comparison
     /**
      * Returns a {@link Predicate} which will evaluate this comparison against the provided value.
      *
+     * @param <T> the type of the {@link Object} tested by the {@link Predicate}
      * @param value the value the {@link Predicate} will compare against
      * @return a {@link Predicate} which compares input to the provided value
      */

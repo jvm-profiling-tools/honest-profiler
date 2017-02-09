@@ -142,7 +142,8 @@ public class FileLogSource implements LogSource
      * Replaces the current buffer by a new ByteBuffer which is memory-mapped onto a BUFFER_SIZE (10 MB at time of
      * writing) window starting at the specified offset.
      *
-     * @throws IOException
+     * @param offset the offset in the file of the area which will be mapped into the buffer
+     * @throws IOException any I/O exceptions encountered trying to map a portion of the file into memory 
      */
     private void mapBuffer(long offset) throws IOException
     {

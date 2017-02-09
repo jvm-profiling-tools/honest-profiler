@@ -316,7 +316,7 @@ public class ProfileContext
      * Update the {@link FlameGraph} {@link ObjectProperty} if the ProfileContext is not frozen, or cache it if frozen.
      * This method may only be called on the FX thread.
      *
-     * @param profile the new {@link FlameGraph}
+     * @param flameGraph the new {@link FlameGraph}
      */
     private void update(FlameGraph flameGraph)
     {

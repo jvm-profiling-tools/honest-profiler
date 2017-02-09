@@ -15,8 +15,6 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree
 /**
  * Diff which wraps provides the difference between two tree {@link Aggregation}s (containing {@link Node}s) as a tree
  * of {@link DiffNode}s, which each wrap and provide the difference between corresponding {@link Node}s.
- *
- * @param the type of the key
  */
 public class TreeDiff extends AbstractDiff<Node, DiffNode, Tree>
 {
@@ -48,8 +46,8 @@ public class TreeDiff extends AbstractDiff<Node, DiffNode, Tree>
     /**
      * Sets the Base and New {@link Tree}s, and calculates the diff contents.
      *
-     * @param baseFlat the Base {@link Tree}
-     * @param newFlat the New {@link Tree}
+     * @param baseTree the Base {@link Tree}
+     * @param newTree the New {@link Tree}
      */
     public void set(Tree baseTree, Tree newTree)
     {

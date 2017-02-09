@@ -30,7 +30,7 @@ public class ThreadedAgent implements Runnable
     {
         /**
          * @return false iff you're ready to stop, true otherwise
-         * @throws Exception
+         * @throws Exception when things go bump
          */
         boolean run() throws Exception;
     }

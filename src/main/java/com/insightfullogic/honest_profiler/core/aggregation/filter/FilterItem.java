@@ -74,8 +74,8 @@ public class FilterItem<T, U>
     // Filter Creation
 
     /**
-     * Creates the {@link FilterPredicate} which can filter items of type <T> by extracting the value specified by
-     * {@link Target} from them. The {@link ItemType} explicity describes the type <T>, and is needed for implementation
+     * Creates the {@link FilterPredicate} which can filter items of type T by extracting the value specified by
+     * {@link Target} from them. The {@link ItemType} explicity describes the type T, and is needed for implementation
      * reasons.
      *
      * @param type the type of the item the {@link FilterPredicate} can be used on

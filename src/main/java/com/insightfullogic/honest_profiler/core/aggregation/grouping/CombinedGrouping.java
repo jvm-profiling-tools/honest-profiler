@@ -48,7 +48,7 @@ public class CombinedGrouping implements BiFunction<AggregationProfile, LeanNode
      *
      * @param profile the input {@link AggregationProfile}
      * @param node the {@link LeanNode} for which the key will be calculated
-     * @return
+     * @return the calculated key
      */
     @Override
     public String apply(AggregationProfile profile, LeanNode node)

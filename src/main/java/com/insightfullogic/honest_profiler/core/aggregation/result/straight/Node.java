@@ -31,6 +31,7 @@ public class Node extends Entry
     /**
      * Create an empty Node for the specified {@link Aggregation}.
      *
+     * @param <T> the type of the data items contained in the {@link Aggregation}
      * @param aggregation the {@link Aggregation} the created Node belongs to
      */
     public <T extends Keyed<String>> Node(Aggregation<T> aggregation)
@@ -157,11 +158,11 @@ public class Node extends Entry
     }
 
     /**
-     * Returns a copy of this Node applying a filter to itself and any descendants. The method returns <null> if no
+     * Returns a copy of this Node applying a filter to itself and any descendants. The method returns null if no
      * children are accepted by the filter and the node itself isn't accepted either.
      *
      * @param filter a {@link Predicate} for accepting Nodes
-     * @return the filtered Node or <null> if the Node and none of its descendants are accepted
+     * @return the filtered Node or null if the Node and none of its descendants are accepted
      */
     public Node copyWithFilter(Predicate<Node> filter)
     {

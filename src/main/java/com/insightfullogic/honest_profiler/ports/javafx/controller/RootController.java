@@ -266,6 +266,7 @@ public class RootController extends AbstractController implements MachineListene
     /**
      * Loads the View using the specifie FXML file into the {@link Tab}.
      *
+     * @param <T> the type of the resulting controller
      * @param fxml the path of the FXML file
      * @param tab the {@link Tab} into which the View will be loaded
      * @return the controller which was created for the View

@@ -112,6 +112,8 @@ public class AggregationProfile
      *
      * The {@link LeanThreadNode}s, which are the root {@link Node}s in the {@link LeanProfile}, are themselves already
      * aggregations of all their descendant Frame {@link LeanNode}s, so we don't need to descend any further.
+     *
+     * @return the {@link NumericInfo} containing the aggregated data
      */
     private NumericInfo aggregateGlobal()
     {

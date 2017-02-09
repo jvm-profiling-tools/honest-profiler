@@ -88,10 +88,10 @@ public class LeanNode
     }
 
     /**
-     * Returns the {@link FrameInfo} associated with this LeanNode, or <null> if this LeanNode represents a thread and
-     * is in fact a {@link LeanThreadNode}.
+     * Returns the {@link FrameInfo} associated with this LeanNode, or null if this LeanNode represents a thread and is
+     * in fact a {@link LeanThreadNode}.
      *
-     * @return the {@link FrameInfo} associated with this LeanNode, or <null> if this LeanNode represents a thread
+     * @return the {@link FrameInfo} associated with this LeanNode, or null if this LeanNode represents a thread
      */
     public FrameInfo getFrame()
     {

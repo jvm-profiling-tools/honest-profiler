@@ -38,7 +38,8 @@ public enum ValueType
      * Returns a validator {@link Predicate} which tests the String by trying to apply corresponding the convertor. If
      * that operation throws an Exception, the String cannot be converted.
      *
-     * @param convertor the convertor {@link Function} which converts a String to a value of the specified type <T>
+     * @param <T> the type of the result of the convertor {@link Function}
+     * @param convertor the convertor {@link Function} which converts a String to a value of the specified type T
      * @return a validator {@link Predicate}
      */
     private static final <T> Predicate<String> validatorFor(Function<String, T> convertor)
@@ -133,6 +134,7 @@ public enum ValueType
     /**
      * Returns a {@link Function} for converting a String to a value of this type.
      *
+     * @param <T> the type of the result of the conversion {@link Function}
      * @return a {@link Function} for converting a String to a value of this type
      */
     @SuppressWarnings("unchecked")

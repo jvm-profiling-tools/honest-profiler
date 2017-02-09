@@ -2,13 +2,9 @@ package com.insightfullogic.honest_profiler.ports.javafx.util.handle;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
-import javafx.beans.value.ObservableValue;
 
 /**
- * Trivial {@link AbstractListenerHandle} implementation for {@link InvalidationListener}s and {@link ObservableValue}s
- * encapsulating {@link Object}s of type T.
- *
- * @param <T> the type of the {@link Object} encapsulated by the {@link ObservableValue}
+ * Trivial {@link AbstractListenerHandle} implementation for {@link InvalidationListener}s and {@link Observable}s..
  */
 public class InvalidationListenerHandle
     extends AbstractListenerHandle<Observable, InvalidationListener>
@@ -17,6 +13,9 @@ public class InvalidationListenerHandle
 
     /**
      * @see AbstractListenerHandle#AbstractListenerHandle(javafx.beans.Observable, Object)
+     *
+     * @param observable the {@link Observable} the listener will be added to
+     * @param listener the listener
      */
     public InvalidationListenerHandle(Observable observable, InvalidationListener listener)
     {
