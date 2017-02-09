@@ -71,7 +71,7 @@ public class ProfileContext
     /**
      * Constructor which specifies the {@link ApplicationContext}, the name of the context, its
      * {@link ProfileContext.ProfileMode} and the Log File containing the information emitted by the Profiler Agent.
-     *
+     * <p>
      * @param appCtx the {@link ApplicationContext} for the application
      * @param name the name of the ProfileContext
      * @param mode the {@link ProfileContext.ProfileMode}
@@ -99,7 +99,7 @@ public class ProfileContext
 
     /**
      * Returns the {@link File} containing the information emitted by the Profiler Agent.
-     *
+     * <p>
      * @return the {@link File} containing the information emitted by the Profiler Agent
      */
     public File getFile()
@@ -109,7 +109,7 @@ public class ProfileContext
 
     /**
      * Sets the {@link ProfileSource} which generates new {@link LeanProfile}s, and starts the polling mechanism.
-     *
+     * <p>
      * @param profileSource the {@link ProfileSource} which generates new {@link LeanProfile}s
      */
     public void setProfileSource(ProfileSource profileSource)
@@ -121,7 +121,7 @@ public class ProfileContext
     /**
      * Returns the interval, in seconds, at which the ProfileContext will request new {@link LeanProfile} instances from
      * the {@link ProfileSource}.
-     *
+     * <p>
      * @return the interval, in seconds, at which the ProfileContext will request new {@link LeanProfile} instances
      */
     public int getDuration()
@@ -132,7 +132,7 @@ public class ProfileContext
     /**
      * Sets the interval, in seconds, at which the ProfileContext will request new {@link LeanProfile} instances from
      * the {@link ProfileSource}.
-     *
+     * <p>
      * @param seconds the interval, in seconds, at which the ProfileContext will request new {@link LeanProfile}
      *            instances
      */
@@ -144,7 +144,7 @@ public class ProfileContext
 
     /**
      * Returns the unique id of this ProfileContext.
-     *
+     * <p>
      * @return the unique id of this ProfileContext
      */
     public int getId()
@@ -154,7 +154,7 @@ public class ProfileContext
 
     /**
      * Returns the name of this ProfileContext.
-     *
+     * <p>
      * @return the name of this ProfileContext
      */
     public String getName()
@@ -164,7 +164,7 @@ public class ProfileContext
 
     /**
      * Returns the {@link ProfileMode} for this ProfileContext.
-     *
+     * <p>
      * @return the {@link ProfileMode} for this ProfileContext
      */
     public ProfileMode getMode()
@@ -174,7 +174,7 @@ public class ProfileContext
 
     /**
      * Returns the current {@link AggregationProfile}.
-     *
+     * <p>
      * @return the current {@link AggregationProfile}
      */
     public AggregationProfile getProfile()
@@ -184,7 +184,7 @@ public class ProfileContext
 
     /**
      * Returns the {@link ObjectProperty} encapsulating the current {@link AggregationProfile}.
-     *
+     * <p>
      * @return the {@link ObjectProperty} encapsulating the current {@link AggregationProfile}
      */
     public ObjectProperty<AggregationProfile> profileProperty()
@@ -194,7 +194,7 @@ public class ProfileContext
 
     /**
      * Returns the {@link ObjectProperty} encapsulating the current {@link FlameGraph}.
-     *
+     * <p>
      * @return the {@link ObjectProperty} encapsulating the current {@link FlameGraph}
      */
     public ObjectProperty<FlameGraph> flameGraphProperty()
@@ -205,7 +205,7 @@ public class ProfileContext
     /**
      * Returns a boolean indicating whether the ProfileContext is currently frozen, i.e. not requesting any
      * {@link LeanProfile} updates from the {@link ProfileSource}.
-     *
+     * <p>
      * @return a boolean indicating whether the ProfileContext is currently frozen
      */
     public boolean isFrozen()
@@ -215,7 +215,7 @@ public class ProfileContext
 
     /**
      * Freezes or unfreezes the {@link ProfileContext}. This method may only be called on the FX thread.
-     *
+     * <p>
      * @param freeze a boolean indicating whether the ProfileContext should be frozen
      */
     public void setFrozen(boolean freeze)
@@ -250,7 +250,7 @@ public class ProfileContext
     /**
      * Returns a {@link LeanProfileListener} which accepts new emitted {@link LeanProfile}s and updates the
      * ProfileContext accordingly.
-     *
+     * <p>
      * @return a {@link LeanProfileListener} which accepts new emitted {@link LeanProfile}s
      */
     public LeanProfileListener getProfileListener()
@@ -279,7 +279,7 @@ public class ProfileContext
     /**
      * Returns a {@link FlameGraphListener} which accepts new emitted {@link FlameGraph}s and updates the ProfileContext
      * accordingly.
-     *
+     * <p>
      * @return a {@link FlameGraphListener} which accepts new emitted {@link FlameGraph}s
      */
     public FlameGraphListener getFlameGraphListener()
@@ -304,7 +304,7 @@ public class ProfileContext
 
     /**
      * Update the {@link AggregationProfile} {@link ObjectProperty}. This method may only be called on the FX thread.
-     *
+     * <p>
      * @param profile the new {@link AggregationProfile}
      */
     public void update(AggregationProfile profile)
@@ -315,7 +315,7 @@ public class ProfileContext
     /**
      * Update the {@link FlameGraph} {@link ObjectProperty} if the ProfileContext is not frozen, or cache it if frozen.
      * This method may only be called on the FX thread.
-     *
+     * <p>
      * @param flameGraph the new {@link FlameGraph}
      */
     private void update(FlameGraph flameGraph)

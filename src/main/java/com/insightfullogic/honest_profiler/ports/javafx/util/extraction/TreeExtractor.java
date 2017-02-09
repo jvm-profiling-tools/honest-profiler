@@ -23,7 +23,7 @@ public class TreeExtractor implements Function<Object, Tree>
 
     /**
      * Constructor specifying the {@link CombinedGrouping} to be used when aggregating.
-     *
+     * <p>
      * @param grouping the {@link CombinedGrouping} to be used when aggregating
      */
     public TreeExtractor(ObservableObjectValue<CombinedGrouping> grouping)

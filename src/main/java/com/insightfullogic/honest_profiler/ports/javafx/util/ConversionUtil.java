@@ -18,7 +18,7 @@ public final class ConversionUtil
     /**
      * Convert the specified number of nanoseconds to number of milliseconds, ignoring the fractional part of the
      * result.
-     *
+     * <p>
      * @param nanos the number of nanoseconds
      * @return the number of milliseconds
      */
@@ -30,7 +30,7 @@ public final class ConversionUtil
     /**
      * Generates a {@link StringConverter} for an {@link Enum}, converting between the String representation obtained by
      * calling {@link Enum#toString()} and the {@link Enum} value.
-     *
+     * <p>
      * @param <T> the type of the {@link Enum} subclass
      * @param type the type of the {@link Enum} subclass.
      * @return a {@link StringConverter} which converts between {@link Enum} values and their {@link Enum#toString()}

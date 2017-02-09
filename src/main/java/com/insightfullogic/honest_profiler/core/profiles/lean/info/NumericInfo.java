@@ -19,7 +19,7 @@ import com.insightfullogic.honest_profiler.core.parser.StackFrame;
  * <li>Total Sample Count, which is the number of sample stack traces in which the code from a method (or an aggregated
  * set of methods) or a method called (in)directly by the method(s) was seen as being executed</li>
  * </ul>
- *
+ * <p>
  * The class also provides aggregation methods which aggregate a sample or other NumericInfo into this one.
  */
 public class NumericInfo
@@ -44,7 +44,7 @@ public class NumericInfo
 
     /**
      * Copy constructor.
-     *
+     * <p>
      * @param source the source NumericInfo which is being copied
      */
     private NumericInfo(NumericInfo source)
@@ -54,7 +54,7 @@ public class NumericInfo
 
     /**
      * Convenience internal constructor.
-     *
+     * <p>
      * @param selfTime the self time in ns
      * @param totalTime the total time in ns
      * @param selfCnt the self count
@@ -72,7 +72,7 @@ public class NumericInfo
 
     /**
      * Returns the self time for the method or aggregated set of methods.
-     *
+     * <p>
      * @return the self time for the method or aggregated set of methods
      */
     public BigInteger getSelfTime()
@@ -82,7 +82,7 @@ public class NumericInfo
 
     /**
      * Returns the total time for the method or aggregated set of methods.
-     *
+     * <p>
      * @return the total time for the method or aggregated set of methods
      */
     public BigInteger getTotalTime()
@@ -92,7 +92,7 @@ public class NumericInfo
 
     /**
      * Returns the self sample count for the method or aggregated set of methods.
-     *
+     * <p>
      * @return the self sample count for the method or aggregated set of methods
      */
     public int getSelfCnt()
@@ -102,7 +102,7 @@ public class NumericInfo
 
     /**
      * Returns the total sample count for the method or aggregated set of methods.
-     *
+     * <p>
      * @return the total sample count for the method or aggregated set of methods
      */
     public int getTotalCnt()
@@ -115,10 +115,10 @@ public class NumericInfo
     /**
      * Aggregation method for initial lean aggregation, used when the info from a new {@link StackFrame} is aggregated
      * into the info from an existing one.
-     *
+     * <p>
      * The nanoseconds is added to total time, and if self is true, to self time as well. The total sample count is
      * incremented, and if self is true, the self sample count as well.
-     *
+     * <p>
      * @param nanos the number of nanoseconds spent in the stack
      * @param self a boolean indicating whether the associated frame is the last in the stack
      * @return this object
@@ -142,7 +142,7 @@ public class NumericInfo
     /**
      * Aggregation method for aggregating another @link NumericInfo object into this one. The corresponding values are
      * added together.
-     *
+     * <p>
      * @param other the NumericInfo object to be aggregated into this one
      * @return this object
      */
@@ -159,7 +159,7 @@ public class NumericInfo
 
     /**
      * Returns a copy of this object.
-     *
+     * <p>
      * @return a copy of this object
      */
     public NumericInfo copy()

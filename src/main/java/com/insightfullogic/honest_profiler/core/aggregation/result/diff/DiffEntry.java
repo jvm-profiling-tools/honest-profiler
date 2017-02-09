@@ -17,7 +17,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * Basic constructor specifying the {@link Entry}s being compared.
-     *
+     * <p>
      * @param baseEntry the Base {@link Entry}
      * @param newEntry the New {@link Entry}
      */
@@ -31,10 +31,10 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * Sets the Base {@link Entry}.
-     *
+     * <p>
      * The return value is provided as a convenience for
      * {@link FlatDiff#set(com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat, com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat)}.
-     *
+     * <p>
      * @param entry the Base {@link Entry}
      * @return this {@link DiffEntry}
      */
@@ -46,10 +46,10 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * Sets the New {@link Entry}.
-     *
+     * <p>
      * The return value is provided as a convenience for
      * {@link FlatDiff#set(com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat, com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat)}.
-     *
+     * <p>
      * @param entry the New {@link Entry}
      * @return this {@link DiffEntry}
      */
@@ -61,7 +61,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * Returns the Base {@link Entry}.
-     *
+     * <p>
      * @return the Base {@link Entry}
      */
     public Entry getBaseEntry()
@@ -71,7 +71,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * Returns the New {@link Entry}.
-     *
+     * <p>
      * @return the New {@link Entry}
      */
     public Entry getNewEntry()
@@ -87,7 +87,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * @see Entry#getSelfTime()
-     *
+     * <p>
      * @return the Base aggregated self time in nanoseconds
      */
     public long getBaseSelfTime()
@@ -97,7 +97,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * @see Entry#getTotalTime()
-     *
+     * <p>
      * @return the Base aggregated total time in nanoseconds
      */
     public long getBaseTotalTime()
@@ -107,7 +107,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * @see Entry#getSelfCnt()
-     *
+     * <p>
      * @return the Base aggregated self sample count
      */
     public int getBaseSelfCnt()
@@ -117,7 +117,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * @see Entry#getTotalCnt()
-     *
+     * <p>
      * @return the Base aggregated total sample count
      */
     public int getBaseTotalCnt()
@@ -127,7 +127,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * @see Entry#getSelfTimePct()
-     *
+     * <p>
      * @return the Base self time divided by the Base reference total time
      */
     public double getBaseSelfTimePct()
@@ -137,7 +137,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * @see Entry#getTotalTimePct()
-     *
+     * <p>
      * @return the Base total time divided by the Base reference total time
      */
     public double getBaseTotalTimePct()
@@ -147,7 +147,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * @see Entry#getSelfCntPct()
-     *
+     * <p>
      * @return the Base self sample count divided by the Base reference total sample count
      */
     public double getBaseSelfCntPct()
@@ -157,7 +157,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * @see Entry#getTotalCntPct()
-     *
+     * <p>
      * @return the Base total sample count divided by the Base reference total sample count
      */
     public double getBaseTotalCntPct()
@@ -167,7 +167,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * @see Entry#getSelfTime()
-     *
+     * <p>
      * @return the New aggregated self time in nanoseconds
      */
     public long getNewSelfTime()
@@ -177,7 +177,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * @see Entry#getTotalTime()
-     *
+     * <p>
      * @return the New aggregated total time in nanoseconds
      */
     public long getNewTotalTime()
@@ -187,7 +187,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * @see Entry#getSelfCnt()
-     *
+     * <p>
      * @return the New aggregated self sample count
      */
     public int getNewSelfCnt()
@@ -197,7 +197,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * @see Entry#getTotalCnt()
-     *
+     * <p>
      * @return the New aggregated total sample count
      */
     public int getNewTotalCnt()
@@ -207,7 +207,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * @see Entry#getSelfTimePct()
-     *
+     * <p>
      * @return the New self time divided by the New reference total time
      */
     public double getNewSelfTimePct()
@@ -217,7 +217,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * @see Entry#getTotalTimePct()
-     *
+     * <p>
      * @return the New total time divided by the New reference total time
      */
     public double getNewTotalTimePct()
@@ -227,7 +227,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * @see Entry#getSelfCntPct()
-     *
+     * <p>
      * @return the New self sample count divided by the New reference total sample count
      */
     public double getNewSelfCntPct()
@@ -237,7 +237,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * @see Entry#getTotalCntPct()
-     *
+     * <p>
      * @return the New total sample count divided by the New reference total sample count
      */
     public double getNewTotalCntPct()
@@ -247,7 +247,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * @see Entry#getRefCnt()
-     *
+     * <p>
      * @return the Base reference total sample count
      */
     public int getBaseRefCnt()
@@ -257,7 +257,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * @see Entry#getRefCnt()
-     *
+     * <p>
      * @return the New reference total sample count
      */
     public int getNewRefCnt()
@@ -267,7 +267,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * Returns the difference between the Self Time of the New and Base {@link Entry}s.
-     *
+     * <p>
      * @return the difference between the Self Time of the New and Base {@link Entry}s
      */
     public long getSelfTimeDiff()
@@ -277,7 +277,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * Returns the difference between the Total Time of the New and Base {@link Entry}s.
-     *
+     * <p>
      * @return the difference between the Total Time of the New and Base {@link Entry}s
      */
     public long getTotalTimeDiff()
@@ -287,7 +287,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * Returns the difference between the Self Count of the New and Base {@link Entry}s.
-     *
+     * <p>
      * @return the difference between the Self Count of the New and Base {@link Entry}s
      */
     public int getSelfCntDiff()
@@ -297,7 +297,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * Returns the difference between the Total Count of the New and Base {@link Entry}s.
-     *
+     * <p>
      * @return the difference between the Total Count of the New and Base {@link Entry}s
      */
     public int getTotalCntDiff()
@@ -307,7 +307,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * Returns the difference between the Self Time % of the New and Base {@link Entry}s.
-     *
+     * <p>
      * @return the difference between the Self Time % of the New and Base {@link Entry}s
      */
     public double getSelfTimePctDiff()
@@ -317,7 +317,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * Returns the difference between the Total Time % of the New and Base {@link Entry}s.
-     *
+     * <p>
      * @return the difference between the Total Time % of the New and Base {@link Entry}s
      */
     public double getTotalTimePctDiff()
@@ -327,7 +327,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * Returns the difference between the Self Count % of the New and Base {@link Entry}s.
-     *
+     * <p>
      * @return the difference between the Self Count % of the New and Base {@link Entry}s
      */
     public double getSelfCntPctDiff()
@@ -337,7 +337,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * Returns the difference between the Total Count % of the New and Base {@link Entry}s.
-     *
+     * <p>
      * @return the difference between the Total Count % of the New and Base {@link Entry}s
      */
     public double getTotalCntPctDiff()
@@ -347,7 +347,7 @@ public class DiffEntry implements Keyed<String>
 
     /**
      * Returns the difference between the Total Count of the New and Base {@link Entry} references.
-     *
+     * <p>
      * @return the difference between the Total Count of the New and Base {@link Entry} references
      */
     public int getRefCntDiff()

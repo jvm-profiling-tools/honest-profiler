@@ -9,7 +9,7 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
  * A FrameGrouping describes how a collection of {@link LeanNode}s describing frames can be partitioned for aggregation.
  * The grouping maps each {@link LeanNode} to a String key, and {@link LeanNode}s with the same key will be aggregated
  * together.
- *
+ * <p>
  * Every FrameGrouping contains a name for front-end display purposes, and wraps a {@link BiFunction} which maps an
  * {@link AggregationProfile} and a {@link LeanNode} to the String key. The {@link AggregationProfile} is needed because
  * the {@link LeanNode} only contains the method Id, which has to be mapped to an actual name using the

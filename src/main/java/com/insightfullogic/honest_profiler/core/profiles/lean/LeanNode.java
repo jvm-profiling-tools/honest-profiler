@@ -18,9 +18,9 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.info.NumericInfo;
 /**
  * LeanNode is a tree node recording the aggregation of the numerical data for a thread or a frame inside a
  * {@link LeanProfile}.
- *
+ * <p>
  * Its children represent frames that were directly called from the represented frame or thread at some point.
- *
+ * <p>
  * It also has a unique id, needed in some case to prevent duplicate aggregation.
  */
 public class LeanNode
@@ -39,7 +39,7 @@ public class LeanNode
      * "Non-self constructor" which sets the {@link FrameInfo} and the parent LeanNode, used for constructing a new
      * frame LeanNode which is has no self time (i.e. the stack trace sample still has more descendant frames), or a
      * {@link LeanThreadNode}.
-     *
+     * <p>
      * @param frame the {@link FrameInfo} for this LeanNode
      * @param parent the parent LeanNode
      */
@@ -59,7 +59,7 @@ public class LeanNode
 
     /**
      * Copy constructor.
-     *
+     * <p>
      * @param source the source LeanNode which is being copied
      * @param newParent the parent of the copy (which itself generally is a copy)
      */
@@ -79,7 +79,7 @@ public class LeanNode
 
     /**
      * Returns the unique id of this LeanNode.
-     *
+     * <p>
      * @return the unique id of this LeanNode
      */
     public int getId()
@@ -90,7 +90,7 @@ public class LeanNode
     /**
      * Returns the {@link FrameInfo} associated with this LeanNode, or null if this LeanNode represents a thread and is
      * in fact a {@link LeanThreadNode}.
-     *
+     * <p>
      * @return the {@link FrameInfo} associated with this LeanNode, or null if this LeanNode represents a thread
      */
     public FrameInfo getFrame()
@@ -100,7 +100,7 @@ public class LeanNode
 
     /**
      * Returns the {@link NumericInfo} for this LeanNode
-     *
+     * <p>
      * @return the {@link NumericInfo} for this LeanNode
      */
     public NumericInfo getData()
@@ -110,7 +110,7 @@ public class LeanNode
 
     /**
      * Returns the parent of this LeanNode
-     *
+     * <p>
      * @return the parent of this LeanNode
      */
     public LeanNode getParent()
@@ -120,7 +120,7 @@ public class LeanNode
 
     /**
      * Returns a {@link Collection} containing the children of this LeanNode.
-     *
+     * <p>
      * @return a {@link Collection} containing the children of this LeanNode
      */
     public Collection<LeanNode> getChildren()
@@ -130,7 +130,7 @@ public class LeanNode
 
     /**
      * Returns a boolean indicating whether this node represents a thread and is a {@link LeanThreadNode}.
-     *
+     * <p>
      * @return a boolean indicating whether this node represents a thread and is a {@link LeanThreadNode}
      */
     public boolean isThreadNode()
@@ -143,10 +143,10 @@ public class LeanNode
     /**
      * Aggregates the information from a child {@link StackFrame} into the children of this LeanNode, updating the total
      * data for this LeanNode in the process.
-     *
+     * <p>
      * The add method is called from the LogCollector, on the parent with the next (potentially last) child from the
      * trace.
-     *
+     * <p>
      * @param nanos the number of nanoseconds between the {@link TraceStart} preceding the stack trace sample and the
      *            {@link TraceStart} following it
      * @param child the child {@link FrameInfo} of the current LeanNode
@@ -168,7 +168,7 @@ public class LeanNode
 
     /**
      * Aggregate the self and total data in the {@link NumericInfo} for this LeanNode.
-     *
+     * <p>
      * @param nanos the self time for the frame
      * @return this object
      */
@@ -182,7 +182,7 @@ public class LeanNode
 
     /**
      * Returns a {@link Stream} containing this LeanNode and all its descendants.
-     *
+     * <p>
      * @return a {@link Stream} containing this LeanNode and all its descendants
      */
     public Stream<LeanNode> flatten()
@@ -195,7 +195,7 @@ public class LeanNode
     /**
      * Returns a String representation of the frame represented by this node, including descendant information, indented
      * according to the specified indentation level.
-     *
+     * <p>
      * @param level the level of the indentation
      * @param methodMap the {@link Map} with the {@link MethodInfo} objects used to print the method info in the frame
      * @return a String containing the frame information of this LeanNode and its descendants.

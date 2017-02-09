@@ -38,7 +38,7 @@ public class InitializeProfileTask extends Task<ProfileContext>
      * Constructor which specifies the {@link ApplicationContext}, the source of the profile (either a live VM or a log
      * file) and an indication whether the monitoring is "live" or not (i.e. whether the Profiler Agent generating the
      * source is still running and appending data).
-     *
+     * <p>
      * @param applicationContext the {@link ApplicationContext} for the application
      * @param source the source {@link VirtualMachine} or {@link FileLogSource}
      * @param live a boolean indicating whether the log file is "live"
@@ -81,7 +81,7 @@ public class InitializeProfileTask extends Task<ProfileContext>
 
     /**
      * Create a new {@link ProfileContext} instance.
-     *
+     * <p>
      * @param mode the {@link ProfileContext.ProfileMode} for the {@link ProfileContext}
      * @param fileLogSource the {@link FileLogSource} exposing the log file from the Profiler Agent
      * @return a new {@link ProfileContext}
@@ -93,7 +93,7 @@ public class InitializeProfileTask extends Task<ProfileContext>
 
     /**
      * Returns a {@link LeanLogCollector} which emits {@link LeanProfile}s to the specified {@link ProfileContext}.
-     *
+     * <p>
      * @param context the {@link ProfileContext} which will receive the emitted {@link LeanProfile}s
      * @return a new {@link LeanLogCollector}
      */
@@ -105,7 +105,7 @@ public class InitializeProfileTask extends Task<ProfileContext>
     /**
      * Returns either the original source specified on {@link Task} creation if it is already a {@link FileLogSource},
      * or it gets the {@link FileLogSource} from the source {@link VirtualMachine}.
-     *
+     * <p>
      * @return the {@link FileLogSource} for the profile specified by the task source
      */
     private FileLogSource getLogSource()
@@ -117,7 +117,7 @@ public class InitializeProfileTask extends Task<ProfileContext>
 
     /**
      * Return a name constructed from information from the task source Object.
-     *
+     * <p>
      * @return a name based on the task source Object
      */
     private String getName()
@@ -130,7 +130,7 @@ public class InitializeProfileTask extends Task<ProfileContext>
     /**
      * Returns a {@link ProfileContext} which monitors {@link LeanProfile}s emitted by a {@link LeanLogCollector} based
      * on a live log file.
-     *
+     * <p>
      * @param fileLogSource the live log file from which the log events for constructing the {@link LeanProfile} are
      *            sourced
      * @return a new {@link ProfileContext} for live monitoring
@@ -147,7 +147,7 @@ public class InitializeProfileTask extends Task<ProfileContext>
 
     /**
      * Returns a {@link ProfileContext} which will emit {@link LeanProfile}s produced by consuming a non-live log file.
-     *
+     * <p>
      * @param fileLogSource the non-live log file which will be processed
      * @return a new {@link ProfileContext} for non-live log file comsumption
      */
@@ -167,7 +167,7 @@ public class InitializeProfileTask extends Task<ProfileContext>
 
     /**
      * Creates a name for a {@link VirtualMachine} which will be monitored.
-     *
+     * <p>
      * @param vm the {@link VirtualMachine} which will be monitored
      * @return a name for the {@link VirtualMachine}
      */

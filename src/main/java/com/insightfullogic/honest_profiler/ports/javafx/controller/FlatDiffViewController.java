@@ -229,7 +229,7 @@ public class FlatDiffViewController extends AbstractProfileDiffViewController<Fl
 
     /**
      * Helper method for {@link #refresh()}.
-     *
+     * <p>
      * @param baseFlat the Base {@link Flat} to be compared
      * @param newFlat the New {@link Flat} to be compared
      */

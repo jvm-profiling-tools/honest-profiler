@@ -5,7 +5,7 @@ import javafx.beans.Observable;
 /**
  * Superclass implementing the {@link ListenerHandle} attach/detach logic regardless of the type of listener or
  * {@link Observable}.
- *
+ * <p>
  * @param <T> the type of the {@link Observable} the handle can be attached to
  * @param <U> the type of the contained listener
  */
@@ -22,9 +22,9 @@ public abstract class AbstractListenerHandle<T extends Observable, U> implements
     /**
      * Constructor specifying the {@link Observable} the listener will be added to or removed from, and the actual
      * listener.
-     *
+     * <p>
      * This implementation is not threadsafe.
-     *
+     * <p>
      * @param observable the {@link Observable} the listener will be added to
      * @param listener the listener
      */
@@ -76,7 +76,7 @@ public abstract class AbstractListenerHandle<T extends Observable, U> implements
 
     /**
      * Implements the actual addition of the listener of type U to an {@link Observable} of type T
-     *
+     * <p>
      * @param observable the {@link Observable} the listener has to be added to
      * @param listener the listener to be added
      */
@@ -84,7 +84,7 @@ public abstract class AbstractListenerHandle<T extends Observable, U> implements
 
     /**
      * Implements the actual removal of the listener of type U from an {@link Observable} of type T
-     *
+     * <p>
      * @param observable the {@link Observable} the listener has to be removed from
      * @param listener the listener to be removed
      */

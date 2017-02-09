@@ -16,7 +16,7 @@ public class CombinedGrouping implements BiFunction<AggregationProfile, LeanNode
 {
     /**
      * Factory method for creating CombinedGroupings.
-     *
+     * <p>
      * @param threadGrouping the {@link ThreadGrouping} in the resulting CombinedGrouping
      * @param frameGrouping the {@link FrameGrouping} in the resulting CombinedGrouping
      * @return a CombinedGrouping wrapping the specified {@link ThreadGrouping} and {@link FrameGrouping}/
@@ -45,7 +45,7 @@ public class CombinedGrouping implements BiFunction<AggregationProfile, LeanNode
 
     /**
      * Calculate the key for a {@link LeanNode}, based on the provided groupings.
-     *
+     * <p>
      * @param profile the input {@link AggregationProfile}
      * @param node the {@link LeanNode} for which the key will be calculated
      * @return the calculated key

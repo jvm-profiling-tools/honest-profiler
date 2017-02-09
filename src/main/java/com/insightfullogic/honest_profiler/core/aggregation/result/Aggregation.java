@@ -9,7 +9,7 @@ import com.insightfullogic.honest_profiler.core.aggregation.grouping.CombinedGro
 /**
  * Superclass for the aggregation container data structures which aggregate an {@link AggregationProfile} using a
  * {@link CombinedGrouping}.
- *
+ * <p>
  * @param <T> the type of data item contained in the Aggregation.
  */
 public abstract class Aggregation<T extends Keyed<String>>
@@ -25,7 +25,7 @@ public abstract class Aggregation<T extends Keyed<String>>
     /**
      * Constructor specifying the source {@link AggregationProfile}, the {@link CombinedGrouping} used for aggregating
      * and the data in the aggregation.
-     *
+     * <p>
      * @param source the source {@link AggregationProfile} whose contents are aggregated
      * @param grouping the {@link CombinedGrouping} used for aggregating
      * @param data the data in the Aggregation
@@ -42,7 +42,7 @@ public abstract class Aggregation<T extends Keyed<String>>
 
     /**
      * Returns the source {@link AggregationProfile}.
-     *
+     * <p>
      * @return the source {@link AggregationProfile}
      */
     public AggregationProfile getSource()
@@ -52,7 +52,7 @@ public abstract class Aggregation<T extends Keyed<String>>
 
     /**
      * Returns the {@link CombinedGrouping} used to aggregate the data.
-     *
+     * <p>
      * @return the {@link CombinedGrouping} used to aggregate the data
      */
     public CombinedGrouping getGrouping()
@@ -62,7 +62,7 @@ public abstract class Aggregation<T extends Keyed<String>>
 
     /**
      * Returns the list of data items contained in this Aggregation.
-     *
+     * <p>
      * @return the list of data items contained in this Aggregation
      */
     public List<T> getData()
@@ -75,7 +75,7 @@ public abstract class Aggregation<T extends Keyed<String>>
     /**
      * Filters the Aggregation, keeping only contained items which are accepted by the filter, and returns a new
      * {@link Aggregation} containing the result.
-     *
+     * <p>
      * @param filterSpec the {@link FilterSpecification} which specifies the filter to be applied
      * @return a new {@link Aggregation} containing the filtered result
      */

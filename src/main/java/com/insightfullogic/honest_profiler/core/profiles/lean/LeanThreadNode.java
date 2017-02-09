@@ -27,7 +27,7 @@ public class LeanThreadNode extends LeanNode
 
     /**
      * Copy constructor.
-     *
+     * <p>
      * @param source the {@link LeanThreadNode} being copied.
      */
     private LeanThreadNode(LeanThreadNode source)
@@ -46,7 +46,7 @@ public class LeanThreadNode extends LeanNode
 
     /**
      * Returns the {@link ThreadInfo} metadata for the represented thread.
-     *
+     * <p>
      * @return the {@link ThreadInfo} metadata for the represented thread
      */
     public ThreadInfo getThreadInfo()
@@ -56,7 +56,7 @@ public class LeanThreadNode extends LeanNode
 
     /**
      * Sets the {@link ThreadInfo} metadata for the represented thread.
-     *
+     * <p>
      * @param threadInfo the {@link ThreadInfo} metadata for the represented thread
      */
     public void setThreadInfo(ThreadInfo threadInfo)

@@ -4,8 +4,7 @@ import java.util.function.Function;
 
 /**
  * Utility class for working with JavaFX CSS.
- *
- *
+ * <p>
  * See : <a href="https://docs.oracle.com/javase/8/javafx/api/javafx/scene/doc-files/cssref.html">JavaFX CSS Reference
  * Guide</a>
  */
@@ -40,7 +39,7 @@ public final class StyleUtil
      * <li>{@link #STYLE_BAD} if the value is higher than 0</li>
      * <li>{@link #STYLE_NORMAL} if the value is lower than 0</li>
      * </ul>
-     *
+     * <p>
      * This can be used for styling comparisons where a higher number is worse.
      */
     public static final Function<Number, String> intDiffStyler = number -> number.intValue() > 0
@@ -53,7 +52,7 @@ public final class StyleUtil
      * <li>{@link #STYLE_BAD} if the value is higher than 0</li>
      * <li>{@link #STYLE_NORMAL} if the value is lower than 0</li>
      * </ul>
-     *
+     * <p>
      * This can be used for styling comparisons where a higher number is worse.
      */
     public static final Function<Number, String> longDiffStyler = number -> number.longValue() > 0
@@ -66,7 +65,7 @@ public final class StyleUtil
      * <li>{@link #STYLE_BAD} if the value is higher than 0</li>
      * <li>{@link #STYLE_NORMAL} if the value is lower than 0</li>
      * </ul>
-     *
+     * <p>
      * This can be used for styling comparisons where a higher number is worse.
      */
     public static final Function<Number, String> doubleDiffStyler = number -> number

@@ -18,7 +18,7 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.info.NumericInfo;
 /**
  * An AggregationProfile is a wrapper for a {@link LeanProfile} which provides methods for creating {@link Aggregation}s
  * on the wrapped {@link LeanProfile}. The class caches these {@link Aggregation}s.
- *
+ * <p>
  * It also calculates the "global aggregated data", i.e. the result of aggregating all data from the profile.
  */
 public class AggregationProfile
@@ -39,7 +39,7 @@ public class AggregationProfile
 
     /**
      * Constructor which specifies the wrapped {@link LeanProfile}.
-     *
+     * <p>
      * @param source the wrapped {@link LeanProfile}
      */
     public AggregationProfile(LeanProfile source)
@@ -62,7 +62,7 @@ public class AggregationProfile
 
     /**
      * Returns the wrapped {@link LeanProfile}.
-     *
+     * <p>
      * @return the wrapped {@link LeanProfile}
      */
     public LeanProfile getSource()
@@ -72,7 +72,7 @@ public class AggregationProfile
 
     /**
      * Returns the global aggregated data for the wrapped {@link LeanProfile}.
-     *
+     * <p>
      * @return the global aggregated data for the wrapped {@link LeanProfile}
      */
     public NumericInfo getGlobalData()
@@ -83,7 +83,7 @@ public class AggregationProfile
     /**
      * Returns the {@link Flat} {@link Aggregation} obtained by aggregating the {@link LeanProfile} using the provided
      * {@link CombinedGrouping}.
-     *
+     * <p>
      * @param grouping the {@link CombinedGrouping} which determines the aggregation key while aggregating
      * @return the resulting {@link Flat} aggregation
      */
@@ -95,7 +95,7 @@ public class AggregationProfile
     /**
      * Returns the {@link Tree} {@link Aggregation} obtained by aggregating the {@link LeanProfile} using the provided
      * {@link CombinedGrouping}.
-     *
+     * <p>
      * @param grouping the {@link CombinedGrouping} which determines the aggregation key while aggregating
      * @return the resulting {@link Tree} aggregation
      */
@@ -109,10 +109,10 @@ public class AggregationProfile
     /**
      * Calculate the global aggregation of the {@link LeanProfile}. This is obtained by summing the {@link NumericInfo}
      * from all {@link LeanThreadNode}s in the {@link LeanProfile}.
-     *
+     * <p>
      * The {@link LeanThreadNode}s, which are the root {@link Node}s in the {@link LeanProfile}, are themselves already
      * aggregations of all their descendant Frame {@link LeanNode}s, so we don't need to descend any further.
-     *
+     * <p>
      * @return the {@link NumericInfo} containing the aggregated data
      */
     private NumericInfo aggregateGlobal()

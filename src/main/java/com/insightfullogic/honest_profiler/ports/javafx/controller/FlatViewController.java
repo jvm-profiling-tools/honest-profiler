@@ -121,7 +121,7 @@ public class FlatViewController extends AbstractProfileViewController<Flat, Entr
 
     /**
      * Returns the {@link ReadOnlyObjectProperty} tracking which item is currently selected.
-     *
+     * <p>
      * @return the {@link ReadOnlyObjectProperty} tracking which item is currently selected
      */
     public ReadOnlyObjectProperty<Entry> selectedProperty()

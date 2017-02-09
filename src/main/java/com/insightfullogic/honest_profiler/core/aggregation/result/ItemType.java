@@ -46,7 +46,7 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node
 /**
  * ItemType enumerates the different types of aggregation data items, and associates them with the {@link Target}s which
  * are applicable to items of this type.
- *
+ * <p>
  * {@link Node} and {@link DiffNode} are not explicitly enumerated, since they subclass {@link Entry} and
  * {@link DiffEntry} respectively, and have the same {@link Target}s.
  */
@@ -70,7 +70,7 @@ public enum ItemType
 
     /**
      * Constructor which associates {@link Target}s with the ItemType.
-     *
+     * <p>
      * @param allowedTargets the {@link Target}s which are applicable for data items of this type
      */
     private ItemType(Target... allowedTargets)
@@ -82,7 +82,7 @@ public enum ItemType
 
     /**
      * Returns the {@link Target}s which are applicable for data items of this type.
-     *
+     * <p>
      * @return the {@link Target}s which are applicable for data items of this type
      */
     public List<Target> getAllowedTargets()

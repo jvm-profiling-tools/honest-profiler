@@ -5,7 +5,7 @@ import com.insightfullogic.honest_profiler.core.parser.Method;
 /**
  * MethodInfo collects the metadata about a {@link Method}, mapping the method id to the name of the java file in which
  * the method resides, the name of the class the method is a member of, and the name of the method.
- *
+ * <p>
  * Since the method name by itself is seldom useful, the Fully Qualified Method Name (FQMN), equal to the class name +
  * "." + method name, is cached.
  */
@@ -24,7 +24,7 @@ public class MethodInfo
 
     /**
      * Constructor which extracts the metadata from a {@link Method} and caches the FQMN.
-     *
+     * <p>
      * @param method the {@link Method} whose metadata will be stored
      */
     public MethodInfo(Method method)
@@ -44,7 +44,7 @@ public class MethodInfo
 
     /**
      * Returns the method id.
-     *
+     * <p>
      * @return the method id
      */
     public long getMethodId()
@@ -54,7 +54,7 @@ public class MethodInfo
 
     /**
      * Returns the file name.
-     *
+     * <p>
      * @return the file name
      */
     public String getFileName()
@@ -64,7 +64,7 @@ public class MethodInfo
 
     /**
      * Returns the class name.
-     *
+     * <p>
      * @return the class name
      */
     public String getClassName()
@@ -74,7 +74,7 @@ public class MethodInfo
 
     /**
      * Returns the method name.
-     *
+     * <p>
      * @return the method name
      */
     public String getMethodName()
@@ -84,7 +84,7 @@ public class MethodInfo
 
     /**
      * Returns the Fully Qualified Method Name (FQMN), which is equal to the class name + "." + method name.
-     *
+     * <p>
      * @return the Fully Qualified Method Name
      */
     public String getFqmn()

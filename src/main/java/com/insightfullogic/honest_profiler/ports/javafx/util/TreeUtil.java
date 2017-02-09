@@ -11,7 +11,7 @@ public final class TreeUtil
 {
     /**
      * Expands the specified {@link TreeItem} and all of its descendants.
-     *
+     * <p>
      * @param treeItem the {@link TreeItem} to be expanded
      */
     public static void expandFully(TreeItem<?> treeItem)
@@ -23,7 +23,7 @@ public final class TreeUtil
     /**
      * Expands the specified {@link TreeItem}, then recursively descends into the first child, expanding the first
      * grandchild and collapsing the other grandchildren, if any.
-     *
+     * <p>
      * @param <T> the type of the {@link Object} contained in the {@link TreeItem}
      * @param treeItem the {@link TreeItem} to be expanded
      */
@@ -45,7 +45,7 @@ public final class TreeUtil
     /**
      * Expands the specified {@link TreeItem} and any descendants up to the specified depth. If the depth is 0 or
      * negative, nothing happens.
-     *
+     * <p>
      * @param treeItem the {@link TreeItem} to be partially expanded
      * @param depth the depthe of the expansion
      */
@@ -60,7 +60,7 @@ public final class TreeUtil
 
     /**
      * Collapsed the specified {@link TreeItem} and all of its descendants.
-     *
+     * <p>
      * @param treeItem the {@link TreeItem} to be collapsed
      */
     public static void collapseFully(TreeItem<?> treeItem)

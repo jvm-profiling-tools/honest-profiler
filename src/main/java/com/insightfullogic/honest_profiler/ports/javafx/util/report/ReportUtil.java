@@ -89,9 +89,9 @@ public final class ReportUtil
     /**
      * Writes a stack (fragment) with the specified {@link Node} as root to the specified {@link PrintWriter}. Nicely
      * formatted at that, using droplines.
-     *
+     * <p>
      * TODO FIX - {@link ProfileNode}s are no longer used.
-     *
+     * <p>
      * @param out the {@link PrintWriter} to wite the stack to
      * @param node the root {@link Node} of the stack (fragment)
      */
@@ -108,9 +108,9 @@ public final class ReportUtil
 
     /**
      * Helper method which recursively adds {@link Node}s into a {@link Table}
-     *
+     * <p>
      * TODO FIX - {@link ProfileNode}s are no longer used.
-     *
+     * <p>
      * @param node the root {@link Node} being added to the {@link Table}
      * @param level the depth the root {@link Node} is at
      * @param table the {@link Table} the {@link Node} will be added to
@@ -150,7 +150,7 @@ public final class ReportUtil
 
     /**
      * Write the contents of a {@link Flat} aggregation to a CSV or text file, depending on the specified {@link Mode}.
-     *
+     * <p>
      * @param out the {@link PrintWriter} to wite the data to
      * @param entries the data to be written
      * @param mode the {@link Mode} for formatting the output
@@ -194,7 +194,7 @@ public final class ReportUtil
     /**
      * Write the contents of a {@link FlatDiff} aggregation to a CSV or text file, depending on the specified
      * {@link Mode}.
-     *
+     * <p>
      * @param out the {@link PrintWriter} to wite the data to
      * @param entries the data to be written
      * @param mode the {@link Mode} for formatting the output
@@ -276,7 +276,7 @@ public final class ReportUtil
 
     /**
      * Internal helper method for indenting stack frames, preceded by the specified {@link DropLine}s.
-     *
+     * <p>
      * @param dropLines the {@link DropLine}s to be rendered
      * @param level the indentation level
      * @return a String containing the rendered {@link DropLine}s and whitespace to be used as prefix for indenting the
@@ -301,7 +301,7 @@ public final class ReportUtil
 
     /**
      * Helper class which manages the offset of a dropline to be rendered.
-     *
+     * <p>
      * TODO Unfortunately I've completely forgotten how the algorithm I came up with works. Figure it out sometime and
      * update the documentation accordingly.
      */
@@ -313,7 +313,7 @@ public final class ReportUtil
 
         /**
          * Constructor.
-         *
+         * <p>
          * @param childrenLeft some parameter
          */
         private DropLine(int childrenLeft)

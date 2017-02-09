@@ -44,7 +44,7 @@ public class AncestorTreeAggregator implements SubAggregator<Entry, Node>
     /**
      * Recursive method for aggregating the parents (and ancestors) of the {@link LeanNode}s which are aggregated by the
      * provided {@link Node} and adding them as children.
-     *
+     * <p>
      * @param source the original {@link AggregationProfile}
      * @param child the input {@link Node} whose ancestors will be aggregated and added as children
      * @param tree the resulting {@link Tree}

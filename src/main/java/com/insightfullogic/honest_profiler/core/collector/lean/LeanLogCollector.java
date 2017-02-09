@@ -21,10 +21,10 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.info.ThreadInfo;
 
 /**
  * Collector which emits {@link LeanProfile}s, based on a request mechanism.
- *
+ * <p>
  * A {@link LeanProfile} will only be emitted when requested, or when the end of the log file is reached. When the final
  * {@link LeanProfile} has been emitted after a log file has been processed, requests no longer have any effect.
- *
+ * <p>
  * As long as no stacks have been received, nothing will be emitted.
  */
 public class LeanLogCollector implements LogEventListener, ProfileSource
@@ -69,7 +69,7 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
 
     /**
      * Constructor which sets the {@link LeanProfileListener} to which the {@link LeanProfile}s will be emitted.
-     *
+     * <p>
      * @param listener the {@link LeanProfileListener} which will receive any emitted {@link LeanProfile}s
      */
     public LeanLogCollector(final LeanProfileListener listener)
@@ -104,7 +104,7 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
      * Processes a {@link TraceStart}, i.e. the indication that a new stack will be coming in. The time is updated, and
      * the previously collected stack (if any) is processed. Then, the top-level {@link LeanThreadNode} is put in place
      * (possibly after creating it) using the thread id in the {@link TraceStart}.
-     *
+     * <p>
      * A profile will be emitted if requested.
      */
     @Override
@@ -145,7 +145,7 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
     /**
      * Processes a {@link ThreadMeta} which maps the thread id to thread information by putting the information into the
      * method map if it isn't there yet, or updating the existing information using the thread name.
-     *
+     * <p>
      * Sometimes several {@link ThreadMeta}s are received for the same thread id, but only the first contains the actual
      * thread name, which is why the update mechanism is in place.
      */
@@ -198,7 +198,7 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
      * information will be aggregated into the children of the currentNode, and the resulting {@link LeanNode} becomes
      * the currentNode, acting as parent for the next {@link StackFrame} which will be processed, if there are any left
      * in the {@link Deque}.
-     *
+     * <p>
      * @param stackFrame the {@link StackFrame} to be added as a child to the current {@link LeanNode}
      */
     private void collectStackFrame(StackFrame stackFrame)
@@ -209,7 +209,7 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
     /**
      * Calculates the number of ns spent between the previous {@link TraceStart} and the current one. After the first
      * {@link TraceStart} nanosSpent will still be 0.
-     *
+     * <p>
      * @param newSeconds seconds reported in the current TraceStart
      * @param newNanos nanoSeconds reported in the current TraceStart
      */

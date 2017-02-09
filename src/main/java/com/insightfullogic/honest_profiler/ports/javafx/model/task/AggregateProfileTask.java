@@ -27,7 +27,7 @@ public class AggregateProfileTask extends Task<AggregationProfile>
     /**
      * Constructor which specifies the {@link ProfileContext} which will receive the resulting
      * {@link AggregationProfile}, and the {@link LeanProfile} being aggregated.
-     *
+     * <p>
      * @param context the {@link ProfileContext} which will receive the resulting {@link AggregationProfile}
      * @param leanProfile the {@link LeanProfile} being aggregated
      */

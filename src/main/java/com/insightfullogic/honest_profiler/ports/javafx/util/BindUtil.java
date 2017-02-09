@@ -87,7 +87,7 @@ public class BindUtil
      * Returns an extraction {@link Function} for binding a target to the {@link Flat} result of aggregating the source
      * {@link AggregationProfile} with the {@link FlatProfileAggregator} using the {@link CombinedGrouping} currently
      * selected in the specified {@link AbstractViewController}.
-     *
+     * <p>
      * @param view the {@link AbstractViewController} which provides the {@link CombinedGrouping} for the aggregation
      * @return the extraction {@link Function}
      */
@@ -100,7 +100,7 @@ public class BindUtil
      * Returns an extraction {@link Function} for binding a target to the {@link Tree} result of aggregating the source
      * {@link AggregationProfile} with the {@link TreeProfileAggregator} using the {@link CombinedGrouping} currently
      * selected in the specified {@link AbstractViewController}.
-     *
+     * <p>
      * @param view the {@link AbstractViewController} which provides the {@link CombinedGrouping} for the aggregation
      * @return the extraction {@link Function}
      */

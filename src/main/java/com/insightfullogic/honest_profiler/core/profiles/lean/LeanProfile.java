@@ -10,20 +10,20 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.info.ThreadInfo;
  * A {@link LeanProfile} is a profile which which collects stack trace samples, and stores the information with as
  * little redundancy as possible. The granularity is at stack frame level, keyed by class name, method name, BCI and
  * line number.
- *
+ * <p>
  * The profile is modeled as a collection of trees consisting of {@link LeanNode}s.
- *
+ * <p>
  * The root of each tree is a {@link LeanThreadNode} representing the thread-level information. The children of that
  * {@link LeanThreadNode} represent the methods called directly at the top-level of the thread (typically
  * {@link Thread#run()}, but there can be others too).
- *
+ * <p>
  * For the descendants, the following holds : whenever a stack trace sample has been added to the profile in which a
  * method A is called by a method B, the profile will contain a {@link LeanNode} representing B with as child a
  * {@link LeanNode} representing A.
- *
+ * <p>
  * Other than the {@link LeanNode} trees, the profile also contains the information for mapping thread and method ids to
  * the corresponding {@link ThreadInfo} and {@link MethodInfo} metadata.
- *
+ * <p>
  * Any aggregation other than counts and time addition at the lowest level is relegated to post-processing.
  */
 public class LeanProfile
@@ -39,7 +39,7 @@ public class LeanProfile
     /**
      * Constructor which specifies the maps containing the method id - {@link MethodInfo} and thread id -
      * {@link ThreadInfo} mappings, and a map containing the thread id - {@link LeanThreadNode} stack tree mappings.
-     *
+     * <p>
      * @param methodMap a {@link Map} mapping the method id to the corresponding {@link MethodInfo}
      * @param threadMap a {@link Map} mapping the thread id to the corresponding {@link ThreadInfo}
      * @param threadData a {@link Map} mapping the thread id to the {@link LeanThreadNode} root of the {@link LeanNode}
@@ -59,7 +59,7 @@ public class LeanProfile
 
     /**
      * Returns the mapping between method ids and their corresponding {@link MethodInfo} objects.
-     *
+     * <p>
      * @return the mapping between method ids and their corresponding {@link MethodInfo} objects
      */
     public Map<Long, MethodInfo> getMethodInfoMap()
@@ -69,7 +69,7 @@ public class LeanProfile
 
     /**
      * Returns the mapping between thread ids and their corresponding {@link ThreadInfo} objects.
-     *
+     * <p>
      * @param id the thread id
      * @return the mapping between thread ids and their corresponding {@link ThreadInfo} objects
      */
@@ -80,7 +80,7 @@ public class LeanProfile
 
     /**
      * Returns the mapping between thread Ids and the root {@link LeanThreadNode} objects.
-     *
+     * <p>
      * @return the mapping between thread Ids and the root {@link LeanThreadNode} objects
      */
     public Map<Long, LeanThreadNode> getThreads()
@@ -93,7 +93,7 @@ public class LeanProfile
     /**
      * Return the key for a {@link LeanNode} representing a frame, constructed by appending the line number to the FQMN,
      * separated by a colon.
-     *
+     * <p>
      * @param node the node for which the key is calculated
      * @return the aggregation key for the node consisting of the FQMN and the line number
      */
@@ -108,7 +108,7 @@ public class LeanProfile
     /**
      * Return the key for a {@link LeanNode} representing a frame, constructed by appending the BCI to the FQMN,
      * separated by a colon.
-     *
+     * <p>
      * @param node the node for which the key is calculated
      * @return the aggregation key for the node consisting of the FQMN and the BCI
      */
@@ -123,7 +123,7 @@ public class LeanProfile
     /**
      * Returns the display name for the thread identified by the specified id. If there is no {@link ThreadInfo} for the
      * thread id, a name is constructed.
-     *
+     * <p>
      * @param threadId the id of the thread
      * @return the calculated display name
      */

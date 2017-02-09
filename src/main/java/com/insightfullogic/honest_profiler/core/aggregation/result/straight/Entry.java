@@ -26,7 +26,7 @@ public class Entry implements Keyed<String>
 
     /**
      * Constructor which sets the link to the containing {@link Aggregation}.
-     *
+     * <p>
      * @param <T> the type of the data items contained in the {@link Aggregation}
      * @param aggregation the containing {@link Aggregation}
      */
@@ -39,7 +39,7 @@ public class Entry implements Keyed<String>
 
     /**
      * Constructor which sets the aggregation key and the link to the containing {@link Aggregation}.
-     *
+     * <p>
      * @param <T> the type of the data items contained in the {@link Aggregation}
      * @param key the aggregation key
      * @param aggregation the containing {@link Aggregation}
@@ -54,7 +54,7 @@ public class Entry implements Keyed<String>
 
     /**
      * Returns the containing {@link Aggregation}.
-     *
+     * <p>
      * @param <T> the type of the data items contained in the {@link Aggregation}
      * @return the containing {@link Aggregation}
      */
@@ -66,7 +66,7 @@ public class Entry implements Keyed<String>
 
     /**
      * Sets the reference data used for calculating percentages.
-     *
+     * <p>
      * @param reference the reference data used for calculating percentages
      */
     public void setReference(NumericInfo reference)
@@ -82,7 +82,7 @@ public class Entry implements Keyed<String>
 
     /**
      * Sets the aggregation key.
-     *
+     * <p>
      * @param key the aggregation key
      */
     public void setKey(String key)
@@ -92,7 +92,7 @@ public class Entry implements Keyed<String>
 
     /**
      * Returns the contained numeric data.
-     *
+     * <p>
      * @return the contained numeric data
      */
     public NumericInfo getData()
@@ -102,7 +102,7 @@ public class Entry implements Keyed<String>
 
     /**
      * Returns a list of all the {@link LeanNode}s whose values were aggregated into this Entry.
-     *
+     * <p>
      * @return the list of {@link LeanNode}s aggregated into this Entry
      */
     public List<LeanNode> getAggregatedNodes()
@@ -113,7 +113,7 @@ public class Entry implements Keyed<String>
     /**
      * Return the aggregated self time in nanoseconds, i.e. the sum of the times spent in the methods aggregated by this
      * Entry.
-     *
+     * <p>
      * @return the aggregated self time in nanoseconds
      */
     public long getSelfTime()
@@ -124,7 +124,7 @@ public class Entry implements Keyed<String>
     /**
      * Return the aggregated self time in nanoseconds, i.e. the sum of the times spent in the methods aggregated by this
      * Entry, or methods called by the aggregated methods.
-     *
+     * <p>
      * @return the aggregated total time in nanoseconds
      */
     public long getTotalTime()
@@ -134,7 +134,7 @@ public class Entry implements Keyed<String>
 
     /**
      * Return the aggregated number of samples the aggregated {@link LeanNode}s were seen in as leaf.
-     *
+     * <p>
      * @return the aggregated number of samples the aggregated {@link LeanNode}s were seen in as leaf
      */
     public int getSelfCnt()
@@ -145,7 +145,7 @@ public class Entry implements Keyed<String>
     /**
      * Return the aggregated number of samples the aggregated {@link LeanNode}s were seen in as leaf or intermediate
      * frame.
-     *
+     * <p>
      * @return the aggregated number of samples the aggregated {@link LeanNode}s were seen in as leaf or intermediate
      *         frame
      */
@@ -156,7 +156,7 @@ public class Entry implements Keyed<String>
 
     /**
      * Returns the self time divided by the reference total time.
-     *
+     * <p>
      * @return the self time divided by the reference total time
      */
     public double getSelfTimePct()
@@ -167,7 +167,7 @@ public class Entry implements Keyed<String>
 
     /**
      * Returns the total time divided by the reference total time.
-     *
+     * <p>
      * @return the total time divided by the reference total time
      */
     public double getTotalTimePct()
@@ -178,7 +178,7 @@ public class Entry implements Keyed<String>
 
     /**
      * Returns the self sample count divided by the reference total sample count.
-     *
+     * <p>
      * @return the self sample count divided by the reference total sample count
      */
     public double getSelfCntPct()
@@ -188,7 +188,7 @@ public class Entry implements Keyed<String>
 
     /**
      * Returns the total sample count divided by the reference total sample count.
-     *
+     * <p>
      * @return the total sample count divided by the reference total sample count
      */
     public double getTotalCntPct()
@@ -198,7 +198,7 @@ public class Entry implements Keyed<String>
 
     /**
      * Returns the reference total sample count.
-     *
+     * <p>
      * @return the reference total sample count
      */
     public int getRefCnt()
@@ -210,7 +210,7 @@ public class Entry implements Keyed<String>
 
     /**
      * Aggregates a {@link LeanNode} into this Entry.
-     *
+     * <p>
      * @param node the {@link LeanNode} to be aggregated
      */
     public void add(LeanNode node)
@@ -221,7 +221,7 @@ public class Entry implements Keyed<String>
 
     /**
      * Combines (i.e. aggregates) another Entry into this one.
-     *
+     * <p>
      * @param other the other Entry to be combined into this one
      * @return this Entry
      */
@@ -238,7 +238,7 @@ public class Entry implements Keyed<String>
 
     /**
      * Copies the contents of this Entry into another one.
-     *
+     * <p>
      * @param other the other Entry into which the contents of this Entry will be copied
      */
     protected void copyInto(Entry other)

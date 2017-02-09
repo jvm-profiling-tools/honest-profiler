@@ -49,9 +49,9 @@ import javafx.scene.image.ImageView;
 /**
  * Superclass for all View Controllers in the application. These controllers provide a particular view on data
  * consisting of items of type T. The class manages the filter, quickFilter and grouping controls.
- *
+ * <p>
  * This superclass also provides some common UI helper methods for column configuration.
- *
+ * <p>
  * @param <T> the type of the items contained in the View which can be filtered
  */
 public abstract class AbstractViewController<T> extends AbstractController
@@ -78,7 +78,7 @@ public abstract class AbstractViewController<T> extends AbstractController
     /**
      * Initialize method for subclasses which sets the basic properties needed by this superdclass. This method must be
      * called by such subclasses in their FXML initialize().
-     *
+     * <p>
      * @param type the {@link ItemType} of the items shown in the view
      */
     protected void initialize(ItemType type)
@@ -91,7 +91,7 @@ public abstract class AbstractViewController<T> extends AbstractController
      * Initialize method for subclasses which have filter-related controls, which will be managed by this superclass.
      * This method must be called by such subclasses in their FXML initialize(). It should provide the controller-local
      * UI nodes needed by the AbstractViewController.
-     *
+     * <p>
      * @param filterButton the button used to trigger filter editing
      * @param quickFilterButton the button used to apply the quick filter
      * @param quickFilterText the TextField providing the value for the quick filter
@@ -111,7 +111,7 @@ public abstract class AbstractViewController<T> extends AbstractController
      * Initialize method for subclasses which have grouping-related controls, which will be managed by this superclass.
      * This method must be called by such subclasses in their FXML initialize(). It should provide the controller-local
      * UI nodes needed by the AbstractViewController.
-     *
+     * <p>
      * @param threadGroupingLabel the label next to the {@link ThreadGrouping} {@link ChoiceBox}
      * @param threadGrouping the {@link ThreadGrouping} {@link ChoiceBox}
      * @param frameGroupingLabel the label next to the {@link FrameGrouping} {@link ChoiceBox}
@@ -140,7 +140,7 @@ public abstract class AbstractViewController<T> extends AbstractController
 
     /**
      * @see AbstractController#setApplicationContext(ApplicationContext)
-     *
+     * <p>
      * @param applicationContext the ApplicationContext of this application
      */
     @Override
@@ -166,7 +166,7 @@ public abstract class AbstractViewController<T> extends AbstractController
     /**
      * Specify which {@link ThreadGrouping}s are allowed for the View. This method should be called by the controller
      * which configures the View, if the View supports groupings.
-     *
+     * <p>
      * @param groupings the {@link ThreadGrouping}s allowed for the View
      */
     public void setAllowedThreadGroupings(ThreadGrouping... groupings)
@@ -180,7 +180,7 @@ public abstract class AbstractViewController<T> extends AbstractController
     /**
      * Specify which {@link FrameGrouping}s are allowed for the View. This method should be called by the controller
      * which configures the View, if the View supports groupings.
-     *
+     * <p>
      * @param groupings the {@link FrameGrouping}s allowed for the View
      */
     public void setAllowedFrameGroupings(FrameGrouping... groupings)
@@ -194,7 +194,7 @@ public abstract class AbstractViewController<T> extends AbstractController
     /**
      * Returns the property containing the {@link CombinedGrouping} made up by the currently selected
      * {@link FrameGrouping} and {@link ThreadGrouping}s.
-     *
+     * <p>
      * @return the property containing the the {@link CombinedGrouping} made up by the currently selected
      *         {@link FrameGrouping} and {@link ThreadGrouping}s
      */
@@ -214,7 +214,7 @@ public abstract class AbstractViewController<T> extends AbstractController
 
     /**
      * Initialize the {@link TableView} or {@link TreeTableView} which contains the View data.
-     *
+     * <p>
      * This method is provided because, due to I18N, the {@link ApplicationContext} is needed for proper initialization,
      * since the column headers are internationalized. This method is therefore called in this class in the
      * {@link #setApplicationContext(ApplicationContext)} method.
@@ -225,10 +225,10 @@ public abstract class AbstractViewController<T> extends AbstractController
      * Sets the contents of the column header. This method is abstract because different implementing controllers have
      * different requirements. E.g. the Diff views need to include indications of which of the profiles being compared
      * the column data is for.
-     *
+     * <p>
      * If null is passed as {@link ProfileContext}, this indicates to the subclass that the data for the column is a
      * comparison between both profiles from a {@link DiffEntry}.
-     *
+     * <p>
      * @param <C> the type of the column
      * @param column the column for which the header contents should be set
      * @param title the display title for the column
@@ -245,7 +245,7 @@ public abstract class AbstractViewController<T> extends AbstractController
 
     /**
      * Configures a {@link TableColumn} containing percentages calculated for a single profile.
-     *
+     * <p>
      * @param <U> the type of the items in the {@link TableView} containing the {@link TableColumn}
      * @param column the column being configured
      * @param propertyName the name of the property containing the value for this column
@@ -262,7 +262,7 @@ public abstract class AbstractViewController<T> extends AbstractController
 
     /**
      * Configures a {@link TableColumn} containing the percentage difference comparing two profiles.
-     *
+     * <p>
      * @param <U> the type of the items in the {@link TableView} containing the {@link TableColumn}
      * @param column the column being configured
      * @param propertyName the name of the property containing the value for this column
@@ -278,7 +278,7 @@ public abstract class AbstractViewController<T> extends AbstractController
 
     /**
      * Configures a {@link TableColumn} containing numbers calculated for a single profile.
-     *
+     * <p>
      * @param <U> the type of the items in the {@link TableView} containing the {@link TableColumn}
      * @param column the column being configured
      * @param propertyName the name of the property containing the value for this column
@@ -295,7 +295,7 @@ public abstract class AbstractViewController<T> extends AbstractController
 
     /**
      * Configures a {@link TableColumn} containing the number difference comparing two profiles.
-     *
+     * <p>
      * @param <U> the type of the items in the {@link TableView} containing the {@link TableColumn}
      * @param column the column being configured
      * @param propertyName the name of the property containing the value for this column
@@ -311,7 +311,7 @@ public abstract class AbstractViewController<T> extends AbstractController
 
     /**
      * Configures a {@link TableColumn} containing durations calculated for a single profile.
-     *
+     * <p>
      * @param <U> the type of the items in the {@link TableView} containing the {@link TableColumn}
      * @param column the column being configured
      * @param propertyName the name of the property containing the value for this column
@@ -328,7 +328,7 @@ public abstract class AbstractViewController<T> extends AbstractController
 
     /**
      * Configures a {@link TableColumn} containing the duration difference comparing two profiles.
-     *
+     * <p>
      * @param <U> the type of the items in the {@link TableView} containing the {@link TableColumn}
      * @param column the column being configured
      * @param propertyName the name of the property containing the value for this column
@@ -346,7 +346,7 @@ public abstract class AbstractViewController<T> extends AbstractController
 
     /**
      * Configures a {@link TreeTableColumn} containing percentages calculated for a single profile.
-     *
+     * <p>
      * @param <U> the type of the items in the {@link TableView} containing the {@link TableColumn}
      * @param column the column being configured
      * @param propertyName the name of the property containing the value for this column
@@ -363,7 +363,7 @@ public abstract class AbstractViewController<T> extends AbstractController
 
     /**
      * Configures a {@link TreeTableColumn} containing the percentage difference comparing two profiles.
-     *
+     * <p>
      * @param <U> the type of the items in the {@link TableView} containing the {@link TableColumn}
      * @param column the column being configured
      * @param propertyName the name of the property containing the value for this column
@@ -379,7 +379,7 @@ public abstract class AbstractViewController<T> extends AbstractController
 
     /**
      * Configures a {@link TreeTableColumn} containing numbers calculated for a single profile.
-     *
+     * <p>
      * @param <U> the type of the items in the {@link TableView} containing the {@link TableColumn}
      * @param column the column being configured
      * @param propertyName the name of the property containing the value for this column
@@ -396,7 +396,7 @@ public abstract class AbstractViewController<T> extends AbstractController
 
     /**
      * Configures a {@link TreeTableColumn} containing the number difference comparing two profiles.
-     *
+     * <p>
      * @param <U> the type of the items in the {@link TableView} containing the {@link TableColumn}
      * @param column the column being configured
      * @param propertyName the name of the property containing the value for this column
@@ -412,7 +412,7 @@ public abstract class AbstractViewController<T> extends AbstractController
 
     /**
      * Configures a {@link TreeTableColumn} containing durations calculated for a single profile.
-     *
+     * <p>
      * @param <U> the type of the items in the {@link TableView} containing the {@link TableColumn}
      * @param column the column being configured
      * @param propertyName the name of the property containing the value for this column
@@ -429,7 +429,7 @@ public abstract class AbstractViewController<T> extends AbstractController
 
     /**
      * Configures a {@link TableColumn} containing the duration difference comparing two profiles.
-     *
+     * <p>
      * @param <U> the type of the items in the {@link TableView} containing the {@link TableColumn}
      * @param column the column being configured
      * @param propertyName the name of the property containing the value for this column
@@ -447,7 +447,7 @@ public abstract class AbstractViewController<T> extends AbstractController
 
     /**
      * Returns the current {@link FilterSpecification}.
-     *
+     * <p>
      * @return the current {@link FilterSpecification}
      */
     protected FilterSpecification<T> getFilterSpecification()
@@ -457,10 +457,10 @@ public abstract class AbstractViewController<T> extends AbstractController
 
     /**
      * Initializes the filters.
-     *
+     * <p>
      * The {@link ApplicationContext} parameter is used to explicitly point out the dependency on the presence of the
      * context, to anybody who wants to modify {@link AbstractViewController}.
-     *
+     * <p>
      * @param applicationContext the {@link ApplicationContext}
      */
     private void initializeFilters(ApplicationContext applicationContext)
@@ -495,7 +495,7 @@ public abstract class AbstractViewController<T> extends AbstractController
 
     /**
      * Create a new filter selection {@link Dialog}.
-     *
+     * <p>
      * @return the controller for the {@link Dialog}
      */
     private FilterDialogController<T> createFilterDialog()
@@ -509,7 +509,7 @@ public abstract class AbstractViewController<T> extends AbstractController
 
     /**
      * Select the appropriate icon for the state of the specified {@link FilterSpecification}.
-     *
+     * <p>
      * @param spec the {@link FilterSpecification}
      * @return an {@link ImageView} for the appropriate icon
      */
@@ -531,7 +531,7 @@ public abstract class AbstractViewController<T> extends AbstractController
 
     /**
      * Shows or hides the selected {@link Node}s. Used to show or hide the grouping {@link ChoiceBox}es.
-     *
+     * <p>
      * @param visible a boolean indicating whether the {@link Node}s should be visible
      * @param nodes the {@link Node}s to be made (in)visible
      */
@@ -547,7 +547,7 @@ public abstract class AbstractViewController<T> extends AbstractController
     /**
      * Configures the grouping controls, ensuring a new {@link CombinedGrouping} is set whenever either a new
      * {@link ThreadGrouping} or {@link FrameGrouping} is selected.
-     *
+     * <p>
      * Also sets the initial selection to the first grouping supplied by the
      * {@link #setAllowedFrameGroupings(FrameGrouping...)} and {@link #setAllowedThreadGroupings(ThreadGrouping...)}
      * methods.

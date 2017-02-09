@@ -11,7 +11,7 @@ import java.util.function.Function;
 /**
  * Simple table data structure which can be formatted nicely and written to a {@link PrintWriter}, with borders and
  * everyting.
- *
+ * <p>
  * The data is internally modeled as a {@link List} of rows which are themselves {@link List}s of String column values.
  * The input data consists of {@link List}s of {@link Object}s, which are transformed by formatting functions attached
  * to the columns, which transform the {@link Object} into a String.
@@ -52,7 +52,7 @@ public class Table
     /**
      * Add a column specification to the Table, consisting of a title (or header) for the column, a formatting
      * {@link Function} to format a data {@link Object} belonging to the column to a String, and an {@link Alignment}.
-     *
+     * <p>
      * @param title the column header
      * @param formatter a {@link Function} which maps data {@link Object}s in this column to Strings
      * @param alignment the alignment for the column in the output
@@ -68,7 +68,7 @@ public class Table
     /**
      * Adds a data row to the {@link Table}. The number of data {@link Object}s must match the number of columns which
      * were added to the Table. null data {@link Object}s are rendered as "&lt;NULL&gt;".
-     *
+     * <p>
      * @param data The {@link Object}s in the row, one for each column
      * @throws RuntimeException if the number of data {@link Object}s doesn't match the number of columns in the Table
      */
@@ -105,7 +105,7 @@ public class Table
 
     /**
      * Prints the formatted Table to the specified {@link PrintWriter}.
-     *
+     * <p>
      * @param out the {@link PrintWriter} the Table is printed to
      */
     public void print(PrintWriter out)
@@ -124,7 +124,7 @@ public class Table
 
     /**
      * Prints a row, using the {@link Alignment} as specified by the column definitions.
-     *
+     * <p>
      * @param out the {@link PrintWriter} the Table is printed to
      * @param entries the {@link List} of String entries to be printed
      */
@@ -136,7 +136,7 @@ public class Table
     /**
      * Prints a row, overriding the {@link Alignment} as specified by the column definitions if the specified
      * {@link Alignment} is not null.
-     *
+     * <p>
      * @param out the {@link PrintWriter} the Table is printed to
      * @param entries the {@link List} of String entries to be printed
      * @param alignment an {@link Alignment} overriding the defined column alignments
@@ -160,7 +160,7 @@ public class Table
 
     /**
      * Prints a line of dashes.
-     *
+     * <p>
      * @param out the {@link PrintWriter} the Table is printed to
      * @param width the number of dashes to be printed
      */
@@ -176,7 +176,7 @@ public class Table
     /**
      * Returns a String constructed by padding the input String to the specified width and aligning the input according
      * to the specified {@link Alignment}.
-     *
+     * <p>
      * @param string the input String
      * @param width the width of the resulting String
      * @param alignment the alignment of the input String in the result String

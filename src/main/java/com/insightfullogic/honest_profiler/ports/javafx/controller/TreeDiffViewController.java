@@ -216,7 +216,7 @@ public class TreeDiffViewController extends AbstractProfileDiffViewController<Tr
 
     /**
      * Helper method for {@link #refresh()}.
-     *
+     * <p>
      * @param baseTree the Base {@link Tree} to be compared
      * @param newTree the New {@link Tree} to be compared
      */

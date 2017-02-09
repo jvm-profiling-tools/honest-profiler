@@ -13,7 +13,7 @@ public class InvalidationListenerHandle
 
     /**
      * @see AbstractListenerHandle#AbstractListenerHandle(javafx.beans.Observable, Object)
-     *
+     * <p>
      * @param observable the {@link Observable} the listener will be added to
      * @param listener the listener
      */

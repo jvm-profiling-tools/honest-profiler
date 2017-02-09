@@ -8,7 +8,7 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.LeanThreadNode;
  * A ThreadGrouping describes how a collection of {@link LeanThreadNode}s describing thread-level aggregations can be
  * partitioned for aggregation. The grouping maps each {@link LeanThreadNode} to a String key, and
  * {@link LeanThreadNode}s with the same key will be aggregated together.
- *
+ * <p>
  * Every ThreadGrouping contains a name for front-end display purposes, and wraps a {@link Function} which maps an a
  * {@link LeanThreadNode} to the String key.
  */

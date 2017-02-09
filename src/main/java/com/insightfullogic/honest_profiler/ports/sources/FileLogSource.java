@@ -37,7 +37,7 @@ import com.insightfullogic.honest_profiler.core.sources.LogSource;
  * LogSource implementation which maintains a fixed-size memory-mapped window ({@value #BUFFER_SIZE} bytes) on the file.
  * The read() method checks whether a certain amount of the current buffer ({@value #ELASTICITY} bytes) has been read
  * already, and if so, remaps the buffer to the new position.
- *
+ * <p>
  * The ELASTICITY is provided for the benefit of the LogParser + Conductor logic. If a partial record is read, the
  * Conductor will sleep for a bit. So ideally, BUFFER_SIZE - ELASTICITY should be large enough so that an "entire
  * record" (i.e. an entire stack) which might start at the last byte within the ELASTICITY portion still would fit into
@@ -141,7 +141,7 @@ public class FileLogSource implements LogSource
     /**
      * Replaces the current buffer by a new ByteBuffer which is memory-mapped onto a BUFFER_SIZE (10 MB at time of
      * writing) window starting at the specified offset.
-     *
+     * <p>
      * @param offset the offset in the file of the area which will be mapped into the buffer
      * @throws IOException any I/O exceptions encountered trying to map a portion of the file into memory 
      */

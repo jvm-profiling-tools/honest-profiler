@@ -34,7 +34,7 @@ public class TreeDiff extends AbstractDiff<Node, DiffNode, Tree>
 
     /**
      * Internal Copy constructor.
-     *
+     * <p>
      * @param entries the {@link List} of {@link DiffNode}s to be copied into this Diff
      */
     private TreeDiff(List<DiffNode> entries)
@@ -45,7 +45,7 @@ public class TreeDiff extends AbstractDiff<Node, DiffNode, Tree>
 
     /**
      * Sets the Base and New {@link Tree}s, and calculates the diff contents.
-     *
+     * <p>
      * @param baseTree the Base {@link Tree}
      * @param newTree the New {@link Tree}
      */
@@ -66,7 +66,7 @@ public class TreeDiff extends AbstractDiff<Node, DiffNode, Tree>
 
     /**
      * Returns the {@link DiffNode}s from this Diff.
-     *
+     * <p>
      * @return a {@link Collection} containing the {@link DiffNode}s from this Diff
      */
     public Collection<DiffNode> getData()

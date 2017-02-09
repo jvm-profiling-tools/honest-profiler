@@ -21,7 +21,7 @@ public final class FontUtil
 
     /**
      * Loads the fonts included in the resources.
-     *
+     * <p>
      * @param c a {@link Class} used for resolving the font URLs.
      */
     public static void initialize(Class<?> c)
@@ -32,7 +32,7 @@ public final class FontUtil
 
     /**
      * Returns the Open Sans Regular {@link Font}.
-     *
+     * <p>
      * @return the Open Sans Regular {@link Font}
      */
     public static final Font openSansRegular()
@@ -42,7 +42,7 @@ public final class FontUtil
 
     /**
      * Returns the Open Sans Bold {@link Font}.
-     *
+     * <p>
      * @return the Open Sans Bold {@link Font}
      */
     public static final Font openSansBold()

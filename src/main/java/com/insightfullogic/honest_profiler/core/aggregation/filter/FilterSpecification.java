@@ -14,11 +14,11 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.ItemType;
 /**
  * This class describes a filter composed of several {@link FilterItem}s. The resulting filter will only accept inputs
  * which satisfy the conditions of all the {@link FilterItem}s.
- *
+ * <p>
  * Additionally it contains a boolean which generates an extra {@link Predicate} for filtering out "error frames"
  * (frames in the profile which do not correspond to proper Java methods), and a quick-filter String generates an extra
  * {@link Predicate} for filtering the key.
- *
+ * <p>
  * @param <T> the type of the input items which can be filtered
  */
 public class FilterSpecification<T>
@@ -36,7 +36,7 @@ public class FilterSpecification<T>
     /**
      * Constructor for an empty {@link FilterSpecification} which specifies a filter for filtering items of the
      * specified {@link ItemType}.
-     *
+     * <p>
      * @param type the type of items the filter can filter
      */
     public FilterSpecification(ItemType type)
@@ -50,7 +50,7 @@ public class FilterSpecification<T>
     /**
      * Constructor for an empty {@link FilterSpecification} which specifies a filter for filtering items of the
      * specified {@link ItemType}.
-     *
+     * <p>
      * @param type the type of items the filter can filter
      * @param hideErrors a boolean specifying if error frames should be filtered out
      * @param filters a {@link List} of the contained {@link FilterItem}s
@@ -68,7 +68,7 @@ public class FilterSpecification<T>
 
     /**
      * Returns a boolean indicating whether the resulting filter will filter out error frames.
-     *
+     * <p>
      * @return a boolean indicating whether the resulting filter will filter out error frames.
      */
     public boolean isHideErrors()
@@ -79,10 +79,10 @@ public class FilterSpecification<T>
     /**
      * Returns a boolean indicating whether the FilterSpecification is non-trivial, i.e. whether it actually has any
      * filters defined. The quickfilter is not taken into account.
-     *
+     * <p>
      * The reason is that this is used by the front-end to indicate to the user whether currently a filter has been
      * defined by the user. The filter is specified separately from the quickfilter condition.
-     *
+     * <p>
      * @return a boolean indicating whether the FilterSpecification is non-trivial
      */
     public boolean isFiltering()
@@ -92,7 +92,7 @@ public class FilterSpecification<T>
 
     /**
      * Sets the quickfilter String, which when not empty will generate an extra {@link Predicate} for filtering the key.
-     *
+     * <p>
      * @param value the value used for filtering
      */
     public void setQuickFilter(String value)
@@ -106,7 +106,7 @@ public class FilterSpecification<T>
      * Generates a {@link Predicate} which accepts items of type T if they are accepted by all of the filters from all
      * contained {@link FilterItem}s, and optionally if they do not contain errors and/or if the key contains the String
      * specified by the quickfilter String.
-     *
+     * <p>
      * @return a {@link Predicate} implementing the {@link FilterSpecification}
      */
     public Predicate<T> getFilter()
@@ -127,7 +127,7 @@ public class FilterSpecification<T>
 
     /**
      * Create a {@link Predicate} which filters as specified by the {@link FilterItem}s in this FilterSpecification.
-     *
+     * <p>
      * @return a {@link Predicate} corresponding to the contained {@link FilterItem}s
      */
     private Predicate<T> filter()
@@ -137,7 +137,7 @@ public class FilterSpecification<T>
 
     /**
      * Create a {@link Predicate} for filtering the key using the quickfilter.
-     *
+     * <p>
      * @return a {@link Predicate} for filtering the key
      */
     private Predicate<T> quickFilter()
@@ -147,7 +147,7 @@ public class FilterSpecification<T>
 
     /**
      * Create a {@link Predicate} for filtering out error frames.
-     *
+     * <p>
      * @return a {@link Predicate} for filtering out error frames
      */
     private final Predicate<T> errorFilter()

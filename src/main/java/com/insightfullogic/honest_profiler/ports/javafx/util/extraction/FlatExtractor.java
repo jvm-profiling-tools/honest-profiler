@@ -23,7 +23,7 @@ public class FlatExtractor implements Function<Object, Flat>
 
     /**
      * Constructor specifying the {@link CombinedGrouping} to be used when aggregating.
-     *
+     * <p>
      * @param grouping the {@link CombinedGrouping} to be used when aggregating
      */
     public FlatExtractor(ObservableObjectValue<CombinedGrouping> grouping)

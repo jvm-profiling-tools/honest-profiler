@@ -17,19 +17,19 @@ import javafx.beans.value.ObservableObjectValue;
  * Superclass for all View Controllers in the application which provide a view on a "target", a data structure of type T
  * which is stored in the target property. This target is extracted from a source {@link ObservableObjectValue} using an
  * extractor function.
- *
+ * <p>
  * This superclass also serves as a repository for the {@link ProfileContext} associated to the profile for which the
  * View is shown.
- *
+ * <p>
  * This superclass ensures that subclass refresh() implementations are called when the source
  * {@link ObservableObjectValue} or the {@link CombinedGrouping} from the {@link AbstractViewController} superclass are
  * updated. The extractor function is then used to extract a new target from the source, using the new
  * {@link CombinedGrouping} if available.
- *
+ * <p>
  * By binding or unbinding the local target, it is possible to start and stop all tracking of changes to the target in
  * the UI. This has been provided to make it possible to stop executing refresh() and other UI updates when the view
  * associated to the controller is hidden.
- *
+ * <p>
  * @param <T> the data type of the target
  * @param <U> the type of the items contained in the View
  */
@@ -48,7 +48,7 @@ public abstract class AbstractProfileViewController<T, U> extends AbstractViewCo
     /**
      * Initialize method for subclasses which sets the basic properties needed by this superclass. This method must be
      * called by such subclasses in their FXML initialize().
-     *
+     * <p>
      * @param type the {@link ItemType} of the items shown in the view
      */
     @Override
@@ -64,7 +64,7 @@ public abstract class AbstractProfileViewController<T, U> extends AbstractViewCo
 
     /**
      * Returns the {@link ProfileContext}. The name has been shortened to unclutter code in subclasses.
-     *
+     * <p>
      * @return the {@link ProfileContext} encapsulating the target.
      */
     protected ProfileContext prfCtx()
@@ -74,7 +74,7 @@ public abstract class AbstractProfileViewController<T, U> extends AbstractViewCo
 
     /**
      * Sets the {@link ProfileContext} encapsulating the target.
-     *
+     * <p>
      * @param profileContext the {@link ProfileContext} encapsulating the target.
      */
     public void setProfileContext(ProfileContext profileContext)
@@ -84,7 +84,7 @@ public abstract class AbstractProfileViewController<T, U> extends AbstractViewCo
 
     /**
      * Returns the current target instance.
-     *
+     * <p>
      * @return the current target instance
      */
     protected T getTarget()
@@ -98,7 +98,7 @@ public abstract class AbstractProfileViewController<T, U> extends AbstractViewCo
      * Bind the supplied extractor function which extracts the target data structure T from the source to the source
      * {@link ObservableObjectValue}, and optionally to the {@link CombinedGrouping} {@link ObservableObjectValue} from
      * the {@link AbstractViewController} superclass if present.
-     *
+     * <p>
      * @param source the {@link ObservableObjectValue} encapsulating the source from which the target data structure can
      *            be extracted
      * @param targetExtractor a function which extracts the target from the source Object
@@ -129,7 +129,7 @@ public abstract class AbstractProfileViewController<T, U> extends AbstractViewCo
 
     /**
      * Activate or deactivate the current view. When activated, the view tracks changes in the target.
-     *
+     * <p>
      * @param active a boolean indicating whether to activate or deactivate the view.
      */
     public void setActive(boolean active)

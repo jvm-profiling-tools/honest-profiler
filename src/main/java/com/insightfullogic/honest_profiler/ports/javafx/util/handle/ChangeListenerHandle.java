@@ -6,7 +6,7 @@ import javafx.beans.value.ObservableValue;
 /**
  * Trivial {@link AbstractListenerHandle} implementation for {@link ChangeListener}s and {@link ObservableValue}s
  * encapsulating {@link Object}s of type T.
- *
+ * <p>
  * @param <T> the type of the {@link Object} encapsulated by the {@link ObservableValue}
  */
 public class ChangeListenerHandle<T>
@@ -16,7 +16,7 @@ public class ChangeListenerHandle<T>
 
     /**
      * @see AbstractListenerHandle#AbstractListenerHandle(javafx.beans.Observable, Object)
-     *
+     * <p>
      * @param observable the {@link ObservableValue} the listener will be added to
      * @param listener the listener
      */

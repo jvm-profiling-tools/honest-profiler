@@ -15,9 +15,9 @@ public final class MenuUtil
 
     /**
      * Add a {@link MenuItem} with the specified label and {@link EventHandler} to the specified {@link ObservableList}.
-     *
+     * <p>
      * This is a convenience method for significantly condensing menu creation code.
-     *
+     * <p>
      * @param menu an {@link ObservableList} of {@link MenuItem}s the new item will be added to
      * @param label the label for the new {@link MenuItem}
      * @param handler the {@link EventHandler} which is invoked when the {@link MenuItem} is selected

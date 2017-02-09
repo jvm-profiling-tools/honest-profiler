@@ -122,7 +122,7 @@ public enum Target
 
     /**
      * Trivial private constructor specifying the displayable name and type for the Target value.
-     *
+     * <p>
      * @param name the displayable name of the Target value
      * @param type the type of the target value
      */
@@ -136,7 +136,7 @@ public enum Target
 
     /**
      * Returns the {@link ValueType} of the Target value.
-     *
+     * <p>
      * @return the {@link ValueType} of the Target value
      */
     public ValueType getType()
@@ -149,7 +149,7 @@ public enum Target
     /**
      * Returns the extractor {@link Function} which can extract the Target value from the aggregation items with the
      * specified {@link ValueType}.
-     *
+     * <p>
      * @param <T> the type of the input of the extractor {@link Function}
      * @param <U> the type of the result of the extractor {@link Function}
      * @param type the {@link ValueType} of the aggregation items the extractor will accept

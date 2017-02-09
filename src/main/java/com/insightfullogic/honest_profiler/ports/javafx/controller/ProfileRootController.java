@@ -120,7 +120,7 @@ public class ProfileRootController extends AbstractController
 
     /**
      * Sets the {@link ApplicationContext} and propagates it to any contained controllers.
-     *
+     * <p>
      * @param appCtx the {@link ApplicationContext}
      */
     @Override
@@ -139,7 +139,7 @@ public class ProfileRootController extends AbstractController
     /**
      * Sets the {@link ProfileContext} and propagates it to any contained controllers. The method also configures the
      * various contained controllers.
-     *
+     * <p>
      * @param prCtx the {@link ProfileContext}
      */
     public void setProfileContext(ProfileContext prCtx)
@@ -203,7 +203,7 @@ public class ProfileRootController extends AbstractController
 
     /**
      * Show the selected View.
-     *
+     * <p>
      * @param viewType the type of View which was selected
      */
     private void show(ViewType viewType)
@@ -249,7 +249,7 @@ public class ProfileRootController extends AbstractController
 
     /**
      * Show the {@link ContextMenu} listing any profiles the currently shown profile can be compared to.
-     *
+     * <p>
      * @param event the {@link MouseEvent} triggering the displaying of the {@link ContextMenu}
      */
     private void showCompareMenu(MouseEvent event)
@@ -266,7 +266,7 @@ public class ProfileRootController extends AbstractController
 
     /**
      * Add profiles available for comparison to the specified {@link ContextMenu}.
-     *
+     * <p>
      * @param menu the {@link ContextMenu} to which available profiles will be added
      */
     private void refreshContextMenu(ContextMenu menu)
@@ -289,7 +289,7 @@ public class ProfileRootController extends AbstractController
 
     /**
      * Freeze or unfreeze the profile.
-     *
+     * <p>
      * @param event the {@link ActionEvent} triggering the (un)freezing
      */
     private void handleFreezeAction(ActionEvent event)

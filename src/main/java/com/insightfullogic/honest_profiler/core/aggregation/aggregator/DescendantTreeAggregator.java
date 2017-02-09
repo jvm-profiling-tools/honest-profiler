@@ -44,7 +44,7 @@ public class DescendantTreeAggregator implements SubAggregator<Entry, Node>
     /**
      * Recursive method for aggregating the children (and descendants) of the {@link LeanNode}s which are aggregated by
      * the provided {@link Node}.
-     *
+     * <p>
      * @param source the original {@link AggregationProfile}
      * @param child the input {@link Node}
      * @param tree the resulting {@link Tree}

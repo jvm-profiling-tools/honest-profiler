@@ -14,11 +14,9 @@ import javafx.scene.control.Tab;
  * The class interacts with the {@link ApplicationContext} for I18N, retrieving the resources for keys. It also manages
  * what is displayed in the InfoBar, an application-level text area displayed at the bottem of the root window, used for
  * displaying contextual help and information messages.
- * </p>
  * <p>
  * NOTE : Any controllers extending this class, and which in turn contain other ApplicationController controllers,
  * should override {@link #setApplicationContext(ApplicationContext)} using the following pattern :
- * </p>
  *
  * <pre>
  * <code>
@@ -42,7 +40,7 @@ public abstract class AbstractController
 
     /**
      * This method must be called by subclasses in their FXML initialize().
-     *
+     * <p>
      * The idea is to streamline similar tasks happening in the initialization method, and encourage decluttering of the
      * initialize() methods by extracting similar tasks to separate methods.
      */
@@ -54,7 +52,7 @@ public abstract class AbstractController
 
     /**
      * Link nodes with "InfoBar" messages.
-     *
+     * <p>
      * The InfoBar is the info- or status bar at the bottom of the UI. While hovering over various {@link Node}s or when
      * specific events occur, helpful information should appear in the InfoBar.
      */
@@ -69,6 +67,7 @@ public abstract class AbstractController
 
     /**
      * Returns the {@link ApplicationContext}. The name has been shortened to unclutter code in subclasses.
+     * <p>
      *
      * @return the {@link ApplicationContext} of this application
      */
@@ -79,7 +78,7 @@ public abstract class AbstractController
 
     /**
      * Sets the application context.
-     *
+     * <p>
      * NOTE : Any controllers extending this class, and which in turn contain other ApplicationController controllers,
      * should override this method using the following pattern :
      *
@@ -94,6 +93,7 @@ public abstract class AbstractController
      * }
      * </code>
      * </pre>
+     * <p>
      *
      * @param applicationContext the ApplicationContext of this application
      */
@@ -106,6 +106,7 @@ public abstract class AbstractController
 
     /**
      * Look up the String associated with this key in the current {@link ResourceBundle}.
+     * <p>
      *
      * @param key the key in the ResourceBundle
      * @return the String associated with the key in the current {@link ResourceBundle}
@@ -118,6 +119,7 @@ public abstract class AbstractController
     /**
      * Construct the String based on the pattern associated with this key in the current {@link ResourceBundle}, using
      * the provided arguments.
+     * <p>
      *
      * @param key the key in the ResourceBundle
      * @param args the arguments needed by the pattern
@@ -133,6 +135,7 @@ public abstract class AbstractController
     /**
      * Display a message in the InfoBar, by retrieving the message from the current {@link ResourceBundle} using the
      * provided key.
+     * <p>
      *
      * @param key the key to the message in the {@link ResourceBundle}
      */
@@ -144,6 +147,7 @@ public abstract class AbstractController
     /**
      * Display a message in the InfoBar, by retrieving the pattern from the current {@link ResourceBundle} using the
      * provided key and formatting it using the provided arguments.
+     * <p>
      *
      * @param key the key to the message pattern in the {@link ResourceBundle}
      * @param args the arguments needed by the pattern
@@ -164,6 +168,7 @@ public abstract class AbstractController
     /**
      * Associates a message with a given {@link Node}. The message is retrieved from the current {@link ResourceBundle}
      * using the provided key, and is displayed while the InfoBar whenever the mouse hovers over the {@link Node}.
+     * <p>
      *
      * @param node the target {@link Node}
      * @param key the key to the message in the {@link ResourceBundle}
@@ -178,6 +183,7 @@ public abstract class AbstractController
      * Associates a message with a given {@link Node}. The message pattern is retrieved from the current
      * {@link ResourceBundle} using the provided key, formatted using the provided arguments, and displayed while the
      * InfoBar whenever the mouse hovers over the {@link Node}.
+     * <p>
      *
      * @param node the target Node
      * @param key the key to the message in the {@link ResourceBundle}
@@ -191,6 +197,7 @@ public abstract class AbstractController
 
     /**
      * Associates a message with a {@link Tab} Header, as per {@link #info(Node, String)}.
+     * <p>
      *
      * @param tab the target {@link Tab}
      * @param key the key to the message in the {@link ResourceBundle}
@@ -202,6 +209,7 @@ public abstract class AbstractController
 
     /**
      * Associates a message with a {@link Tab} Header, as per {@link #info(Node, String, Object...)}.
+     * <p>
      *
      * @param tab the target {@link Tab}
      * @param key the key to the message in the {@link ResourceBundle}

@@ -13,7 +13,7 @@ import java.util.function.Predicate;;
  * Enumeration for the various types of values in aggregation items. A ValueType also provides a validator, which tests
  * whether an input String can be converted to a value of the specified type, an interpreter which converts an input
  * String to a value of the specified type, and a list of {@link Comparison}s which are compatible with the ValueType.
- *
+ * <p>
  * Note the presence of the PCT_INTERPRETER, which can't be defined as a constant before the enum declarations, so it
  * was defined in the {@link Comparison} enumeration instead. Just the way the cookie crumbles, I guess.
  */
@@ -37,7 +37,7 @@ public enum ValueType
     /**
      * Returns a validator {@link Predicate} which tests the String by trying to apply corresponding the convertor. If
      * that operation throws an Exception, the String cannot be converted.
-     *
+     * <p>
      * @param <T> the type of the result of the convertor {@link Function}
      * @param convertor the convertor {@link Function} which converts a String to a value of the specified type T
      * @return a validator {@link Predicate}
@@ -65,7 +65,7 @@ public enum ValueType
     /**
      * Returns a validator {@link Predicate} for {@link Double}s as in {@link #validatorFor(Function)}, with an extra
      * boundary check.
-     *
+     * <p>
      * @param convertor the convertor {@link Function} which converts a String to a Double
      * @param lower the lower bound the value has to be equal to or greater than in order to be accepted
      * @param upper the upper bound the value has to be equal to or less than in order to be accepted
@@ -113,7 +113,7 @@ public enum ValueType
 
     /**
      * Returns a list of {@link Comparison}s compatible with this ValueType.
-     *
+     * <p>
      * @return a list of {@link Comparison}s compatible with this ValueType
      */
     public List<Comparison> getAllowedComparisons()
@@ -123,7 +123,7 @@ public enum ValueType
 
     /**
      * Returns a {@link Predicate} for testing whether a String can be converted to a value of this type.
-     *
+     * <p>
      * @return a {@link Predicate} for testing whether a String can be converted to a value of this type
      */
     public Predicate<String> getValidator()
@@ -133,7 +133,7 @@ public enum ValueType
 
     /**
      * Returns a {@link Function} for converting a String to a value of this type.
-     *
+     * <p>
      * @param <T> the type of the result of the conversion {@link Function}
      * @return a {@link Function} for converting a String to a value of this type
      */

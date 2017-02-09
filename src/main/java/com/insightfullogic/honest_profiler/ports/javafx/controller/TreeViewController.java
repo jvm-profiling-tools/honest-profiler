@@ -122,7 +122,7 @@ public class TreeViewController extends AbstractProfileViewController<Tree, Node
 
     /**
      * Returns the {@link ReadOnlyObjectProperty} tracking which item is currently selected.
-     *
+     * <p>
      * @return the {@link ReadOnlyObjectProperty} tracking which item is currently selected
      */
     public ReadOnlyObjectProperty<TreeItem<Node>> selectedProperty()

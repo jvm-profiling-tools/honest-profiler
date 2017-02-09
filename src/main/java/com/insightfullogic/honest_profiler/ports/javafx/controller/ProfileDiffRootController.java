@@ -83,7 +83,7 @@ public class ProfileDiffRootController extends AbstractController
 
     /**
      * Sets the {@link ApplicationContext} and propagates it to any contained controllers.
-     *
+     * <p>
      * @param applicationContext the {@link ApplicationContext}
      */
     @Override
@@ -98,7 +98,7 @@ public class ProfileDiffRootController extends AbstractController
     /**
      * Sets the {@link ProfileContext}s and propagates it to any contained controllers. The method also configures the
      * various contained controllers.
-     *
+     * <p>
      * @param baseContext the {@link ProfileContext} for the Base profile
      * @param newContext the {@link ProfileContext} for the New profile
      */
@@ -137,7 +137,7 @@ public class ProfileDiffRootController extends AbstractController
 
     /**
      * Show the selected View.
-     *
+     * <p>
      * @param viewType the type of View which was selected
      */
     private void show(ViewType viewType)

@@ -34,7 +34,7 @@ public class StringValidationListener implements ChangeListener<String>
     /**
      * Constructor specifying the source {@link Node}, the predicate for testing the validity, and any {@link Button}s
      * which should be disabled if the validity test fails.
-     *
+     * <p>
      * @param inputNode the source {@link Node}
      * @param test the predicate for testing the validity of the String value
      * @param buttons the {@link Button}s which should be disabled if the validity test fails
@@ -51,7 +51,7 @@ public class StringValidationListener implements ChangeListener<String>
     /**
      * Create a {@link ChangeListenerHandle} for the input {@link Node} and the specified text {@link ObservableValue},
      * and attaches it.
-     *
+     * <p>
      * @param value the {@link ObservableValue} this Listener is added to
      * @param inputNode the new input {@link Node} being validated by the StringValidationListener
      * @return a new {@link ChangeListenerHandle} for this StringValidationListener and the specified
@@ -102,7 +102,7 @@ public class StringValidationListener implements ChangeListener<String>
 
     /**
      * Disable or enable the {@link Button}s.
-     *
+     * <p>
      * @param disable a boolean indicating whether the {@link Button}s should be disabled
      */
     private void setDisabled(boolean disable)

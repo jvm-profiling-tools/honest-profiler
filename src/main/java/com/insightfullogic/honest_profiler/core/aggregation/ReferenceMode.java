@@ -35,7 +35,7 @@ public enum ReferenceMode
 
     /**
      * Constructor specifying a display name for the ReferenceMode.
-     *
+     * <p>
      * @param name the display name for the ReferenceMode
      */
     private ReferenceMode(String name)

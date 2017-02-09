@@ -9,8 +9,8 @@ import javafx.scene.control.Dialog;
 import javafx.util.Callback;
 
 /**
- * Abstract superclass for DailogController implementations.
- *
+ * Abstract superclass for DialogController implementations.
+ * <p>
  * @param <R> the return type of the {@link Dialog}
  */
 public abstract class AbstractDialogController<R> extends AbstractController

@@ -18,7 +18,7 @@ public class FrameInfo
 
     /**
      * Constructor which extracts the metadata from a {@link StackFrame}.
-     *
+     * <p>
      * @param stackFrame the {@link StackFrame} whose metadata will be stored
      */
     public FrameInfo(StackFrame stackFrame)
@@ -32,7 +32,7 @@ public class FrameInfo
 
     /**
      * Returns the id of the method whose execution was recorded in the frame.
-     *
+     * <p>
      * @return the id of the method whose execution was recorded in the frame
      */
     public long getMethodId()
@@ -42,7 +42,7 @@ public class FrameInfo
 
     /**
      * Returns the Byte Code Index of the execution point recorded in the frame.
-     *
+     * <p>
      * @return the Byte Code Index of the execution point recorded in the frame
      */
     public int getBci()
@@ -52,7 +52,7 @@ public class FrameInfo
 
     /**
      * Returns the line number of the execution point recorded in the frame.
-     *
+     * <p>
      * @return the line number of the execution point recorded in the frame
      */
     public int getLineNr()

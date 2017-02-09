@@ -22,7 +22,7 @@ public class Flat extends Aggregation<Entry>
 
     /**
      * Create an empty Flat for the specified {@link AggregationProfile} and {@link CombinedGrouping}.
-     *
+     * <p>
      * @param source the {@link AggregationProfile} whose {@link LeanNode}s are aggregated into this Flat
      * @param grouping the {@link CombinedGrouping} used for aggregation
      */
@@ -33,7 +33,7 @@ public class Flat extends Aggregation<Entry>
 
     /**
      * Internal constructor used by the {@link #filter(FilterSpecification)} method.
-     *
+     * <p>
      * @param source the {@link AggregationProfile} whose {@link LeanNode}s are aggregated into this Flat
      * @param grouping the {@link CombinedGrouping} used for aggregation
      * @param data the list of {@link Entry}s in the Flat

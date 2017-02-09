@@ -36,7 +36,7 @@ public final class ContextMenuUtil
     /**
      * Binds a dynamically generated {@link ContextMenu} to a {@link TreeTableCell}. The menu provides expand and
      * collapse options for a tree node.
-     *
+     * <p>
      * @param <T> the type of the items in the containing {@link TreeTableView}
      * @param <U> the type of the item contained in the {@link TreeTableCell}
      * @param appCtx the {@link ApplicationContext} of the application
@@ -56,7 +56,7 @@ public final class ContextMenuUtil
     /**
      * Binds a dynamically generated {@link ContextMenu} to a {@link TreeCell}. The menu provides expand and collapse
      * options for a tree node.
-     *
+     * <p>
      * @param <T> the type of the item contained in the {@link TreeCell}
      * @param appCtx the {@link ApplicationContext} of the application
      * @param cell the {@link TreeCell} for which the {@link ContextMenu} should be displayed when it is right-clicked
@@ -73,7 +73,7 @@ public final class ContextMenuUtil
      * Helper method which provides extra logic for extracting the {@link TreeItem} {@link Property} from a
      * {@link TreeTableCell}, which itself has no {@link TreeItem} property. The {@link TreeItem} {@link Property} we
      * want to bind can be found in the containing {@link TreeTableRow} instead.
-     *
+     * <p>
      * @param <T> the type of the item contained in the {@link TreeTableRow}
      * @param appCtx the {@link ApplicationContext} of the application
      * @param ctxMenuProperty the {@link ContextMenu} {@link Property} of the {@link TreeTableCell}
@@ -100,7 +100,7 @@ public final class ContextMenuUtil
     /**
      * Helper method which binds the dynamical computation of a {@link ContextMenu} to a {@link TreeItem}
      * {@link Property}.
-     *
+     * <p>
      * @param <T> the type of the item contained in the {@link TreeItem}
      * @param appCtx the {@link ApplicationContext} of the application
      * @param ctxMenuProperty the {@link ContextMenu} {@link Property} of the {@link TreeTableCell} or {@link TreeCell}
@@ -137,14 +137,14 @@ public final class ContextMenuUtil
 
     /**
      * Constructs the {@link ContextMenu} for a {@link TreeItem}.
-     *
+     * <p>
      * Based on the type of the Object contained in the {@link TreeItem}, menu options can be added.
-     *
+     * <p>
      * The following options are always provided : Expand All (selected node and all its descendants), Expand First Only
      * (recursively expand only the first child) and Collapse All (collapse the entire subtree).
-     *
+     * <p>
      * For {@link Node}s, the menu will (when fixed) add an Export To File option.
-     *
+     * <p>
      * @param <T> the type of the item contained in the {@link TreeItem}
      * @param appCtx the {@link ApplicationContext} of the application
      * @param treeItem the {@link TreeItem} for which the {@link ContextMenu} is constructed

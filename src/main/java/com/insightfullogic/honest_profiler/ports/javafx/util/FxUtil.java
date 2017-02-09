@@ -52,7 +52,7 @@ public final class FxUtil
 
     /**
      * Returns an {@link FXMLLoader} for the specified resource.
-     *
+     * <p>
      * @param originator the calling {@link Object} used for resource resolution
      * @param resource the String representation of the resource URL
      * @return an {@link FXMLLoader} for the specified resource
@@ -67,12 +67,12 @@ public final class FxUtil
     /**
      * Generates a "colored label", which is a rectangular graphic filled with the specified color, and containing the
      * specified text, and adds it to the provided {@link Pane}.
-     *
+     * <p>
      * This method should be called after the provided {@link Pane} has already been added to the scene graph. The idea
      * is that with the logic below, the text gets rendered inside its proper place in the scene graph, so that CSS and
      * other style settings are automatically taken into account. The rectangle is then resized to be a bit bigger than
      * the text.
-     *
+     * <p>
      * @param pane the {@link Pane} into which the graphic will be added
      * @param content the text content to be rendered in the colored label
      * @param color the background color of the label
@@ -109,9 +109,9 @@ public final class FxUtil
     /**
      * Generates a colored label for the "profile number" of the provided {@link ProfileContext}, as per
      * {@link #addColouredLabel(Pane, String, Color)}, and adds it to the provided pane.
-     *
+     * <p>
      * This method should be called after the provided {@link Pane} has already been added to the scene graph.
-     *
+     * <p>
      * @param pane the {@link Pane} into which the graphic will be added
      * @param profileContext the {@link ProfileContext} whose number will be used as text in the colored label
      */
@@ -127,7 +127,7 @@ public final class FxUtil
     /**
      * Create a typical HBox which can be used for displaying info, and which is ready for adding coloured labels to
      * (see above). The contents will be aligned using the specified alignemnt.
-     *
+     * <p>
      * @param alignment a {@link Pos} specifying how the {@link HBox} content should be aligned
      * @return the created {@link HBox}
      */
@@ -142,7 +142,7 @@ public final class FxUtil
     /**
      * Create a typical HBox which can be used for displaying info, and which is ready for adding coloured labels to
      * (see above), with contents aligned using {@link Pos#CENTER_LEFT}.
-     *
+     * <p>
      * @return the created {@link HBox}
      */
     public static Pane createColoredLabelContainer()
@@ -158,10 +158,10 @@ public final class FxUtil
     /**
      * Hack to work around defective TableView refresh. Tables do not always properly update when items are added or
      * removed.
-     *
+     * <p>
      * See : <a href="http://stackoverflow.com/questions/11065140/javafx-2-1-tableview-refresh-items">this StackOverflow
      * topic</a>.
-     *
+     * <p>
      * @param table the {@link TableView} to be refreshed
      */
     public static void refreshTable(TableView<?> table)
@@ -175,7 +175,7 @@ public final class FxUtil
 
     /**
      * Returns an indeterminate {@link ProgressIndicator} with the specified dimensions.
-     *
+     * <p>
      * @param maxWidth the maximum width of the {@link ProgressIndicator}
      * @param maxHeight the maximum height of the {@link ProgressIndicator}
      * @return the created {@link ProgressIndicator}

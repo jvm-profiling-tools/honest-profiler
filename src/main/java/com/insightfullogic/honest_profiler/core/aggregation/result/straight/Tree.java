@@ -23,7 +23,7 @@ public class Tree extends Aggregation<Node>
 
     /**
      * Create an empty Tree for the specified {@link AggregationProfile} and {@link CombinedGrouping}.
-     *
+     * <p>
      * @param source the {@link AggregationProfile} whose {@link LeanNode}s are aggregated into this Tree
      * @param grouping the {@link CombinedGrouping} used for aggregation
      */
@@ -34,7 +34,7 @@ public class Tree extends Aggregation<Node>
 
     /**
      * Internal constructor used by the {@link #filter(FilterSpecification)} method.
-     *
+     * <p>
      * @param source the {@link AggregationProfile} whose {@link LeanNode}s are aggregated into this Flat
      * @param grouping the {@link CombinedGrouping} used for aggregation
      * @param data the list of root {@link Node}s in the Tree
@@ -54,7 +54,7 @@ public class Tree extends Aggregation<Node>
 
     /**
      * Returns a {@link Stream} of all {@link Node}s contained in this Tree.
-     *
+     * <p>
      * @return a {@link Stream} of all {@link Node}s contained in this Tree
      */
     public Stream<Node> flatten()

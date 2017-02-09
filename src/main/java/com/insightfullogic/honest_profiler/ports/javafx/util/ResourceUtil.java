@@ -9,7 +9,7 @@ import java.util.ResourceBundle;
 
 /**
  * Utility class for working with the I18N resources.
- *
+ * <p>
  * Not sure if this shouldn't be called I18NUtil.
  */
 public final class ResourceUtil
@@ -166,7 +166,7 @@ public final class ResourceUtil
     /**
      * Returns the default {@link Locale} for the application, which is set to {@link Locale#ENGLISH} since that's the
      * only available {@link ResourceBundle} at time of writing.
-     *
+     * <p>
      * @return the default {@link Locale}
      */
     public static final Locale getDefaultLocale()
@@ -176,7 +176,7 @@ public final class ResourceUtil
 
     /**
      * Returns the {@link ResourceBundle} for the default {@link Locale}.
-     *
+     * <p>
      * @return the {@link ResourceBundle} for the default {@link Locale}
      */
     public static ResourceBundle getDefaultBundle()
@@ -186,7 +186,7 @@ public final class ResourceUtil
 
     /**
      * Formats a message from the specified {@link ResourceBundle} using the specified arguments.
-     *
+     * <p>
      * @param locale the {@link Locale} (see {@link MessageFormat#setLocale(Locale)})
      * @param bundle the {@link ResourceBundle} containing the message pattern
      * @param key the key of the message pattern in the {@link ResourceBundle}

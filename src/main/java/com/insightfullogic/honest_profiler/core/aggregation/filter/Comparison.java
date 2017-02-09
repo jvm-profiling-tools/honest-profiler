@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
  * Enumeration of the comparisons supported by filtering. The comparisons each provide the {@link Predicate} though
  * their {@link #getPredicate(Object)} method, which applies the comparison to an item and specified value, and returns
  * whether the item fulfills the condition.
- *
+ * <p>
  * It would have been nice to be able to parametrize the Enum, it might have been possible to make the internal factory
  * methods lighter. May be revisited if <a href="http://openjdk.java.net/jeps/301">JEP 301</a> gets implemented.
  */
@@ -54,7 +54,7 @@ public enum Comparison
 
     /**
      * Internal {@link Predicate} factory for applying comparisons to {@link Double}s.
-     *
+     * <p>
      * @param comparison the comparison for which the {@link Predicate} is constructed
      * @param value the value the comparison will compare against
      * @return a {@link Predicate} which can compare {@link Double}s against the specified value
@@ -82,7 +82,7 @@ public enum Comparison
 
     /**
      * Internal {@link Predicate} factory for applying comparisons to {@link Integer}s.
-     *
+     * <p>
      * @param comparison the comparison for which the {@link Predicate} is constructed
      * @param value the value the comparison will compare against
      * @return a {@link Predicate} which can compare {@link Integer}s against the specified value
@@ -110,7 +110,7 @@ public enum Comparison
 
     /**
      * Internal {@link Predicate} factory for applying comparisons to {@link Long}s.
-     *
+     * <p>
      * @param comparison the comparison for which the {@link Predicate} is constructed
      * @param value the value the comparison will compare against
      * @return a {@link Predicate} which can compare {@link Long}s against the specified value
@@ -138,7 +138,7 @@ public enum Comparison
 
     /**
      * Internal {@link Predicate} factory for applying comparisons to {@link String}s.
-     *
+     * <p>
      * @param comparison the comparison for which the {@link Predicate} is constructed
      * @param value the value the comparison will compare against
      * @return a {@link Predicate} which can compare {@link String}s against the specified value
@@ -181,7 +181,7 @@ public enum Comparison
 
     /**
      * Private constructor, setting the name which can be used for displaying the Comparison.
-     *
+     * <p>
      * @param name the display name
      */
     private Comparison(String name)
@@ -193,7 +193,7 @@ public enum Comparison
 
     /**
      * Returns a {@link Predicate} which will evaluate this comparison against the provided value.
-     *
+     * <p>
      * @param <T> the type of the {@link Object} tested by the {@link Predicate}
      * @param value the value the {@link Predicate} will compare against
      * @return a {@link Predicate} which compares input to the provided value

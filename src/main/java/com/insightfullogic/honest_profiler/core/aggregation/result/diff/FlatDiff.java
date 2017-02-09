@@ -34,7 +34,7 @@ public class FlatDiff extends AbstractDiff<Entry, DiffEntry, Flat>
 
     /**
      * Internal Copy constructor.
-     *
+     * <p>
      * @param entries the {@link List} of {@link DiffEntry}s to be copied into this Diff
      */
     private FlatDiff(List<DiffEntry> entries)
@@ -47,7 +47,7 @@ public class FlatDiff extends AbstractDiff<Entry, DiffEntry, Flat>
 
     /**
      * Sets the Base and New {@link Flat}s, and calculates the diff contents.
-     *
+     * <p>
      * @param baseFlat the Base {@link Flat}
      * @param newFlat the New {@link Flat}
      */
@@ -72,7 +72,7 @@ public class FlatDiff extends AbstractDiff<Entry, DiffEntry, Flat>
 
     /**
      * Returns the {@link DiffEntry}s from this Diff.
-     *
+     * <p>
      * @return a {@link Collection} containing the {@link DiffEntry}s from this Diff
      */
     public Collection<DiffEntry> getData()

@@ -10,14 +10,14 @@ public final class ReferenceUtil
     /**
      * Set the reference of all {@link Node}s contained in the provided {@link Tree} according to the specified
      * {@link ReferenceMode}. The reference of a {@link Node} is used for calculating the percentage values.
-     *
+     * <p>
      * Please consult the {@link ReferenceMode} documentation for more information about the meaning of the reference
      * modes.
-     *
+     * <p>
      * WARNING : the {@link ReferenceMode#THREAD} mode can only be used for {@link Tree}s or {@link TreeDiff}s where the
      * top-level children represent thread-level aggregations. Similarly, the {@link ReferenceMode#PARENT} mode can only
      * be used in {@link Tree}s or {@link TreeDiff}s.
-     *
+     * <p>
      * @param tree the {@link Tree} whose references are to be changed
      * @param mode the strategy for setting the references
      */
@@ -48,7 +48,7 @@ public final class ReferenceUtil
      * Set the reference of all {@link Node}s contained in the base and new {@link Tree}s in the provided Diff according
      * to the specified {@link ReferenceMode}. The reference of a {@link Node} is used for calculating the percentage
      * values.
-     *
+     * <p>
      * @param treeDiff the {@link TreeDiff} whose references are to be changed
      * @param mode the strategy for setting the references
      */
@@ -64,7 +64,7 @@ public final class ReferenceUtil
      * Recursively sets the reference in the child {@link Node} to the data from the parent {@link Node} for the
      * specified child {@link Node} as well as its descendants. If the child has no parent, i.e. the specified parent
      * {@link Node} is null, the child uses its own data for reference.
-     *
+     * <p>
      * @param parent the parent {@link Node}
      * @param child the child {@link Node}
      */
