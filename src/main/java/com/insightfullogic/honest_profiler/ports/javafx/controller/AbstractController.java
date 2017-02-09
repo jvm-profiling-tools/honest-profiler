@@ -10,14 +10,18 @@ import javafx.scene.control.Tab;
 /**
  * Superclass for all Controllers in the application. It holds the {@link ApplicationContext}, a context which is shared
  * by all controllers.
- *
+ * <p>
  * The class interacts with the {@link ApplicationContext} for I18N, retrieving the resources for keys. It also manages
  * what is displayed in the InfoBar, an application-level text area displayed at the bottem of the root window, used for
  * displaying contextual help and information messages.
- *
+ * </p>
+ * <p>
  * NOTE : Any controllers extending this class, and which in turn contain other ApplicationController controllers,
  * should override {@link #setApplicationContext(ApplicationContext)} using the following pattern :
+ * </p>
+ * <p>
  *
+ * <pre>
  * <code>
  * public setApplicationContext(ApplicationContext context)
  * {
@@ -27,6 +31,8 @@ import javafx.scene.control.Tab;
  *   ...
  * }
  * </code>
+ * </pre>
+ * </p>
  */
 public abstract class AbstractController
 {
@@ -37,9 +43,10 @@ public abstract class AbstractController
     // FXML Implementation
 
     /**
-     * This method must be called by subclasses in their FXML initialize(). The idea is to streamline similar tasks
-     * happening in the initialization method, and encourage decluttering of the initialize() methods by extracting
-     * similar tasks to separate methods.
+     * This method must be called by subclasses in their FXML initialize().
+     *
+     * The idea is to streamline similar tasks happening in the initialization method, and encourage decluttering of the
+     * initialize() methods by extracting similar tasks to separate methods.
      */
     protected void initialize()
     {
@@ -48,9 +55,10 @@ public abstract class AbstractController
     }
 
     /**
-     * Link nodes with "InfoBar" messages. The InfoBar is the info- or status bar at the bottom of the UI. While
-     * hovering over various {@link Node}s or when specific events occur, helpful information should appear in the
-     * InfoBar.
+     * Link nodes with "InfoBar" messages.
+     *
+     * The InfoBar is the info- or status bar at the bottom of the UI. While hovering over various {@link Node}s or when
+     * specific events occur, helpful information should appear in the InfoBar.
      */
     protected abstract void initializeInfoText();
 
@@ -77,6 +85,7 @@ public abstract class AbstractController
      * NOTE : Any controllers extending this class, and which in turn contain other ApplicationController controllers,
      * should override this method using the following pattern :
      *
+     * <pre>
      * <code>
      * public setApplicationContext(ApplicationContext context)
      * {
@@ -86,6 +95,7 @@ public abstract class AbstractController
      *   ...
      * }
      * </code>
+     * </pre>
      *
      * @param applicationContext the ApplicationContext of this application
      */

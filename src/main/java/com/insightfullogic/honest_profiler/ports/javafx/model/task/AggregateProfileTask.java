@@ -9,11 +9,11 @@ import javafx.concurrent.Task;
 
 /**
  * Background task which aggregates a back-end {@link LeanProfile} into an {@link AggregationProfile} for the front-end.
- *
- * It also serves the impiortant function of decoupling the back-end thread which invokes the
- * {@link LeanProfileListener} accept(LeanProfile) method from the front-end threads : the task will be submitted for
- * processing on a worker thread by the back-end thread. When the task finishes, it invokes its succeeded() method on
- * the FX thread.
+ * <p>
+ * It also serves the important function of decoupling the back-end thread which invokes the {@link LeanProfileListener}
+ * accept(LeanProfile) method from the front-end threads : the task will be submitted for processing on a worker thread
+ * by the back-end thread. When the task finishes, it invokes its succeeded() method on the FX thread.
+ * </p>
  */
 public class AggregateProfileTask extends Task<AggregationProfile>
 {
