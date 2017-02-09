@@ -30,7 +30,12 @@ public enum FrameGrouping implements BiFunction<AggregationProfile, LeanNode, St
      * Group frames by Fully Qualified Method Name and BCI (byte code index). The constructed key is "[Fully Qualified
      * ClassName].[Method Name]:[BCI]".
      */
-    BY_BCI("By FQMN + BCI", (profile, node) -> profile.getSource().getBciKey(node));
+    BY_BCI("By FQMN + BCI", (profile, node) -> profile.getSource().getBciKey(node)),
+    /**
+     * Group frames by Fully Qualified Method Name and line number. The constructed key is "[Fully Qualified
+     * ClassName].[Method Name]:[Line Number]".
+     */
+    BY_METHOD_ID("By Method ID", (profile, node) -> "(" + Long.toString(node.getFrame().getMethodId()) + ") " + profile.getSource().getMethodInfoMap().get(node.getFrame().getMethodId()).getFqmn());
 
     // Instance Properties
 
@@ -56,6 +61,6 @@ public enum FrameGrouping implements BiFunction<AggregationProfile, LeanNode, St
     @Override
     public String toString()
     {
-        return this.name;
+        return name;
     }
 }

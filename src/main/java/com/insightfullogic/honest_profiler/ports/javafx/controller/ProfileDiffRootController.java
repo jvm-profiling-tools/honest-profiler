@@ -21,6 +21,7 @@ package com.insightfullogic.honest_profiler.ports.javafx.controller;
 import static com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping.BY_BCI;
 import static com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping.BY_FQMN;
 import static com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping.BY_FQMN_LINENR;
+import static com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping.BY_METHOD_ID;
 import static com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping.ALL_TOGETHER;
 import static com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping.BY_ID;
 import static com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping.BY_NAME;
@@ -84,6 +85,7 @@ public class ProfileDiffRootController extends AbstractController
     /**
      * Sets the {@link ApplicationContext} and propagates it to any contained controllers.
      * <p>
+     *
      * @param applicationContext the {@link ApplicationContext}
      */
     @Override
@@ -99,6 +101,7 @@ public class ProfileDiffRootController extends AbstractController
      * Sets the {@link ProfileContext}s and propagates it to any contained controllers. The method also configures the
      * various contained controllers.
      * <p>
+     *
      * @param baseContext the {@link ProfileContext} for the Base profile
      * @param newContext the {@link ProfileContext} for the New profile
      */
@@ -110,7 +113,7 @@ public class ProfileDiffRootController extends AbstractController
         // Configure "main" FlatDiffView and bind it to the profiles in the ProfileContext
         flatController.setProfileContexts(baseContext, newContext);
         flatController.setAllowedThreadGroupings(ALL_TOGETHER);
-        flatController.setAllowedFrameGroupings(BY_FQMN, BY_FQMN_LINENR, BY_BCI);
+        flatController.setAllowedFrameGroupings(BY_FQMN, BY_FQMN_LINENR, BY_BCI, BY_METHOD_ID);
         flatController.bind(
             baseContext.profileProperty(),
             newContext.profileProperty(),
@@ -119,7 +122,7 @@ public class ProfileDiffRootController extends AbstractController
         // Configure "main" TreeDiffView and bind it to the profiles in the ProfileContext
         treeController.setProfileContexts(baseContext, newContext);
         treeController.setAllowedThreadGroupings(BY_NAME, BY_ID, ALL_TOGETHER);
-        treeController.setAllowedFrameGroupings(BY_FQMN, BY_FQMN_LINENR, BY_BCI);
+        treeController.setAllowedFrameGroupings(BY_FQMN, BY_FQMN_LINENR, BY_BCI, BY_METHOD_ID);
         treeController.bind(
             baseContext.profileProperty(),
             newContext.profileProperty(),
@@ -138,6 +141,7 @@ public class ProfileDiffRootController extends AbstractController
     /**
      * Show the selected View.
      * <p>
+     *
      * @param viewType the type of View which was selected
      */
     private void show(ViewType viewType)

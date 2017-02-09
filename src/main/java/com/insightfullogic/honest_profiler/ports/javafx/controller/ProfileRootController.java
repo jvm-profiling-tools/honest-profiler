@@ -21,6 +21,7 @@ package com.insightfullogic.honest_profiler.ports.javafx.controller;
 import static com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping.BY_BCI;
 import static com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping.BY_FQMN;
 import static com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping.BY_FQMN_LINENR;
+import static com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping.BY_METHOD_ID;
 import static com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping.ALL_TOGETHER;
 import static com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping.BY_ID;
 import static com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping.BY_NAME;
@@ -121,6 +122,7 @@ public class ProfileRootController extends AbstractController
     /**
      * Sets the {@link ApplicationContext} and propagates it to any contained controllers.
      * <p>
+     *
      * @param appCtx the {@link ApplicationContext}
      */
     @Override
@@ -140,16 +142,17 @@ public class ProfileRootController extends AbstractController
      * Sets the {@link ProfileContext} and propagates it to any contained controllers. The method also configures the
      * various contained controllers.
      * <p>
+     *
      * @param prCtx the {@link ProfileContext}
      */
     public void setProfileContext(ProfileContext prCtx)
     {
-        this.profileContext = prCtx;
+        profileContext = prCtx;
 
         // Configure "main" FlatView and bind it to the profile in the ProfileContext
         flatController.setProfileContext(prCtx);
         flatController.setAllowedThreadGroupings(ALL_TOGETHER);
-        flatController.setAllowedFrameGroupings(BY_FQMN, BY_FQMN_LINENR, BY_BCI);
+        flatController.setAllowedFrameGroupings(BY_FQMN, BY_FQMN_LINENR, BY_BCI, BY_METHOD_ID);
         flatController.bind(prCtx.profileProperty(), flatExtractor(flatController));
 
         // Configure Ancestor TreeView and bind it to the selection in the main FlatView
@@ -163,7 +166,7 @@ public class ProfileRootController extends AbstractController
         // Configure "main" TreeView and bind it to the profile in the ProfileContext
         treeController.setProfileContext(prCtx);
         treeController.setAllowedThreadGroupings(BY_NAME, BY_ID, ALL_TOGETHER);
-        treeController.setAllowedFrameGroupings(BY_FQMN, BY_FQMN_LINENR, BY_BCI);
+        treeController.setAllowedFrameGroupings(BY_FQMN, BY_FQMN_LINENR, BY_BCI, BY_METHOD_ID);
         treeController.bind(prCtx.profileProperty(), treeExtractor(treeController));
 
         // Configure Descendants FlatView and bind it to the selection in the main TreeView
@@ -204,6 +207,7 @@ public class ProfileRootController extends AbstractController
     /**
      * Show the selected View.
      * <p>
+     *
      * @param viewType the type of View which was selected
      */
     private void show(ViewType viewType)
@@ -250,6 +254,7 @@ public class ProfileRootController extends AbstractController
     /**
      * Show the {@link ContextMenu} listing any profiles the currently shown profile can be compared to.
      * <p>
+     *
      * @param event the {@link MouseEvent} triggering the displaying of the {@link ContextMenu}
      */
     private void showCompareMenu(MouseEvent event)
@@ -267,6 +272,7 @@ public class ProfileRootController extends AbstractController
     /**
      * Add profiles available for comparison to the specified {@link ContextMenu}.
      * <p>
+     *
      * @param menu the {@link ContextMenu} to which available profiles will be added
      */
     private void refreshContextMenu(ContextMenu menu)
@@ -290,6 +296,7 @@ public class ProfileRootController extends AbstractController
     /**
      * Freeze or unfreeze the profile.
      * <p>
+     *
      * @param event the {@link ActionEvent} triggering the (un)freezing
      */
     private void handleFreezeAction(ActionEvent event)
