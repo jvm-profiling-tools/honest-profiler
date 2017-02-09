@@ -19,7 +19,6 @@ import javafx.scene.control.Tab;
  * NOTE : Any controllers extending this class, and which in turn contain other ApplicationController controllers,
  * should override {@link #setApplicationContext(ApplicationContext)} using the following pattern :
  * </p>
- * <p>
  *
  * <pre>
  * <code>
@@ -32,7 +31,6 @@ import javafx.scene.control.Tab;
  * }
  * </code>
  * </pre>
- * </p>
  */
 public abstract class AbstractController
 {
