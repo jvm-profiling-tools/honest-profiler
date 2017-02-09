@@ -31,8 +31,13 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 
+/**
+ * Utility class which offers various JavaFX-specific convenience methods.
+ */
 public final class FxUtil
 {
+    // Class Properties
+
     private static String FXML_DIR = "/com/insightfullogic/honest_profiler/ports/javafx/fxml/";
 
     public static String FXML_ROOT = FXML_DIR + "Root.fxml";
@@ -43,18 +48,36 @@ public final class FxUtil
     { LIGHTSTEELBLUE, LIGHTGREEN, ORANGE, LIGHTBLUE, BEIGE, GOLD, LIGHTGREY, LIGHTPINK, CYAN,
         CHARTREUSE };
 
+    // Class Methods
+
+    /**
+     * Returns an {@link FXMLLoader} for the specified resource.
+     *
+     * @param originator the calling {@link Object} used for resource resolution
+     * @param resource the String representation of the resource URL
+     * @return an {@link FXMLLoader} for the specified resource
+     */
     public static FXMLLoader loaderFor(Object originator, String resource)
     {
         return new FXMLLoader(originator.getClass().getResource(resource), getDefaultBundle());
     }
 
     // Utility methods for adding "coloured labels".
-    // Call this after the Pane has already been added to the scene graph !
-    // The idea is that with the logic below, the text gets rendered inside its
-    // proper place in the scene graph, so that CSS and other style settings are
-    // automatically taken into account. The rectangle is then resized to be a
-    // bit bigger than the text.
 
+    /**
+     * Generates a "colored label", which is a rectangular graphic filled with the specified color, and containing the
+     * specified text, and adds it to the provided {@link Pane}.
+     *
+     * This method should be called after the provided {@link Pane} has already been added to the scene graph. The idea
+     * is that with the logic below, the text gets rendered inside its proper place in the scene graph, so that CSS and
+     * other style settings are automatically taken into account. The rectangle is then resized to be a bit bigger than
+     * the text.
+     *
+     * @param pane the {@link Pane} into which the graphic will be added
+     * @param content the text content to be rendered in the colored label
+     * @param color the background color of the label
+     * @return the provided {@link Pane}
+     */
     public static Node addColouredLabel(Pane pane, String content, Color color)
     {
         StackPane stackPane = new StackPane();
@@ -83,6 +106,15 @@ public final class FxUtil
     // Convenience method specifically for displaying Profile Nrs.
     // Call this after the Pane has already been added to the scene graph !
 
+    /**
+     * Generates a colored label for the "profile number" of the provided {@link ProfileContext}, as per
+     * {@link #addColouredLabel(Pane, String, Color)}, and adds it to the provided pane.
+     *
+     * This method should be called after the provided {@link Pane} has already been added to the scene graph.
+     *
+     * @param pane the {@link Pane} into which the graphic will be added
+     * @param profileContext the {@link ProfileContext} whose number will be used as text in the colored label
+     */
     public static void addProfileNr(Pane pane, ProfileContext profileContext)
     {
 
@@ -92,9 +124,13 @@ public final class FxUtil
             LABEL_PALETTE[profileContext.getId() % LABEL_PALETTE.length]);
     }
 
-    // Create a typical HBox which can be used for displaying info, and which is
-    // ready for adding coloured labels to (see above).
-
+    /**
+     * Create a typical HBox which can be used for displaying info, and which is ready for adding coloured labels to
+     * (see above). The contents will be aligned using the specified alignemnt.
+     *
+     * @param alignment a {@link Pos} specifying how the {@link HBox} content should be aligned
+     * @return the created {@link HBox}
+     */
     public static HBox createColoredLabelContainer(Pos alignment)
     {
         HBox box = new HBox();
@@ -103,6 +139,12 @@ public final class FxUtil
         return box;
     }
 
+    /**
+     * Create a typical HBox which can be used for displaying info, and which is ready for adding coloured labels to
+     * (see above), with contents aligned using {@link Pos#CENTER_LEFT}.
+     *
+     * @return the created {@link HBox}
+     */
     public static Pane createColoredLabelContainer()
     {
         return createColoredLabelContainer(CENTER_LEFT);
@@ -113,6 +155,15 @@ public final class FxUtil
     // See :
     // http://stackoverflow.com/questions/11065140/javafx-2-1-tableview-refresh-items
 
+    /**
+     * Hack to work around defective TableView refresh. Tables do not always properly update when items are added or
+     * removed.
+     *
+     * See : <a href="http://stackoverflow.com/questions/11065140/javafx-2-1-tableview-refresh-items">this StackOverflow
+     * topic</a>.
+     *
+     * @param table
+     */
     public static void refreshTable(TableView<?> table)
     {
         runLater(() ->
@@ -122,6 +173,13 @@ public final class FxUtil
         });
     }
 
+    /**
+     * Returns an indeterminate {@link ProgressIndicator} with the specified dimensions.
+     *
+     * @param maxWidth the maximum width of the {@link ProgressIndicator}
+     * @param maxHeight the maximum height of the {@link ProgressIndicator}
+     * @return the created {@link ProgressIndicator}
+     */
     public static ProgressIndicator getProgressIndicator(double maxWidth, double maxHeight)
     {
         ProgressIndicator progress = new ProgressIndicator();
@@ -129,6 +187,11 @@ public final class FxUtil
         return progress;
     }
 
+    // Instance Constructors
+
+    /**
+     * Private constructor for Utility Class
+     */
     private FxUtil()
     {
         // Private constructor for Utility Class
