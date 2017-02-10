@@ -41,6 +41,7 @@ import com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGroup
 import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
+import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController;
 import com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.GraphicalShareTreeTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTreeTableCell;
@@ -105,6 +106,9 @@ public class TreeViewController extends AbstractProfileViewController<Tree, Node
     @FXML
     private TreeTableColumn<Node, Number> selfTime;
 
+    @FXML
+    private FilterDialogController<Node> filterController;
+
     // FXML Implementation
 
     @Override
@@ -112,7 +116,7 @@ public class TreeViewController extends AbstractProfileViewController<Tree, Node
     protected void initialize()
     {
         super.initialize(ENTRY);
-        super.initialize(filterButton, quickFilterButton, quickFilterText);
+        super.initialize(filterController, filterButton, quickFilterButton, quickFilterText);
         super.initialize(threadGroupingLabel, threadGrouping, frameGroupingLabel, frameGrouping);
 
         initializeTable();
@@ -123,6 +127,7 @@ public class TreeViewController extends AbstractProfileViewController<Tree, Node
     /**
      * Returns the {@link ReadOnlyObjectProperty} tracking which item is currently selected.
      * <p>
+     *
      * @return the {@link ReadOnlyObjectProperty} tracking which item is currently selected
      */
     public ReadOnlyObjectProperty<TreeItem<Node>> selectedProperty()

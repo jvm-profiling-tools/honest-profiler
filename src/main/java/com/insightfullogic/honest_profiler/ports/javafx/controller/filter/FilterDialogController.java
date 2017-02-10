@@ -1,12 +1,10 @@
 package com.insightfullogic.honest_profiler.ports.javafx.controller.filter;
 
-import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.FILTER_CREATION;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.refreshTable;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_ADDFILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_REMOVEFILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_CHECK_HIDEERRORTHREADS;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_LIST_FILTERS;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.TITLE_DIALOG_SPECIFYFILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.MINUS_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.PLUS_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor;
@@ -23,13 +21,13 @@ import com.insightfullogic.honest_profiler.core.aggregation.filter.Target;
 import com.insightfullogic.honest_profiler.core.aggregation.result.ItemType;
 import com.insightfullogic.honest_profiler.ports.javafx.controller.dialog.AbstractDialogController;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
-import com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -38,6 +36,8 @@ import javafx.util.Callback;
 
 public class FilterDialogController<T> extends AbstractDialogController<FilterSpecification<T>>
 {
+    @FXML
+    private Dialog<FilterSpecification<T>> dialog;
     @FXML
     private DialogPane dialogPane;
     @FXML
@@ -52,7 +52,7 @@ public class FilterDialogController<T> extends AbstractDialogController<FilterSp
     private TableColumn<FilterItem<T, ?>, Comparison> comparison;
     @FXML
     private TableColumn<FilterItem<T, ?>, Object> value;
-
+    @FXML
     private FilterCreationDialogController<T> filterCreationController;
 
     private ItemType type;
@@ -61,7 +61,7 @@ public class FilterDialogController<T> extends AbstractDialogController<FilterSp
     @FXML
     public void initialize()
     {
-        super.initialize();
+        super.initialize(dialog);
 
         action.setCellFactory(column -> new ActionCell<>());
         action.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue()));
@@ -94,13 +94,6 @@ public class FilterDialogController<T> extends AbstractDialogController<FilterSp
     public void setApplicationContext(ApplicationContext applicationContext)
     {
         super.setApplicationContext(applicationContext);
-
-        filterCreationController = (FilterCreationDialogController<T>) DialogUtil
-            .<FilterItem<T, ?>>newDialog(
-                appCtx(),
-                FILTER_CREATION,
-                appCtx().textFor(TITLE_DIALOG_SPECIFYFILTER),
-                true);
         filterCreationController.setApplicationContext(applicationContext);
     }
 
@@ -162,6 +155,7 @@ public class FilterDialogController<T> extends AbstractDialogController<FilterSp
     @Override
     protected void initializeHandlers()
     {
+        //
     }
 
     // Helper Classes

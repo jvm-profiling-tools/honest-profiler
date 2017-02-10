@@ -11,6 +11,7 @@ import javafx.util.Callback;
 /**
  * Abstract superclass for DialogController implementations.
  * <p>
+ *
  * @param <R> the return type of the {@link Dialog}
  */
 public abstract class AbstractDialogController<R> extends AbstractController
@@ -18,16 +19,18 @@ public abstract class AbstractDialogController<R> extends AbstractController
 {
     private Dialog<R> dialog;
 
-    @Override
-    public Dialog<R> getDialog()
+    /**
+     * This method must be called by subclasses in their FXML initialize().
+     * <p>
+     * The idea is to streamline similar tasks happening in the initialization method, and encourage decluttering of the
+     * initialize() methods by extracting similar tasks to separate methods.
+     */
+    protected void initialize(Dialog<R> dialog)
     {
-        return this.dialog;
-    }
+        super.initialize();
 
-    @Override
-    public void setDialog(Dialog<R> dialog)
-    {
         this.dialog = dialog;
+        dialog.setResultConverter(createResultHandler());
     }
 
     @Override

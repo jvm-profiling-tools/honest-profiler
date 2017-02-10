@@ -41,6 +41,7 @@ import com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGroup
 import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
+import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController;
 import com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.GraphicalShareTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTableCell;
@@ -102,6 +103,9 @@ public class FlatViewController extends AbstractProfileViewController<Flat, Entr
     @FXML
     private TableColumn<Entry, Number> totalTime;
 
+    @FXML
+    private FilterDialogController<Entry> filterController;
+
     private ObservableList<Entry> flatProfile;
 
     // FXML Implementation
@@ -113,7 +117,7 @@ public class FlatViewController extends AbstractProfileViewController<Flat, Entr
         flatProfile = flatTable.getItems();
 
         super.initialize(ENTRY);
-        super.initialize(filterButton, quickFilterButton, quickFilterText);
+        super.initialize(filterController, filterButton, quickFilterButton, quickFilterText);
         super.initialize(threadGroupingLabel, threadGrouping, frameGroupingLabel, frameGrouping);
     }
 
@@ -122,6 +126,7 @@ public class FlatViewController extends AbstractProfileViewController<Flat, Entr
     /**
      * Returns the {@link ReadOnlyObjectProperty} tracking which item is currently selected.
      * <p>
+     *
      * @return the {@link ReadOnlyObjectProperty} tracking which item is currently selected
      */
     public ReadOnlyObjectProperty<Entry> selectedProperty()

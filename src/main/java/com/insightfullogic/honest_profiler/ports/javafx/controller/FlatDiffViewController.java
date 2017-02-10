@@ -50,6 +50,7 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
 import com.insightfullogic.honest_profiler.core.aggregation.result.diff.DiffEntry;
 import com.insightfullogic.honest_profiler.core.aggregation.result.diff.FlatDiff;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
+import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController;
 import com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTableCell;
 
@@ -138,6 +139,9 @@ public class FlatDiffViewController extends AbstractProfileDiffViewController<Fl
     @FXML
     private TableColumn<DiffEntry, Number> totalTimeDiff;
 
+    @FXML
+    private FilterDialogController<DiffEntry> filterController;
+
     private FlatDiff diff;
 
     // FXML Implementation
@@ -149,7 +153,7 @@ public class FlatDiffViewController extends AbstractProfileDiffViewController<Fl
         diff = new FlatDiff();
 
         super.initialize(DIFFENTRY);
-        super.initialize(filterButton, quickFilterButton, quickFilterText);
+        super.initialize(filterController, filterButton, quickFilterButton, quickFilterText);
         super.initialize(threadGroupingLabel, threadGrouping, frameGroupingLabel, frameGrouping);
     }
 
@@ -230,6 +234,7 @@ public class FlatDiffViewController extends AbstractProfileDiffViewController<Fl
     /**
      * Helper method for {@link #refresh()}.
      * <p>
+     *
      * @param baseFlat the Base {@link Flat} to be compared
      * @param newFlat the New {@link Flat} to be compared
      */

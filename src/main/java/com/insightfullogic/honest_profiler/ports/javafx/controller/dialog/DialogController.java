@@ -14,32 +14,11 @@ import javafx.util.Callback;
  * <p>
  * NOTE : May be refactored soon, since the get/setDialog can be avoided through injection from FXML.
  * <p>
+ *
  * @param <R> the return type of the {@link Dialog}
  */
 public interface DialogController<R>
 {
-    /**
-     * Set the {@link ApplicationContext}. The {@link ApplicationContext} is shared by all controllers in the
-     * application, for sharing application resources.
-     * <p>
-     * @param applicationContext the {@link ApplicationContext} for the application
-     */
-    void setApplicationContext(ApplicationContext applicationContext);
-
-    /**
-     * Returns the associated {@link Dialog} object controlled by this controller.
-     * <p>
-     * @return the associated {@link Dialog} object controlled by this controller
-     */
-    Dialog<R> getDialog();
-
-    /**
-     * Sets the {@link Dialog} object controlled by this controller instance.
-     * <p>
-     * @param dialog the {@link Dialog} object controlled by this controller instance
-     */
-    void setDialog(Dialog<R> dialog);
-
     /**
      * Shows the {@link Dialog}.
      */
@@ -48,6 +27,7 @@ public interface DialogController<R>
     /**
      * Shows the {@link Dialog} and waits until the {@link Dialog} is closed.
      * <p>
+     *
      * @return an {@link Optional} wrapping the potential result from the {@link Dialog}
      */
     Optional<R> showAndWait();
@@ -59,6 +39,7 @@ public interface DialogController<R>
      * Subclasses should implement this. The {@link DialogUtil#newDialog(ApplicationContext, String, String, boolean)}
      * method will use it to install the resulthandler in the {@link Dialog}.
      * <p>
+     *
      * @return the resulthandler for generating the result from the {@link Dialog}
      */
     Callback<ButtonType, R> createResultHandler();

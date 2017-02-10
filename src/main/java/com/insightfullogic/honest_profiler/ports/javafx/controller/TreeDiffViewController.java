@@ -32,6 +32,7 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
 import com.insightfullogic.honest_profiler.core.aggregation.result.diff.DiffNode;
 import com.insightfullogic.honest_profiler.core.aggregation.result.diff.TreeDiff;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
+import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController;
 import com.insightfullogic.honest_profiler.ports.javafx.util.TreeUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTreeTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.tree.DiffNodeTreeItem;
@@ -123,6 +124,9 @@ public class TreeDiffViewController extends AbstractProfileDiffViewController<Tr
     @FXML
     private TreeTableColumn<DiffNode, Number> totalTimeDiff;
 
+    @FXML
+    private FilterDialogController<DiffNode> filterController;
+
     private TreeDiff diff;
 
     // FXML Implementation
@@ -134,7 +138,7 @@ public class TreeDiffViewController extends AbstractProfileDiffViewController<Tr
         diff = new TreeDiff();
 
         super.initialize(DIFFENTRY);
-        super.initialize(filterButton, quickFilterButton, quickFilterText);
+        super.initialize(filterController, filterButton, quickFilterButton, quickFilterText);
         super.initialize(threadGroupingLabel, threadGrouping, frameGroupingLabel, frameGrouping);
     }
 
@@ -217,6 +221,7 @@ public class TreeDiffViewController extends AbstractProfileDiffViewController<Tr
     /**
      * Helper method for {@link #refresh()}.
      * <p>
+     *
      * @param baseTree the Base {@link Tree} to be compared
      * @param newTree the New {@link Tree} to be compared
      */

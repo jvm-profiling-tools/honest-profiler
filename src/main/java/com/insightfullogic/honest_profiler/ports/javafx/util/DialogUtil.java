@@ -1,7 +1,6 @@
 package com.insightfullogic.honest_profiler.ports.javafx.util;
 
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.CONTENT_LABEL_EXCEPTION;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.EXCEPTION_DIALOGCREATIONFAILED;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.HEADER_DIALOG_ERR_EXPORTPROFILE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.MESSAGE_DIALOG_ERR_EXPORTPROFILE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.TITLE_DIALOG_ERR_EXPORTPROFILE;
@@ -17,14 +16,10 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.function.Consumer;
 
-import com.insightfullogic.honest_profiler.ports.javafx.controller.dialog.DialogController;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Dialog;
-import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
@@ -47,52 +42,9 @@ public final class DialogUtil
 {
     // Class Properties
 
-    public static String FILTER = "/com/insightfullogic/honest_profiler/ports/javafx/fxml/FilterDialog.fxml";
-    public static String FILTER_CREATION = "/com/insightfullogic/honest_profiler/ports/javafx/fxml/FilterCreationDialog.fxml";
-
     private static File CACHED_PARENT_DIR;
 
     // Class Methods
-
-    /**
-     * I'm not going to document this method yet because I'm planning to work on doing dialog creation "properly" based
-     * on FXML + controller injection (instead of the way it seems to be done in all the examples on the 'Net), and how
-     * it is done here, with explicit reference to the FXML files.
-     * <p>
-     * @param <T> blah
-     * @param appCtx blah
-     * @param fxml blah
-     * @param title blah
-     * @param resetOnShow blah
-     * @return blah
-     */
-    public static <T> DialogController<T> newDialog(ApplicationContext appCtx, String fxml,
-        String title, boolean resetOnShow)
-    {
-        try
-        {
-            FXMLLoader loader = new FXMLLoader(DialogUtil.class.getResource(fxml));
-            Parent dialogPane = (Parent)loader.load();
-            DialogController<T> controller = loader.getController();
-
-            Dialog<T> dialog = new Dialog<>();
-            controller.setDialog(dialog);
-
-            dialog.setDialogPane((DialogPane)dialogPane);
-            dialog.setResultConverter(controller.createResultHandler());
-            dialog.setTitle(title);
-            if (resetOnShow)
-            {
-                dialog.setOnShown(event -> controller.reset());
-            }
-
-            return controller;
-        }
-        catch (IOException ioe)
-        {
-            throw new RuntimeException(appCtx.textFor(EXCEPTION_DIALOGCREATIONFAILED, fxml), ioe);
-        }
-    }
 
     /**
      * Present a {@link Dialog} to the user which allows the selection of a log file, and return the selected
@@ -105,6 +57,7 @@ public final class DialogUtil
      * away" from the directory where the profiler log files are stored. Also it is quite likely that log files are
      * stored "close to each other" on the file system.
      * <p>
+     *
      * @param appCtx the {@link ApplicationContext} for the application
      * @return the selected {@link File}
      */
@@ -141,6 +94,7 @@ public final class DialogUtil
      * away" from the directory where the profiler log files are stored. Also it is quite likely that log files are
      * stored "close to each other" on the file system.
      * <p>
+     *
      * @param appCtx the {@link ApplicationContext} for the application
      * @param window the containing {@link Window}
      * @param initialFileName the filename initially proposed in the filename input text input
@@ -179,6 +133,7 @@ public final class DialogUtil
     /**
      * Show an error {@link Dialog} with the specified properties.
      * <p>
+     *
      * @param title the title of the {@link Dialog}
      * @param header the header of the {@link Dialog}
      * @param content the content of the {@link Dialog}
@@ -197,6 +152,7 @@ public final class DialogUtil
      * Shows an exception {@link Dialog} with the specified properties. This is an error {@link Dialog} which contains
      * the stack trace of the {@link Throwable} as expandable content.
      * <p>
+     *
      * @param appCtx the {@link ApplicationContext} for the application
      * @param title the title of the {@link Dialog}
      * @param header the header of the {@link Dialog}

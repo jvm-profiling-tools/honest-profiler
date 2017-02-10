@@ -25,6 +25,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -34,6 +35,8 @@ public class FilterCreationDialogController<T> extends AbstractDialogController<
 {
     private final Map<ValueType, StringValidationListener> validatorMap = new HashMap<>();
 
+    @FXML
+    private Dialog<FilterItem<T, ?>> dialog;
     @FXML
     private DialogPane dialogPane;
     @FXML
@@ -51,19 +54,15 @@ public class FilterCreationDialogController<T> extends AbstractDialogController<
     @FXML
     protected void initialize()
     {
-        super.initialize();
+        super.initialize(dialog);
 
         // Validator Map Population
-        Button okButton = (Button) dialogPane.lookupButton(OK);
+        Button okButton = (Button)dialogPane.lookupButton(OK);
         for (ValueType type : ValueType.values())
         {
             validatorMap
                 .put(type, new StringValidationListener(value, type.getValidator(), okButton));
         }
-
-        // Choice Display
-        target.setConverter(getStringConverterForType(Target.class));
-        comparison.setConverter(getStringConverterForType(Comparison.class));
     }
 
     public void setItemType(ItemType itemType)
@@ -134,7 +133,13 @@ public class FilterCreationDialogController<T> extends AbstractDialogController<
     @Override
     protected void initializeHandlers()
     {
+        dialog.setOnShown(event -> reset());
+
         target.getSelectionModel().selectedItemProperty()
             .addListener((property, oldValue, newValue) -> switchTarget(newValue));
+
+        // Choice Display
+        target.setConverter(getStringConverterForType(Target.class));
+        comparison.setConverter(getStringConverterForType(Comparison.class));
     }
 }
