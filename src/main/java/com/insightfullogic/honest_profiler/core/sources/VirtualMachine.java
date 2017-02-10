@@ -35,7 +35,9 @@ import java.util.Objects;
  */
 public class VirtualMachine implements Comparable<VirtualMachine>
 {
-
+    private static final String OPT_AGENT = "-agentpath";
+    private static final String OPT_LOG = "logPath=";
+    
     private final String id;
     private final String displayName;
     private final boolean agentLoaded;
@@ -69,14 +71,14 @@ public class VirtualMachine implements Comparable<VirtualMachine>
     public LogSource getLogSourceFromVmArgs() throws CantReadFromSourceException
     {
         // Bail out if agentpath is not defined.
-        if (vmArgs.indexOf("-agentpath") < 0)
+        if (vmArgs.indexOf(OPT_AGENT) < 0)
         {
             return getLogSource();
         }
 
         // Extract the value of the agentpath parameter
         
-        int agentPathStart = vmArgs.indexOf("-agentpath") + "-agentpath".length();
+        int agentPathStart = vmArgs.indexOf(OPT_AGENT) + OPT_AGENT.length();
         
         // TODO FIX : if the logPath contains spaces, this will cause trouble.
         int agentPathEnd = vmArgs.indexOf(' ', agentPathStart);
@@ -87,14 +89,14 @@ public class VirtualMachine implements Comparable<VirtualMachine>
         String agentPath = vmArgs.substring(agentPathStart, agentPathEnd);
         
         // Bail out if logPath is not defined.
-        if (agentPath.indexOf("logPath") < 0)
+        if (agentPath.indexOf(OPT_LOG) < 0)
         {
             return getLogSource();
         }
 
         // Extract the value of the logPath parameter
 
-        int logPathStart = agentPath.indexOf("logPath=") + "logPath=".length();
+        int logPathStart = agentPath.indexOf(OPT_LOG) + OPT_LOG.length();
         int commaPos = agentPath.indexOf(",", logPathStart);
         int spacePos = agentPath.indexOf(' ', logPathStart);
         int logPathEnd = commaPos > 0 ? commaPos : (spacePos > 0 ? spacePos : agentPath.length());
