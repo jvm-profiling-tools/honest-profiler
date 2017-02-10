@@ -83,20 +83,19 @@ public class LocalMachineSource
     {
         poll();
 
-        sleep();
-
-        return true;
+        return sleep();
     }
 
-    private void sleep()
+    private boolean sleep()
     {
         try
         {
             Thread.sleep(sleepPeriod);
+            return true;
         }
         catch (InterruptedException e)
         {
-            // Ignore
+            return false;
         }
     }
 
