@@ -92,15 +92,18 @@ public final class ReportUtil
      * <p>
      * TODO FIX - {@link ProfileNode}s are no longer used.
      * <p>
+     *
      * @param out the {@link PrintWriter} to wite the stack to
      * @param node the root {@link Node} of the stack (fragment)
      */
-    public static void writeStack(PrintWriter out, ProfileNode node)
+    public static void writeStack(PrintWriter out, Node node)
     {
         Table table = new Table();
         table.addColumn("Method", obj -> obj.toString(), LEFT);
-        table.addColumn("Self Time Share", object -> FMT_PERCENT.format(object), RIGHT);
-        table.addColumn("Total Time Share", object -> FMT_PERCENT.format(object), RIGHT);
+        table.addColumn("Self Time %", object -> FMT_PERCENT.format(object), RIGHT);
+        table.addColumn("Total Time %", object -> FMT_PERCENT.format(object), RIGHT);
+        table.addColumn("Self Sample #", object -> Integer.toString((Integer)object), RIGHT);
+        table.addColumn("Total Sample #", object -> Integer.toString((Integer)object), RIGHT);
 
         buildStackTable(node, 0, table, new ArrayList<>());
         table.print(out);
@@ -111,29 +114,28 @@ public final class ReportUtil
      * <p>
      * TODO FIX - {@link ProfileNode}s are no longer used.
      * <p>
+     *
      * @param node the root {@link Node} being added to the {@link Table}
      * @param level the depth the root {@link Node} is at
      * @param table the {@link Table} the {@link Node} will be added to
      * @param dropLines a {@link List} containing the {@link DropLine}s to be added left of the {@link Node}
      *            information.
      */
-    private static void buildStackTable(ProfileNode node, int level, Table table,
-        List<DropLine> dropLines)
+    private static void buildStackTable(Node node, int level, Table table, List<DropLine> dropLines)
     {
         table.addRow(
-            indent(dropLines, level)
-                + node.getFrameInfo().getClassName()
-                + "."
-                + node.getFrameInfo().getMethodName(),
-            node.getSelfTimeShare(),
-            node.getTotalTimeShare());
+            indent(dropLines, level) + node.getKey(),
+            node.getSelfTimePct(),
+            node.getTotalTimePct(),
+            node.getSelfCnt(),
+            node.getTotalCnt());
 
         if (level > 0)
         {
             dropLines.get(level - 1).decrement();
         }
 
-        List<ProfileNode> children = node.getChildren();
+        List<Node> children = node.getChildren();
 
         if (children.size() > 0)
         {
@@ -151,6 +153,7 @@ public final class ReportUtil
     /**
      * Write the contents of a {@link Flat} aggregation to a CSV or text file, depending on the specified {@link Mode}.
      * <p>
+     *
      * @param out the {@link PrintWriter} to wite the data to
      * @param entries the data to be written
      * @param mode the {@link Mode} for formatting the output
@@ -158,7 +161,7 @@ public final class ReportUtil
     public static void writeFlatProfileCsv(PrintWriter out, List<Entry> entries, Mode mode)
     {
         mode.start(out);
-        out.print("Method");
+        out.print("Key");
 
         mode.middle(out);
         out.print("Self %");
@@ -195,6 +198,7 @@ public final class ReportUtil
      * Write the contents of a {@link FlatDiff} aggregation to a CSV or text file, depending on the specified
      * {@link Mode}.
      * <p>
+     *
      * @param out the {@link PrintWriter} to wite the data to
      * @param entries the data to be written
      * @param mode the {@link Mode} for formatting the output
@@ -203,7 +207,7 @@ public final class ReportUtil
         Mode mode)
     {
         mode.start(out);
-        out.print("Method");
+        out.print("Key");
 
         mode.middle(out);
         out.print("Base Self %");
@@ -277,6 +281,7 @@ public final class ReportUtil
     /**
      * Internal helper method for indenting stack frames, preceded by the specified {@link DropLine}s.
      * <p>
+     *
      * @param dropLines the {@link DropLine}s to be rendered
      * @param level the indentation level
      * @return a String containing the rendered {@link DropLine}s and whitespace to be used as prefix for indenting the
@@ -314,6 +319,7 @@ public final class ReportUtil
         /**
          * Constructor.
          * <p>
+         *
          * @param childrenLeft some parameter
          */
         private DropLine(int childrenLeft)
