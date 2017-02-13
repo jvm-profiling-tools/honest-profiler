@@ -15,7 +15,6 @@ import javafx.util.Callback;
  * @param <R> the return type of the {@link Dialog}
  */
 public abstract class AbstractDialogController<R> extends AbstractController
-    implements DialogController<R>
 {
     private Dialog<R> dialog;
 
@@ -33,21 +32,17 @@ public abstract class AbstractDialogController<R> extends AbstractController
         dialog.setResultConverter(createResultHandler());
     }
 
-    @Override
     public void show()
     {
         this.dialog.show();
     }
 
-    @Override
     public Optional<R> showAndWait()
     {
         return this.dialog.showAndWait();
     }
 
-    @Override
     public abstract Callback<ButtonType, R> createResultHandler();
 
-    @Override
     public abstract void reset();
 }
