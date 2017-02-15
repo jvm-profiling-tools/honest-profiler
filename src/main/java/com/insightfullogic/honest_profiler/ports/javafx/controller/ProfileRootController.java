@@ -223,12 +223,6 @@ public class ProfileRootController extends AbstractController
         // Activate and deactivate the relevant controllers.
         controllerMap
             .forEach((type, list) -> list.forEach(ctrl -> ctrl.setActive(viewType == type)));
-
-        // Needed to actually display the Flame view.
-        if (viewType == FLAME)
-        {
-            flameController.refreshFlameView();
-        }
     }
 
     // AbstractController Implementation

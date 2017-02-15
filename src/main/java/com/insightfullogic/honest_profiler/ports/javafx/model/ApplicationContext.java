@@ -51,7 +51,7 @@ public final class ApplicationContext
     /**
      * Create the ApplicationContext with teh specified {@link RootController}.
      * <p>
-     * 
+     *
      * @param rootController the {@link RootController} for the application
      */
     public ApplicationContext(RootController rootController)
@@ -69,7 +69,7 @@ public final class ApplicationContext
     /**
      * Returns the id of the {@link ProfileContext} which tracks the profile based on the specified {@link File}.
      * <p>
-     * 
+     *
      * @param file the {@link File} containing the Profiling Agent output
      * @return the id of the {@link ProfileContext} which tracks the profile based on the specified {@link File}
      */
@@ -83,7 +83,7 @@ public final class ApplicationContext
      * Returns the internationalized String stored in the application {@link ResourceBundle} for the specified key based
      * on the current {@link Locale}.
      * <p>
-     * 
+     *
      * @param key the key for the internationalized String in the application {@link ResourceBundle}
      * @return the internationalized String for the specified key
      */
@@ -97,7 +97,7 @@ public final class ApplicationContext
      * {@link ResourceBundle} based on the current {@link Locale}, interpreting it as a format and formatting it using
      * the specified argument.
      * <p>
-     * 
+     *
      * @param key the key for the pattern in the application {@link ResourceBundle}
      * @param args the arguments for formatting the pattern
      * @return the constructed internationalized String
@@ -110,7 +110,7 @@ public final class ApplicationContext
     /**
      * Set the text in the InfoBar as per {@link #textFor(String)}.
      * <p>
-     * 
+     *
      * @param key the key for the internationalized String in the application {@link ResourceBundle}
      */
     public void setInfoFromBundle(String key)
@@ -121,13 +121,23 @@ public final class ApplicationContext
     /**
      * Set the text in the InfoBar as per {@link #textFor(String, Object...)}.
      * <p>
-     * 
+     *
      * @param key the key for the pattern in the application {@link ResourceBundle}
      * @param args the arguments for formatting the pattern
      */
     public void setInfoFromBundle(String key, Object... args)
     {
         info.set(textFor(key, args));
+    }
+
+    /**
+     * Sets the text in the InfoBar.
+     *
+     * @param text the raw text
+     */
+    public void setRawInfo(String text)
+    {
+        info.set(text);
     }
 
     /**
@@ -141,7 +151,7 @@ public final class ApplicationContext
     /**
      * Returns the InfoBar {@link ObservableStringValue}.
      * <p>
-     * 
+     *
      * @return the InfoBar {@link ObservableStringValue}.
      */
     public ObservableStringValue getInfo()
@@ -152,7 +162,7 @@ public final class ApplicationContext
     /**
      * Returns the {@link ProfileContext} with the specified name.
      * <p>
-     * 
+     *
      * @param name the name of the {@link ProfileContext}
      * @return the corresponding {@link ProfileContext}
      */
@@ -164,7 +174,7 @@ public final class ApplicationContext
     /**
      * Registers a {@link ProfileContext} with this ApplicationContext, making it available as shared state.
      * <p>
-     * 
+     *
      * @param context the {@link ProfileContext} to be registered
      */
     public void registerProfileContext(ProfileContext context)
@@ -176,7 +186,7 @@ public final class ApplicationContext
     /**
      * Returns a list of the names of all known {@link ProfileContext}s.
      * <p>
-     * 
+     *
      * @return a list of the names of all known {@link ProfileContext}s
      */
     public List<String> getOpenProfileNames()
@@ -187,7 +197,7 @@ public final class ApplicationContext
     /**
      * Executes a task on a background worker thread.
      * <p>
-     * 
+     *
      * @param task the task to be executed
      */
     public void execute(Task<?> task)
@@ -207,7 +217,7 @@ public final class ApplicationContext
     /**
      * Create a {@link Tab} containing the Diff Views for the specified profiles.
      * <p>
-     * 
+     *
      * @param baseName the name of the {@link ProfileContext} for the Base profile
      * @param newName the name of the {@link ProfileContext} for the New profile
      */

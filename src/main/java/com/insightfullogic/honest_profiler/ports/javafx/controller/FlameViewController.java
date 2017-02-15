@@ -22,58 +22,55 @@ import static com.insightfullogic.honest_profiler.core.aggregation.result.ItemTy
 
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
+import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController;
+import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.javafx.view.FlameGraphCanvas;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 
 public class FlameViewController extends AbstractProfileViewController<Tree, Node>
 {
     @FXML
-    private VBox rootContainer;
+    private Button filterButton;
+    @FXML
+    private TextField quickFilterText;
+    @FXML
+    private Button quickFilterButton;
 
-    private FlameGraphCanvas flameView = new FlameGraphCanvas();
+    @FXML
+    private VBox flameBox;
+
+    @FXML
+    private FilterDialogController<Node> filterController;
+
+    private FlameGraphCanvas flameCanvas;
+
+    private double currentWidth;
+    private double currentHeight;
 
     @Override
     @FXML
     protected void initialize()
     {
         super.initialize(ENTRY);
+        super.initialize(filterController, filterButton, quickFilterButton, quickFilterText);
 
-        rootContainer.getChildren().add(flameView);
-    }
-
-    @Override
-    public void setProfileContext(ProfileContext profileContext)
-    {
-        super.setProfileContext(profileContext);
-    }
-
-    public void refreshFlameView()
-    {
-        if (!flameView.widthProperty().isBound())
-        {
-            flameView.setWidth(rootContainer.getWidth());
-            flameView.setHeight(rootContainer.getHeight());
-
-            flameView.refresh();
-
-            flameView.heightProperty().bind(rootContainer.heightProperty());
-            flameView.widthProperty().bind(rootContainer.widthProperty());
-
-            flameView.heightProperty()
-                .addListener((property, oldValue, newValue) -> refreshFlameView());
-            flameView.widthProperty()
-                .addListener((property, oldValue, newValue) -> refreshFlameView());
-        }
-        else
-        {
-            flameView.refresh();
-        }
     }
 
     // AbstractController Implementation
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext)
+    {
+        super.setApplicationContext(applicationContext);
+
+        flameCanvas = new FlameGraphCanvas(applicationContext);
+        flameBox.getChildren().add(flameCanvas);
+    }
 
     @Override
     protected void initializeInfoText()
@@ -84,7 +81,8 @@ public class FlameViewController extends AbstractProfileViewController<Tree, Nod
     @Override
     protected void initializeHandlers()
     {
-        // NOOP
+        flameBox.widthProperty().addListener((property, oldValue, newValue) -> refreshIfResized());
+        flameBox.heightProperty().addListener((property, oldValue, newValue) -> refreshIfResized());
     }
 
     // AbstractViewController Implementation
@@ -92,10 +90,30 @@ public class FlameViewController extends AbstractProfileViewController<Tree, Nod
     @Override
     protected void refresh()
     {
-        flameView = new FlameGraphCanvas();
-        flameView.accept(getTarget());
-        rootContainer.getChildren().clear();
-        rootContainer.getChildren().add(flameView);
+        Tree tree = getTarget();
+
+        if (tree != null)
+        {
+            flameCanvas.setWidth(currentWidth);
+            flameCanvas.setHeight(currentHeight);
+            flameCanvas.accept(tree.filter(getFilterSpecification()));
+        }
+    }
+
+    /**
+     * Checks new dimensions : if either has changed, the new dimensions are cached and the graph is refreshed.
+     */
+    private void refreshIfResized()
+    {
+        double newWidth = flameBox.getWidth();
+        double newHeight = flameBox.getHeight();
+
+        if (newWidth != currentWidth || newHeight != currentHeight)
+        {
+            currentWidth = newWidth;
+            currentHeight = newHeight;
+            refresh();
+        }
     }
 
     @Override

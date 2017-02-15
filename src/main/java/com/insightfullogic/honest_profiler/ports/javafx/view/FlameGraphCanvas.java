@@ -21,6 +21,9 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.view;
 
+import static java.lang.Math.max;
+import static javafx.scene.paint.Color.ROYALBLUE;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +32,7 @@ import java.util.Optional;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
 import com.insightfullogic.honest_profiler.core.profiles.lean.info.MethodInfo;
+import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -47,42 +51,43 @@ public class FlameGraphCanvas extends Canvas
     private final Tooltip tooltip = new Tooltip();
 
     private List<MethodLocation> methodLocations;
-
-    private Tree tree;
     private Map<Long, MethodInfo> methodMap;
 
-    public FlameGraphCanvas()
-    {
-        setOnMouseMoved(this::displayMethodName);
-    }
+    private ApplicationContext appCtx;
 
-    public void refresh()
+    public FlameGraphCanvas(ApplicationContext applicationContext)
     {
-        if (tree != null)
-        {
-            accept(tree);
-        }
+        this.appCtx = applicationContext;
+        setOnMouseMoved(this::displayMethodName);
     }
 
     public void accept(final Tree tree)
     {
-        this.tree = tree;
-
         methodMap = tree.getSource().getSource().getMethodInfoMap();
 
         methodLocations = new ArrayList<>();
 
         final GraphicsContext graphics = getGraphicsContext2D();
+
         // graphics.clearRect();
         // graphics.setFill(Color.GRAY);
-        graphics.clearRect(0, 0, getWidth(), getHeight());
 
+        graphics.clearRect(0, 0, getWidth(), getHeight());
         graphics.setStroke(Color.WHITE);
 
         Node rootNode = tree.getData().get(0);
 
-        // Total number of samples
+        // // Total number of samples
         long nrSamples = tree.getSource().getGlobalData().getTotalCnt();
+
+        // TODO Reaggregate when filtering so the width can be calculated properly. Now we have bla
+
+        // Total number of samples in the leaves (the Tree may be filtered so we can't use the AggregationProfile global
+        // data)
+        // long nrSamples = rootNode.flattenDescendants()
+        // .filter(node -> node.getChildren().size() == 0)
+        // .flatMap(node -> node.getAggregatedNodes().stream())
+        // .mapToLong(node -> node.getData().getTotalCnt()).sum();
 
         // Any frame will be represented with its width proportional to its total sample count divided by the profile
         // total sample count
@@ -92,7 +97,7 @@ public class FlameGraphCanvas extends Canvas
         // Node without children is defined as 0, this works out fine.
         int nrRows = rootNode.getDescendantDepth();
 
-        double rowHeight = getHeight() / nrRows;
+        double rowHeight = max(getHeight() / nrRows, graphics.getFont().getSize());
 
         renderChildNodes(graphics, rootNode, 0, columnWidth, rowHeight, 0, getHeight() - rowHeight);
     }
@@ -118,11 +123,15 @@ public class FlameGraphCanvas extends Canvas
             graphics.fillRect(x, y, width, rowHeight);
             methodLocations.add(new MethodLocation(new Rectangle(x, y, width, rowHeight), method));
 
-            String title = method.getCompactName();
-            if (!renderText(graphics, x, y, width, title, rowHeight))
-            {
-                renderText(graphics, x, y, width, method.getMethodName(), rowHeight);
-            }
+            renderText(
+                graphics,
+                x,
+                y,
+                width,
+                rowHeight,
+                method.getFqmn(),
+                method.getCompactName(),
+                method.getMethodName());
 
             renderChildNodes(graphics, child, row + 1, columnWidth, rowHeight, currentX, startY);
 
@@ -137,41 +146,50 @@ public class FlameGraphCanvas extends Canvas
         return START_COLOR.deriveColor(0, 1.15 * (1 + row % ROW_WRAP), 1.0, 1.0);
     }
 
-    private boolean renderText(final GraphicsContext graphics, final double x, final double y,
-        final double methodWidth, final String title, double rowHeight)
+    /**
+     * Examine the width of the provided Strings, which should be specified in decreasing length, and render the longest
+     * one which can be rendered in a rectangle with the specified width, or do not render anything.
+     *
+     * @param graphics the {@link GraphicsContext} for the rendition
+     * @param x the x coordinate where the text should be rendered
+     * @param y the y coordinate where the text should be rendered
+     * @param width the maximum width of the rectangle within which the text should be rendered
+     * @param height the height of the rectangle within which the text should be rendered
+     * @param titles the alternative labels to be rendered
+     */
+    private void renderText(final GraphicsContext graphics, final double x, final double y,
+        double width, double height, String... titles)
     {
-        if (title.length() * TEXT_WIDTH < methodWidth)
+        for (String title : titles)
         {
-            graphics.setFill(Color.ROYALBLUE);
-            graphics.fillText(title, x, y + 0.75 * rowHeight);
-
-            return true;
+            if (title.length() * TEXT_WIDTH < width)
+            {
+                graphics.setFill(ROYALBLUE);
+                graphics.fillText(title, x, y + 0.75 * height);
+                return;
+            }
         }
-
-        return false;
     }
 
     private void displayMethodName(final MouseEvent mouseEvent)
     {
-        final double x = mouseEvent.getX();
-        final double y = mouseEvent.getY();
+        double x = mouseEvent.getX();
+        double y = mouseEvent.getY();
 
-        final Optional<MethodLocation> methodLocation = methodLocations.stream()
+        Optional<MethodLocation> methodLocation = methodLocations.stream()
             .filter(location -> location.contains(x, y)).findFirst();
 
         if (methodLocation.isPresent())
         {
-            tooltip.setText(methodLocation.get().getMethod().getFqmn());
+            String text = methodLocation.get().getMethod().getFqmn();
+            tooltip.setText(text);
             tooltip.show(getScene().getWindow(), x, y);
+            appCtx.setRawInfo(text);
         }
         else
         {
             tooltip.hide();
+            appCtx.clearInfo();
         }
-    }
-
-    public Tooltip getTooltip()
-    {
-        return tooltip;
     }
 }
