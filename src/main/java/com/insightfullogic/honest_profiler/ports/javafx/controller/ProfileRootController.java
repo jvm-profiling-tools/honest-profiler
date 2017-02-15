@@ -175,7 +175,7 @@ public class ProfileRootController extends AbstractController
 
         // Configure FlameController and bind it to the flameGraph in the ProfileContext
         flameController.setProfileContext(prCtx);
-        flameController.bind(prCtx.flameGraphProperty(), FLAME_EXTRACTOR);
+        flameController.bind(prCtx.profileProperty(), FLAME_EXTRACTOR);
 
         // Bind the profile sample count display
         prCtx.profileProperty().addListener(

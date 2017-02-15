@@ -21,17 +21,18 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.view;
 
-import com.insightfullogic.honest_profiler.core.parser.Method;
-import javafx.scene.shape.Rectangle;
-
 import java.util.Objects;
+
+import com.insightfullogic.honest_profiler.core.profiles.lean.info.MethodInfo;
+
+import javafx.scene.shape.Rectangle;
 
 public class MethodLocation
 {
     private final Rectangle rectangle;
-    private final Method method;
+    private final MethodInfo method;
 
-    public MethodLocation(final Rectangle rectangle, final Method method)
+    public MethodLocation(final Rectangle rectangle, final MethodInfo method)
     {
         Objects.requireNonNull(rectangle);
         Objects.requireNonNull(method);
@@ -44,7 +45,7 @@ public class MethodLocation
         return rectangle.contains(x, y);
     }
 
-    public Method getMethod()
+    public MethodInfo getMethod()
     {
         return method;
     }

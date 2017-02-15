@@ -1,5 +1,9 @@
 package com.insightfullogic.honest_profiler.ports.javafx.util;
 
+import static com.insightfullogic.honest_profiler.core.aggregation.grouping.CombinedGrouping.combine;
+import static com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping.BY_METHOD_ID;
+import static com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping.ALL_TOGETHER;
+
 import java.util.function.Function;
 
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
@@ -36,7 +40,8 @@ public class BindUtil
     /**
      * Extraction {@link Function} for binding a target to a {@link FlameGraph}.
      */
-    public static final Function<Object, FlameGraph> FLAME_EXTRACTOR = o -> (FlameGraph)o;
+    public static final Function<Object, Tree> FLAME_EXTRACTOR = o -> ((AggregationProfile)o)
+        .getTree(combine(ALL_TOGETHER, BY_METHOD_ID));
 
     /**
      * Extraction {@link Function} for binding a target to the {@link Tree} result of aggregating the source
@@ -88,6 +93,7 @@ public class BindUtil
      * {@link AggregationProfile} with the {@link FlatProfileAggregator} using the {@link CombinedGrouping} currently
      * selected in the specified {@link AbstractViewController}.
      * <p>
+     *
      * @param view the {@link AbstractViewController} which provides the {@link CombinedGrouping} for the aggregation
      * @return the extraction {@link Function}
      */
@@ -101,6 +107,7 @@ public class BindUtil
      * {@link AggregationProfile} with the {@link TreeProfileAggregator} using the {@link CombinedGrouping} currently
      * selected in the specified {@link AbstractViewController}.
      * <p>
+     *
      * @param view the {@link AbstractViewController} which provides the {@link CombinedGrouping} for the aggregation
      * @return the extraction {@link Function}
      */

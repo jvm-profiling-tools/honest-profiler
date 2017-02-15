@@ -18,16 +18,17 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
-import static com.insightfullogic.honest_profiler.core.aggregation.result.ItemType.FLAMEGRAPH;
+import static com.insightfullogic.honest_profiler.core.aggregation.result.ItemType.ENTRY;
 
-import com.insightfullogic.honest_profiler.core.profiles.FlameGraph;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.javafx.view.FlameGraphCanvas;
 
 import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
 
-public class FlameViewController extends AbstractProfileViewController<FlameGraph, FlameGraph>
+public class FlameViewController extends AbstractProfileViewController<Tree, Node>
 {
     @FXML
     private VBox rootContainer;
@@ -38,7 +39,7 @@ public class FlameViewController extends AbstractProfileViewController<FlameGrap
     @FXML
     protected void initialize()
     {
-        super.initialize(FLAMEGRAPH);
+        super.initialize(ENTRY);
 
         rootContainer.getChildren().add(flameView);
     }
@@ -91,7 +92,10 @@ public class FlameViewController extends AbstractProfileViewController<FlameGrap
     @Override
     protected void refresh()
     {
+        flameView = new FlameGraphCanvas();
         flameView.accept(getTarget());
+        rootContainer.getChildren().clear();
+        rootContainer.getChildren().add(flameView);
     }
 
     @Override
