@@ -19,20 +19,18 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  **/
-package com.insightfullogic.honest_profiler.ports.javafx.view;
+package com.insightfullogic.honest_profiler.ports.javafx.view.flame;
 
 import java.util.Objects;
 
-import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
-
 import javafx.scene.shape.Rectangle;
 
-public class FlameBlock
+public class FlameBlock<T>
 {
     private final Rectangle rectangle;
-    private final Node node;
+    private final T node;
 
-    public FlameBlock(final Rectangle rectangle, Node node)
+    public FlameBlock(final Rectangle rectangle, T node)
     {
         Objects.requireNonNull(rectangle);
         Objects.requireNonNull(node);
@@ -45,7 +43,7 @@ public class FlameBlock
         return rectangle.contains(x, y);
     }
 
-    public Node getNode()
+    public T getNode()
     {
         return node;
     }

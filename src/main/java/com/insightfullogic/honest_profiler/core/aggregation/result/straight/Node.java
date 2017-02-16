@@ -15,12 +15,13 @@ import java.util.stream.Stream;
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.CombinedGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
 import com.insightfullogic.honest_profiler.core.aggregation.result.Keyed;
+import com.insightfullogic.honest_profiler.core.aggregation.result.Parent;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 
 /**
  * Wrapper for {@link Entry} which allows organizing them into a tree structure.
  */
-public class Node extends Entry
+public class Node extends Entry implements Parent<Node>
 {
     // Instance Properties
 
@@ -31,6 +32,7 @@ public class Node extends Entry
     /**
      * Create an empty Node for the specified {@link Aggregation}.
      * <p>
+     *
      * @param <T> the type of the data items contained in the {@link Aggregation}
      * @param aggregation the {@link Aggregation} the created Node belongs to
      */
@@ -43,6 +45,7 @@ public class Node extends Entry
     /**
      * Create a Node based on an {@link Entry}. The information of the {@link Entry} is copied into this Node.
      * <p>
+     *
      * @param entry the {@link Entry} the Node is based on
      */
     public Node(Entry entry)
@@ -54,6 +57,7 @@ public class Node extends Entry
     /**
      * Copy Constructor.
      * <p>
+     *
      * @param node the Node being copied
      * @param children the (new) children of the Node
      */
@@ -64,11 +68,15 @@ public class Node extends Entry
         children.forEach(child -> this.children.put(child.getKey(), child));
     }
 
+    // Instance Accessors
+
     /**
      * Returns the children of the Node.
      * <p>
+     *
      * @return the children of the Node
      */
+    @Override
     public List<Node> getChildren()
     {
         return new ArrayList<>(children.values());
@@ -77,6 +85,7 @@ public class Node extends Entry
     /**
      * Calculate the depth of the (sub)tree with this Node as root. Returns 0 if there are no children.
      * <p>
+     *
      * @return the depth of the (sub)tree with this Node as root, whereby an empty tree has depth 0
      */
     public int getDescendantDepth()
@@ -97,6 +106,7 @@ public class Node extends Entry
     /**
      * Adggregates a Node into the children of this Node.
      * <p>
+     *
      * @param child the Node to be aggregated as child
      * @return the Node resulting from the aggregation
      */
@@ -109,6 +119,7 @@ public class Node extends Entry
      * Aggregates a {@link LeanNode} into the children of this Node, using the specified {@link CombinedGrouping} to
      * determine the aggregation key, and recursively aggregating the {@link LeanNode} descendants as well if specified.
      * <p>
+     *
      * @param child the {@link LeanNode} to be aggregated into the children of this Node
      * @param grouping the {@link CombinedGrouping} used for determining the aggregation key
      * @param recurse a boolean specifying whether the {@link LeanNode} descendants should be aggregated recursively
@@ -133,6 +144,7 @@ public class Node extends Entry
     /**
      * Combines another Node into this one. The descendants will also be combined recursively.
      * <p>
+     *
      * @param other he Node to be combined into this Node
      * @return this Node
      */
@@ -148,6 +160,7 @@ public class Node extends Entry
     /**
      * Returns a copy of this Node.
      * <p>
+     *
      * @return a copy of this Node
      */
     public Node copy()
@@ -161,6 +174,7 @@ public class Node extends Entry
      * Returns a copy of this Node applying a filter to itself and any descendants. The method returns null if no
      * children are accepted by the filter and the node itself isn't accepted either.
      * <p>
+     *
      * @param filter a {@link Predicate} for accepting Nodes
      * @return the filtered Node or null if the Node and none of its descendants are accepted
      */
@@ -175,6 +189,7 @@ public class Node extends Entry
     /**
      * Return a {@link Stream} of Nodes consisting of this Node and all its descendants.
      * <p>
+     *
      * @return a {@link Stream} of Nodes consisting of this Node and all its descendants
      */
     public Stream<Node> flatten()
@@ -185,6 +200,7 @@ public class Node extends Entry
     /**
      * Return a {@link Stream} of Nodes consisting of all the descendants of this Node. This Node is not included.
      * <p>
+     *
      * @return a {@link Stream} of Nodes consisting of all the descendants of this Node
      */
     public Stream<Node> flattenDescendants()
