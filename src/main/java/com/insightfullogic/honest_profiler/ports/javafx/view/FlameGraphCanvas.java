@@ -21,6 +21,7 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.view;
 
+import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderPercentage;
 import static java.lang.Math.max;
 import static javafx.scene.paint.Color.ROYALBLUE;
 
@@ -31,6 +32,7 @@ import java.util.Optional;
 
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
+import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 import com.insightfullogic.honest_profiler.core.profiles.lean.info.MethodInfo;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 
@@ -41,7 +43,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
-// TODO: remove any flame graph calculation logic from the canvas.
 public class FlameGraphCanvas extends Canvas
 {
     private static final Color START_COLOR = Color.BISQUE.deriveColor(0, 1.2, 1.0, 1.0);
@@ -50,7 +51,7 @@ public class FlameGraphCanvas extends Canvas
 
     private final Tooltip tooltip = new Tooltip();
 
-    private List<MethodLocation> methodLocations;
+    private List<FlameBlock> flameBlocks;
     private Map<Long, MethodInfo> methodMap;
 
     private ApplicationContext appCtx;
@@ -65,17 +66,12 @@ public class FlameGraphCanvas extends Canvas
     {
         methodMap = tree.getSource().getSource().getMethodInfoMap();
 
-        methodLocations = new ArrayList<>();
+        flameBlocks = new ArrayList<>();
 
-        final GraphicsContext graphics = getGraphicsContext2D();
+        final GraphicsContext ctx = getGraphicsContext2D();
 
-        // graphics.clearRect();
-        // graphics.setFill(Color.GRAY);
-
-        graphics.clearRect(0, 0, getWidth(), getHeight());
-        graphics.setStroke(Color.WHITE);
-
-        Node rootNode = tree.getData().get(0);
+        ctx.clearRect(0, 0, getWidth(), getHeight());
+        ctx.setStroke(Color.WHITE);
 
         // // Total number of samples
         long nrSamples = tree.getSource().getGlobalData().getTotalCnt();
@@ -91,54 +87,45 @@ public class FlameGraphCanvas extends Canvas
 
         // Any frame will be represented with its width proportional to its total sample count divided by the profile
         // total sample count
-        double columnWidth = getWidth() / nrSamples;
+        double colWidth = getWidth() / nrSamples;
 
         // Nr Rows = max depth of a stack. The root Node represents all threads, but since the descendant depth of a
         // Node without children is defined as 0, this works out fine.
-        int nrRows = rootNode.getDescendantDepth();
+        int nrRows = tree.getData().stream().mapToInt(Node::getDescendantDepth).max().getAsInt()
+            + 1;
 
-        double rowHeight = max(getHeight() / nrRows, graphics.getFont().getSize());
+        double rowHeight = max(getHeight() / nrRows, ctx.getFont().getSize());
 
-        renderChildNodes(graphics, rootNode, 0, columnWidth, rowHeight, 0, getHeight() - rowHeight);
+        double startX = 0;
+        double startY = getHeight() - rowHeight;
+        for (Node node : tree.getData())
+        {
+            startX += renderNode(ctx, node, 0, colWidth, rowHeight, startX, startY);
+        }
     }
 
-    private double renderChildNodes(GraphicsContext graphics, Node node, int row,
-        double columnWidth, double rowHeight, double startX, double startY)
+    private double renderNode(GraphicsContext ctx, Node node, int row, double columnWidth,
+        double rowHeight, double startX, double startY)
     {
         // Colour based on row index
-        graphics.setFill(colorAt(row));
+        ctx.setFill(colorAt(row));
 
-        double currentX = startX;
+        double x = startX;
+        double y = startY - ((row + 1) * rowHeight);
+
+        double width = node.getTotalCnt() * columnWidth;
+
+        ctx.fillRect(x, y, width, rowHeight);
+        flameBlocks.add(new FlameBlock(new Rectangle(x, y, width, rowHeight), node));
+
+        renderNodeText(ctx, x, y, width, rowHeight, node);
 
         for (Node child : node.getChildren())
         {
-            MethodInfo method = methodMap
-                .get(child.getAggregatedNodes().get(0).getFrame().getMethodId());
-
-            double x = currentX;
-            double y = startY - ((row + 1) * rowHeight);
-
-            double width = child.getTotalCnt() * columnWidth;
-
-            graphics.fillRect(x, y, width, rowHeight);
-            methodLocations.add(new MethodLocation(new Rectangle(x, y, width, rowHeight), method));
-
-            renderText(
-                graphics,
-                x,
-                y,
-                width,
-                rowHeight,
-                method.getFqmn(),
-                method.getCompactName(),
-                method.getMethodName());
-
-            renderChildNodes(graphics, child, row + 1, columnWidth, rowHeight, currentX, startY);
-
-            currentX += width;
+            x += renderNode(ctx, child, row + 1, columnWidth, rowHeight, x, startY);
         }
 
-        return currentX;
+        return width;
     }
 
     private Color colorAt(final int row)
@@ -146,26 +133,44 @@ public class FlameGraphCanvas extends Canvas
         return START_COLOR.deriveColor(0, 1.15 * (1 + row % ROW_WRAP), 1.0, 1.0);
     }
 
+    private void renderNodeText(final GraphicsContext ctx, final double x, final double y,
+        double width, double height, Node node)
+    {
+        List<String> titles = new ArrayList<>();
+        titles.add(node.getKey());
+
+        MethodInfo method = methodForNode(node);
+        if (method != null)
+        {
+            titles.add(method.getFqmn());
+            titles.add(method.getCompactName());
+            titles.add(method.getMethodName());
+        }
+
+        renderText(ctx, x, y, width, height, titles.toArray(new String[titles.size()]));
+    }
+
     /**
      * Examine the width of the provided Strings, which should be specified in decreasing length, and render the longest
      * one which can be rendered in a rectangle with the specified width, or do not render anything.
      *
-     * @param graphics the {@link GraphicsContext} for the rendition
+     * @param ctx the {@link GraphicsContext} for the rendition
      * @param x the x coordinate where the text should be rendered
      * @param y the y coordinate where the text should be rendered
      * @param width the maximum width of the rectangle within which the text should be rendered
      * @param height the height of the rectangle within which the text should be rendered
      * @param titles the alternative labels to be rendered
      */
-    private void renderText(final GraphicsContext graphics, final double x, final double y,
-        double width, double height, String... titles)
+    private void renderText(final GraphicsContext ctx, final double x, final double y, double width,
+        double height, String... titles)
     {
+
         for (String title : titles)
         {
             if (title.length() * TEXT_WIDTH < width)
             {
-                graphics.setFill(ROYALBLUE);
-                graphics.fillText(title, x, y + 0.75 * height);
+                ctx.setFill(ROYALBLUE);
+                ctx.fillText(title, x, y + 0.75 * height);
                 return;
             }
         }
@@ -176,20 +181,40 @@ public class FlameGraphCanvas extends Canvas
         double x = mouseEvent.getX();
         double y = mouseEvent.getY();
 
-        Optional<MethodLocation> methodLocation = methodLocations.stream()
+        Optional<FlameBlock> flameBlock = flameBlocks.stream()
             .filter(location -> location.contains(x, y)).findFirst();
 
-        if (methodLocation.isPresent())
+        if (flameBlock.isPresent())
         {
-            String text = methodLocation.get().getMethod().getFqmn();
-            tooltip.setText(text);
+            Node node = flameBlock.get().getNode();
+
+            tooltip.setText(node.getKey());
             tooltip.show(getScene().getWindow(), x, y);
-            appCtx.setRawInfo(text);
+
+            appCtx.setRawInfo(
+                node.getKey()
+                    + " ("
+                    + node.getTotalCnt()
+                    + " samples, "
+                    + renderPercentage(node.getTotalCntPct())
+                    + ")");
         }
         else
         {
             tooltip.hide();
             appCtx.clearInfo();
         }
+    }
+
+    private MethodInfo methodForNode(Node node)
+    {
+        if (node.getAggregatedNodes().size() == 0)
+        {
+            return null;
+        }
+
+        LeanNode aggregatedNode = node.getAggregatedNodes().get(0);
+        return aggregatedNode.isThreadNode() ? null
+            : methodMap.get(aggregatedNode.getFrame().getMethodId());
     }
 }

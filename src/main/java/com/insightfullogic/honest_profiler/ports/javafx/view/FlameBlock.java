@@ -23,21 +23,21 @@ package com.insightfullogic.honest_profiler.ports.javafx.view;
 
 import java.util.Objects;
 
-import com.insightfullogic.honest_profiler.core.profiles.lean.info.MethodInfo;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 
 import javafx.scene.shape.Rectangle;
 
-public class MethodLocation
+public class FlameBlock
 {
     private final Rectangle rectangle;
-    private final MethodInfo method;
+    private final Node node;
 
-    public MethodLocation(final Rectangle rectangle, final MethodInfo method)
+    public FlameBlock(final Rectangle rectangle, Node node)
     {
         Objects.requireNonNull(rectangle);
-        Objects.requireNonNull(method);
+        Objects.requireNonNull(node);
         this.rectangle = rectangle;
-        this.method = method;
+        this.node = node;
     }
 
     public boolean contains(final double x, final double y)
@@ -45,8 +45,8 @@ public class MethodLocation
         return rectangle.contains(x, y);
     }
 
-    public MethodInfo getMethod()
+    public Node getNode()
     {
-        return method;
+        return node;
     }
 }

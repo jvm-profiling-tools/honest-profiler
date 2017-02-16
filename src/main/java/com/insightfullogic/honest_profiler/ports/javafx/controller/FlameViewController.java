@@ -20,6 +20,8 @@ package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
 import static com.insightfullogic.honest_profiler.core.aggregation.result.ItemType.ENTRY;
 
+import com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping;
+import com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
 import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController;
@@ -29,6 +31,8 @@ import com.insightfullogic.honest_profiler.ports.javafx.view.FlameGraphCanvas;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 
@@ -40,6 +44,15 @@ public class FlameViewController extends AbstractProfileViewController<Tree, Nod
     private TextField quickFilterText;
     @FXML
     private Button quickFilterButton;
+
+    @FXML
+    private Label threadGroupingLabel;
+    @FXML
+    private ChoiceBox<ThreadGrouping> threadGrouping;
+    @FXML
+    private Label frameGroupingLabel;
+    @FXML
+    private ChoiceBox<FrameGrouping> frameGrouping;
 
     @FXML
     private VBox flameBox;
@@ -58,7 +71,7 @@ public class FlameViewController extends AbstractProfileViewController<Tree, Nod
     {
         super.initialize(ENTRY);
         super.initialize(filterController, filterButton, quickFilterButton, quickFilterText);
-
+        super.initialize(threadGroupingLabel, threadGrouping, frameGroupingLabel, frameGrouping);
     }
 
     // AbstractController Implementation
