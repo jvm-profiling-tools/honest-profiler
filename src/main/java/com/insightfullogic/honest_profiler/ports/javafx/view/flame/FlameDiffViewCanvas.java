@@ -37,21 +37,37 @@ import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
+/**
+ * FlameGraph Canvas for {@link TreeDiff}s.
+ */
 public class FlameDiffViewCanvas extends AbstractFlameCanvas<TreeDiff, DiffNode>
 {
+    // Class Properties
+
     private static final Color BAD_START = hsb(10, .1, 1.);
     private static final Color BAD_END = hsb(10, 1., 1.);
 
     private static final Color GOOD_START = hsb(98, .1, 1.);
     private static final Color GOOD_END = hsb(98, 1., 1.);
 
+    // Instance Properties
+
     private Map<Long, MethodInfo> baseMethodMap;
     private Map<Long, MethodInfo> newMethodMap;
 
+    // Instance Constructors
+
+    /**
+     * @see AbstractFlameCanvas#AbstractFlameCanvas(ApplicationContext)
+     *
+     * @param applicationContext the {@link ApplicationContext} for the application
+     */
     public FlameDiffViewCanvas(ApplicationContext applicationContext)
     {
         super(applicationContext);
     }
+
+    // AbstractFlameCanvas Implementation
 
     @Override
     public void render(final TreeDiff tree)
@@ -168,6 +184,12 @@ public class FlameDiffViewCanvas extends AbstractFlameCanvas<TreeDiff, DiffNode>
             : newMethodMap.get(aggregatedNode.getFrame().getMethodId());
     }
 
+    /**
+     * Returns the method mapping for the specified {@link Tree}.
+     *
+     * @param tree the {@link Tree} in the {@link TreeDiff} for which the method mapping will be returned
+     * @return the method mapping for the specified {@link Tree}
+     */
     private Map<Long, MethodInfo> methodMapFor(Tree tree)
     {
         return tree == null ? null : tree.getSource().getSource().getMethodInfoMap();

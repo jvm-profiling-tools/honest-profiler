@@ -140,7 +140,7 @@ public class ProfileDiffRootController extends AbstractController
         flameController.bind(
             baseContext.profileProperty(),
             newContext.profileProperty(),
-            treeExtractor(treeController));
+            treeExtractor(flameController));
 
         // Configure the View choice
         viewChoice.setConverter(getStringConverterForType(ViewType.class));

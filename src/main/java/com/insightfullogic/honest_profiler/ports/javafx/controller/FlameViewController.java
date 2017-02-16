@@ -65,6 +65,8 @@ public class FlameViewController extends AbstractProfileViewController<Tree, Nod
     private double currentWidth;
     private double currentHeight;
 
+    // FXML Implementation
+
     @Override
     @FXML
     protected void initialize()
@@ -113,8 +115,20 @@ public class FlameViewController extends AbstractProfileViewController<Tree, Nod
         }
     }
 
+    @Override
+    protected void initializeTable()
+    {
+        // NOOP
+    }
+
+    @Override
+    protected <C> void setColumnHeader(C column, String title, ProfileContext context)
+    {
+        // NOOP
+    }
+
     /**
-     * Checks new dimensions : if either has changed, the new dimensions are cached and the graph is refreshed.
+     * Check new dimensions : if either has changed, the new dimensions are cached and the graph is refreshed.
      */
     private void refreshIfResized()
     {
@@ -127,17 +141,5 @@ public class FlameViewController extends AbstractProfileViewController<Tree, Nod
             currentHeight = newHeight;
             refresh();
         }
-    }
-
-    @Override
-    protected void initializeTable()
-    {
-        // NOOP
-    }
-
-    @Override
-    protected <C> void setColumnHeader(C column, String title, ProfileContext context)
-    {
-        // NOOP
     }
 }

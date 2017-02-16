@@ -18,7 +18,7 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
-import static com.insightfullogic.honest_profiler.core.aggregation.result.ItemType.ENTRY;
+import static com.insightfullogic.honest_profiler.core.aggregation.result.ItemType.DIFFENTRY;
 
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping;
@@ -74,7 +74,7 @@ public class FlameDiffViewController extends AbstractProfileDiffViewController<T
     {
         diff = new TreeDiff();
 
-        super.initialize(ENTRY);
+        super.initialize(DIFFENTRY);
         super.initialize(filterController, filterButton, quickFilterButton, quickFilterText);
         super.initialize(threadGroupingLabel, threadGrouping, frameGroupingLabel, frameGrouping);
     }
@@ -112,8 +112,20 @@ public class FlameDiffViewController extends AbstractProfileDiffViewController<T
         updateDiff(getBaseTarget(), getNewTarget());
     }
 
+    @Override
+    protected void initializeTable()
+    {
+        // NOOP
+    }
+
+    @Override
+    protected <C> void setColumnHeader(C column, String title, ProfileContext context)
+    {
+        // NOOP
+    }
+
     /**
-     * Checks new dimensions : if either has changed, the new dimensions are cached and the graph is refreshed.
+     * Check new dimensions : if either has changed, the new dimensions are cached and the graph is refreshed.
      */
     private void refreshIfResized()
     {
@@ -126,18 +138,6 @@ public class FlameDiffViewController extends AbstractProfileDiffViewController<T
             currentHeight = newHeight;
             refresh();
         }
-    }
-
-    @Override
-    protected void initializeTable()
-    {
-        // NOOP
-    }
-
-    @Override
-    protected <C> void setColumnHeader(C column, String title, ProfileContext context)
-    {
-        // NOOP
     }
 
     /**

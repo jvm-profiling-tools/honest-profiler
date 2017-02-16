@@ -34,15 +34,28 @@ import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext
 
 import javafx.scene.canvas.GraphicsContext;
 
+/**
+ * FlameGraph Canvas for {@link Tree}s.
+ */
 public class FlameViewCanvas extends AbstractFlameCanvas<Tree, Node>
 {
+    // Instance Properties
 
     private Map<Long, MethodInfo> methodMap;
 
+    // Instance Constructors
+
+    /**
+     * @see AbstractFlameCanvas#AbstractFlameCanvas(ApplicationContext)
+     *
+     * @param applicationContext the {@link ApplicationContext} for the application
+     */
     public FlameViewCanvas(ApplicationContext applicationContext)
     {
         super(applicationContext);
     }
+
+    // AbstractFlameCanvas Implementation
 
     @Override
     public void render(final Tree tree)
@@ -84,6 +97,7 @@ public class FlameViewCanvas extends AbstractFlameCanvas<Tree, Node>
         }
     }
 
+    @Override
     protected String getNodeInfo(Node node)
     {
         StringBuilder result = new StringBuilder();

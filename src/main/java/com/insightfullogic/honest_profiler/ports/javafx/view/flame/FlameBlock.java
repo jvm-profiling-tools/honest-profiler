@@ -23,13 +23,32 @@ package com.insightfullogic.honest_profiler.ports.javafx.view.flame;
 
 import java.util.Objects;
 
+import com.insightfullogic.honest_profiler.core.aggregation.result.diff.DiffNode;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
+
 import javafx.scene.shape.Rectangle;
 
+/**
+ * Container representing a FlameGraph rectangle which was rendered for the contained {@link Node} or {@link DiffNode}.
+ *
+ * @param <T> the type of node represented by the FlameGraph rectangle
+ */
 public class FlameBlock<T>
 {
+    // Instance Properties
+
     private final Rectangle rectangle;
     private final T node;
 
+    // Instance COnstructors
+
+    /**
+     * Trivial constructor.
+     *
+     * @param rectangle the {@link Rectangle} representing the region rendered for the contained {@link Node} or
+     *            {@link DiffNode}
+     * @param node the contained {@link Node} or {@link DiffNode}
+     */
     public FlameBlock(final Rectangle rectangle, T node)
     {
         Objects.requireNonNull(rectangle);
@@ -38,11 +57,25 @@ public class FlameBlock<T>
         this.node = node;
     }
 
+    // Instance Accessors
+
+    /**
+     * Returns a boolean indicating whether the specified coordinates lie within the contained {@link Rectangle}.
+     *
+     * @param x the x coordinate being tested
+     * @param y the y coordinate being tested
+     * @return a boolean indicating whether the specified coordinates lie within the contained {@link Rectangle}
+     */
     public boolean contains(final double x, final double y)
     {
         return rectangle.contains(x, y);
     }
 
+    /**
+     * Returns the contained {@link Node} or {@link DiffNode}.
+     *
+     * @return the contained {@link Node} or {@link DiffNode}
+     */
     public T getNode()
     {
         return node;
