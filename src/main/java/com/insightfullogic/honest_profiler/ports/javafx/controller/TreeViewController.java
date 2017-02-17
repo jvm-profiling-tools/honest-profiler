@@ -118,8 +118,6 @@ public class TreeViewController extends AbstractProfileViewController<Tree, Node
         super.initialize(ENTRY);
         super.initialize(filterController, filterButton, quickFilterButton, quickFilterText);
         super.initialize(threadGroupingLabel, threadGrouping, frameGroupingLabel, frameGrouping);
-
-        initializeTable();
     }
 
     // Instance Accessors
