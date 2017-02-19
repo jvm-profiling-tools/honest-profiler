@@ -30,7 +30,7 @@ import static com.insightfullogic.honest_profiler.core.parser.LogParser.AmountRe
 
 public class LogParser
 {
-// These name match the names reported by the forte quality kit
+// These names match the names reported by the forte quality kit(AKA AsyncGetCallTrace)
 //  enum {
 //    ticks_no_Java_frame         =  0,
 //    ticks_no_class_load         = -1,
@@ -45,17 +45,17 @@ public class LogParser
 //    ticks_safepoint             = -10
 //  };
 
-    private static String[] AGCT_ERRORS = {"No Java Frames[ERR=0]",
-            "No class load[ERR=-1]",
-            "GC Active[ERR=-2]",
-            "Unknown not Java[ERR=-3]",
-            "Not walkable not Java[ERR=-4]",
-            "Unknown Java[ERR=-5]",
-            "Not walkable Java[ERR=-6]",
-            "Unknown state[ERR=-7]",
-            "Thread exit[ERR=-8]",
-            "Deopt[ERR=-9]",
-            "Safepoint[ERR=-10]"};
+    private static final String[] AGCT_ERRORS = {"NoJavaFramesErr0",
+            "NoClassLoadErr1",
+            "GcActiveErr2",
+            "UnknownNotJava3",
+            "NotWalkableNotJavaErr4",
+            "UnknownJavaErr5",
+            "NotWalkableJavaErr6",
+            "UnknownStateErr7",
+            "ThreadExitErr8",
+            "DeoptErr9",
+            "SafepointErr10"};
     private static final int NOT_WRITTEN = 0;
     private static final int TRACE_START = 1;
     private static final int TRACE_WITH_TIME = 11;
@@ -193,7 +193,7 @@ public class LogParser
             // if this is an unknown error add a new method for it
             if (-numberOfFrames >= AGCT_ERRORS.length)
             {
-                new Method(numberOfFrames - 1, "", "AGCT", "Unknown err[ERR="+numberOfFrames+"]").accept(listener);
+                new Method(numberOfFrames - 1, "", "AGCT", "UnknownErrCode"+(-numberOfFrames)).accept(listener);
             }
 
             // we choose to report errors via frames, so pretend there's a single frame in the trace
