@@ -194,7 +194,7 @@ TEST_FIXTURE(ProfilerControl, ProfilerConcurrentModification) {
 	for (int it = 0; it < 100; it++) {
 		profiler->setMaxFramesToCapture(tsize + 1);
 		for (int i = 0; i < tsize; i++) {
-			threads[i] = std::thread(setFoo, std::ref(profiler), i + 1);
+			threads[i] = std::thread(setFoo, profiler, i + 1);
 		}
 		std::thread starter(&threadStartFunction, std::ref(profiler));
 		for (int i = 0; i < tsize; i++)
