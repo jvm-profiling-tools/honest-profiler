@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -eu
+
+java_path=$(readlink -f $(which javac))
+[ -f /usr/libexec/java_home ] && java_home=`/usr/libexec/java_home` || java_home=$(echo ${java_path} | sed 's/javac$//')
+tools_path="$java_home/../lib/tools.jar"
+[ -f ${tools_path} ] || tools_path="$java_home/lib/tools.jar"
+[ -f ${tools_path} ] || (echo "Could not find tools.jar at $java_home/../lib/tools.jar" && exit 1)
+
+java -cp $tools_path:honest-profiler.jar com.insightfullogic.honest_profiler.ports.console.FlameGraphDumperApplication $@
