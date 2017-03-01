@@ -23,6 +23,11 @@ package com.insightfullogic.honest_profiler.core.collector;
 
 public interface Frame
 {
+    default String getFullName()
+    {
+        return getClassName() + "." + getMethodName();
+    }
+
     int BCI_ERR_IGNORE = -42;
 
     long getMethodId();
@@ -34,4 +39,6 @@ public interface Frame
     int getBci();
 
     int getLine();
+
+    Frame copy();
 }

@@ -21,22 +21,24 @@
  **/
 package com.insightfullogic.honest_profiler.ports.sources;
 
-import com.insightfullogic.honest_profiler.core.MachineListener;
-import com.insightfullogic.honest_profiler.core.ThreadedAgent;
-import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
-import com.insightfullogic.honest_profiler.core.platform.Platforms;
-import com.sun.tools.attach.AttachNotSupportedException;
-import com.sun.tools.attach.VirtualMachineDescriptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.insightfullogic.honest_profiler.core.MachineListener;
+import com.insightfullogic.honest_profiler.core.ThreadedAgent;
+import com.insightfullogic.honest_profiler.core.platform.Platforms;
+import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
+import com.sun.tools.attach.AttachNotSupportedException;
+import com.sun.tools.attach.VirtualMachineDescriptor;
 
 public class LocalMachineSource
 {
@@ -58,13 +60,17 @@ public class LocalMachineSource
         this(logger, listener, DEFAULT_SLEEP_PERIOD);
     }
 
-    public LocalMachineSource(final Logger logger, final MachineListener listener, final long sleepPeriod)
+    public LocalMachineSource(final Logger logger,
+                              final MachineListener listener,
+                              final long sleepPeriod)
     {
         this.logger = logger;
         this.listener = listener;
         this.sleepPeriod = sleepPeriod;
         previous = new HashSet<>();
-        threadedAgent = new ThreadedAgent(LoggerFactory.getLogger(ThreadedAgent.class), this::discoverVirtualMachines);
+        threadedAgent = new ThreadedAgent(
+            LoggerFactory.getLogger(ThreadedAgent.class),
+            this::discoverVirtualMachines);
     }
 
     @PostConstruct
@@ -96,7 +102,8 @@ public class LocalMachineSource
 
     private void poll()
     {
-        Set<VirtualMachineDescriptor> current = new HashSet<>(com.sun.tools.attach.VirtualMachine.list());
+        Set<VirtualMachineDescriptor> current = new HashSet<>(
+            com.sun.tools.attach.VirtualMachine.list());
         difference(current, previous, listener::onNewMachine);
         difference(previous, current, listener::onClosedMachine);
         previous = current;
@@ -119,14 +126,15 @@ public class LocalMachineSource
     {
         try
         {
-            com.sun.tools.attach.VirtualMachine vm = com.sun.tools.attach.VirtualMachine.attach(vmDescriptor);
+            com.sun.tools.attach.VirtualMachine vm = com.sun.tools.attach.VirtualMachine
+                .attach(vmDescriptor);
             String vmArgs = vm.getAgentProperties().getProperty(VM_ARGS);
 
             String id = vmDescriptor.id();
             String displayName = vmDescriptor.displayName();
             boolean agentLoaded = vmArgs.contains(AGENT_NAME);
             String userDir = getUserDir(vm);
-            return Stream.of(new VirtualMachine(id, displayName, agentLoaded, userDir));
+            return Stream.of(new VirtualMachine(id, displayName, agentLoaded, userDir, vmArgs));
         }
         catch (AttachNotSupportedException e)
         {
@@ -146,7 +154,9 @@ public class LocalMachineSource
     {
         final String userDir = vm.getAgentProperties().getProperty(USER_DIR);
         if (userDir != null)
+        {
             return userDir;
+        }
 
         return vm.getSystemProperties().getProperty(USER_DIR);
     }

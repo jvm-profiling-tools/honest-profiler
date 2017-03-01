@@ -23,6 +23,7 @@ package com.insightfullogic.honest_profiler.core.sources;
 
 import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -39,13 +40,15 @@ public class VirtualMachine implements Comparable<VirtualMachine>
     private final String displayName;
     private final boolean agentLoaded;
     private final String userDir;
+    private final String vmArgs;
 
-    public VirtualMachine(String id, String displayName, boolean agentLoaded, String userDir)
+    public VirtualMachine(String id, String displayName, boolean agentLoaded, String userDir, String vmArgs)
     {
         this.id = id;
         this.displayName = displayName;
         this.agentLoaded = agentLoaded;
         this.userDir = userDir;
+        this.vmArgs = vmArgs;
     }
 
     public String getId()
@@ -61,6 +64,19 @@ public class VirtualMachine implements Comparable<VirtualMachine>
     public boolean isAgentLoaded()
     {
         return agentLoaded;
+    }
+
+    public LogSource getLogSourceFromVmArgs()
+    {
+        int agentPathStart = vmArgs.indexOf("-agentpath") + "-agentpath".length();
+        int agentPathEnd = vmArgs.indexOf(' ', agentPathStart);
+        String agentPath = vmArgs.substring(agentPathStart, agentPathEnd);
+        int logPathStart = agentPath.indexOf("logPath=") + "logPath=".length();
+        int commaPos = agentPath.indexOf(",", logPathStart);
+        int spacePos = agentPath.indexOf(' ', logPathStart);
+        int logPathEnd = commaPos > 0 ? commaPos : (spacePos > 0 ? spacePos : agentPath.length());
+
+        return new FileLogSource(new File(agentPath.substring(logPathStart, logPathEnd)));
     }
 
     public LogSource getLogSource() throws CantReadFromSourceException

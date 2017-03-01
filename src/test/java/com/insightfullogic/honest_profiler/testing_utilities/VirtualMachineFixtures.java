@@ -8,7 +8,7 @@ public class VirtualMachineFixtures
 {
     private VirtualMachineFixtures(){ }
     
-    public static final VirtualMachine vmNoAgent = new VirtualMachine("0", "vm without agent", false, "");
-    public static final VirtualMachine vmWithAgent = new VirtualMachine("1", "vm with agent", true, new File(".").getAbsolutePath());
+    public static final VirtualMachine vmNoAgent = new VirtualMachine("0", "vm without agent", false, "", "");
+    public static final VirtualMachine vmWithAgent = new VirtualMachine("1", "vm with agent", true, new File(".").getAbsolutePath(), "foobar-agentpath=blahblahlogPath=" + new File(".").getAbsolutePath());
 
 }

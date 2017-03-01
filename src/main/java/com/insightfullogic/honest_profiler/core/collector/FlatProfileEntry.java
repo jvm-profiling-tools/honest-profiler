@@ -24,15 +24,21 @@ package com.insightfullogic.honest_profiler.core.collector;
 public final class FlatProfileEntry
 {
     private final Frame method;
-    private final double totalTimeShare;
-    private final double selfTimeShare;
 
-    public FlatProfileEntry(
-        final Frame method, final double totalTimeShare, final double selfTimeShare)
+    private final int totalCount;
+    private final int selfCount;
+    private final int traceCount;
+
+    public FlatProfileEntry(final Frame method,
+                            final int totalCount,
+                            final int selfCount,
+                            final int traceCount)
     {
         this.method = method;
-        this.totalTimeShare = totalTimeShare;
-        this.selfTimeShare = selfTimeShare;
+
+        this.totalCount = totalCount;
+        this.selfCount = selfCount;
+        this.traceCount = traceCount;
     }
 
     public Frame getFrameInfo()
@@ -40,40 +46,79 @@ public final class FlatProfileEntry
         return method;
     }
 
+    public int getTotalCount()
+    {
+        return totalCount;
+    }
+
+    public int getSelfCount()
+    {
+        return selfCount;
+    }
+
+    public int getTraceCount()
+    {
+        return traceCount;
+    }
+
     public double getTotalTimeShare()
     {
-        return totalTimeShare;
+        return totalCount / (double) traceCount;
     }
 
     public double getSelfTimeShare()
     {
-        return selfTimeShare;
+        return selfCount / (double) traceCount;
+    }
+
+    public FlatProfileEntry copy()
+    {
+        return new FlatProfileEntry(
+            method.copy(),
+            totalCount,
+            selfCount,
+            traceCount);
     }
 
     @Override
     public boolean equals(Object o)
     {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+        {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass())
+        {
+            return false;
+        }
 
         FlatProfileEntry that = (FlatProfileEntry) o;
+        if (that.selfCount != this.selfCount)
+        {
+            return false;
+        }
+        if (that.totalCount != this.totalCount)
+        {
+            return false;
+        }
+        if (that.traceCount != this.traceCount)
+        {
+            return false;
+        }
 
-        if (Double.compare(that.selfTimeShare, selfTimeShare) != 0) return false;
-        if (Double.compare(that.totalTimeShare, totalTimeShare) != 0) return false;
-        return method != null ? method.equals(that.method) : that.method == null;
+        return (this.method != null ? !this.method.equals(that.method) : that.method == null);
     }
 
     @Override
     public int hashCode()
     {
         int result;
-        long temp;
+
         result = method != null ? method.hashCode() : 0;
-        temp = Double.doubleToLongBits(totalTimeShare);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(selfTimeShare);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + selfCount;
+        result = 31 * result + totalCount;
+        result = 31 * result + traceCount;
+
         return result;
     }
-
 }

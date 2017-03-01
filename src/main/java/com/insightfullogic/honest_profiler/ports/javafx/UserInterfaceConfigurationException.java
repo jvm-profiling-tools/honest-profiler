@@ -19,14 +19,18 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  **/
+
 package com.insightfullogic.honest_profiler.ports.javafx;
 
 public class UserInterfaceConfigurationException extends RuntimeException
 {
+    /**
+     * Serial Version UID
+     */
+    private static final long serialVersionUID = 3285965573715557555L;
 
     public UserInterfaceConfigurationException(Throwable cause)
     {
         super(cause);
     }
-
 }

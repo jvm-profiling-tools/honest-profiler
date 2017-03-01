@@ -133,7 +133,10 @@ public class LogCollector implements LogEventListener
     @Override
     public void handle(ThreadMeta newThreadMeta)
     {
-        metaByThreadId.put(newThreadMeta.getThreadId(), newThreadMeta);
+        metaByThreadId.merge(
+            newThreadMeta.getThreadId(),
+            newThreadMeta,
+            (oldMeta, newMeta) -> oldMeta.update(newMeta));
     }
 
     @Override

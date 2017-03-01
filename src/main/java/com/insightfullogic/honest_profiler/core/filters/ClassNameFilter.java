@@ -21,57 +21,18 @@
  **/
 package com.insightfullogic.honest_profiler.core.filters;
 
-import com.insightfullogic.honest_profiler.core.collector.Frame;
-import com.insightfullogic.honest_profiler.core.profiles.Profile;
+import static com.insightfullogic.honest_profiler.core.filters.Filter.Mode.CONTAINS;
 
-import java.util.HashMap;
-import java.util.Map;
-
-final class ClassNameFilter implements Filter
+public final class ClassNameFilter extends StringFilter
 {
-
-    private final Map<Long, Boolean> methods;
-    private final String className;
 
     ClassNameFilter(final String className)
     {
-        this.className = className;
-        methods = new HashMap<>();
+        this(CONTAINS, className);
     }
 
-    @Override
-    public void filter(Profile profile)
+    public ClassNameFilter(Mode mode, String input)
     {
-        filterFlatProfile(profile);
-    }
-
-    private void filterFlatProfile(Profile profile)
-    {
-        profile.getFlatByMethodProfile()
-            .removeIf(entry -> !classNameMatches(entry.getFrameInfo()));
-    }
-
-    private boolean classNameMatches(Frame sampleFrameInfo)
-    {
-        return methods.computeIfAbsent(
-            sampleFrameInfo.getMethodId(),
-            id -> sampleFrameInfo.getClassName().contains(className));
-    }
-
-    @Override
-    public boolean equals(Object o)
-    {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        ClassNameFilter that = (ClassNameFilter) o;
-
-        return className != null ? className.equals(that.className) : that.className == null;
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return className != null ? className.hashCode() : 0;
+        super(mode, frame -> frame.getClassName(), input);
     }
 }

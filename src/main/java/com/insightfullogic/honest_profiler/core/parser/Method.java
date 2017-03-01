@@ -40,10 +40,25 @@ public final class Method implements LogEvent, Frame
         this.methodName = methodName;
     }
 
+    // Avoid formatting class name in copy()
+    private Method(long methodId,
+                   String fileName,
+                   String className,
+                   String methodName,
+                   boolean dummy)
+    {
+        this.methodId = methodId;
+        this.fileName = fileName;
+        this.className = className;
+        this.methodName = methodName;
+    }
+
     private String formatClassName(String className)
     {
         if (className.isEmpty())
+        {
             return className;
+        }
 
         return className.substring(1, className.length() - 1)
             .replace('/', '.');
@@ -55,6 +70,7 @@ public final class Method implements LogEvent, Frame
         listener.handle(this);
     }
 
+    @Override
     public long getMethodId()
     {
         return methodId;
@@ -65,11 +81,13 @@ public final class Method implements LogEvent, Frame
         return fileName;
     }
 
+    @Override
     public String getClassName()
     {
         return className;
     }
 
+    @Override
     public String getMethodName()
     {
         return methodName;
@@ -114,4 +132,9 @@ public final class Method implements LogEvent, Frame
         return 0;
     }
 
+    @Override
+    public Method copy()
+    {
+        return new Method(methodId, fileName, className, methodName, true);
+    }
 }
