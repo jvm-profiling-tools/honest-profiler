@@ -79,7 +79,7 @@ public final class NodeCollector
         return this;
     }
 
-    /**
+    /*
      * Only gets called on a root node.
      */
     ProfileNode normalise(LongFunction<Method> nameRegistry)
@@ -91,8 +91,6 @@ public final class NodeCollector
     {
         Method method = nameRegistry.apply(methodId);
 
-        double timeShare = (double) visits / parentVisits;
-
         List<ProfileNode> children
             = childrenByMethodId.values()
             .stream()
@@ -100,7 +98,7 @@ public final class NodeCollector
             .sorted(bySelfTimeShare)
             .collect(toList());
 
-        return new ProfileNode(method, timeShare, children);
+        return new ProfileNode(method, visits, parentVisits, children);
     }
 
 

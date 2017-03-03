@@ -87,4 +87,10 @@ public class FullFrame implements Frame
     {
         return obj instanceof FullFrame && this.frame.equals(((FullFrame) obj).frame);
     }
+
+    @Override
+    public FullFrame copy()
+    {
+        return new FullFrame(method.copy(), frame.copy());
+    }
 }

@@ -25,7 +25,6 @@ import com.insightfullogic.honest_profiler.core.parser.ThreadMeta;
 
 public final class ProfileTree
 {
-
     private final int numberOfSamples;
     private final ThreadMeta threadMeta;
     private final ProfileNode rootNode;
@@ -68,5 +67,10 @@ public final class ProfileTree
         return "ProfileTree{" +
             rootNode +
             '}';
+    }
+
+    public ProfileTree copy()
+    {
+        return new ProfileTree(threadMeta.copy(), rootNode.copy(), numberOfSamples);
     }
 }

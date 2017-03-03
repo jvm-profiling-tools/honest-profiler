@@ -47,7 +47,7 @@ public class WebSocketMachineSourceTest
 
             byte[] newMachine = null;
 
-            VirtualMachine machine = new VirtualMachine("123@erdos", "com.intellij.idea.Main", true, "");
+            VirtualMachine machine = new VirtualMachine("123@erdos", "com.intellij.idea.Main", true, "", "");
             WebSocketConnection connection = mock(WebSocketConnection.class);
             //DataConsumer dataConsumer = mock(DataConsumer.class);
             Monitor monitor = mock(Monitor.class);

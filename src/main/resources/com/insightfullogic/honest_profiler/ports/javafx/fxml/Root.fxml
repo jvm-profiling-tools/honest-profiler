@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?scenebuilder-stylesheet ../css/HPUI.css?>
+
+<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="600.0" minWidth="800.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.insightfullogic.honest_profiler.ports.javafx.controller.RootController">
+  <children>
+    <BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <top>
+        <MenuBar fx:id="menuBar" BorderPane.alignment="CENTER">
+          <menus>
+            <Menu fx:id="fileMenu" mnemonicParsing="false" text="%menu.root.file">
+              <items>
+                <MenuItem fx:id="openLogItem" mnemonicParsing="false" text="%menu.root.file.openLog" />
+                <MenuItem fx:id="openLiveItem" mnemonicParsing="false" text="%menu.root.file.monitorLog" />
+                <MenuItem fx:id="quitItem" mnemonicParsing="false" text="%menu.root.file.quit" />
+              </items>
+            </Menu>
+            <Menu fx:id="monitorMenu" mnemonicParsing="false" text="%menu.root.monitor" />
+          </menus>
+          <tooltip>
+            <Tooltip text="%menu.root.tooltip" wrapText="true" />
+          </tooltip>
+        </MenuBar>
+      </top>
+      <center>
+        <TabPane fx:id="profileTabs" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER" />
+      </center>
+      <bottom>
+        <HBox alignment="CENTER_LEFT" maxHeight="20.0" maxWidth="1.7976931348623157E308" minHeight="20.0" prefHeight="20.0" BorderPane.alignment="CENTER_LEFT">
+          <BorderPane.margin>
+            <Insets left="5.0" right="5.0" />
+          </BorderPane.margin>
+          <children>
+            <Label fx:id="info" />
+          </children>
+        </HBox>
+      </bottom>
+    </BorderPane>
+  </children>
+  <stylesheets>
+    <URL value="@../css/HPUI.css" />
+  </stylesheets>
+</AnchorPane>

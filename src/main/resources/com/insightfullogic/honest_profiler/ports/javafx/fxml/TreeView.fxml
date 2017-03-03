@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.control.TreeTableColumn?>
+<?import javafx.scene.control.TreeTableView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.insightfullogic.honest_profiler.ports.javafx.controller.TreeViewController">
+  <fx:define>
+    <fx:include fx:id="filter" source="FilterDialog.fxml" />
+  </fx:define>
+  <children>
+    <HBox alignment="CENTER_LEFT" maxHeight="25.0" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" spacing="6.0">
+      <children>
+        <GridPane>
+          <columnConstraints>
+            <ColumnConstraints halignment="CENTER" hgrow="NEVER" maxWidth="25.0" minWidth="25.0" prefWidth="25.0" />
+            <ColumnConstraints halignment="CENTER" hgrow="NEVER" maxWidth="25.0" minWidth="25.0" prefWidth="25.0" />
+            <ColumnConstraints halignment="CENTER" hgrow="NEVER" maxWidth="25.0" minWidth="25.0" prefWidth="25.0" />
+            <ColumnConstraints halignment="CENTER" hgrow="NEVER" maxWidth="25.0" minWidth="25.0" prefWidth="25.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="200.0" minWidth="25.0" prefWidth="200.0" />
+            <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="60.0" minWidth="25.0" prefWidth="60.0" />
+            <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" minWidth="25.0" />
+            <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="60.0" minWidth="25.0" prefWidth="60.0" />
+            <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" minWidth="25.0" />
+          </columnConstraints>
+          <rowConstraints>
+            <RowConstraints maxHeight="25.0" minHeight="25.0" prefHeight="25.0" vgrow="SOMETIMES" />
+          </rowConstraints>
+          <children>
+            <Button fx:id="filterButton" alignment="CENTER" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" GridPane.hgrow="NEVER" GridPane.vgrow="NEVER">
+              <tooltip>
+                <Tooltip text="%button.filter.tooltip" />
+              </tooltip>
+              <graphic>
+                <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                  <image>
+                    <Image url="@../icon/icon16/funnel.png" />
+                  </image>
+                </ImageView>
+              </graphic>
+            </Button>
+            <Button fx:id="expandAllButton" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" GridPane.columnIndex="1" GridPane.hgrow="NEVER" GridPane.vgrow="NEVER">
+              <tooltip>
+                <Tooltip text="%button.expandAll.tooltip" />
+              </tooltip>
+              <graphic>
+                <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                  <image>
+                    <Image url="@../icon/icon16/arrow-out.png" />
+                  </image>
+                </ImageView>
+              </graphic>
+            </Button>
+            <Button fx:id="collapseAllButton" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" GridPane.columnIndex="2" GridPane.hgrow="NEVER" GridPane.vgrow="NEVER">
+              <tooltip>
+                <Tooltip text="%button.collapseAll.tooltip" />
+              </tooltip>
+              <graphic>
+                <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                  <image>
+                    <Image url="@../icon/icon16/arrow-in.png" />
+                  </image>
+                </ImageView>
+              </graphic>
+            </Button>
+            <HBox maxHeight="20.0" minHeight="20.0" prefHeight="20.0" GridPane.columnIndex="4">
+              <children>
+                <TextField fx:id="quickFilterText" maxHeight="20.0" maxWidth="1.7976931348623157E308" minHeight="20.0" prefHeight="20.0" promptText="%input.quickFilter.prompt" HBox.hgrow="ALWAYS">
+                  <tooltip>
+                    <Tooltip text="%input.quickFilter.tooltip" />
+                  </tooltip>
+                </TextField>
+                <Button fx:id="quickFilterButton" alignment="CENTER" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" HBox.hgrow="NEVER">
+                  <tooltip>
+                    <Tooltip text="%button.quickFilter.tooltip" />
+                  </tooltip>
+                  <graphic>
+                    <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                      <image>
+                        <Image url="@../icon/icon16/funnel.png" />
+                      </image>
+                    </ImageView>
+                  </graphic>
+                </Button>
+              </children>
+            </HBox>
+            <Label fx:id="frameGroupingLabel" text="%label.frameGrouping.info" GridPane.columnIndex="5">
+              <padding>
+                <Insets left="5.0" right="5.0" />
+              </padding>
+            </Label>
+            <ChoiceBox fx:id="frameGrouping" maxHeight="20.0" maxWidth="1.7976931348623157E308" minHeight="20.0" prefHeight="20.0" GridPane.columnIndex="6" />
+            <Label fx:id="threadGroupingLabel" alignment="CENTER_RIGHT" text="%label.threadGrouping.info" textAlignment="RIGHT" GridPane.columnIndex="7">
+              <padding>
+                <Insets left="5.0" right="5.0" />
+              </padding>
+            </Label>
+            <ChoiceBox fx:id="threadGrouping" maxHeight="20.0" maxWidth="1.7976931348623157E308" minHeight="20.0" prefHeight="20.0" GridPane.columnIndex="8" />
+          </children>
+        </GridPane>
+      </children>
+      <padding>
+        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+      </padding>
+    </HBox>
+    <TreeTableView fx:id="treeTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" showRoot="false" VBox.vgrow="ALWAYS">
+      <columns>
+        <TreeTableColumn fx:id="methodColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="250.0" prefWidth="-1.0" text="%column.method" />
+        <TreeTableColumn fx:id="percentColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" resizable="false" text="%column.totalCntPctGraph" />
+        <TreeTableColumn fx:id="totalCntPct" editable="false" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.totalCntPct" />
+        <TreeTableColumn fx:id="selfCntPct" editable="false" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.selfCntPct" />
+        <TreeTableColumn fx:id="totalCnt" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.totalCnt" />
+        <TreeTableColumn fx:id="selfCnt" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.selfCnt" />
+        <TreeTableColumn fx:id="totalTime" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.totalTime" />
+        <TreeTableColumn fx:id="totalTimePct" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.totalTimePct" />
+        <TreeTableColumn fx:id="selfTime" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.selfTime" />
+        <TreeTableColumn fx:id="selfTimePct" maxWidth="1.7976931348623157E308" minWidth="65.0" prefWidth="-1.0" text="%column.selfTimePct" />
+      </columns>
+      <tooltip>
+        <Tooltip text="%table.tree.tooltip" />
+      </tooltip>
+    </TreeTableView>
+  </children>
+</VBox>

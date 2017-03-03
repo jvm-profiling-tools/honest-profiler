@@ -1,50 +1,44 @@
 /**
  * Copyright (c) 2014 Richard Warburton (richard.warburton@gmail.com)
  * <p>
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"),
- * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions:
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  * <p>
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  * <p>
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  **/
 package com.insightfullogic.honest_profiler.ports.javafx;
 
-import org.picocontainer.MutablePicoContainer;
-import org.picocontainer.PicoBuilder;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.FXML_ROOT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.loaderFor;
 
-import com.insightfullogic.honest_profiler.core.Monitor;
-import com.insightfullogic.honest_profiler.core.filters.ProfileFilter;
-import com.insightfullogic.honest_profiler.ports.LoggerInjector;
-import com.insightfullogic.honest_profiler.ports.javafx.landing.LandingViewModel;
-import com.insightfullogic.honest_profiler.ports.javafx.profile.CachingProfileListener;
-import com.insightfullogic.honest_profiler.ports.javafx.profile.FlameGraphViewModel;
-import com.insightfullogic.honest_profiler.ports.javafx.profile.FlatViewModel;
-import com.insightfullogic.honest_profiler.ports.javafx.profile.ProfileListenerProvider;
-import com.insightfullogic.honest_profiler.ports.javafx.profile.ProfileViewModel;
-import com.insightfullogic.honest_profiler.ports.javafx.profile.TraceCountViewModel;
-import com.insightfullogic.honest_profiler.ports.javafx.profile.TreeTableViewModel;
-import com.insightfullogic.honest_profiler.ports.sources.LocalMachineSource;
-import com.insightfullogic.honest_profiler.ports.web.store.FileLogRepository;
+import com.insightfullogic.honest_profiler.ports.javafx.controller.RootController;
+import com.insightfullogic.honest_profiler.ports.javafx.util.FontUtil;
 
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class JavaFXApplication extends Application
 {
+    private RootController rootController;
 
-    private MutablePicoContainer pico;
+    @Override
+    public void init()
+    {
+        FontUtil.initialize(getClass());
+    }
 
     @Override
     public void start(Stage stage) throws Exception
@@ -53,64 +47,26 @@ public class JavaFXApplication extends Application
         stage.setWidth(1280);
         stage.setHeight(720);
 
-        createStart(stage);
+        FXMLLoader loader = loaderFor(this, FXML_ROOT);
+        Parent root = (Parent)loader.load();
+        rootController = loader.getController();
+
+        stage.setScene(new Scene(root));
+        stage.setMinWidth(650);
+        stage.setMinHeight(400);
+
         stage.show();
     }
 
     @Override
     public void stop() throws Exception
     {
-        pico.stop();
-    }
-
-    private void createStart(Stage stage)
-    {
-        pico = registerComponents(stage);
-        WindowViewModel stageModel = pico.getComponent(WindowViewModel.class);
-        stageModel.displayStart();
-        pico.start();
-    }
-
-    private static MutablePicoContainer registerComponents(Stage stage)
-    {
-        return registerComponents().addComponent(stage);
-    }
-
-    static MutablePicoContainer registerComponents()
-    {
-        MutablePicoContainer pico = new PicoBuilder()
-            .withJavaEE5Lifecycle()
-            .withCaching()
-            .build()
-
-            .addAdapter(new LoggerInjector())
-            .addAdapter(new ProfileListenerProvider())
-
-                // Infrastructure
-            .addComponent(LocalMachineSource.class)
-
-                // Core
-            .addComponent(FileLogRepository.class)
-            .addComponent(Monitor.class)
-            .addComponent(ProfileFilter.class)
-
-                // Delivery
-            .addComponent(CachingProfileListener.class)
-            .addComponent(FlatViewModel.class)
-            .addComponent(TreeTableViewModel.class)
-            .addComponent(FlameGraphViewModel.class)
-            .addComponent(TraceCountViewModel.class)
-            .addComponent(ProfileViewModel.class)
-            .addComponent(LandingViewModel.class)
-            .addComponent(WindowViewModel.class)
-            .addComponent(PicoFXLoader.class);
-
-        return pico.addComponent(pico);
+        super.stop();
+        rootController.close();
     }
 
     public static void main(String[] args)
     {
         launch(args);
     }
-
 }

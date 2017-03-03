@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.insightfullogic.honest_profiler.ports.javafx.controller.ProfileDiffRootController">
+  <children>
+    <HBox alignment="CENTER_LEFT" maxHeight="35.0" minHeight="35.0" prefHeight="35.0" prefWidth="200.0" spacing="5.0" VBox.vgrow="NEVER">
+      <children>
+        <ChoiceBox fx:id="viewChoice" maxHeight="25.0" minHeight="25.0" prefHeight="25.0">
+          <tooltip>
+            <Tooltip text="%choice.viewtype.tooltip" />
+          </tooltip>
+        </ChoiceBox>
+        <Label text="%label.base.content">
+          <font>
+            <Font name="System Bold" size="12.0" />
+          </font>
+        </Label>
+        <Label fx:id="baseSourceLabel" text="&lt;none&gt;">
+          <tooltip>
+            <Tooltip text="%label.baseSource.tooltip" />
+          </tooltip>
+        </Label>
+        <Label text="%label.new.content">
+          <font>
+            <Font name="System Bold" size="12.0" />
+          </font>
+        </Label>
+        <Label fx:id="newSourceLabel" text="&lt;none&gt;">
+          <padding>
+            <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+          </padding>
+          <tooltip>
+            <Tooltip text="%label.newSource.tooltip" />
+          </tooltip>
+        </Label>
+      </children>
+      <VBox.margin>
+        <Insets />
+      </VBox.margin>
+      <padding>
+        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+      </padding>
+    </HBox>
+    <AnchorPane fx:id="content" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+      <children>
+        <fx:include fx:id="flat" source="FlatDiffView.fxml" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+        <fx:include fx:id="tree" source="TreeDiffView.fxml" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+      </children>
+    </AnchorPane>
+  </children>
+</VBox>

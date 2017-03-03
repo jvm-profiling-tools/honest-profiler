@@ -21,21 +21,24 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx;
 
-import javafx.scene.Parent;
-import org.hamcrest.Matcher;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.loadui.testfx.GuiTest;
-import org.loadui.testfx.exceptions.NodeQueryException;
-import org.picocontainer.MutablePicoContainer;
-
-import java.util.concurrent.Callable;
-
+import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.FXML_ROOT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.loaderFor;
 import static java.lang.System.currentTimeMillis;
 import static javafx.scene.input.KeyCode.ENTER;
 import static org.hamcrest.Matchers.is;
 import static org.loadui.testfx.Assertions.assertNodeExists;
 import static org.loadui.testfx.controls.TableViews.numberOfRowsIn;
+
+import java.util.concurrent.Callable;
+
+import org.hamcrest.Matcher;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.loadui.testfx.GuiTest;
+import org.loadui.testfx.exceptions.NodeQueryException;
+
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 
 public class JavaFxApplicationTest extends GuiTest
 {
@@ -79,9 +82,7 @@ public class JavaFxApplicationTest extends GuiTest
     @Override
     protected Parent getRootNode()
     {
-        MutablePicoContainer pico = JavaFXApplication.registerComponents();
-        PicoFXLoader loader = pico.getComponent(PicoFXLoader.class);
-        return loader.load("ProfileView.fxml");
+        FXMLLoader loader = loaderFor(this, FXML_ROOT);
+        return loader.getRoot();
     }
-
 }

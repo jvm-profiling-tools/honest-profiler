@@ -21,7 +21,6 @@
  **/
 package com.insightfullogic.honest_profiler.core.parser;
 
-
 import java.util.Objects;
 
 public final class StackFrame implements LogEvent
@@ -94,4 +93,8 @@ public final class StackFrame implements LogEvent
             '}';
     }
 
+    public StackFrame copy()
+    {
+        return new StackFrame(bci, lineNumber, methodId);
+    }
 }

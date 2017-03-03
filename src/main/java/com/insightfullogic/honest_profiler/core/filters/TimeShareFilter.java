@@ -21,22 +21,65 @@
  **/
 package com.insightfullogic.honest_profiler.core.filters;
 
+import static com.insightfullogic.honest_profiler.core.filters.Filter.Mode.GE;
+import static java.lang.Double.doubleToLongBits;
+
+import java.util.function.BiPredicate;
+
 import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
 
 abstract class TimeShareFilter implements Filter
 {
-
     private final double minShare;
+
+    private Mode mode;
+    private BiPredicate<Double, Double> filterMethod;
 
     TimeShareFilter(final double minShare)
     {
+        this(GE, minShare);
+    }
+
+    public TimeShareFilter(Mode mode, double minShare)
+    {
+
         if (minShare > 1.0)
         {
             throw new FilterParseException("Time share must be between 0.0 and 1.0, but is " + minShare);
         }
+
+        this.mode = mode;
         this.minShare = minShare;
+        generateFilterMethod();
+    }
+
+    private void generateFilterMethod()
+    {
+
+        switch (mode)
+        {
+
+            case GE:
+                filterMethod = (share, minshare) -> share < minshare;
+                break;
+            case GT:
+                filterMethod = (share, minshare) -> share <= minshare;
+                break;
+            case LE:
+                filterMethod = (share, minshare) -> share > minshare;
+                break;
+            case LT:
+                filterMethod = (share, minshare) -> share >= minshare;
+                break;
+            case EQUALS:
+                filterMethod = (share, minshare) -> Double.compare(share, minshare) == 0;
+                break;
+            default:
+                throw new RuntimeException(
+                    "Filter Mode " + mode + " not supported in ThreadSampleFilter.");
+        }
     }
 
     @Override
@@ -67,8 +110,7 @@ abstract class TimeShareFilter implements Filter
 
     private void filterFlatProfile(Profile profile)
     {
-        profile.getFlatByMethodProfile()
-            .removeIf(entry -> minShare > flatField(entry));
+        profile.getFlatByMethodProfile().removeIf(entry -> filterMethod.test(flatField(entry), minShare));
     }
 
     protected abstract double flatField(FlatProfileEntry entry);
@@ -83,57 +125,13 @@ abstract class TimeShareFilter implements Filter
 
         TimeShareFilter that = (TimeShareFilter) o;
 
-        if (Double.compare(that.minShare, minShare) != 0) return false;
-
-        return true;
+        return (mode == that.mode) && (Double.compare(that.minShare, minShare) == 0);
     }
 
     @Override
     public int hashCode()
     {
-        long temp = Double.doubleToLongBits(minShare);
-        return (int) (temp ^ (temp >>> 32));
-    }
-}
-
-final class TotalTimeShareFilter extends TimeShareFilter
-{
-
-    TotalTimeShareFilter(double minShare)
-    {
-        super(minShare);
-    }
-
-    @Override
-    protected double flatField(FlatProfileEntry entry)
-    {
-        return entry.getTotalTimeShare();
-    }
-
-    @Override
-    protected double treeField(ProfileNode node)
-    {
-        return node.getTotalTimeShare();
-    }
-}
-
-final class SelfTimeShareFilter extends TimeShareFilter
-{
-
-    SelfTimeShareFilter(double minShare)
-    {
-        super(minShare);
-    }
-
-    @Override
-    protected double flatField(FlatProfileEntry entry)
-    {
-        return entry.getSelfTimeShare();
-    }
-
-    @Override
-    protected double treeField(ProfileNode node)
-    {
-        return node.getSelfTimeShare();
+        long temp = doubleToLongBits(minShare);
+        return (37 * mode.ordinal()) + (int) (temp ^ (temp >>> 32));
     }
 }

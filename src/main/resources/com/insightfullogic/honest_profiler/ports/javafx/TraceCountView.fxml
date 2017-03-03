@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.scene.control.Label?>
-<Label fx:controller="com.insightfullogic.honest_profiler.ports.javafx.profile.TraceCountViewModel"
-       fx:id="traceCount"
-       prefHeight="15.0"
-       prefWidth="104.0"
-       xmlns="http://javafx.com/javafx/8"
-       xmlns:fx="http://javafx.com/fxml/1" />

@@ -34,7 +34,7 @@ public class VirtualWebsocketMachineAdapterTest
 {
 
     ClientConnections clients;
-    VirtualMachine jvm = new VirtualMachine("12432", "com.intellij.idea.Main", true, "");
+    VirtualMachine jvm = new VirtualMachine("12432", "com.intellij.idea.Main", true, "", "");
     WebsocketMachineAdapter adapter;
 
     {

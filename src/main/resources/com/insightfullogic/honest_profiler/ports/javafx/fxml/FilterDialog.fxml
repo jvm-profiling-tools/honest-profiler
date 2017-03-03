@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ButtonType?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Dialog?>
+<?import javafx.scene.control.DialogPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.VBox?>
+
+<Dialog title="%dialog.specifyFilters.title" fx:id="dialog" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController">
+  <fx:define>
+    <fx:include fx:id="filterCreation" source="FilterCreationDialog.fxml" />
+  </fx:define>
+  <dialogPane>
+    <DialogPane maxHeight="500.0" maxWidth="1.7976931348623157E308" minHeight="500.0" prefHeight="500.0">
+      <content>
+        <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="5.0">
+          <children>
+            <CheckBox fx:id="hideErrorThreads" mnemonicParsing="false" text="Hide errors" />
+            <TableView fx:id="filters" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+              <columns>
+                <TableColumn fx:id="action" maxWidth="30.0" minWidth="30.0" prefWidth="30.0" />
+                <TableColumn fx:id="target" maxWidth="1.7976931348623157E308" minWidth="200.0" prefWidth="-1.0" text="Target" />
+                <TableColumn fx:id="comparison" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="-1.0" text="Comparison" />
+                <TableColumn fx:id="value" maxWidth="1.7976931348623157E308" minWidth="500.0" prefWidth="-1.0" text="Value" />
+              </columns>
+              <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+              </columnResizePolicy>
+            </TableView>
+          </children>
+        </VBox>
+      </content>
+      <buttonTypes>
+        <ButtonType fx:constant="OK" />
+      </buttonTypes>
+    </DialogPane>
+  </dialogPane>
+</Dialog>

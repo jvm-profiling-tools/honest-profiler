@@ -21,31 +21,70 @@
  **/
 package com.insightfullogic.honest_profiler.core.filters;
 
+import static com.insightfullogic.honest_profiler.core.filters.Filter.Mode.GE;
+import static java.lang.Double.doubleToLongBits;
+
+import java.util.function.BiPredicate;
+
 import com.insightfullogic.honest_profiler.core.profiles.Profile;
 
-final class ThreadSampleFilter implements Filter
+public final class ThreadSampleFilter implements Filter
 {
-
     private static final double DEFAULT_MIN_PROPORTION_OF_SAMPLES = 0.01;
 
     private final double minProportionOfSamples;
 
-    ThreadSampleFilter()
+    private Mode mode;
+    private BiPredicate<Integer, Double> filterMethod;
+
+    public ThreadSampleFilter()
     {
-        this(DEFAULT_MIN_PROPORTION_OF_SAMPLES);
+        this(GE, DEFAULT_MIN_PROPORTION_OF_SAMPLES);
     }
 
-    private ThreadSampleFilter(double minProportionOfSamples)
+    public ThreadSampleFilter(double minProportionOfSamples)
     {
+        this(GE, minProportionOfSamples);
+    }
+
+    public ThreadSampleFilter(Mode mode, double minProportionOfSamples)
+    {
+        this.mode = mode;
         this.minProportionOfSamples = minProportionOfSamples;
+        generateFilterMethod();
+    }
+
+    private void generateFilterMethod()
+    {
+        switch (mode)
+        {
+            case GE:
+                filterMethod = (nrSamples, minNrSamples) -> nrSamples < minNrSamples;
+                break;
+            case GT:
+                filterMethod = (nrSamples, minNrSamples) -> nrSamples <= minNrSamples;
+                break;
+            case LE:
+                filterMethod = (nrSamples, minNrSamples) -> nrSamples > minNrSamples;
+                break;
+            case LT:
+                filterMethod = (nrSamples, minNrSamples) -> nrSamples >= minNrSamples;
+                break;
+            case EQUALS:
+                filterMethod = (nrSamples,
+                    minNrSamples) -> Double.compare(nrSamples, minNrSamples) == 0;
+                break;
+            default:
+                throw new RuntimeException(
+                    "Filter Mode " + mode + " not supported in ThreadSampleFilter.");
+        }
     }
 
     @Override
     public void filter(Profile profile)
     {
         final double minimumNumberOfSamples = getMinimumNumberOfSamples(profile);
-        profile.getTrees()
-            .removeIf(tree -> tree.getNumberOfSamples() < minimumNumberOfSamples);
+        profile.getTrees().removeIf(tree -> filterMethod.test(tree.getNumberOfSamples(), minimumNumberOfSamples));
     }
 
     private double getMinimumNumberOfSamples(Profile profile)
@@ -61,16 +100,15 @@ final class ThreadSampleFilter implements Filter
 
         ThreadSampleFilter that = (ThreadSampleFilter) o;
 
-        if (Double.compare(that.minProportionOfSamples, minProportionOfSamples) != 0) return false;
-
-        return true;
+        return (mode == that.mode)
+            && (Double.compare(that.minProportionOfSamples, minProportionOfSamples) == 0);
     }
 
     @Override
     public int hashCode()
     {
-        long temp = Double.doubleToLongBits(minProportionOfSamples);
-        return (int) (temp ^ (temp >>> 32));
+        long temp = doubleToLongBits(minProportionOfSamples);
+        return (37 * mode.ordinal()) + (int) (temp ^ (temp >>> 32));
     }
 
 }

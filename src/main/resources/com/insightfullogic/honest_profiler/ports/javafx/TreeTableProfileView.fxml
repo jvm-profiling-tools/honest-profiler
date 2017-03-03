@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.scene.control.TreeTableView?>
-<TreeTableView fx:controller="com.insightfullogic.honest_profiler.ports.javafx.profile.TreeTableViewModel" fx:id="treeView"
-          prefHeight="9999" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
-</TreeTableView>

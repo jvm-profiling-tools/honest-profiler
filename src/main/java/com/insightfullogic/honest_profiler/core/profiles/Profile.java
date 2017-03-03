@@ -23,6 +23,8 @@ package com.insightfullogic.honest_profiler.core.profiles;
 
 import com.insightfullogic.honest_profiler.core.collector.FlatProfileEntry;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -46,7 +48,6 @@ public final class Profile
         this.flatByFrameProfile = flatByFrameProfile;
         this.trees = trees;
     }
-
 
     public int getTraceCount()
     {
@@ -76,6 +77,15 @@ public final class Profile
     public List<ProfileTree> getTrees()
     {
         return trees;
+    }
+
+    public Profile copy()
+    {
+        return new Profile(
+            this.traceCount,
+            this.flatByMethodProfile.stream().map(FlatProfileEntry::copy).collect(toList()),
+            this.flatByFrameProfile.stream().map(FlatProfileEntry::copy).collect(toList()),
+            this.trees.stream().map(ProfileTree::copy).collect(toList()));
     }
 
     @Override

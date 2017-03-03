@@ -23,6 +23,7 @@ package com.insightfullogic.honest_profiler.core.sources;
 
 import com.insightfullogic.honest_profiler.ports.sources.FileLogSource;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,18 +35,22 @@ import java.util.Objects;
  */
 public class VirtualMachine implements Comparable<VirtualMachine>
 {
-
+    private static final String OPT_AGENT = "-agentpath";
+    private static final String OPT_LOG = "logPath=";
+    
     private final String id;
     private final String displayName;
     private final boolean agentLoaded;
     private final String userDir;
+    private final String vmArgs;
 
-    public VirtualMachine(String id, String displayName, boolean agentLoaded, String userDir)
+    public VirtualMachine(String id, String displayName, boolean agentLoaded, String userDir, String vmArgs)
     {
         this.id = id;
         this.displayName = displayName;
         this.agentLoaded = agentLoaded;
         this.userDir = userDir;
+        this.vmArgs = vmArgs;
     }
 
     public String getId()
@@ -61,6 +66,44 @@ public class VirtualMachine implements Comparable<VirtualMachine>
     public boolean isAgentLoaded()
     {
         return agentLoaded;
+    }
+
+    public LogSource getLogSourceFromVmArgs() throws CantReadFromSourceException
+    {
+        // Bail out if agentpath is not defined.
+        if (vmArgs.indexOf(OPT_AGENT) < 0)
+        {
+            return getLogSource();
+        }
+
+        // Extract the value of the agentpath parameter
+        
+        int agentPathStart = vmArgs.indexOf(OPT_AGENT) + OPT_AGENT.length();
+        
+        // TODO FIX : if the logPath contains spaces, this will cause trouble.
+        int agentPathEnd = vmArgs.indexOf(' ', agentPathStart);
+
+        // If the agentpath is the last parameter in the VM Args, no space would be found.
+        agentPathEnd = (agentPathEnd < 0) ? vmArgs.length() : agentPathEnd;
+
+        String agentPath = vmArgs.substring(agentPathStart, agentPathEnd);
+        
+        // Bail out if logPath is not defined.
+        if (agentPath.indexOf(OPT_LOG) < 0)
+        {
+            return getLogSource();
+        }
+
+        // Extract the value of the logPath parameter
+
+        int logPathStart = agentPath.indexOf(OPT_LOG) + OPT_LOG.length();
+        int commaPos = agentPath.indexOf(",", logPathStart);
+        int spacePos = agentPath.indexOf(' ', logPathStart);
+        int logPathEnd = commaPos > 0 ? commaPos : (spacePos > 0 ? spacePos : agentPath.length());
+
+        File result = new File(agentPath.substring(logPathStart, logPathEnd));
+
+        return result.exists() ? new FileLogSource(result) : getLogSource();
     }
 
     public LogSource getLogSource() throws CantReadFromSourceException

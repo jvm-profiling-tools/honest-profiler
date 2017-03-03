@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.insightfullogic.honest_profiler.ports.javafx.controller.ProfileRootController">
+  <children>
+    <HBox alignment="CENTER_LEFT" maxHeight="35.0" minHeight="35.0" prefHeight="35.0" prefWidth="200.0" spacing="5.0" VBox.vgrow="NEVER">
+      <children>
+        <ChoiceBox fx:id="viewChoice" maxHeight="25.0" minHeight="25.0" prefHeight="25.0">
+          <tooltip>
+            <Tooltip text="%choice.viewtype.tooltip" />
+          </tooltip>
+        </ChoiceBox>
+        <Button fx:id="freezeButton" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0">
+          <tooltip>
+            <Tooltip fx:id="freezeTooltip" text="%button.freeze.unfrozen.tooltip" />
+          </tooltip>
+          <graphic>
+            <ImageView disable="true" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+              <image>
+                <Image url="@../icon/icon16/clock.png" />
+              </image>
+            </ImageView>
+          </graphic>
+        </Button>
+        <Button fx:id="compareButton" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0">
+          <tooltip>
+            <Tooltip text="%button.compare.tooltip" />
+          </tooltip>
+          <graphic>
+            <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+              <image>
+                <Image url="@../icon/icon16/balance-unbalance.png" />
+              </image>
+            </ImageView>
+          </graphic>
+        </Button>
+        <Label fx:id="profileSampleCount" prefHeight="15.0" prefWidth="104.0">
+          <tooltip>
+            <Tooltip text="%label.profileSampleCount.tooltip" />
+          </tooltip>
+        </Label>
+      </children>
+      <VBox.margin>
+        <Insets />
+      </VBox.margin>
+      <padding>
+        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+      </padding>
+    </HBox>
+    <AnchorPane fx:id="content" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+      <children>
+        <SplitPane dividerPositions="0.5" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" orientation="VERTICAL" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS">
+          <items>
+            <fx:include fx:id="flat" source="FlatView.fxml" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+            <SplitPane dividerPositions="0.5" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" orientation="HORIZONTAL" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS">
+              <items>
+                <VBox>
+                  <children>
+                    <Label text="%label.ancestors.info">
+                      <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                      </VBox.margin>
+                    </Label>
+                    <fx:include fx:id="calling" source="TreeView.fxml" />
+                  </children>
+                </VBox>
+                <VBox>
+                  <children>
+                    <Label text="%label.descendants.info">
+                      <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                      </VBox.margin>
+                    </Label>
+                    <fx:include fx:id="called" source="TreeView.fxml" />
+                  </children>
+                </VBox>
+              </items>
+            </SplitPane>
+          </items>
+        </SplitPane>
+        <SplitPane dividerPositions="0.5" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" orientation="VERTICAL" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS">
+          <items>
+            <fx:include fx:id="tree" source="TreeView.fxml" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+            <VBox>
+              <children>
+                <Label text="%label.descendants.info">
+                  <VBox.margin>
+                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                  </VBox.margin>
+                </Label>
+                <fx:include fx:id="descendants" source="FlatView.fxml" />
+              </children>
+            </VBox>
+          </items>
+        </SplitPane>
+        <fx:include fx:id="flame" source="FlameView.fxml" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+      </children>
+    </AnchorPane>
+  </children>
+</VBox>

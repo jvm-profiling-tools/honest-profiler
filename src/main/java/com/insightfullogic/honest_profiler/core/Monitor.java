@@ -21,13 +21,15 @@
  **/
 package com.insightfullogic.honest_profiler.core;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 import com.insightfullogic.honest_profiler.core.collector.LogCollector;
+import com.insightfullogic.honest_profiler.core.collector.lean.LeanLogCollector;
 import com.insightfullogic.honest_profiler.core.parser.LogEventListener;
 import com.insightfullogic.honest_profiler.core.parser.LogParser;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileListener;
+import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfileListener;
 import com.insightfullogic.honest_profiler.core.sources.LogSource;
-
-import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Application Service for monitoring logs
@@ -43,10 +45,19 @@ public final class Monitor
     // TODO: have a way of stopping the agent correctly
     public static void pipeFile(final LogSource logSource, final ProfileListener listener)
     {
-        ProfileUpdateModerator moderator = new ProfileUpdateModerator(getLogger(ProfileUpdateModerator.class), listener);
+        ProfileUpdateModerator moderator = new ProfileUpdateModerator(
+            getLogger(ProfileUpdateModerator.class),
+            listener);
         moderator.start();
 
         final Conductor conductor = pipe(logSource, moderator, true);
+        new ThreadedAgent(getLogger(ThreadedAgent.class), conductor::poll).start();
+    }
+
+    public static void pipeFile(final LogSource logSource, LeanLogCollector logCollector,
+        final LeanProfileListener listener)
+    {
+        final Conductor conductor = pipe(logSource, logCollector, true);
         new ThreadedAgent(getLogger(ThreadedAgent.class), conductor::poll).start();
     }
 
@@ -60,13 +71,15 @@ public final class Monitor
         pipe(logSource, listener, false).run();
     }
 
-    private static Conductor pipe(final LogSource logSource, final ProfileListener listener, final boolean continuous)
+    private static Conductor pipe(final LogSource logSource, final ProfileListener listener,
+        final boolean continuous)
     {
         LogEventListener collector = new LogCollector(listener, continuous);
         return pipe(logSource, collector, continuous);
     }
 
-    public static Conductor pipe(final LogSource logSource, LogEventListener listener, final boolean continuous)
+    public static Conductor pipe(final LogSource logSource, LogEventListener listener,
+        final boolean continuous)
     {
         LogParser parser = new LogParser(getLogger(LogParser.class), listener);
         return new Conductor(getLogger(Conductor.class), logSource, parser, continuous);

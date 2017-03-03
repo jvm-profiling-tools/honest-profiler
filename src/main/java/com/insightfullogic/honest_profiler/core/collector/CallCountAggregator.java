@@ -57,7 +57,7 @@ public class CallCountAggregator<T>
             .onAppearance(endOfTrace);
     }
 
-    public List<FlatProfileEntry> aggregate(final double traceCount)
+    public List<FlatProfileEntry> aggregate(final int traceCount)
     {
         return callCountsByKey
             .entrySet()
@@ -68,10 +68,11 @@ public class CallCountAggregator<T>
     }
 
     private FlatProfileEntry toFlatProfileEntry(
-        final T key, final CallCounts callCounts, final double traceCount)
+        final T key, final CallCounts callCounts, final int traceCount)
     {
-        double totalTimeShare = (double) callCounts.getTimeAppeared() / traceCount;
-        double selfTimeShare = (double) callCounts.getTimeInvokingThis() / traceCount;
+        int totalCount = callCounts.getTimeAppeared();
+        int selfCount = callCounts.getTimeInvokingThis();
+
         Method method;
         final Long methodId = getMethodId.apply(key);
         method = methodByMethodId.get(methodId);
@@ -88,6 +89,6 @@ public class CallCountAggregator<T>
         {
             frame = method;
         }
-        return new FlatProfileEntry(frame, totalTimeShare, selfTimeShare);
+        return new FlatProfileEntry(frame, totalCount, selfCount, traceCount);
     }
 }
