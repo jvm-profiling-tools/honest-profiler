@@ -18,19 +18,10 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.view;
 
-import java.text.MessageFormat;
-
 import com.insightfullogic.honest_profiler.core.collector.Frame;
-import com.insightfullogic.honest_profiler.core.parser.Method;
 
 public final class Rendering
 {
-
-    public static String renderPercentage(double percentage)
-    {
-        return MessageFormat.format("{0,number,0.00 %}", percentage);
-    }
-
     public static String renderMethod(Frame method)
     {
         if (method == null)
@@ -39,13 +30,5 @@ public final class Rendering
         }
 
         return method.getClassName() + "." + method.getMethodName();
-    }
-
-    public static String renderShortMethod(Method method)
-    {
-        String className = method.getClassName();
-        int index = className.lastIndexOf('.');
-        String shortClassName = index == -1 ? className : className.substring(index + 1);
-        return shortClassName + "." + method.getMethodName();
     }
 }

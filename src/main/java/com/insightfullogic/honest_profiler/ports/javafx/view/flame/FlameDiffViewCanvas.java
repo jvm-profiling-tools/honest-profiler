@@ -21,7 +21,6 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.view.flame;
 
-import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderPercentage;
 import static java.lang.Math.max;
 import static javafx.scene.paint.Color.hsb;
 
@@ -126,11 +125,11 @@ public class FlameDiffViewCanvas extends AbstractFlameCanvas<TreeDiff, DiffNode>
         result.append("/");
         result.append(node.getNewTotalCnt());
         result.append(" samples, ");
-        result.append(renderPercentage(node.getBaseTotalCntPct()));
+        result.append(appCtx().displayPercent(node.getBaseTotalCntPct()));
         result.append("/");
-        result.append(renderPercentage(node.getNewTotalCntPct()));
+        result.append(appCtx().displayPercent(node.getNewTotalCntPct()));
         result.append(", diff=");
-        result.append(renderPercentage(node.getTotalCntPctDiff()));
+        result.append(appCtx().displayPercent(node.getTotalCntPctDiff()));
         result.append(")");
 
         return result.toString();

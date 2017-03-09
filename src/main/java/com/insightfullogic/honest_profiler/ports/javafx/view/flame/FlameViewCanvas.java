@@ -21,7 +21,6 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.view.flame;
 
-import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderPercentage;
 import static java.lang.Math.max;
 
 import java.util.Map;
@@ -106,7 +105,7 @@ public class FlameViewCanvas extends AbstractFlameCanvas<Tree, Node>
         result.append(" (");
         result.append(node.getTotalCnt());
         result.append(" samples, ");
-        result.append(renderPercentage(node.getTotalCntPct()));
+        result.append(appCtx().displayPercent(node.getTotalCntPct()));
         result.append(")");
 
         return result.toString();

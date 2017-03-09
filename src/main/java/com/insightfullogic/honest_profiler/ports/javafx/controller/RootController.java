@@ -1,6 +1,7 @@
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
 import static com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext.ProfileMode.LOG;
+import static com.insightfullogic.honest_profiler.ports.javafx.model.configuration.Configuration.DEFAULT_CONFIGURATION;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.selectLogFile;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.showErrorDialog;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.showExceptionDialog;
@@ -35,6 +36,7 @@ import java.util.function.Consumer;
 import com.insightfullogic.honest_profiler.core.MachineListener;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.insightfullogic.honest_profiler.ports.javafx.UserInterfaceConfigurationException;
+import com.insightfullogic.honest_profiler.ports.javafx.controller.configuration.ConfigurationDialogController;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.task.InitializeProfileTask;
@@ -67,6 +69,8 @@ public class RootController extends AbstractController implements MachineListene
     @FXML
     private MenuItem openLiveItem;
     @FXML
+    private MenuItem preferencesItem;
+    @FXML
     private MenuItem quitItem;
     @FXML
     private Menu monitorMenu;
@@ -74,6 +78,8 @@ public class RootController extends AbstractController implements MachineListene
     private TabPane profileTabs;
     @FXML
     private Label info;
+    @FXML
+    private ConfigurationDialogController configurationController;
 
     private LocalMachineSource machineSource;
 
@@ -93,6 +99,9 @@ public class RootController extends AbstractController implements MachineListene
         // Monitor running VMs on the local machine.
         machineSource = new LocalMachineSource(getLogger(getClass()), this);
         machineSource.start();
+
+        appCtx().setConfiguration(DEFAULT_CONFIGURATION);
+        configurationController.readConfiguration(DEFAULT_CONFIGURATION);
     }
 
     // MachineListener Implementation
@@ -114,7 +123,7 @@ public class RootController extends AbstractController implements MachineListene
     /**
      * Add a JVM to the Monitor menu.
      * <p>
-     * 
+     *
      * @param vm the JVM to be added
      */
     private void addToMachineMenu(final VirtualMachine vm)
@@ -141,7 +150,7 @@ public class RootController extends AbstractController implements MachineListene
     /**
      * remove a JVM from the Monitor menu.
      * <p>
-     * 
+     *
      * @param vm the JVM to be removed
      */
     private void removeFromMachineMenu(final VirtualMachine vm)
@@ -163,7 +172,7 @@ public class RootController extends AbstractController implements MachineListene
     /**
      * Create a {@link Tab} which will contain the Views for a newly opened profile.
      * <p>
-     * 
+     *
      * @param source the source of the profile
      * @param live a boolean indicating whether the source is "live"
      */
@@ -206,7 +215,7 @@ public class RootController extends AbstractController implements MachineListene
     /**
      * Initializes the {@link ProfileRootController} for a new {@link Tab} with the specified {@link ProfileContext}.
      * <p>
-     * 
+     *
      * @param tab the {@link Tab} in which the profile data will be shown
      * @param controller the {@link ProfileRootController} controlling the Views for the profile
      * @param profileContext the {@link ProfileContext} for the profile
@@ -224,7 +233,7 @@ public class RootController extends AbstractController implements MachineListene
     /**
      * Create a {@link Tab} which will contain the Views for the Diff between two opened profiles.
      * <p>
-     * 
+     *
      * @param baseName the name of the Base {@link ProfileContext}
      * @param newName the name of the New {@link ProfileContext}
      */
@@ -254,7 +263,7 @@ public class RootController extends AbstractController implements MachineListene
     /**
      * Set the title of a {@link Tab} for a profile.
      * <p>
-     * 
+     *
      * @param tab the {@link Tab} whose title will be set
      * @param profileContext the {@link ProfileContext} for the profile
      */
@@ -273,7 +282,7 @@ public class RootController extends AbstractController implements MachineListene
     /**
      * Loads the View using the specifie FXML file into the {@link Tab}.
      * <p>
-     * 
+     *
      * @param <T> the type of the resulting controller
      * @param fxml the path of the FXML file
      * @param tab the {@link Tab} into which the View will be loaded
@@ -301,7 +310,7 @@ public class RootController extends AbstractController implements MachineListene
     /**
      * Create a {@link Tab} with a {@link ProgressIndicator} in the {@link Tab} header.
      * <p>
-     * 
+     *
      * @return a new {@link Tab} with a {@link ProgressIndicator} in the {@link Tab} header
      */
     private Tab newLoadingTab()
@@ -315,7 +324,7 @@ public class RootController extends AbstractController implements MachineListene
      * Helper method which presents the user with a {@link FileChooser} dialog, and executes an action based on the
      * selected {@link File}.
      * <p>
-     * 
+     *
      * @param fileBasedAction the action to be executed if a {@link File} was selected
      */
     private void doWithFile(Consumer<File> fileBasedAction)
@@ -344,7 +353,7 @@ public class RootController extends AbstractController implements MachineListene
     /**
      * Disable or enable the root-level controls.
      * <p>
-     * 
+     *
      * @param disable a boolean indicating whether the controls should be disabled
      */
     private void setRootDisabled(boolean disable)
@@ -366,6 +375,8 @@ public class RootController extends AbstractController implements MachineListene
     {
         openLogItem.setOnAction(event -> doWithFile(file -> createNewProfile(file, false)));
         openLiveItem.setOnAction(event -> doWithFile(file -> createNewProfile(file, true)));
+        preferencesItem.setOnAction(
+            event -> appCtx().setConfiguration(configurationController.showAndWait().get()));
         quitItem.setOnAction(event -> exit());
     }
 }
