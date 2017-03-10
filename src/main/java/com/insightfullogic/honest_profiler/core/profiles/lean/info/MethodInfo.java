@@ -25,6 +25,7 @@ public class MethodInfo
     /**
      * Constructor which extracts the metadata from a {@link Method} and caches the FQMN.
      * <p>
+     *
      * @param method the {@link Method} whose metadata will be stored
      */
     public MethodInfo(Method method)
@@ -45,6 +46,7 @@ public class MethodInfo
     /**
      * Returns the method id.
      * <p>
+     *
      * @return the method id
      */
     public long getMethodId()
@@ -55,6 +57,7 @@ public class MethodInfo
     /**
      * Returns the file name.
      * <p>
+     *
      * @return the file name
      */
     public String getFileName()
@@ -65,6 +68,7 @@ public class MethodInfo
     /**
      * Returns the class name.
      * <p>
+     *
      * @return the class name
      */
     public String getClassName()
@@ -75,6 +79,7 @@ public class MethodInfo
     /**
      * Returns the method name.
      * <p>
+     *
      * @return the method name
      */
     public String getMethodName()
@@ -85,11 +90,30 @@ public class MethodInfo
     /**
      * Returns the Fully Qualified Method Name (FQMN), which is equal to the class name + "." + method name.
      * <p>
+     *
      * @return the Fully Qualified Method Name
      */
     public String getFqmn()
     {
         return cachedFqmn;
+    }
+
+    /**
+     * Returns the "simple" class name + "." + method name.
+     *
+     * @return the "simple" class name + "." + method name
+     */
+    public String getCompactName()
+    {
+
+        StringBuilder result = new StringBuilder();
+
+        int offset = className.lastIndexOf(".");
+        result.append(offset < 0 ? className : className.substring(offset + 1));
+
+        result.append(".").append(methodName);
+
+        return result.toString();
     }
 
     // Object Implementation

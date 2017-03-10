@@ -154,7 +154,7 @@ public class FlatViewController extends AbstractProfileViewController<Flat, Entr
                 appCtx(),
                 exportButton.getScene().getWindow(),
                 "flat_profile.csv",
-                out -> writeFlatProfileCsv(out, flatProfile, ReportUtil.Mode.CSV)
+                out -> writeFlatProfileCsv(appCtx(), out, flatProfile, ReportUtil.Mode.CSV)
             ));
     }
 
@@ -187,7 +187,7 @@ public class FlatViewController extends AbstractProfileViewController<Flat, Entr
         method.setCellFactory(col -> new MethodNameTableCell<Entry>());
 
         selfTimeGraphical.setCellValueFactory(new PropertyValueFactory<>("selfCntPct"));
-        selfTimeGraphical.setCellFactory(col -> new GraphicalShareTableCell<>());
+        selfTimeGraphical.setCellFactory(col -> new GraphicalShareTableCell<>(appCtx()));
 
         cfgPctCol(selfCntPct, "selfCntPct", prfCtx(), COLUMN_SELF_CNT_PCT);
         cfgPctCol(totalCntPct, "totalCntPct", prfCtx(), COLUMN_TOTAL_CNT_PCT);

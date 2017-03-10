@@ -18,12 +18,8 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.diff.DiffEntr
 import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
-import com.insightfullogic.honest_profiler.ports.javafx.view.cell.CountTableCell;
-import com.insightfullogic.honest_profiler.ports.javafx.view.cell.CountTreeTableCell;
-import com.insightfullogic.honest_profiler.ports.javafx.view.cell.PercentageTableCell;
-import com.insightfullogic.honest_profiler.ports.javafx.view.cell.PercentageTreeTableCell;
-import com.insightfullogic.honest_profiler.ports.javafx.view.cell.TimeTableCell;
-import com.insightfullogic.honest_profiler.ports.javafx.view.cell.TimeTreeTableCell;
+import com.insightfullogic.honest_profiler.ports.javafx.view.cell.NumberTableCell;
+import com.insightfullogic.honest_profiler.ports.javafx.view.cell.NumberTreeTableCell;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -150,6 +146,8 @@ public abstract class AbstractViewController<T> extends AbstractController
     public void setApplicationContext(ApplicationContext applicationContext)
     {
         super.setApplicationContext(applicationContext);
+        applicationContext.getConfiguration()
+            .addListener((property, oldValue, newValue) -> refresh());
 
         // If the subclass doesn't need filter management, no UI control should have been passed on in the initialize()
         // method.
@@ -157,9 +155,6 @@ public abstract class AbstractViewController<T> extends AbstractController
         {
             return;
         }
-
-        // Called here because I18N is needed, so there's a dependency on the availability of the ApplicationContext.
-        initializeTable();
 
         initializeFilters(applicationContext);
     }
@@ -219,11 +214,13 @@ public abstract class AbstractViewController<T> extends AbstractController
     protected abstract void refresh();
 
     /**
-     * Initialize the {@link TableView} or {@link TreeTableView} which contains the View data.
+     * Initialize the {@link TableView} or {@link TreeTableView} which contains the View data, if applicable.
      * <p>
-     * This method is provided because, due to I18N, the {@link ApplicationContext} is needed for proper initialization,
-     * since the column headers are internationalized. This method is therefore called in this class in the
-     * {@link #setApplicationContext(ApplicationContext)} method.
+     * Care should be taken in the subclassed to call this at the right time, because some contextual information may be
+     * needed. The {@link ApplicationContext} must be set for the I18N to work, and in the case of Diff column headers,
+     * the {@link ProfileContext}s for the profiles being compared should also be known. In the current implementation
+     * therefore, the method is called in the {@link AbstractProfileViewController#setProfileContext(ProfileContext)}
+     * and {@link AbstractProfileDiffViewController#setProfileContexts(ProfileContext, ProfileContext)} methods.
      */
     protected abstract void initializeTable();
 
@@ -264,7 +261,7 @@ public abstract class AbstractViewController<T> extends AbstractController
         ProfileContext profileContext, String title)
     {
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new PercentageTableCell<>(null));
+        column.setCellFactory(col -> new NumberTableCell<>(appCtx()::displayPercent, null));
         setColumnHeader(column, title, profileContext);
     }
 
@@ -281,7 +278,8 @@ public abstract class AbstractViewController<T> extends AbstractController
         String title)
     {
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new PercentageTableCell<>(doubleDiffStyler));
+        column.setCellFactory(
+            col -> new NumberTableCell<>(appCtx()::displayPercent, doubleDiffStyler));
         setColumnHeader(column, title, null);
     }
 
@@ -299,7 +297,7 @@ public abstract class AbstractViewController<T> extends AbstractController
         ProfileContext profileContext, String title)
     {
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new CountTableCell<>(null));
+        column.setCellFactory(col -> new NumberTableCell<>(appCtx()::displayIntegral, null));
         setColumnHeader(column, title, profileContext);
     }
 
@@ -316,7 +314,7 @@ public abstract class AbstractViewController<T> extends AbstractController
         String title)
     {
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new CountTableCell<>(intDiffStyler));
+        column.setCellFactory(col -> new NumberTableCell<>(appCtx()::displayIntegral, intDiffStyler));
         setColumnHeader(column, title, null);
     }
 
@@ -334,7 +332,7 @@ public abstract class AbstractViewController<T> extends AbstractController
         ProfileContext profileContext, String title)
     {
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new TimeTableCell<>(null));
+        column.setCellFactory(col -> new NumberTableCell<>(appCtx()::displayTime, null));
         setColumnHeader(column, title, profileContext);
     }
 
@@ -351,7 +349,7 @@ public abstract class AbstractViewController<T> extends AbstractController
         String title)
     {
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new TimeTableCell<>(longDiffStyler));
+        column.setCellFactory(col -> new NumberTableCell<>(appCtx()::displayTime, longDiffStyler));
         setColumnHeader(column, title, null);
     }
 
@@ -371,7 +369,7 @@ public abstract class AbstractViewController<T> extends AbstractController
         ProfileContext profileContext, String title)
     {
         column.setCellValueFactory(new TreeItemPropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new PercentageTreeTableCell<>(null));
+        column.setCellFactory(col -> new NumberTreeTableCell<>(appCtx()::displayPercent, null));
         setColumnHeader(column, title, profileContext);
     }
 
@@ -388,7 +386,8 @@ public abstract class AbstractViewController<T> extends AbstractController
         String title)
     {
         column.setCellValueFactory(new TreeItemPropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new PercentageTreeTableCell<>(doubleDiffStyler));
+        column.setCellFactory(
+            col -> new NumberTreeTableCell<>(appCtx()::displayPercent, doubleDiffStyler));
         setColumnHeader(column, title, null);
     }
 
@@ -406,7 +405,7 @@ public abstract class AbstractViewController<T> extends AbstractController
         ProfileContext profileContext, String title)
     {
         column.setCellValueFactory(new TreeItemPropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new CountTreeTableCell<>(null));
+        column.setCellFactory(col -> new NumberTreeTableCell<>(appCtx()::displayIntegral, null));
         setColumnHeader(column, title, profileContext);
     }
 
@@ -423,7 +422,8 @@ public abstract class AbstractViewController<T> extends AbstractController
         String title)
     {
         column.setCellValueFactory(new TreeItemPropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new CountTreeTableCell<>(intDiffStyler));
+        column
+            .setCellFactory(col -> new NumberTreeTableCell<>(appCtx()::displayIntegral, intDiffStyler));
         setColumnHeader(column, title, null);
     }
 
@@ -441,7 +441,7 @@ public abstract class AbstractViewController<T> extends AbstractController
         ProfileContext profileContext, String title)
     {
         column.setCellValueFactory(new TreeItemPropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new TimeTreeTableCell<>(null));
+        column.setCellFactory(col -> new NumberTreeTableCell<>(appCtx()::displayTime, null));
         setColumnHeader(column, title, profileContext);
     }
 
@@ -458,7 +458,8 @@ public abstract class AbstractViewController<T> extends AbstractController
         String title)
     {
         column.setCellValueFactory(new TreeItemPropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new TimeTreeTableCell<>(longDiffStyler));
+        column.setCellFactory(
+            col -> new NumberTreeTableCell<>(appCtx()::displayTime, longDiffStyler));
         setColumnHeader(column, title, null);
     }
 
