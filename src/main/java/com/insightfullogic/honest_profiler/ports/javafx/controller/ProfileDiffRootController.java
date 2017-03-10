@@ -25,6 +25,7 @@ import static com.insightfullogic.honest_profiler.core.aggregation.grouping.Fram
 import static com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping.ALL_TOGETHER;
 import static com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping.BY_ID;
 import static com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping.BY_NAME;
+import static com.insightfullogic.honest_profiler.ports.javafx.ViewType.FLAME;
 import static com.insightfullogic.honest_profiler.ports.javafx.ViewType.FLAT;
 import static com.insightfullogic.honest_profiler.ports.javafx.ViewType.TREE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.flatExtractor;
@@ -66,6 +67,8 @@ public class ProfileDiffRootController extends AbstractController
     private FlatDiffViewController flatController;
     @FXML
     private TreeDiffViewController treeController;
+    @FXML
+    private FlameDiffViewController flameController;
 
     private Map<ViewType, List<AbstractProfileDiffViewController<?, ?>>> controllerMap;
 
@@ -78,6 +81,7 @@ public class ProfileDiffRootController extends AbstractController
         controllerMap = new HashMap<>();
         controllerMap.put(FLAT, asList(flatController));
         controllerMap.put(TREE, asList(treeController));
+        controllerMap.put(FLAME, asList(flameController));
     }
 
     // Instance Accessors
@@ -95,6 +99,7 @@ public class ProfileDiffRootController extends AbstractController
 
         flatController.setApplicationContext(applicationContext);
         treeController.setApplicationContext(applicationContext);
+        flameController.setApplicationContext(applicationContext);
     }
 
     /**
@@ -128,9 +133,18 @@ public class ProfileDiffRootController extends AbstractController
             newContext.profileProperty(),
             treeExtractor(treeController));
 
+        // Configure "main" FlameDiffView and bind it to the profiles in the ProfileContext
+        flameController.setProfileContexts(baseContext, newContext);
+        flameController.setAllowedThreadGroupings(BY_NAME, BY_ID, ALL_TOGETHER);
+        flameController.setAllowedFrameGroupings(BY_FQMN, BY_FQMN_LINENR, BY_BCI, BY_METHOD_ID);
+        flameController.bind(
+            baseContext.profileProperty(),
+            newContext.profileProperty(),
+            treeExtractor(flameController));
+
         // Configure the View choice
         viewChoice.setConverter(getStringConverterForType(ViewType.class));
-        viewChoice.getItems().addAll(FLAT, TREE);
+        viewChoice.getItems().addAll(FLAT, TREE, FLAME);
         viewChoice.getSelectionModel().selectedItemProperty()
             .addListener((property, oldValue, newValue) -> show(newValue));
         viewChoice.getSelectionModel().select(FLAT);

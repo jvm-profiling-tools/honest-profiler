@@ -1,7 +1,6 @@
 package com.insightfullogic.honest_profiler.core.aggregation.filter;
 
 import static com.insightfullogic.honest_profiler.core.aggregation.filter.Comparison.CONTAINS;
-import static com.insightfullogic.honest_profiler.core.aggregation.filter.Comparison.NOT_CONTAINS;
 import static com.insightfullogic.honest_profiler.core.aggregation.filter.Comparison.NOT_STARTS_WITH;
 import static com.insightfullogic.honest_profiler.core.aggregation.filter.Target.KEY;
 import static java.util.Collections.emptyList;
@@ -19,6 +18,7 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.ItemType;
  * (frames in the profile which do not correspond to proper Java methods), and a quick-filter String generates an extra
  * {@link Predicate} for filtering the key.
  * <p>
+ * 
  * @param <T> the type of the input items which can be filtered
  */
 public class FilterSpecification<T>
@@ -37,6 +37,7 @@ public class FilterSpecification<T>
      * Constructor for an empty {@link FilterSpecification} which specifies a filter for filtering items of the
      * specified {@link ItemType}.
      * <p>
+     * 
      * @param type the type of items the filter can filter
      */
     public FilterSpecification(ItemType type)
@@ -51,6 +52,7 @@ public class FilterSpecification<T>
      * Constructor for an empty {@link FilterSpecification} which specifies a filter for filtering items of the
      * specified {@link ItemType}.
      * <p>
+     * 
      * @param type the type of items the filter can filter
      * @param hideErrors a boolean specifying if error frames should be filtered out
      * @param filters a {@link List} of the contained {@link FilterItem}s
@@ -69,6 +71,7 @@ public class FilterSpecification<T>
     /**
      * Returns a boolean indicating whether the resulting filter will filter out error frames.
      * <p>
+     * 
      * @return a boolean indicating whether the resulting filter will filter out error frames.
      */
     public boolean isHideErrors()
@@ -83,6 +86,7 @@ public class FilterSpecification<T>
      * The reason is that this is used by the front-end to indicate to the user whether currently a filter has been
      * defined by the user. The filter is specified separately from the quickfilter condition.
      * <p>
+     * 
      * @return a boolean indicating whether the FilterSpecification is non-trivial
      */
     public boolean isFiltering()
@@ -93,6 +97,7 @@ public class FilterSpecification<T>
     /**
      * Sets the quickfilter String, which when not empty will generate an extra {@link Predicate} for filtering the key.
      * <p>
+     * 
      * @param value the value used for filtering
      */
     public void setQuickFilter(String value)
@@ -107,6 +112,7 @@ public class FilterSpecification<T>
      * contained {@link FilterItem}s, and optionally if they do not contain errors and/or if the key contains the String
      * specified by the quickfilter String.
      * <p>
+     * 
      * @return a {@link Predicate} implementing the {@link FilterSpecification}
      */
     public Predicate<T> getFilter()
@@ -128,6 +134,7 @@ public class FilterSpecification<T>
     /**
      * Create a {@link Predicate} which filters as specified by the {@link FilterItem}s in this FilterSpecification.
      * <p>
+     * 
      * @return a {@link Predicate} corresponding to the contained {@link FilterItem}s
      */
     private Predicate<T> filter()
@@ -138,6 +145,7 @@ public class FilterSpecification<T>
     /**
      * Create a {@link Predicate} for filtering the key using the quickfilter.
      * <p>
+     * 
      * @return a {@link Predicate} for filtering the key
      */
     private Predicate<T> quickFilter()
@@ -148,11 +156,12 @@ public class FilterSpecification<T>
     /**
      * Create a {@link Predicate} for filtering out error frames.
      * <p>
+     * 
      * @return a {@link Predicate} for filtering out error frames
      */
     private final Predicate<T> errorFilter()
     {
-        return new FilterPredicate<T, String>(type, KEY, NOT_CONTAINS, "[ERR=").and(
+        return new FilterPredicate<T, String>(type, KEY, NOT_STARTS_WITH, "AGCT.").and(
             new FilterPredicate<T, String>(type, KEY, NOT_STARTS_WITH, "Unknown <"));
     }
 }
