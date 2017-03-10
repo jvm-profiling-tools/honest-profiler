@@ -288,6 +288,7 @@ public class ProfileRootController extends AbstractController
             ctxMenu = new ContextMenu();
             compareButton.setContextMenu(ctxMenu);
         }
+
         refreshContextMenu(compareButton.getContextMenu());
         compareButton.getContextMenu().show(compareButton, event.getScreenX(), event.getScreenY());
     }

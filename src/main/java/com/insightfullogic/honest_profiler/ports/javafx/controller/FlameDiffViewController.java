@@ -34,7 +34,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableColumnBase;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 public class FlameDiffViewController extends AbstractProfileDiffViewController<Tree, DiffNode>
@@ -75,8 +77,16 @@ public class FlameDiffViewController extends AbstractProfileDiffViewController<T
         diff = new TreeDiff();
 
         super.initialize(DIFFENTRY);
-        super.initialize(filterController, filterButton, quickFilterButton, quickFilterText);
-        super.initialize(threadGroupingLabel, threadGrouping, frameGroupingLabel, frameGrouping);
+        super.initializeFiltering(
+            filterController,
+            filterButton,
+            quickFilterButton,
+            quickFilterText);
+        super.initializeGrouping(
+            threadGroupingLabel,
+            threadGrouping,
+            frameGroupingLabel,
+            frameGrouping);
     }
 
     // AbstractController Implementation
@@ -119,9 +129,10 @@ public class FlameDiffViewController extends AbstractProfileDiffViewController<T
     }
 
     @Override
-    protected <C> void setColumnHeader(C column, String title, ProfileContext context)
+    protected HBox getColumnHeader(TableColumnBase<?, ?> column, String title,
+        ProfileContext context)
     {
-        // NOOP
+        return null;
     }
 
     /**
