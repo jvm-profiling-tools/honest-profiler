@@ -1,20 +1,22 @@
 package com.insightfullogic.honest_profiler.core.aggregation.result.diff;
 
+import static java.lang.Math.max;
 import static java.util.stream.Collectors.toList;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
 import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
+import com.insightfullogic.honest_profiler.core.aggregation.result.Parent;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 
 /**
  * Subclass of {@link DiffEntry} which allows to arrange the items into a tree.
  */
-public class DiffNode extends DiffEntry
+public class DiffNode extends DiffEntry implements Parent<DiffNode>
 {
     // Instance Properties
 
@@ -25,6 +27,7 @@ public class DiffNode extends DiffEntry
     /**
      * Constructor whach takes the two {@link Node}s to be compared as arguments.
      * <p>
+     *
      * @param baseNode the {@link Node} from the Base {@link Aggregation}
      * @param newNode the {@link Node} from the New {@link Aggregation}
      */
@@ -40,6 +43,7 @@ public class DiffNode extends DiffEntry
     /**
      * Specialized internal constructor for {@link #copyWithFilter(Predicate)}.
      * <p>
+     *
      * @param node the {@link DiffNode} being copied
      * @param children the new, filtered children
      */
@@ -59,6 +63,7 @@ public class DiffNode extends DiffEntry
      * The return value is provided as a convenience for
      * {@link TreeDiff#set(com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree, com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree)}.
      * <p>
+     *
      * @param node the Base {@link Node}
      * @return this {@link DiffNode}
      */
@@ -76,6 +81,7 @@ public class DiffNode extends DiffEntry
      * The return value is provided as a convenience for
      * {@link TreeDiff#set(com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree, com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree)}.
      * <p>
+     *
      * @param node the New {@link Node}
      * @return this {@link DiffNode}
      */
@@ -90,17 +96,41 @@ public class DiffNode extends DiffEntry
     /**
      * Returns the children of this node.
      * <p>
-     * @return a {@link Collection} containing the children of this node.
+     *
+     * @return a {@link List} containing the children of this node.
      */
-    public Collection<DiffNode> getChildren()
+    @Override
+    public List<DiffNode> getChildren()
     {
-        return children.values();
+        return new ArrayList<>(children.values());
+    }
+
+    /**
+     * Calculate the depth of the (sub)tree with this Node as root. Returns 0 if there are no children.
+     * <p>
+     *
+     * @return the depth of the (sub)tree with this Node as root, whereby an empty tree has depth 0
+     */
+    public int getDescendantDepth()
+    {
+        if (children.isEmpty())
+        {
+            return 0;
+        }
+
+        int depth = 0;
+        for (DiffNode child : children.values())
+        {
+            depth = max(depth, child.getDescendantDepth() + 1);
+        }
+        return depth;
     }
 
     /**
      * Filter the descendants of this DiffNode recursively, creating copies of the "survivors". If this node has
      * survivor descendants or is accepted by the filter, the copy is returned, otherwise the method returns null.
      * <p>
+     *
      * @param filter the filter to be applied to this node and its descendants.
      * @return a new {@link DiffNode} containing the filtered information, or null
      */
@@ -118,6 +148,7 @@ public class DiffNode extends DiffEntry
      * Create child DiffNodes or set the Base {@link Node} for existing ones, based on the children from the provided
      * {@link Node}.
      * <p>
+     *
      * @param node the Base {@link Node} whose children need to be incorporated into the children of this node
      */
     private void addBaseChildren(Node node)
@@ -133,6 +164,7 @@ public class DiffNode extends DiffEntry
      * Create child DiffNodes or set the New {@link Node} for existing ones, based on the children from the provided
      * {@link Node}.
      * <p>
+     *
      * @param node the Base {@link Node} whose children need to be incorporated into the children of this node
      */
     private void addNewChildren(Node node)
@@ -148,6 +180,7 @@ public class DiffNode extends DiffEntry
      * Sets the Base {@link Node} of the correct child DiffNode to the provided {@link Node}, or create a new child
      * DiffNode if it doesn't exist yet, and set the Base {@link Node} in it to the provided {@link Node}.
      * <p>
+     *
      * @param child the {@link Node} to be added as Base {@link Node} of a child DiffNode
      */
     private void addBaseChild(Node child)
@@ -161,6 +194,7 @@ public class DiffNode extends DiffEntry
      * Sets the New {@link Node} of the correct child DiffNode to the provided {@link Node}, or create a new child
      * DiffNode if it doesn't exist yet, and set the New {@link Node} in it to the provided {@link Node}.
      * <p>
+     *
      * @param child the {@link Node} to be added as New {@link Node} of a child DiffNode
      */
     private void addNewChild(Node child)

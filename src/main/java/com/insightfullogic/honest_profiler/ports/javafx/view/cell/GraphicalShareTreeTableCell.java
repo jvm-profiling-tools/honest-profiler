@@ -18,11 +18,11 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.view.cell;
 
-import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderPercentage;
 import static javafx.scene.paint.Color.RED;
 import static javafx.scene.paint.Color.WHEAT;
 
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
+import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -31,15 +31,32 @@ import javafx.scene.paint.Color;
 
 public class GraphicalShareTreeTableCell extends TreeTableCell<Node, Number>
 {
+    // Class Properties
+
     private static final int IMAGE_WIDTH = 50;
     private static final int IMAGE_HEIGHT = 15;
 
     private static final int TEXT_HORIZONTAL_INSET = 10;
     private static final int TEXT_VERTICAL_INSET = 12;
 
+    // Instance Properties
+
+    private ApplicationContext appCtx;
+
+    // Instance Constructors
+
     /**
-     * Not threadsafe: must be run on JavaFx thread.
+     * Simple Constructor.
+     *
+     * @param appCtx the {@link ApplicationContext} for the application
      */
+    public GraphicalShareTreeTableCell(ApplicationContext appCtx)
+    {
+        this.appCtx = appCtx;
+    }
+
+    // TreeTableCell Implementation
+
     @Override
     protected void updateItem(Number number, boolean empty)
     {
@@ -64,7 +81,7 @@ public class GraphicalShareTreeTableCell extends TreeTableCell<Node, Number>
 
         Color color = share > 0.5 ? WHEAT : RED;
         context.setFill(color);
-        context.fillText(renderPercentage(share), TEXT_HORIZONTAL_INSET, TEXT_VERTICAL_INSET);
+        context.fillText(appCtx.displayPercent(number), TEXT_HORIZONTAL_INSET, TEXT_VERTICAL_INSET);
 
         setGraphic(canvas);
     }

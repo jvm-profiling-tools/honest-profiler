@@ -18,16 +18,17 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
-import static com.insightfullogic.honest_profiler.core.aggregation.result.ItemType.ENTRY;
+import static com.insightfullogic.honest_profiler.core.aggregation.result.ItemType.DIFFENTRY;
 
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping;
-import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
+import com.insightfullogic.honest_profiler.core.aggregation.result.diff.DiffNode;
+import com.insightfullogic.honest_profiler.core.aggregation.result.diff.TreeDiff;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
 import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
-import com.insightfullogic.honest_profiler.ports.javafx.view.flame.FlameViewCanvas;
+import com.insightfullogic.honest_profiler.ports.javafx.view.flame.FlameDiffViewCanvas;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -38,7 +39,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-public class FlameViewController extends AbstractProfileViewController<Tree, Node>
+public class FlameDiffViewController extends AbstractProfileDiffViewController<Tree, DiffNode>
 {
     @FXML
     private Button filterButton;
@@ -60,20 +61,22 @@ public class FlameViewController extends AbstractProfileViewController<Tree, Nod
     private VBox flameBox;
 
     @FXML
-    private FilterDialogController<Node> filterController;
+    private FilterDialogController<DiffNode> filterController;
 
-    private FlameViewCanvas flameCanvas;
+    private FlameDiffViewCanvas flameCanvas;
 
     private double currentWidth;
     private double currentHeight;
 
-    // FXML Implementation
+    private TreeDiff diff;
 
     @Override
     @FXML
     protected void initialize()
     {
-        super.initialize(ENTRY);
+        diff = new TreeDiff();
+
+        super.initialize(DIFFENTRY);
         super.initializeFiltering(
             filterController,
             filterButton,
@@ -93,7 +96,7 @@ public class FlameViewController extends AbstractProfileViewController<Tree, Nod
     {
         super.setApplicationContext(applicationContext);
 
-        flameCanvas = new FlameViewCanvas(applicationContext);
+        flameCanvas = new FlameDiffViewCanvas(applicationContext);
         flameBox.getChildren().add(flameCanvas);
     }
 
@@ -115,14 +118,8 @@ public class FlameViewController extends AbstractProfileViewController<Tree, Nod
     @Override
     protected void refresh()
     {
-        Tree tree = getTarget();
-
-        if (tree != null)
-        {
-            flameCanvas.setWidth(currentWidth);
-            flameCanvas.setHeight(currentHeight);
-            flameCanvas.render(tree.filter(getFilterSpecification()));
-        }
+        diff = new TreeDiff();
+        updateDiff(getBaseTarget(), getNewTarget());
     }
 
     @Override
@@ -151,6 +148,25 @@ public class FlameViewController extends AbstractProfileViewController<Tree, Nod
             currentWidth = newWidth;
             currentHeight = newHeight;
             refresh();
+        }
+    }
+
+    /**
+     * Helper method for {@link #refresh()}.
+     * <p>
+     *
+     * @param baseTree the Base {@link Tree} to be compared
+     * @param newTree the New {@link Tree} to be compared
+     */
+    private void updateDiff(Tree baseTree, Tree newTree)
+    {
+        if (baseTree != null && newTree != null)
+        {
+            diff.set(baseTree, newTree);
+
+            flameCanvas.setWidth(currentWidth);
+            flameCanvas.setHeight(currentHeight);
+            flameCanvas.render(diff.filter(getFilterSpecification()));
         }
     }
 }

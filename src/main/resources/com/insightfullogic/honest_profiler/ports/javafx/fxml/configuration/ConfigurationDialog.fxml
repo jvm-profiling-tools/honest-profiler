@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.ButtonType?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Dialog?>
+<?import javafx.scene.control.DialogPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.VBox?>
+
+<Dialog title="%dialog.configuration.title" fx:id="dialog" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.insightfullogic.honest_profiler.ports.javafx.controller.configuration.ConfigurationDialogController">
+  <dialogPane>
+    <DialogPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="500">
+      <stylesheets>
+        <URL value="@../../css/HPUI.css" />
+      </stylesheets>
+      <content>
+        <TabPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" side="LEFT" tabClosingPolicy="UNAVAILABLE" tabMaxHeight="120.0" tabMaxWidth="20.0" tabMinHeight="120.0" tabMinWidth="20.0">
+          <tabs>
+            <Tab fx:id="displayTab">
+              <graphic>
+                <Label minWidth="100.0" text="%label.displayFormatting.info" />
+              </graphic>
+              <content>
+                <fx:include fx:id="displayFormatting" source="FormattingConfiguration.fxml" />
+              </content>
+            </Tab>
+            <Tab fx:id="exportTab">
+              <graphic>
+                <Label minWidth="100.0" text="%label.exportFormatting.info" />
+              </graphic>
+              <content>
+                <fx:include fx:id="exportFormatting" source="FormattingConfiguration.fxml" />
+              </content>
+            </Tab>
+          </tabs>
+        </TabPane>
+      </content>
+      <buttonTypes>
+        <ButtonType fx:constant="OK" />
+      </buttonTypes>
+    </DialogPane>
+  </dialogPane>
+</Dialog>

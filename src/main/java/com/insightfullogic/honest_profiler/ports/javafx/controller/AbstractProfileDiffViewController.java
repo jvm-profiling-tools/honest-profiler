@@ -16,9 +16,7 @@ import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableObjectValue;
-import javafx.scene.Node;
 import javafx.scene.control.TableColumnBase;
-import javafx.scene.control.TreeTableColumn;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 
@@ -41,8 +39,9 @@ import javafx.scene.text.Text;
  * <p>
  * The superclass also provides some common UI helper methods for column configuration.
  * <p>
+ *
  * @see AbstractDiff class javadoc for an explanation of the "Base" and "New" terminology
- * <p>
+ *      <p>
  * @param <T> the data type of the targets
  * @param <U> the type of the items contained in the View
  */
@@ -64,6 +63,7 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
      * Initialize method for subclasses which sets the basic properties needed by this superclass. This method must be
      * called by such subclasses in their FXML initialize().
      * <p>
+     *
      * @param type the {@link ItemType} specifying the type of items shown in the View
      */
     @Override
@@ -83,6 +83,7 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
      * Returns the {@link ProfileContext} for the baseline target. The name has been shortened to unclutter code in
      * subclasses.
      * <p>
+     *
      * @return the {@link ProfileContext} encapsulating the baseline target.
      */
     protected ProfileContext baseCtx()
@@ -94,6 +95,7 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
      * Returns the {@link ProfileContext} for the "new" target which will be compared against the baseline. The name has
      * been shortened to unclutter code in subclasses.
      * <p>
+     *
      * @return the {@link ProfileContext} encapsulating the target being compared against the baseline.
      */
     protected ProfileContext newCtx()
@@ -104,6 +106,7 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
     /**
      * Returns the current baseline target instance.
      * <p>
+     *
      * @return the current baseline target instance
      */
     protected T getBaseTarget()
@@ -114,6 +117,7 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
     /**
      * Returns the current "new" target instance.
      * <p>
+     *
      * @return the current "new" target instance
      */
     protected T getNewTarget()
@@ -124,6 +128,7 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
     /**
      * Sets the {@link ProfileContext}s encapsulating the baseline target and the target being compared against it.
      * <p>
+     *
      * @param baseContext the {@link ProfileContext}s encapsulating the baseline target
      * @param newContext the {@link ProfileContext}s encapsulating the target being compared
      */
@@ -131,6 +136,10 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
     {
         this.baseContext = baseContext;
         this.newContext = newContext;
+
+        // Called here because for the Diff column headers, the profile contexts are needed to display the profile
+        // number label.
+        initializeTable();
     }
 
     // Source-Target Binding
@@ -140,6 +149,7 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
      * {@link ObservableObjectValue}s, and optionally to the {@link CombinedGrouping} {@link ObservableObjectValue} from
      * the {@link AbstractViewController} superclass if present.
      * <p>
+     *
      * @param baseSource the {@link ObservableObjectValue} encapsulating the source from which the Base target data
      *            structure can be extracted
      * @param newSource the {@link ObservableObjectValue} encapsulating the source from which the New target data
@@ -182,6 +192,7 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
     /**
      * Activate or deactivate the current view. When activated, the view tracks changes in the target.
      * <p>
+     *
      * @param active a boolean indicating whether to activate or deactivate the view.
      */
     public void setActive(boolean active)
@@ -205,7 +216,8 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
     // AbstractViewController Implementation
 
     @Override
-    protected <C> void setColumnHeader(C column, String title, ProfileContext profileContext)
+    protected HBox getColumnHeader(TableColumnBase<?, ?> column, String title,
+        ProfileContext profileContext)
     {
         HBox header = createColoredLabelContainer(CENTER);
 
@@ -216,46 +228,6 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
 
         header.getChildren().add(new Text(title));
 
-        // Somehow it's hard to get a TableColumn to resize properly.
-        // Therefore, we calculate a fair width ourselves.
-        double width = calculateWidth(header);
-
-        reconfigure((TableColumnBase<?, ?>)column, null, header, width, width + 5);
-    }
-
-    /**
-     * Set various {@link TableColumnBase} properties.
-     * <p>
-     * @param column the {@link TreeTableColumn} to be reconfigured
-     * @param text the text to be displayed in the column header
-     * @param graphic the graphic to be displayed in the column header
-     * @param minWidth the minimum width of the column
-     * @param prefWidth the preferred width of the coumn
-     */
-    private void reconfigure(TableColumnBase<?, ?> column, String text, Node graphic,
-        double minWidth, double prefWidth)
-    {
-        column.setText(text);
-        column.setGraphic(graphic);
-        column.setMinWidth(minWidth);
-        column.setPrefWidth(prefWidth);
-    }
-
-    /**
-     * Calculate a column width for a column with the specified box as header graphic.
-     * <p>
-     * @param box the header graphic for the column
-     * @return the calculated width
-     */
-    private double calculateWidth(HBox box)
-    {
-        double width = 0;
-        for (Node node : box.getChildren())
-        {
-            width += node.getBoundsInLocal().getWidth();
-        }
-        width += box.getSpacing() * (box.getChildren().size() - 1);
-        width += box.getPadding().getLeft() + box.getPadding().getRight();
-        return width;
+        return header;
     }
 }
