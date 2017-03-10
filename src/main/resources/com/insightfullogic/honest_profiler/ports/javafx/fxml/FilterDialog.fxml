@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.net.URL?>
 <?import javafx.scene.control.ButtonType?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Dialog?>
@@ -14,6 +15,9 @@
   </fx:define>
   <dialogPane>
     <DialogPane maxHeight="500.0" maxWidth="1.7976931348623157E308" minHeight="500.0" prefHeight="500.0">
+      <stylesheets>
+        <URL value="@../css/HPUI.css" />
+      </stylesheets>
       <content>
         <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="5.0">
           <children>

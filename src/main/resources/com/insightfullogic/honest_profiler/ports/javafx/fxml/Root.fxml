@@ -17,6 +17,9 @@
   <fx:define>
     <fx:include fx:id="configuration" source="configuration/ConfigurationDialog.fxml" />
   </fx:define>
+  <stylesheets>
+    <URL value="@../css/HPUI.css" />
+  </stylesheets>
   <children>
     <BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <top>
@@ -52,7 +55,4 @@
       </bottom>
     </BorderPane>
   </children>
-  <stylesheets>
-    <URL value="@../css/HPUI.css" />
-  </stylesheets>
 </AnchorPane>
