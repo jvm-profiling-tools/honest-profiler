@@ -35,7 +35,6 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.DES
 import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.flatExtractor;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.treeExtractor;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ConversionUtil.getStringConverterForType;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.CONTENT_LABEL_PROFILESAMPLECOUNT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_COMPARE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_FREEZE_FROZEN;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_FREEZE_UNFROZEN;
@@ -84,6 +83,8 @@ public class ProfileRootController extends AbstractController
     private Button compareButton;
     @FXML
     private Label profileSampleCount;
+    @FXML
+    private Label profileDuration;
     @FXML
     private AnchorPane content;
     @FXML
@@ -226,9 +227,8 @@ public class ProfileRootController extends AbstractController
             return;
         }
 
-        profileSampleCount.setText(getText(
-            CONTENT_LABEL_PROFILESAMPLECOUNT,
-            appCtx().displayIntegral(profile.getGlobalData().getTotalCnt())));
+        profileSampleCount.setText(appCtx().displayIntegral(profile.getGlobalData().getTotalCnt()));
+        profileDuration.setText(appCtx().displayTime(profile.getSource().getTotalNanos()));
     }
 
     // View Methods

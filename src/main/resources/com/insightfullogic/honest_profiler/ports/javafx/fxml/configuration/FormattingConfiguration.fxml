@@ -40,11 +40,7 @@
         <RowConstraints />
       </rowConstraints>
       <children>
-        <Label text="%label.numberFormatting.info">
-          <font>
-            <Font name="System Bold" size="12.0" />
-          </font>
-        </Label>
+        <Label text="%label.numberFormatting.info" styleClass="genericLabel" />
         <Label text="%label.showThousandsSeparator.info" GridPane.rowIndex="1">
           <GridPane.margin>
             <Insets />
@@ -65,11 +61,7 @@
           </GridPane.margin>
         </Label>
         <ChoiceBox fx:id="decimalSeparator" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4" />
-        <Label text="%label.percentFormatting.info" GridPane.rowIndex="6">
-          <font>
-            <Font name="System Bold" size="12.0" />
-          </font>
-        </Label>
+        <Label text="%label.percentFormatting.info" GridPane.rowIndex="6" styleClass="genericLabel" />
         <Label text="%label.showAsPercent.info" GridPane.rowIndex="7" />
         <RadioButton fx:id="showAsPercentage" mnemonicParsing="false" selected="true" GridPane.columnIndex="2" GridPane.rowIndex="7">
           <toggleGroup>
@@ -90,11 +82,7 @@
         <CheckBox fx:id="spaceBeforePercentSign" mnemonicParsing="false" selected="true" GridPane.columnIndex="2" GridPane.rowIndex="9" />
         <Label text="%label.showAsFraction.info" GridPane.rowIndex="10" />
         <RadioButton fx:id="showAsFraction" mnemonicParsing="false" toggleGroup="$percentDisplay" GridPane.columnIndex="2" GridPane.rowIndex="10" />
-        <Label text="%label.timeFormatting.info" GridPane.rowIndex="12">
-          <font>
-            <Font name="System Bold" size="12.0" />
-          </font>
-        </Label>
+        <Label text="%label.timeFormatting.info" GridPane.rowIndex="12" styleClass="genericLabel" />
         <Label text="%label.timeUnit.info" GridPane.rowIndex="13" />
         <ChoiceBox fx:id="timeUnit" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.columnIndex="2" GridPane.rowIndex="13" />
         <Label text="%label.nrFractionDigits.info" GridPane.rowIndex="14" />

@@ -33,6 +33,7 @@ public class LeanProfile
     private final Map<Long, MethodInfo> methodInfoMap;
     private final Map<Long, ThreadInfo> threadInfoMap;
     private final Map<Long, LeanThreadNode> threads;
+    private final long totalNanos;
 
     // Instance constructors
 
@@ -44,14 +45,17 @@ public class LeanProfile
      * @param threadMap a {@link Map} mapping the thread id to the corresponding {@link ThreadInfo}
      * @param threadData a {@link Map} mapping the thread id to the {@link LeanThreadNode} root of the {@link LeanNode}
      *            tree containing the aggregated stack trace sample information for that thread
+     * @param totalNanos the total number of ns spent between the first and last recorded sample in the profile
      */
     public LeanProfile(Map<Long, MethodInfo> methodMap,
                        Map<Long, ThreadInfo> threadMap,
-                       Map<Long, LeanThreadNode> threadData)
+                       Map<Long, LeanThreadNode> threadData,
+                       long totalNanos)
     {
         this.methodInfoMap = new HashMap<>(methodMap);
         this.threadInfoMap = new HashMap<>(threadMap);
         this.threads = new HashMap<>();
+        this.totalNanos = totalNanos;
         threadData.forEach((key, value) -> this.threads.put(key, value.copy()));
     }
 
@@ -131,6 +135,16 @@ public class LeanProfile
     {
         ThreadInfo info = getThreadInfo(threadId);
         return info == null ? "Unknown <" + threadId + ">" : info.getIdentification();
+    }
+
+    /**
+     * Return the number of nanoseconds which elapsed between the first and last samples in the profile.
+     * 
+     * @return the number of nanoseconds which elapsed between the first and last samples in the profile
+     */    
+    public long getTotalNanos()
+    {
+        return totalNanos;
     }
 
     // Object Implementation
