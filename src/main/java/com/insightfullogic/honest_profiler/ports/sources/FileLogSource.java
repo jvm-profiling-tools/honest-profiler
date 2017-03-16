@@ -48,7 +48,7 @@ public class FileLogSource implements LogSource
     // Class Properties
 
     // Fixed buffer size
-    private static final int BUFFER_SIZE = 1024 * 1024 * 2; // 2 MB
+    private static final int BUFFER_SIZE = 1024 * 1024 * 100; // 100 MB
     // Remap if more than ELASTICITY has been read from the current buffer
     private static final int ELASTICITY = 1024 * 1024 * 1; // 1 MB
 
@@ -71,8 +71,8 @@ public class FileLogSource implements LogSource
         this.file = file;
         try
         {
-            raf = new RandomAccessFile(file, "r");
-            channel = raf.getChannel();
+            this.raf = new RandomAccessFile(file, "r");
+            this.channel = this.raf.getChannel();
             mapBuffer(0);
         }
         catch (IOException e)
@@ -85,7 +85,7 @@ public class FileLogSource implements LogSource
 
     public File getFile()
     {
-        return file;
+        return this.file;
     }
 
     // LogSource Implementation
@@ -95,29 +95,26 @@ public class FileLogSource implements LogSource
     {
         try
         {
-            int position = buffer.position();
-            boolean hasRemaining = buffer.hasRemaining();
-            long channelSize = channel.size();
+            int position = this.buffer.position();
+            boolean hasRemaining = this.buffer.hasRemaining();
 
-            // System.err.println("REM ? "+ hasRemaining+ " - OFF "+ currentOffset+ " - CSZ "+ channelSize+ " - POS "+
-            // position);
-
-            if (position == previousPosition)
+            if (position == this.previousPosition)
             {
                 // The buffer was rewound after the previous read. Either the data was not written (0 was read) or a
                 // buffer underflow occurred. Don't update currentOffset, or we'll read over
-                mapBuffer(currentOffset);
+                mapBuffer(this.currentOffset);
             }
-            else if ((!hasRemaining && currentOffset < channelSize) || position > ELASTICITY)
+            else if ((!hasRemaining && this.currentOffset < this.channel.size())
+                || position > ELASTICITY)
             {
                 // If the buffer is empty but the file size increaded, or we've read more than ELASTICITY bytes, the
                 // currentOffset is updated and the buffer is remapped.
-                currentOffset += position;
-                mapBuffer(currentOffset);
+                this.currentOffset += position;
+                mapBuffer(this.currentOffset);
             }
             else
             {
-                previousPosition = position;
+                this.previousPosition = position;
             }
         }
         catch (IOException e)
@@ -125,14 +122,14 @@ public class FileLogSource implements LogSource
             throw new CantReadFromSourceException(e);
         }
 
-        return buffer;
+        return this.buffer;
     }
 
     @Override
     public void close() throws IOException
     {
-        buffer = null;
-        raf.close();
+        this.buffer = null;
+        this.raf.close();
     }
 
     // Shame there's no simple abstraction for reading over both files and
@@ -142,30 +139,31 @@ public class FileLogSource implements LogSource
      * Replaces the current buffer by a new ByteBuffer which is memory-mapped onto a BUFFER_SIZE (10 MB at time of
      * writing) window starting at the specified offset.
      * <p>
+     *
      * @param offset the offset in the file of the area which will be mapped into the buffer
-     * @throws IOException any I/O exceptions encountered trying to map a portion of the file into memory 
+     * @throws IOException any I/O exceptions encountered trying to map a portion of the file into memory
      */
     private void mapBuffer(long offset) throws IOException
     {
         int length = BUFFER_SIZE;
-        long fileEnd = channel.size();
+        long fileEnd = this.channel.size();
 
         if (offset + BUFFER_SIZE > fileEnd)
         {
             // Cast to int is safe, since the test determines that the int
             // BUFFER_SIZE > fileEnd - offset)
-            length = (int) (fileEnd - offset);
+            length = (int)(fileEnd - offset);
         }
-        buffer = channel.map(READ_ONLY, offset, length);
+        this.buffer = this.channel.map(READ_ONLY, offset, length);
 
         // Ensures we know next time read() is called we can easily test whether the position moved or was remapped in a
         // single comparison.
-        previousPosition = -1;
+        this.previousPosition = -1;
     }
 
     @Override
     public String toString()
     {
-        return "FileLogSource{" + "file=" + file + '}';
+        return "FileLogSource{" + "file=" + this.file + '}';
     }
 }
