@@ -1,9 +1,5 @@
 package com.insightfullogic.honest_profiler.ports.javafx.util;
 
-import static com.insightfullogic.honest_profiler.core.aggregation.grouping.CombinedGrouping.combine;
-import static com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping.BY_METHOD_ID;
-import static com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping.ALL_TOGETHER;
-
 import java.util.function.Function;
 
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
@@ -17,7 +13,6 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entr
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
-import com.insightfullogic.honest_profiler.core.profiles.FlameGraph;
 import com.insightfullogic.honest_profiler.ports.javafx.controller.AbstractViewController;
 import com.insightfullogic.honest_profiler.ports.javafx.util.extraction.FlatExtractor;
 import com.insightfullogic.honest_profiler.ports.javafx.util.extraction.TreeExtractor;
@@ -36,12 +31,6 @@ public class BindUtil
     private static final DescendantFlatAggregator DESCENDANT_FLAT_AGGREGATOR = new DescendantFlatAggregator();
     private static final AncestorTreeAggregator ANCESTOR_TREE_AGGREGATOR = new AncestorTreeAggregator();
     private static final DescendantTreeAggregator DESCENDANT_TREE_AGGREGATOR = new DescendantTreeAggregator();
-
-    /**
-     * Extraction {@link Function} for binding a target to a {@link FlameGraph}.
-     */
-    public static final Function<Object, Tree> FLAME_EXTRACTOR = o -> ((AggregationProfile)o)
-        .getTree(combine(ALL_TOGETHER, BY_METHOD_ID));
 
     /**
      * Extraction {@link Function} for binding a target to the {@link Tree} result of aggregating the source

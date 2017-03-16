@@ -7,7 +7,6 @@ import static com.insightfullogic.honest_profiler.ports.javafx.model.ProfileCont
 
 import java.io.File;
 
-import com.insightfullogic.honest_profiler.core.collector.FlameGraphCollector;
 import com.insightfullogic.honest_profiler.core.collector.lean.LeanLogCollector;
 import com.insightfullogic.honest_profiler.core.parser.LogEventListener;
 import com.insightfullogic.honest_profiler.core.parser.LogEventPublisher;
@@ -39,6 +38,7 @@ public class InitializeProfileTask extends Task<ProfileContext>
      * file) and an indication whether the monitoring is "live" or not (i.e. whether the Profiler Agent generating the
      * source is still running and appending data).
      * <p>
+     *
      * @param applicationContext the {@link ApplicationContext} for the application
      * @param source the source {@link VirtualMachine} or {@link FileLogSource}
      * @param live a boolean indicating whether the log file is "live"
@@ -46,7 +46,7 @@ public class InitializeProfileTask extends Task<ProfileContext>
     public InitializeProfileTask(ApplicationContext applicationContext, Object source, boolean live)
     {
         super();
-        appCtx = applicationContext;
+        this.appCtx = applicationContext;
         this.source = source;
         this.live = live;
     }
@@ -56,7 +56,7 @@ public class InitializeProfileTask extends Task<ProfileContext>
     {
         FileLogSource fileLogSource = getLogSource();
 
-        return (source instanceof VirtualMachine || live) ? monitor(fileLogSource)
+        return (this.source instanceof VirtualMachine || this.live) ? monitor(fileLogSource)
             : consume(fileLogSource);
     }
 
@@ -67,7 +67,7 @@ public class InitializeProfileTask extends Task<ProfileContext>
         super.succeeded();
         // We do this on the FX thread to avoid concurrency issues with the ProfileContext map read/write access in the
         // ApplicationContext.
-        appCtx.registerProfileContext(this.getValue());
+        this.appCtx.registerProfileContext(this.getValue());
     }
 
     // Guaranteed to be called on the FX thread.
@@ -82,18 +82,20 @@ public class InitializeProfileTask extends Task<ProfileContext>
     /**
      * Create a new {@link ProfileContext} instance.
      * <p>
+     *
      * @param mode the {@link ProfileContext.ProfileMode} for the {@link ProfileContext}
      * @param fileLogSource the {@link FileLogSource} exposing the log file from the Profiler Agent
      * @return a new {@link ProfileContext}
      */
     private ProfileContext newProfileContext(ProfileMode mode, FileLogSource fileLogSource)
     {
-        return new ProfileContext(appCtx, getName(), mode, fileLogSource.getFile());
+        return new ProfileContext(this.appCtx, getName(), mode, fileLogSource.getFile());
     }
 
     /**
      * Returns a {@link LeanLogCollector} which emits {@link LeanProfile}s to the specified {@link ProfileContext}.
      * <p>
+     *
      * @param context the {@link ProfileContext} which will receive the emitted {@link LeanProfile}s
      * @return a new {@link LeanLogCollector}
      */
@@ -106,24 +108,26 @@ public class InitializeProfileTask extends Task<ProfileContext>
      * Returns either the original source specified on {@link Task} creation if it is already a {@link FileLogSource},
      * or it gets the {@link FileLogSource} from the source {@link VirtualMachine}.
      * <p>
+     *
      * @return the {@link FileLogSource} for the profile specified by the task source
      */
     private FileLogSource getLogSource()
     {
-        return (source instanceof VirtualMachine)
-            ? (FileLogSource)((VirtualMachine)source).getLogSourceFromVmArgs()
-            : new FileLogSource((File)source);
+        return (this.source instanceof VirtualMachine)
+            ? (FileLogSource)((VirtualMachine)this.source).getLogSourceFromVmArgs()
+            : new FileLogSource((File)this.source);
     }
 
     /**
      * Return a name constructed from information from the task source Object.
      * <p>
+     *
      * @return a name based on the task source Object
      */
     private String getName()
     {
-        return (source instanceof VirtualMachine) ? getVmName((VirtualMachine)source)
-            : ((File)source).getName();
+        return (this.source instanceof VirtualMachine) ? getVmName((VirtualMachine)this.source)
+            : ((File)this.source).getName();
 
     }
 
@@ -131,6 +135,7 @@ public class InitializeProfileTask extends Task<ProfileContext>
      * Returns a {@link ProfileContext} which monitors {@link LeanProfile}s emitted by a {@link LeanLogCollector} based
      * on a live log file.
      * <p>
+     *
      * @param fileLogSource the live log file from which the log events for constructing the {@link LeanProfile} are
      *            sourced
      * @return a new {@link ProfileContext} for live monitoring
@@ -148,17 +153,16 @@ public class InitializeProfileTask extends Task<ProfileContext>
     /**
      * Returns a {@link ProfileContext} which will emit {@link LeanProfile}s produced by consuming a non-live log file.
      * <p>
+     *
      * @param fileLogSource the non-live log file which will be processed
-     * @return a new {@link ProfileContext} for non-live log file comsumption
+     * @return a new {@link ProfileContext} for non-live log file consumption
      */
     private ProfileContext consume(FileLogSource fileLogSource)
     {
         ProfileContext profileContext = newProfileContext(LOG, fileLogSource);
         final LogEventListener collector = new LogEventPublisher()
             // Multiplex Log Events to the LeanLogCollector
-            .publishTo(getCollector(profileContext))
-            // Multiplex Log Events to the FlameGraphCollector
-            .publishTo(new FlameGraphCollector(profileContext.getFlameGraphListener()));
+            .publishTo(getCollector(profileContext));
 
         pipe(fileLogSource, collector, false).run();
 
@@ -168,6 +172,7 @@ public class InitializeProfileTask extends Task<ProfileContext>
     /**
      * Creates a name for a {@link VirtualMachine} which will be monitored.
      * <p>
+     *
      * @param vm the {@link VirtualMachine} which will be monitored
      * @return a name for the {@link VirtualMachine}
      */
