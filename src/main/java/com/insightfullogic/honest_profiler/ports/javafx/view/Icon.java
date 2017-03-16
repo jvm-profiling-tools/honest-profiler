@@ -26,6 +26,9 @@ public final class Icon
     public static final Image FREEZE_16 = toImage(ICON_16_DIR + "clock.png");
     public static final Image UNFREEZE_16 = toImage(ICON_16_DIR + "clock--exclamation.png");
 
+    public static final Image VIEW_16 = toImage(ICON_16_DIR + "eye.png");
+    public static final Image VIEW_ACTIVE_16 = toImage(ICON_16_DIR + "eye--exclamation.png");
+
     private static Image toImage(String resource)
     {
         return new Image(Icon.class.getResourceAsStream(resource));

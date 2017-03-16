@@ -13,7 +13,13 @@
 <?import javafx.scene.layout.HBox?>
 <?scenebuilder-stylesheet ../css/HPUI.css?>
 
-<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="600.0" minWidth="800.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.insightfullogic.honest_profiler.ports.javafx.controller.RootController">
+<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="600.0" minWidth="800.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.insightfullogic.honest_profiler.ports.javafx.controller.RootController">
+  <fx:define>
+    <fx:include fx:id="configuration" source="configuration/ConfigurationDialog.fxml" />
+  </fx:define>
+  <stylesheets>
+    <URL value="@../css/HPUI.css" />
+  </stylesheets>
   <children>
     <BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <top>
@@ -23,6 +29,7 @@
               <items>
                 <MenuItem fx:id="openLogItem" mnemonicParsing="false" text="%menu.root.file.openLog" />
                 <MenuItem fx:id="openLiveItem" mnemonicParsing="false" text="%menu.root.file.monitorLog" />
+                <MenuItem fx:id="preferencesItem" mnemonicParsing="false" text="%menu.root.file.preferences" />
                 <MenuItem fx:id="quitItem" mnemonicParsing="false" text="%menu.root.file.quit" />
               </items>
             </Menu>
@@ -48,7 +55,4 @@
       </bottom>
     </BorderPane>
   </children>
-  <stylesheets>
-    <URL value="@../css/HPUI.css" />
-  </stylesheets>
 </AnchorPane>

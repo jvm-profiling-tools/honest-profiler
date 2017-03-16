@@ -20,14 +20,36 @@ package com.insightfullogic.honest_profiler.ports.javafx.view.cell;
 
 import static javafx.scene.paint.Color.DARKRED;
 
+import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
+
 import javafx.scene.control.TableCell;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
 public class GraphicalShareTableCell<T> extends TableCell<T, Double>
 {
+    // Class Properties
+
     private static final double HEIGHT = 8;
     private static final Color COLOR = DARKRED;
+
+    // Instance Properties
+
+    private ApplicationContext appCtx;
+
+    // Instance Constructors
+
+    /**
+     * Simple Constructor.
+     *
+     * @param appCtx the {@link ApplicationContext} for the application
+     */
+    public GraphicalShareTableCell(ApplicationContext appCtx)
+    {
+        this.appCtx = appCtx;
+    }
+
+    // TableCell Implementation
 
     @Override
     protected void updateItem(Double share, boolean empty)
@@ -41,6 +63,7 @@ public class GraphicalShareTableCell<T> extends TableCell<T, Double>
             return;
         }
 
+        setText(appCtx.displayPercent(share));
         setGraphic(new Rectangle(share * getWidth(), HEIGHT, COLOR));
     }
 }

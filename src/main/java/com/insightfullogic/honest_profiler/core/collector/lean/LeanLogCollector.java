@@ -54,6 +54,9 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
     // Difference in ns between the previous and the current TraceStart.
     private long nanosSpent;
 
+    // The number of nanoseconds which elapsed between the first and last seen samples in the profile.
+    private long totalNanos;
+    
     // Indicates whether a profile was requested and should be emitted.
     private AtomicBoolean profileRequested;
 
@@ -224,6 +227,7 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
             long nanosDiff = newNanos - prevNanos;
 
             nanosSpent = (secondsDiff * SECONDS_TO_NANOS) + nanosDiff;
+            totalNanos += nanosSpent;
         }
 
         prevSeconds = newSeconds;
@@ -248,7 +252,7 @@ public class LeanLogCollector implements LogEventListener, ProfileSource
     {
         if (!empty)
         {
-            listener.accept(new LeanProfile(methodMap, threadMap, threadData));
+            listener.accept(new LeanProfile(methodMap, threadMap, threadData, totalNanos));
         }
     }
 }

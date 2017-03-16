@@ -2,10 +2,8 @@ package com.insightfullogic.honest_profiler.ports.javafx.util.report;
 
 import static com.insightfullogic.honest_profiler.ports.javafx.util.report.Table.Alignment.LEFT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.report.Table.Alignment.RIGHT;
-import static java.text.NumberFormat.getPercentInstance;
 
 import java.io.PrintWriter;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -16,6 +14,7 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entr
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 import com.insightfullogic.honest_profiler.core.profiles.ProfileNode;
+import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 
 /**
  * Utility class for creating various text reports (either ASCII-art based or CSV) based on profile data.
@@ -73,18 +72,7 @@ public final class ReportUtil
     private static String DROP_LAST = new String(new char[]
     { BOX_UPANDRIGHT, BOX_HORIZONTAL });
 
-    // - Formatter which renders percentages with 2 digits after the dot.
-    private static NumberFormat FMT_PERCENT;
-
     // Class Constructors
-
-    // - Initialize the FMT_PERCENT NumberFormat
-    static
-    {
-        FMT_PERCENT = getPercentInstance();
-        FMT_PERCENT.setMinimumFractionDigits(2);
-        FMT_PERCENT.setMaximumFractionDigits(2);
-    }
 
     /**
      * Writes a stack (fragment) with the specified {@link Node} as root to the specified {@link PrintWriter}. Nicely
@@ -96,14 +84,14 @@ public final class ReportUtil
      * @param out the {@link PrintWriter} to wite the stack to
      * @param node the root {@link Node} of the stack (fragment)
      */
-    public static void writeStack(PrintWriter out, Node node)
+    public static void writeStack(ApplicationContext appCtx, PrintWriter out, Node node)
     {
         Table table = new Table();
-        table.addColumn("Method", obj -> obj.toString(), LEFT);
-        table.addColumn("Self Time %", object -> FMT_PERCENT.format(object), RIGHT);
-        table.addColumn("Total Time %", object -> FMT_PERCENT.format(object), RIGHT);
-        table.addColumn("Self Sample #", object -> Integer.toString((Integer)object), RIGHT);
-        table.addColumn("Total Sample #", object -> Integer.toString((Integer)object), RIGHT);
+        table.addColumn("Method", object -> object.toString(), LEFT);
+        table.addColumn("Self Time %", object -> appCtx.exportPercent((Double)object), RIGHT);
+        table.addColumn("Total Time %", object -> appCtx.exportPercent((Double)object), RIGHT);
+        table.addColumn("Self Sample #", object -> appCtx.exportIntegral((Integer)object), RIGHT);
+        table.addColumn("Total Sample #", object -> appCtx.exportIntegral((Integer)object), RIGHT);
 
         buildStackTable(node, 0, table, new ArrayList<>());
         table.print(out);
@@ -158,7 +146,8 @@ public final class ReportUtil
      * @param entries the data to be written
      * @param mode the {@link Mode} for formatting the output
      */
-    public static void writeFlatProfileCsv(PrintWriter out, List<Entry> entries, Mode mode)
+    public static void writeFlatProfileCsv(ApplicationContext appCtx, PrintWriter out,
+        List<Entry> entries, Mode mode)
     {
         mode.start(out);
         out.print("Key");
@@ -180,14 +169,14 @@ public final class ReportUtil
             out.print(entry.getKey());
 
             mode.middle(out);
-            out.printf("%.4f", entry.getSelfCntPct());
+            out.print(appCtx.exportPercent(entry.getSelfCntPct()));
             mode.middle(out);
-            out.printf("%.4f", entry.getTotalCntPct());
+            out.print(appCtx.exportPercent(entry.getTotalCntPct()));
 
             mode.middle(out);
-            out.printf("%d", entry.getSelfCnt());
+            out.print(appCtx.exportIntegral(entry.getSelfCnt()));
             mode.middle(out);
-            out.printf("%d", entry.getTotalCnt());
+            out.print(appCtx.exportIntegral(entry.getTotalCnt()));
             mode.end(out);
         });
 
@@ -203,8 +192,8 @@ public final class ReportUtil
      * @param entries the data to be written
      * @param mode the {@link Mode} for formatting the output
      */
-    public static void writeFlatProfileDiffCsv(PrintWriter out, Collection<DiffEntry> entries,
-        Mode mode)
+    public static void writeFlatProfileDiffCsv(ApplicationContext appCtx, PrintWriter out,
+        Collection<DiffEntry> entries, Mode mode)
     {
         mode.start(out);
         out.print("Key");
@@ -245,32 +234,32 @@ public final class ReportUtil
             out.write(entry.getKey());
 
             mode.middle(out);
-            out.printf("%.4f", entry.getBaseSelfCntPct());
+            out.print(appCtx.exportPercent(entry.getBaseSelfCntPct()));
             mode.middle(out);
-            out.printf("%.4f", entry.getNewSelfCntPct());
+            out.print(appCtx.exportPercent(entry.getNewSelfCntPct()));
             mode.middle(out);
-            out.printf("%.4f", entry.getSelfCntPctDiff());
+            out.print(appCtx.exportPercent(entry.getSelfCntPctDiff()));
 
             mode.middle(out);
-            out.printf("%.4f", entry.getBaseTotalCntPct());
+            out.print(appCtx.exportPercent(entry.getBaseTotalCntPct()));
             mode.middle(out);
-            out.printf("%.4f", entry.getNewTotalCntPct());
+            out.print(appCtx.exportPercent(entry.getNewTotalCntPct()));
             mode.middle(out);
-            out.printf("%.4f", entry.getTotalCntPctDiff());
+            out.print(appCtx.exportPercent(entry.getTotalCntPctDiff()));
 
             mode.middle(out);
-            out.printf("%d", entry.getBaseSelfCnt());
+            out.print(appCtx.exportIntegral(entry.getBaseSelfCnt()));
             mode.middle(out);
-            out.printf("%d", entry.getNewSelfCnt());
+            out.print(appCtx.exportIntegral(entry.getNewSelfCnt()));
             mode.middle(out);
-            out.printf("%d", entry.getSelfCntDiff());
+            out.print(appCtx.exportIntegral(entry.getSelfCntDiff()));
 
             mode.middle(out);
-            out.printf("%d", entry.getBaseTotalCnt());
+            out.print(appCtx.exportIntegral(entry.getBaseTotalCnt()));
             mode.middle(out);
-            out.printf("%d", entry.getNewTotalCnt());
+            out.print(appCtx.exportIntegral(entry.getNewTotalCnt()));
             mode.middle(out);
-            out.printf("%d", entry.getTotalCntDiff());
+            out.print(appCtx.exportIntegral(entry.getTotalCntDiff()));
 
             mode.end(out);
         });
