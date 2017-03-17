@@ -1,6 +1,7 @@
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
 import static com.insightfullogic.honest_profiler.core.aggregation.grouping.CombinedGrouping.combine;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.reconfigureColumn;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.StyleUtil.doubleDiffStyler;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.StyleUtil.intDiffStyler;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.StyleUtil.longDiffStyler;
@@ -8,6 +9,10 @@ import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.FUNNEL_ACTIVE_16;
 import static com.insightfullogic.honest_profiler.ports.javafx.view.Icon.viewFor;
 import static javafx.scene.input.KeyCode.ENTER;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import com.insightfullogic.honest_profiler.core.aggregation.filter.FilterSpecification;
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.CombinedGrouping;
@@ -18,12 +23,10 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.diff.DiffEntr
 import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
-import com.insightfullogic.honest_profiler.ports.javafx.view.cell.CountTableCell;
-import com.insightfullogic.honest_profiler.ports.javafx.view.cell.CountTreeTableCell;
-import com.insightfullogic.honest_profiler.ports.javafx.view.cell.PercentageTableCell;
-import com.insightfullogic.honest_profiler.ports.javafx.view.cell.PercentageTreeTableCell;
-import com.insightfullogic.honest_profiler.ports.javafx.view.cell.TimeTableCell;
-import com.insightfullogic.honest_profiler.ports.javafx.view.cell.TimeTreeTableCell;
+import com.insightfullogic.honest_profiler.ports.javafx.view.cell.NumberTableCell;
+import com.insightfullogic.honest_profiler.ports.javafx.view.cell.NumberTreeTableCell;
+import com.insightfullogic.honest_profiler.ports.javafx.view.menu.ColumnGroupMenuItem;
+import com.insightfullogic.honest_profiler.ports.javafx.view.menu.ColumnMenuItem;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -32,8 +35,11 @@ import javafx.beans.value.ObservableObjectValue;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumnBase;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeTableColumn;
@@ -41,10 +47,12 @@ import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 
 /**
  * Superclass for all View Controllers in the application. These controllers provide a particular view on data
- * consisting of items of type T. The class manages the filter, quickFilter and grouping controls.
+ * consisting of items of type T. The class manages the filter, quickFilter, grouping and column view controls.
  * <p>
  * This superclass also provides some common UI helper methods for column configuration.
  * <p>
@@ -55,18 +63,31 @@ public abstract class AbstractViewController<T> extends AbstractController
 {
     // Instance Properties
 
+    // - Filtering
+
     private FilterDialogController<T> filterController;
     private Button filterButton;
     private Button quickFilterButton;
     private TextField quickFilterText;
+
+    private ObjectProperty<FilterSpecification<T>> filterSpec;
+
+    // - Grouping
 
     private Label threadGroupingLabel;
     private ChoiceBox<ThreadGrouping> threadGrouping;
     private Label frameGroupingLabel;
     private ChoiceBox<FrameGrouping> frameGrouping;
 
-    private ObjectProperty<FilterSpecification<T>> filterSpec;
     private ObjectProperty<CombinedGrouping> grouping;
+
+    // - Column View
+
+    private Button columnViewButton;
+    private List<ColumnMenuItem> columnViewItems;
+    private List<ColumnGroupMenuItem> columnViewGroupItems;
+
+    // - General
 
     private ItemType type;
 
@@ -82,6 +103,10 @@ public abstract class AbstractViewController<T> extends AbstractController
     protected void initialize(ItemType type)
     {
         super.initialize();
+
+        columnViewItems = new ArrayList<>();
+        columnViewGroupItems = new ArrayList<>();
+
         this.type = type;
     }
 
@@ -96,8 +121,8 @@ public abstract class AbstractViewController<T> extends AbstractController
      * @param quickFilterButton the button used to apply the quick filter
      * @param quickFilterText the TextField providing the value for the quick filter
      */
-    protected void initialize(FilterDialogController<T> filterController, Button filterButton,
-        Button quickFilterButton, TextField quickFilterText)
+    protected void initializeFiltering(FilterDialogController<T> filterController,
+        Button filterButton, Button quickFilterButton, TextField quickFilterText)
     {
         this.filterController = filterController;
 
@@ -120,8 +145,9 @@ public abstract class AbstractViewController<T> extends AbstractController
      * @param frameGroupingLabel the label next to the {@link FrameGrouping} {@link ChoiceBox}
      * @param frameGrouping the {@link FrameGrouping} {@link ChoiceBox}
      */
-    protected void initialize(Label threadGroupingLabel, ChoiceBox<ThreadGrouping> threadGrouping,
-        Label frameGroupingLabel, ChoiceBox<FrameGrouping> frameGrouping)
+    protected void initializeGrouping(Label threadGroupingLabel,
+        ChoiceBox<ThreadGrouping> threadGrouping, Label frameGroupingLabel,
+        ChoiceBox<FrameGrouping> frameGrouping)
     {
         this.threadGroupingLabel = threadGroupingLabel;
         this.threadGrouping = threadGrouping;
@@ -139,6 +165,12 @@ public abstract class AbstractViewController<T> extends AbstractController
             frameGrouping);
     }
 
+    protected void initializeColumnView(Button columnViewButton)
+    {
+        this.columnViewButton = columnViewButton;
+        columnViewButton.setOnMousePressed(this::showColumnViewMenu);
+    }
+
     // Instance Accessors
 
     /**
@@ -150,6 +182,8 @@ public abstract class AbstractViewController<T> extends AbstractController
     public void setApplicationContext(ApplicationContext applicationContext)
     {
         super.setApplicationContext(applicationContext);
+        applicationContext.getConfiguration()
+            .addListener((property, oldValue, newValue) -> refresh());
 
         // If the subclass doesn't need filter management, no UI control should have been passed on in the initialize()
         // method.
@@ -157,9 +191,6 @@ public abstract class AbstractViewController<T> extends AbstractController
         {
             return;
         }
-
-        // Called here because I18N is needed, so there's a dependency on the availability of the ApplicationContext.
-        initializeTable();
 
         initializeFilters(applicationContext);
     }
@@ -209,6 +240,75 @@ public abstract class AbstractViewController<T> extends AbstractController
         return grouping;
     }
 
+    // Column View-related Methods
+
+    /**
+     * Adds an appropriate {@link ColumnMenuItem} to the column view menu item list.
+     *
+     * @param column the {@link TableColumnBase} for which a menu item will be added
+     * @param title the display title for the column
+     * @param context the {@link ProfileContext} of the profile for which the column contains data, or null for a Diff
+     *            column which contains comparison data between both profiles in a Diff
+     */
+    private void addColumnMenuItem(TableColumnBase<?, ?> column, String title,
+        ProfileContext context)
+    {
+        columnViewItems.add(new ColumnMenuItem(column, getColumnHeader(column, title, context)));
+    }
+
+    /**
+     * Adds a menu item which controls the visibility of a group of columns.
+     *
+     * @param title the display title for the menu item
+     * @param visible the visibility of the columns after the menu item has been selected
+     * @param the columns in the group
+     */
+    protected void addColumnGroupMenuItem(String title, boolean visible,
+        TableColumnBase<?, ?>... columns)
+    {
+        columnViewGroupItems.add(new ColumnGroupMenuItem(title, visible, columns));
+    }
+
+    /**
+     * Adds a menu item which controls the visibility of a group of columns.
+     *
+     * @param title the display title for the menu item
+     * @param visible the visibility of the columns after the menu item has been selected
+     * @param a number of {@link Collection}s containing the columns in the group
+     */
+    protected void addColumnGroupMenuItem(String title, boolean visible,
+        Collection<TableColumnBase<?, ?>> columns)
+    {
+        columnViewGroupItems.add(new ColumnGroupMenuItem(title, visible, columns));
+    }
+
+    /**
+     * Displays the column view context menu.
+     *
+     * @param event the {@link MouseEvent} which triggered the context menu display
+     */
+    private void showColumnViewMenu(MouseEvent event)
+    {
+        ContextMenu ctxMenu = columnViewButton.getContextMenu();
+        if (ctxMenu == null)
+        {
+            ctxMenu = new ContextMenu();
+            columnViewButton.setContextMenu(ctxMenu);
+        }
+
+        // The +1 accounts for the separator
+        if (ctxMenu.getItems().size() != columnViewItems.size() + columnViewGroupItems.size() + 1)
+        {
+            ctxMenu.getItems().clear();
+            ctxMenu.getItems().addAll(columnViewGroupItems);
+            ctxMenu.getItems().add(new SeparatorMenuItem());
+            ctxMenu.getItems().addAll(columnViewItems);
+        }
+
+        columnViewButton.getContextMenu()
+            .show(columnViewButton, event.getScreenX(), event.getScreenY());
+    }
+
     // UI Helper Methods
 
     /**
@@ -219,21 +319,27 @@ public abstract class AbstractViewController<T> extends AbstractController
     protected abstract void refresh();
 
     /**
-     * Initialize the {@link TableView} or {@link TreeTableView} which contains the View data.
+     * Initialize the {@link TableView} or {@link TreeTableView} which contains the View data, if applicable.
      * <p>
-     * This method is provided because, due to I18N, the {@link ApplicationContext} is needed for proper initialization,
-     * since the column headers are internationalized. This method is therefore called in this class in the
-     * {@link #setApplicationContext(ApplicationContext)} method.
+     * Care should be taken in the subclassed to call this at the right time, because some contextual information may be
+     * needed. The {@link ApplicationContext} must be set for the I18N to work, and in the case of Diff column headers,
+     * the {@link ProfileContext}s for the profiles being compared should also be known. In the current implementation
+     * therefore, the method is called in the {@link AbstractProfileViewController#setProfileContext(ProfileContext)}
+     * and {@link AbstractProfileDiffViewController#setProfileContexts(ProfileContext, ProfileContext)} methods.
      */
     protected abstract void initializeTable();
 
+    // UI Helper Methods : Column Configuration
+
     /**
-     * Sets the contents of the column header. This method is abstract because different implementing controllers have
+     * Get the contents of the column header. This method is abstract because different implementing controllers have
      * different requirements. E.g. the Diff views need to include indications of which of the profiles being compared
      * the column data is for.
      * <p>
      * If null is passed as {@link ProfileContext}, this indicates to the subclass that the data for the column is a
      * comparison between both profiles from a {@link DiffEntry}.
+     * <p>
+     * The method should return null if the column has a fixed text header defined in the FXML (or elsewhere).
      * <p>
      *
      * @param <C> the type of the column
@@ -241,8 +347,26 @@ public abstract class AbstractViewController<T> extends AbstractController
      * @param title the display title for the column
      * @param context the {@link ProfileContext} of the profile for which the column contains data, or null for a Diff
      *            column which contains comparison data between both profiles in a Diff
+     * @return an {@link HBox} which can be used as header for the column
      */
-    protected abstract <C> void setColumnHeader(C column, String title, ProfileContext context);
+    protected abstract HBox getColumnHeader(TableColumnBase<?, ?> column, String title,
+        ProfileContext context);
+
+    /**
+     * Sets the appropriate header for the column, using
+     *
+     * @param column
+     * @param title
+     * @param context
+     */
+    private void configureHeader(TableColumnBase<?, ?> column, String title, ProfileContext context)
+    {
+        HBox header = getColumnHeader(column, title, context);
+        if (header != null)
+        {
+            reconfigureColumn(column, header);
+        }
+    }
 
     // Unfortunately the Cell- and CellValueFactories for TableColumns and TreeTableColumns are not compatible. As a
     // result, we get full code duplication. All the following UI helper methods are provided once for TableColumns, and
@@ -264,8 +388,9 @@ public abstract class AbstractViewController<T> extends AbstractController
         ProfileContext profileContext, String title)
     {
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new PercentageTableCell<>(null));
-        setColumnHeader(column, title, profileContext);
+        column.setCellFactory(col -> new NumberTableCell<>(appCtx()::displayPercent, null));
+        configureHeader(column, title, profileContext);
+        addColumnMenuItem(column, title, profileContext);
     }
 
     /**
@@ -281,8 +406,10 @@ public abstract class AbstractViewController<T> extends AbstractController
         String title)
     {
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new PercentageTableCell<>(doubleDiffStyler));
-        setColumnHeader(column, title, null);
+        column.setCellFactory(
+            col -> new NumberTableCell<>(appCtx()::displayPercent, doubleDiffStyler));
+        configureHeader(column, title, null);
+        addColumnMenuItem(column, title, null);
     }
 
     /**
@@ -299,8 +426,9 @@ public abstract class AbstractViewController<T> extends AbstractController
         ProfileContext profileContext, String title)
     {
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new CountTableCell<>(null));
-        setColumnHeader(column, title, profileContext);
+        column.setCellFactory(col -> new NumberTableCell<>(appCtx()::displayIntegral, null));
+        configureHeader(column, title, profileContext);
+        addColumnMenuItem(column, title, profileContext);
     }
 
     /**
@@ -316,8 +444,10 @@ public abstract class AbstractViewController<T> extends AbstractController
         String title)
     {
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new CountTableCell<>(intDiffStyler));
-        setColumnHeader(column, title, null);
+        column
+            .setCellFactory(col -> new NumberTableCell<>(appCtx()::displayIntegral, intDiffStyler));
+        configureHeader(column, title, null);
+        addColumnMenuItem(column, title, null);
     }
 
     /**
@@ -334,8 +464,9 @@ public abstract class AbstractViewController<T> extends AbstractController
         ProfileContext profileContext, String title)
     {
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new TimeTableCell<>(null));
-        setColumnHeader(column, title, profileContext);
+        column.setCellFactory(col -> new NumberTableCell<>(appCtx()::displayTime, null));
+        configureHeader(column, title, profileContext);
+        addColumnMenuItem(column, title, profileContext);
     }
 
     /**
@@ -351,8 +482,9 @@ public abstract class AbstractViewController<T> extends AbstractController
         String title)
     {
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new TimeTableCell<>(longDiffStyler));
-        setColumnHeader(column, title, null);
+        column.setCellFactory(col -> new NumberTableCell<>(appCtx()::displayTime, longDiffStyler));
+        configureHeader(column, title, null);
+        addColumnMenuItem(column, title, null);
     }
 
     // UI Helper Methods : TreeTable Column Configuration
@@ -371,8 +503,9 @@ public abstract class AbstractViewController<T> extends AbstractController
         ProfileContext profileContext, String title)
     {
         column.setCellValueFactory(new TreeItemPropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new PercentageTreeTableCell<>(null));
-        setColumnHeader(column, title, profileContext);
+        column.setCellFactory(col -> new NumberTreeTableCell<>(appCtx()::displayPercent, null));
+        configureHeader(column, title, profileContext);
+        addColumnMenuItem(column, title, profileContext);
     }
 
     /**
@@ -388,8 +521,10 @@ public abstract class AbstractViewController<T> extends AbstractController
         String title)
     {
         column.setCellValueFactory(new TreeItemPropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new PercentageTreeTableCell<>(doubleDiffStyler));
-        setColumnHeader(column, title, null);
+        column.setCellFactory(
+            col -> new NumberTreeTableCell<>(appCtx()::displayPercent, doubleDiffStyler));
+        configureHeader(column, title, null);
+        addColumnMenuItem(column, title, null);
     }
 
     /**
@@ -406,8 +541,9 @@ public abstract class AbstractViewController<T> extends AbstractController
         ProfileContext profileContext, String title)
     {
         column.setCellValueFactory(new TreeItemPropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new CountTreeTableCell<>(null));
-        setColumnHeader(column, title, profileContext);
+        column.setCellFactory(col -> new NumberTreeTableCell<>(appCtx()::displayIntegral, null));
+        configureHeader(column, title, profileContext);
+        addColumnMenuItem(column, title, profileContext);
     }
 
     /**
@@ -423,8 +559,10 @@ public abstract class AbstractViewController<T> extends AbstractController
         String title)
     {
         column.setCellValueFactory(new TreeItemPropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new CountTreeTableCell<>(intDiffStyler));
-        setColumnHeader(column, title, null);
+        column.setCellFactory(
+            col -> new NumberTreeTableCell<>(appCtx()::displayIntegral, intDiffStyler));
+        configureHeader(column, title, null);
+        addColumnMenuItem(column, title, null);
     }
 
     /**
@@ -441,8 +579,9 @@ public abstract class AbstractViewController<T> extends AbstractController
         ProfileContext profileContext, String title)
     {
         column.setCellValueFactory(new TreeItemPropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new TimeTreeTableCell<>(null));
-        setColumnHeader(column, title, profileContext);
+        column.setCellFactory(col -> new NumberTreeTableCell<>(appCtx()::displayTime, null));
+        configureHeader(column, title, profileContext);
+        addColumnMenuItem(column, title, profileContext);
     }
 
     /**
@@ -458,8 +597,10 @@ public abstract class AbstractViewController<T> extends AbstractController
         String title)
     {
         column.setCellValueFactory(new TreeItemPropertyValueFactory<>(propertyName));
-        column.setCellFactory(col -> new TimeTreeTableCell<>(longDiffStyler));
-        setColumnHeader(column, title, null);
+        column.setCellFactory(
+            col -> new NumberTreeTableCell<>(appCtx()::displayTime, longDiffStyler));
+        configureHeader(column, title, null);
+        addColumnMenuItem(column, title, null);
     }
 
     // Filter-related methods

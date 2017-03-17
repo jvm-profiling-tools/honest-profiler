@@ -18,61 +18,84 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
-import static com.insightfullogic.honest_profiler.core.aggregation.result.ItemType.FLAMEGRAPH;
+import static com.insightfullogic.honest_profiler.core.aggregation.result.ItemType.ENTRY;
 
-import com.insightfullogic.honest_profiler.core.profiles.FlameGraph;
+import com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping;
+import com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
+import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController;
+import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
-import com.insightfullogic.honest_profiler.ports.javafx.view.FlameGraphCanvas;
+import com.insightfullogic.honest_profiler.ports.javafx.view.flame.FlameViewCanvas;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumnBase;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-public class FlameViewController extends AbstractProfileViewController<FlameGraph, FlameGraph>
+public class FlameViewController extends AbstractProfileViewController<Tree, Node>
 {
     @FXML
-    private VBox rootContainer;
+    private Button filterButton;
+    @FXML
+    private TextField quickFilterText;
+    @FXML
+    private Button quickFilterButton;
 
-    private FlameGraphCanvas flameView = new FlameGraphCanvas();
+    @FXML
+    private Label threadGroupingLabel;
+    @FXML
+    private ChoiceBox<ThreadGrouping> threadGrouping;
+    @FXML
+    private Label frameGroupingLabel;
+    @FXML
+    private ChoiceBox<FrameGrouping> frameGrouping;
+
+    @FXML
+    private VBox flameBox;
+
+    @FXML
+    private FilterDialogController<Node> filterController;
+
+    private FlameViewCanvas flameCanvas;
+
+    private double currentWidth;
+    private double currentHeight;
+
+    // FXML Implementation
 
     @Override
     @FXML
     protected void initialize()
     {
-        super.initialize(FLAMEGRAPH);
-
-        rootContainer.getChildren().add(flameView);
-    }
-
-    @Override
-    public void setProfileContext(ProfileContext profileContext)
-    {
-        super.setProfileContext(profileContext);
-    }
-
-    public void refreshFlameView()
-    {
-        if (!flameView.widthProperty().isBound())
-        {
-            flameView.setWidth(rootContainer.getWidth());
-            flameView.setHeight(rootContainer.getHeight());
-
-            flameView.refresh();
-
-            flameView.heightProperty().bind(rootContainer.heightProperty());
-            flameView.widthProperty().bind(rootContainer.widthProperty());
-
-            flameView.heightProperty()
-                .addListener((property, oldValue, newValue) -> refreshFlameView());
-            flameView.widthProperty()
-                .addListener((property, oldValue, newValue) -> refreshFlameView());
-        }
-        else
-        {
-            flameView.refresh();
-        }
+        super.initialize(ENTRY);
+        super.initializeFiltering(
+            filterController,
+            filterButton,
+            quickFilterButton,
+            quickFilterText);
+        super.initializeGrouping(
+            threadGroupingLabel,
+            threadGrouping,
+            frameGroupingLabel,
+            frameGrouping);
     }
 
     // AbstractController Implementation
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext)
+    {
+        super.setApplicationContext(applicationContext);
+
+        flameCanvas = new FlameViewCanvas(applicationContext);
+        flameBox.getChildren().add(flameCanvas);
+    }
 
     @Override
     protected void initializeInfoText()
@@ -83,7 +106,8 @@ public class FlameViewController extends AbstractProfileViewController<FlameGrap
     @Override
     protected void initializeHandlers()
     {
-        // NOOP
+        flameBox.widthProperty().addListener((property, oldValue, newValue) -> refreshIfResized());
+        flameBox.heightProperty().addListener((property, oldValue, newValue) -> refreshIfResized());
     }
 
     // AbstractViewController Implementation
@@ -91,7 +115,14 @@ public class FlameViewController extends AbstractProfileViewController<FlameGrap
     @Override
     protected void refresh()
     {
-        flameView.accept(getTarget());
+        Tree tree = getTarget();
+
+        if (tree != null)
+        {
+            flameCanvas.setWidth(currentWidth);
+            flameCanvas.setHeight(currentHeight);
+            flameCanvas.render(tree.filter(getFilterSpecification()));
+        }
     }
 
     @Override
@@ -101,8 +132,25 @@ public class FlameViewController extends AbstractProfileViewController<FlameGrap
     }
 
     @Override
-    protected <C> void setColumnHeader(C column, String title, ProfileContext context)
+    protected HBox getColumnHeader(TableColumnBase<?, ?> column, String title,
+        ProfileContext context)
     {
-        // NOOP
+        return null;
+    }
+
+    /**
+     * Check new dimensions : if either has changed, the new dimensions are cached and the graph is refreshed.
+     */
+    private void refreshIfResized()
+    {
+        double newWidth = flameBox.getWidth();
+        double newHeight = flameBox.getHeight();
+
+        if (newWidth != currentWidth || newHeight != currentHeight)
+        {
+            currentWidth = newWidth;
+            currentHeight = newHeight;
+            refresh();
+        }
     }
 }

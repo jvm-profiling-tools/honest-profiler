@@ -12,6 +12,8 @@ import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableObjectValue;
+import javafx.scene.control.TableColumnBase;
+import javafx.scene.layout.HBox;
 
 /**
  * Superclass for all View Controllers in the application which provide a view on a "target", a data structure of type T
@@ -30,6 +32,7 @@ import javafx.beans.value.ObservableObjectValue;
  * the UI. This has been provided to make it possible to stop executing refresh() and other UI updates when the view
  * associated to the controller is hidden.
  * <p>
+ *
  * @param <T> the data type of the target
  * @param <U> the type of the items contained in the View
  */
@@ -49,6 +52,7 @@ public abstract class AbstractProfileViewController<T, U> extends AbstractViewCo
      * Initialize method for subclasses which sets the basic properties needed by this superclass. This method must be
      * called by such subclasses in their FXML initialize().
      * <p>
+     *
      * @param type the {@link ItemType} of the items shown in the view
      */
     @Override
@@ -65,6 +69,7 @@ public abstract class AbstractProfileViewController<T, U> extends AbstractViewCo
     /**
      * Returns the {@link ProfileContext}. The name has been shortened to unclutter code in subclasses.
      * <p>
+     *
      * @return the {@link ProfileContext} encapsulating the target.
      */
     protected ProfileContext prfCtx()
@@ -75,16 +80,20 @@ public abstract class AbstractProfileViewController<T, U> extends AbstractViewCo
     /**
      * Sets the {@link ProfileContext} encapsulating the target.
      * <p>
+     *
      * @param profileContext the {@link ProfileContext} encapsulating the target.
      */
     public void setProfileContext(ProfileContext profileContext)
     {
         this.profileContext = profileContext;
+
+        initializeTable();
     }
 
     /**
      * Returns the current target instance.
      * <p>
+     *
      * @return the current target instance
      */
     protected T getTarget()
@@ -99,6 +108,7 @@ public abstract class AbstractProfileViewController<T, U> extends AbstractViewCo
      * {@link ObservableObjectValue}, and optionally to the {@link CombinedGrouping} {@link ObservableObjectValue} from
      * the {@link AbstractViewController} superclass if present.
      * <p>
+     *
      * @param source the {@link ObservableObjectValue} encapsulating the source from which the target data structure can
      *            be extracted
      * @param targetExtractor a function which extracts the target from the source Object
@@ -130,6 +140,7 @@ public abstract class AbstractProfileViewController<T, U> extends AbstractViewCo
     /**
      * Activate or deactivate the current view. When activated, the view tracks changes in the target.
      * <p>
+     *
      * @param active a boolean indicating whether to activate or deactivate the view.
      */
     public void setActive(boolean active)
@@ -155,8 +166,9 @@ public abstract class AbstractProfileViewController<T, U> extends AbstractViewCo
      * defined in the FXML.
      */
     @Override
-    protected <C> void setColumnHeader(C column, String title, ProfileContext context)
+    protected HBox getColumnHeader(TableColumnBase<?, ?> column, String title,
+        ProfileContext context)
     {
-        // NOOP
+        return null;
     }
 }
