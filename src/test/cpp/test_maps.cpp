@@ -1,4 +1,7 @@
 #include "test.h"
+
+#ifndef DISABLE_CPP11
+
 #include "../../main/cpp/thread_map.h"
 
 #include <sstream>
@@ -364,3 +367,5 @@ TEST(LockFreeHashMapConcurrentMixedLoad) {
 		CONCURRENT_EPILOGUE();
 	}
 }
+
+#endif
