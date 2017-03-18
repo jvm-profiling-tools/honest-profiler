@@ -7,7 +7,7 @@
 #   include <UnitTest++.h>
 #endif
 
-#if __GNUC__ == 4 && __GNUC_MINOR__ < 6 && !defined(__APPLE__) && !defined(__FreeBSD__) && !defined(__clang__)
+#if __GNUC__ == 4 && __GNUC_MINOR__ < 6
 #	define DISABLE_CPP11
 #endif
 
