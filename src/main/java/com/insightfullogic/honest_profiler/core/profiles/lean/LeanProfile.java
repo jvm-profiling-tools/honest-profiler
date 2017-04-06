@@ -41,6 +41,7 @@ public class LeanProfile
      * Constructor which specifies the maps containing the method id - {@link MethodInfo} and thread id -
      * {@link ThreadInfo} mappings, and a map containing the thread id - {@link LeanThreadNode} stack tree mappings.
      * <p>
+     *
      * @param methodMap a {@link Map} mapping the method id to the corresponding {@link MethodInfo}
      * @param threadMap a {@link Map} mapping the thread id to the corresponding {@link ThreadInfo}
      * @param threadData a {@link Map} mapping the thread id to the {@link LeanThreadNode} root of the {@link LeanNode}
@@ -52,11 +53,11 @@ public class LeanProfile
                        Map<Long, LeanThreadNode> threadData,
                        long totalNanos)
     {
-        this.methodInfoMap = new HashMap<>(methodMap);
-        this.threadInfoMap = new HashMap<>(threadMap);
-        this.threads = new HashMap<>();
+        methodInfoMap = new HashMap<>(methodMap);
+        threadInfoMap = new HashMap<>(threadMap);
+        threads = new HashMap<>();
         this.totalNanos = totalNanos;
-        threadData.forEach((key, value) -> this.threads.put(key, value.copy()));
+        threadData.forEach((key, value) -> threads.put(key, value.copy()));
     }
 
     // Instance Accessors
@@ -64,6 +65,7 @@ public class LeanProfile
     /**
      * Returns the mapping between method ids and their corresponding {@link MethodInfo} objects.
      * <p>
+     *
      * @return the mapping between method ids and their corresponding {@link MethodInfo} objects
      */
     public Map<Long, MethodInfo> getMethodInfoMap()
@@ -74,6 +76,7 @@ public class LeanProfile
     /**
      * Returns the mapping between thread ids and their corresponding {@link ThreadInfo} objects.
      * <p>
+     *
      * @param id the thread id
      * @return the mapping between thread ids and their corresponding {@link ThreadInfo} objects
      */
@@ -85,6 +88,7 @@ public class LeanProfile
     /**
      * Returns the mapping between thread Ids and the root {@link LeanThreadNode} objects.
      * <p>
+     *
      * @return the mapping between thread Ids and the root {@link LeanThreadNode} objects
      */
     public Map<Long, LeanThreadNode> getThreads()
@@ -95,17 +99,33 @@ public class LeanProfile
     // Key and/or name Construction Methods
 
     /**
+     * Calculates the FQMN. Introduced for hardening, based on a profile which contained a Method Id for which no
+     * MethodInfo was available.
+     * <p>
+     *
+     * @return the FQMN for the node
+     */
+    public String getFqmn(LeanNode node)
+    {
+        long methodId = node.getFrame().getMethodId();
+        MethodInfo info = getMethodInfoMap().get(methodId);
+
+        // Explicit NULL check because we encountered a profile where a particular MethodInfo wasn't present
+        return info == null ? "<UNIDENTIFIED : Method Id = " + methodId + ">" : info.getFqmn();
+    }
+
+    /**
      * Return the key for a {@link LeanNode} representing a frame, constructed by appending the line number to the FQMN,
      * separated by a colon.
      * <p>
+     *
      * @param node the node for which the key is calculated
      * @return the aggregation key for the node consisting of the FQMN and the line number
      */
     public String getFqmnPlusLineNr(LeanNode node)
     {
         StringBuilder result = new StringBuilder();
-        MethodInfo method = getMethodInfoMap().get(node.getFrame().getMethodId());
-        result.append(method.getFqmn()).append(":").append(node.getFrame().getLineNr());
+        result.append(getFqmn(node)).append(":").append(node.getFrame().getLineNr());
         return result.toString();
     }
 
@@ -113,14 +133,29 @@ public class LeanProfile
      * Return the key for a {@link LeanNode} representing a frame, constructed by appending the BCI to the FQMN,
      * separated by a colon.
      * <p>
+     *
      * @param node the node for which the key is calculated
      * @return the aggregation key for the node consisting of the FQMN and the BCI
      */
     public String getBciKey(LeanNode node)
     {
         StringBuilder result = new StringBuilder();
-        MethodInfo method = getMethodInfoMap().get(node.getFrame().getMethodId());
-        result.append(method.getFqmn()).append(":").append(node.getFrame().getBci());
+        result.append(getFqmn(node)).append(":").append(node.getFrame().getBci());
+        return result.toString();
+    }
+
+    /**
+     * Return the key for a {@link LeanNode} representing a frame, constructed by prepending the method Id to the FQMN.
+     * <p>
+     *
+     * @param node the node for which the key is calculated
+     * @return the aggregation key for the node consisting of the method Id and the FQMN
+     */
+    public String getMethodIdKey(LeanNode node)
+    {
+        StringBuilder result = new StringBuilder();
+        result.append("(").append(Long.toString(node.getFrame().getMethodId())).append(") ");
+        result.append(getFqmn(node));
         return result.toString();
     }
 
@@ -128,6 +163,7 @@ public class LeanProfile
      * Returns the display name for the thread identified by the specified id. If there is no {@link ThreadInfo} for the
      * thread id, a name is constructed.
      * <p>
+     *
      * @param threadId the id of the thread
      * @return the calculated display name
      */
@@ -139,9 +175,9 @@ public class LeanProfile
 
     /**
      * Return the number of nanoseconds which elapsed between the first and last samples in the profile.
-     * 
+     *
      * @return the number of nanoseconds which elapsed between the first and last samples in the profile
-     */    
+     */
     public long getTotalNanos()
     {
         return totalNanos;
