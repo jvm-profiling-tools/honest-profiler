@@ -131,6 +131,16 @@ public final class ApplicationContext
     }
 
     /**
+     * Sets the text in the InfoBar.
+     * 
+     * @param text the raw text
+     */
+    public void setRawInfo(String text)
+    {
+        info.set(text);
+    }
+
+    /**
      * Clears the text in the InfoBar.
      */
     public void clearInfo()

@@ -1,20 +1,22 @@
 package com.insightfullogic.honest_profiler.core.aggregation.result.diff;
 
+import static java.lang.Math.max;
 import static java.util.stream.Collectors.toList;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
 import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
+import com.insightfullogic.honest_profiler.core.aggregation.result.Parent;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 
 /**
  * Subclass of {@link DiffEntry} which allows to arrange the items into a tree.
  */
-public class DiffNode extends DiffEntry
+public class DiffNode extends DiffEntry implements Parent<DiffNode>
 {
     // Instance Properties
 
@@ -90,11 +92,32 @@ public class DiffNode extends DiffEntry
     /**
      * Returns the children of this node.
      * <p>
-     * @return a {@link Collection} containing the children of this node.
+     * @return a {@link List} containing the children of this node.
      */
-    public Collection<DiffNode> getChildren()
+    @Override
+    public List<DiffNode> getChildren()
     {
-        return children.values();
+        return new ArrayList<>(children.values());
+    }
+
+    /**
+     * Calculate the depth of the (sub)tree with this Node as root. Returns 0 if there are no children.
+     * <p>
+     * @return the depth of the (sub)tree with this Node as root, whereby an empty tree has depth 0
+     */
+    public int getDescendantDepth()
+    {
+        if (children.isEmpty())
+        {
+            return 0;
+        }
+
+        int depth = 0;
+        for (DiffNode child : children.values())
+        {
+            depth = max(depth, child.getDescendantDepth() + 1);
+        }
+        return depth;
     }
 
     /**
