@@ -27,6 +27,10 @@
 	-fx-font-smoothing-type: lcd;
 }
 
+.genericLabel {
+  -fx-font-weight: bold;
+}
+
 .tab-pane:top *.tab-header-area {
 	-fx-background-insets: 0, 0 0 1 0;
 	-fx-padding: 0.416667em 0.166667em 0.0em 0.0em;
