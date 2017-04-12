@@ -185,7 +185,7 @@ public class TreeViewController extends AbstractProfileViewController<Tree, Node
         methodColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("key"));
 
         percentColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("totalCntPct"));
-        percentColumn.setCellFactory(param -> new GraphicalShareTreeTableCell());
+        percentColumn.setCellFactory(param -> new GraphicalShareTreeTableCell(appCtx()));
 
         cfgPctCol(totalCntPct, "totalCntPct", prfCtx(), COLUMN_TOTAL_CNT_PCT);
         cfgPctCol(selfCntPct, "selfCntPct", prfCtx(), COLUMN_SELF_CNT_PCT);

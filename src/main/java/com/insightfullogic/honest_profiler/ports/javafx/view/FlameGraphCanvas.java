@@ -95,6 +95,11 @@ public class FlameGraphCanvas extends Canvas implements FlameGraphListener
     @Override
     public void accept(final FlameGraph graph)
     {
+        if(graph == null)
+        {
+            return;
+        }
+        
         this.graph = graph;
 
         final Scene scene = getScene();

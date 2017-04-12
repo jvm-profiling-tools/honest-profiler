@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.insightfullogic.honest_profiler.ports.javafx.controller.configuration.FormattingConfigurationController">
+  <children>
+    <GridPane>
+      <columnConstraints>
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="10.0" minWidth="10.0" prefWidth="10.0" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="100.0" />
+      </columnConstraints>
+      <rowConstraints>
+        <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints />
+        <RowConstraints />
+      </rowConstraints>
+      <children>
+        <Label text="%label.numberFormatting.info">
+          <font>
+            <Font name="System Bold" size="12.0" />
+          </font>
+        </Label>
+        <Label text="%label.showThousandsSeparator.info" GridPane.rowIndex="1">
+          <GridPane.margin>
+            <Insets />
+          </GridPane.margin>
+        </Label>
+        <CheckBox fx:id="showThousandsSeparator" mnemonicParsing="false" selected="true" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+        <Label text="%label.thousandsSeparator.info" GridPane.rowIndex="2">
+          <GridPane.margin>
+            <Insets left="15.0" />
+          </GridPane.margin>
+        </Label>
+        <ChoiceBox fx:id="thousandsSeparator" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" />
+        <Label text="%label.nrFractionDigits.info" GridPane.rowIndex="3" />
+        <ChoiceBox fx:id="fractionDigitsNumber" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" />
+        <Label text="%label.decimalSeparator.info" GridPane.rowIndex="4">
+          <GridPane.margin>
+            <Insets left="15.0" />
+          </GridPane.margin>
+        </Label>
+        <ChoiceBox fx:id="decimalSeparator" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4" />
+        <Label text="%label.percentFormatting.info" GridPane.rowIndex="6">
+          <font>
+            <Font name="System Bold" size="12.0" />
+          </font>
+        </Label>
+        <Label text="%label.showAsPercent.info" GridPane.rowIndex="7" />
+        <RadioButton fx:id="showAsPercentage" mnemonicParsing="false" selected="true" GridPane.columnIndex="2" GridPane.rowIndex="7">
+          <toggleGroup>
+            <ToggleGroup fx:id="percentDisplay" />
+          </toggleGroup>
+        </RadioButton>
+        <Label text="%label.showPercentSign.info" GridPane.rowIndex="8">
+          <GridPane.margin>
+            <Insets left="15.0" />
+          </GridPane.margin>
+        </Label>
+        <CheckBox fx:id="showPercentSign" mnemonicParsing="false" selected="true" GridPane.columnIndex="2" GridPane.rowIndex="8" />
+        <Label text="%label.spaceBeforePercentSign.info" GridPane.rowIndex="9">
+          <GridPane.margin>
+            <Insets left="15.0" />
+          </GridPane.margin>
+        </Label>
+        <CheckBox fx:id="spaceBeforePercentSign" mnemonicParsing="false" selected="true" GridPane.columnIndex="2" GridPane.rowIndex="9" />
+        <Label text="%label.showAsFraction.info" GridPane.rowIndex="10" />
+        <RadioButton fx:id="showAsFraction" mnemonicParsing="false" toggleGroup="$percentDisplay" GridPane.columnIndex="2" GridPane.rowIndex="10" />
+        <Label text="%label.timeFormatting.info" GridPane.rowIndex="12">
+          <font>
+            <Font name="System Bold" size="12.0" />
+          </font>
+        </Label>
+        <Label text="%label.timeUnit.info" GridPane.rowIndex="13" />
+        <ChoiceBox fx:id="timeUnit" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.columnIndex="2" GridPane.rowIndex="13" />
+        <Label text="%label.nrFractionDigits.info" GridPane.rowIndex="14" />
+        <ChoiceBox fx:id="fractionDigitsTime" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.columnIndex="2" GridPane.rowIndex="14" />
+        <Label text="%label.showTimeUnits.info" GridPane.rowIndex="15">
+          <GridPane.margin>
+            <Insets />
+          </GridPane.margin>
+        </Label>
+        <CheckBox fx:id="showTimeUnits" mnemonicParsing="false" selected="false" GridPane.columnIndex="2" GridPane.rowIndex="15" />
+      </children>
+    </GridPane>
+  </children>
+  <padding>
+    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+  </padding>
+</VBox>

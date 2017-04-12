@@ -53,6 +53,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
 import com.insightfullogic.honest_profiler.ports.javafx.ViewType;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
@@ -177,20 +178,16 @@ public class ProfileRootController extends AbstractController
         flameController.setProfileContext(prCtx);
         flameController.bind(prCtx.flameGraphProperty(), FLAME_EXTRACTOR);
 
-        // Bind the profile sample count display
-        prCtx.profileProperty().addListener(
-            (property, oldValue, newValue) -> profileSampleCount.setText(
-                newValue == null ? null : getText(
-                    CONTENT_LABEL_PROFILESAMPLECOUNT,
-                    newValue.getGlobalData().getTotalCnt())));
+        // Bind the profile sample count display so it changes when new Profiles come in
+        prCtx.profileProperty()
+            .addListener((property, oldValue, newValue) -> updateSampleCount(newValue));
 
-        if (prCtx.getProfile() != null)
-        {
-            profileSampleCount.setText(
-                getText(
-                    CONTENT_LABEL_PROFILESAMPLECOUNT,
-                    prCtx.getProfile().getGlobalData().getTotalCnt()));
-        }
+        // Bind the profile sample count display so it changes when the display preferences change
+        appCtx().getConfiguration()
+            .addListener((property, oldValue, newValue) -> updateSampleCount(prCtx));
+
+        // Display the initial sample count
+        updateSampleCount(prCtx);
 
         // Configure the View choice
         viewChoice.setConverter(getStringConverterForType(ViewType.class));
@@ -200,6 +197,37 @@ public class ProfileRootController extends AbstractController
         viewChoice.getSelectionModel().select(FLAT);
 
         freezeButton.setDisable(prCtx.getMode() != LIVE);
+    }
+
+    // Sample Count Display
+
+    /**
+     * Update the sample count based on the {@link ProfileContext}.
+     *
+     * @param profileContext the {@link ProfileContext}
+     */
+    private void updateSampleCount(ProfileContext profileContext)
+    {
+        updateSampleCount(profileContext == null ? null : profileContext.getProfile());
+    }
+
+    /**
+     * Update the sample count for the {@link AggregationProfile}.
+     *
+     * @param profile the {@link AggregationProfile}
+     */
+    private void updateSampleCount(AggregationProfile profile)
+    {
+
+        if (profile == null)
+        {
+            profileSampleCount.setText(null);
+            return;
+        }
+
+        profileSampleCount.setText(getText(
+            CONTENT_LABEL_PROFILESAMPLECOUNT,
+            appCtx().displayIntegral(profile.getGlobalData().getTotalCnt())));
     }
 
     // View Methods
