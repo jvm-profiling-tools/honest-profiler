@@ -16,9 +16,7 @@ import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableObjectValue;
-import javafx.scene.Node;
 import javafx.scene.control.TableColumnBase;
-import javafx.scene.control.TreeTableColumn;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 
@@ -205,7 +203,8 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
     // AbstractViewController Implementation
 
     @Override
-    protected <C> void setColumnHeader(C column, String title, ProfileContext profileContext)
+    protected HBox getColumnHeader(TableColumnBase<?, ?> column, String title,
+        ProfileContext profileContext)
     {
         HBox header = createColoredLabelContainer(CENTER);
 
@@ -216,46 +215,6 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
 
         header.getChildren().add(new Text(title));
 
-        // Somehow it's hard to get a TableColumn to resize properly.
-        // Therefore, we calculate a fair width ourselves.
-        double width = calculateWidth(header);
-
-        reconfigure((TableColumnBase<?, ?>)column, null, header, width, width + 5);
-    }
-
-    /**
-     * Set various {@link TableColumnBase} properties.
-     * <p>
-     * @param column the {@link TreeTableColumn} to be reconfigured
-     * @param text the text to be displayed in the column header
-     * @param graphic the graphic to be displayed in the column header
-     * @param minWidth the minimum width of the column
-     * @param prefWidth the preferred width of the coumn
-     */
-    private void reconfigure(TableColumnBase<?, ?> column, String text, Node graphic,
-        double minWidth, double prefWidth)
-    {
-        column.setText(text);
-        column.setGraphic(graphic);
-        column.setMinWidth(minWidth);
-        column.setPrefWidth(prefWidth);
-    }
-
-    /**
-     * Calculate a column width for a column with the specified box as header graphic.
-     * <p>
-     * @param box the header graphic for the column
-     * @return the calculated width
-     */
-    private double calculateWidth(HBox box)
-    {
-        double width = 0;
-        for (Node node : box.getChildren())
-        {
-            width += node.getBoundsInLocal().getWidth();
-        }
-        width += box.getSpacing() * (box.getChildren().size() - 1);
-        width += box.getPadding().getLeft() + box.getPadding().getRight();
-        return width;
+        return header;
     }
 }
