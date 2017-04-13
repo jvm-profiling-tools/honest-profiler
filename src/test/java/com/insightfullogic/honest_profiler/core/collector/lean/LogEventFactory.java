@@ -7,11 +7,11 @@ import com.insightfullogic.honest_profiler.core.parser.TraceStart;
 
 public class LogEventFactory
 {
-    public static final TraceStart START_01 = start(1, 1, 1, 1);
-    public static final TraceStart START_02 = start(2, 2, 2, 2);
-    public static final TraceStart START_03 = start(3, 3, 3, 3);
-    public static final TraceStart START_04 = start(4, 4, 4, 4);
-    public static final TraceStart START_05 = start(5, 5, 5, 5);
+    public static final TraceStart START_01 = start(1, 1, 1, 0);
+    public static final TraceStart START_02 = start(1, 2, 2, 0);
+    public static final TraceStart START_03 = start(1, 3, 3, 0);
+    public static final TraceStart START_04 = start(1, 4, 4, 0);
+    public static final TraceStart START_05 = start(1, 5, 5, 0);
 
     public static final StackFrame FRAME_01 = frame(1, 1);
     public static final StackFrame FRAME_02 = frame(2, 2, 2);

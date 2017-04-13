@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +21,7 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfile;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfileListener;
 import com.insightfullogic.honest_profiler.core.profiles.lean.info.FrameInfo;
 import com.insightfullogic.honest_profiler.core.profiles.lean.info.MethodInfo;
+import com.insightfullogic.honest_profiler.core.profiles.lean.info.NumericInfo;
 import com.insightfullogic.honest_profiler.core.profiles.lean.info.ThreadInfo;
 
 public class LeanProfileGenerator implements LeanProfileListener
@@ -56,6 +58,20 @@ public class LeanProfileGenerator implements LeanProfileListener
     public LeanProfile getProfile()
     {
         return currentProfile;
+    }
+
+    public LeanNode getNode(long threadId, StackFrame... stack)
+    {
+        LeanNode current = currentProfile.getThreads().get(threadId);
+        List<StackFrame> frames = asList(stack);
+        reverse(frames);
+        for (StackFrame frame : frames)
+        {
+            Optional<LeanNode> child = current.getChildren().stream()
+                .filter(node -> node.getFrame().getMethodId() == frame.getMethodId()).findFirst();
+            current = child.get();
+        }
+        return current;
     }
 
     // LeanProfileListener Implementation
@@ -140,7 +156,11 @@ public class LeanProfileGenerator implements LeanProfileListener
         {
             level++;
             Optional<LeanNode> child = current.getChildren().stream()
-                .filter(node -> node.getFrame().getMethodId() == frame.getMethodId()).findFirst();
+                .filter(
+                    node -> node.getFrame().getMethodId() == frame.getMethodId()
+                        && node.getFrame().getLineNr() == frame.getLineNumber()
+                        && node.getFrame().getBci() == frame.getBci())
+                .findFirst();
             assertTrue("Descendant at level " + level + " not found", child.isPresent());
             current = child.get();
             assertNodeRepresentsFrame(current, frame);
@@ -153,6 +173,44 @@ public class LeanProfileGenerator implements LeanProfileListener
         assertEquals(stackFrame.getMethodId(), info.getMethodId());
         assertEquals(stackFrame.getLineNumber(), info.getLineNr());
         assertEquals(stackFrame.getBci(), info.getBci());
+    }
+
+    public void assertSelfCountEquals(int selfCount, long threadId, StackFrame... stack)
+    {
+        NumericInfo info = getNode(threadId, stack).getData();
+        assertEquals("Wrong Self Count", selfCount, info.getSelfCnt());
+    }
+
+    public void assertTotalCountEquals(int totalCount, long threadId, StackFrame... stack)
+    {
+        NumericInfo info = getNode(threadId, stack).getData();
+        assertEquals("Wrong Total Count", totalCount, info.getTotalCnt());
+    }
+
+    public void assertCountsEqual(int selfCount, int totalCount, long threadId, StackFrame... stack)
+    {
+        NumericInfo info = getNode(threadId, stack).getData();
+        assertEquals("Wrong Self Count", selfCount, info.getSelfCnt());
+        assertEquals("Wrong Total Count", totalCount, info.getTotalCnt());
+    }
+
+    public void assertSelfTimeEquals(long selfTime, long threadId, StackFrame... stack)
+    {
+        NumericInfo info = getNode(threadId, stack).getData();
+        assertEquals("Wrong Self Time", BigInteger.valueOf(selfTime), info.getSelfTime());
+    }
+
+    public void assertTotalTimeEquals(long totalTime, long threadId, StackFrame... stack)
+    {
+        NumericInfo info = getNode(threadId, stack).getData();
+        assertEquals("Wrong Total Time", BigInteger.valueOf(totalTime), info.getTotalTime());
+    }
+
+    public void assertTimesEqual(long selfTime, long totalTime, long threadId, StackFrame... stack)
+    {
+        NumericInfo info = getNode(threadId, stack).getData();
+        assertEquals("Wrong Self Time", BigInteger.valueOf(selfTime), info.getSelfTime());
+        assertEquals("Wrong Total Time", BigInteger.valueOf(totalTime), info.getTotalTime());
     }
 
     // Initialization
