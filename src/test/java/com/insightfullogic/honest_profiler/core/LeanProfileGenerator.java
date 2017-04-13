@@ -1,17 +1,24 @@
 package com.insightfullogic.honest_profiler.core;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.reverse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.List;
+import java.util.Optional;
 
 import com.insightfullogic.honest_profiler.core.collector.lean.LeanLogCollector;
 import com.insightfullogic.honest_profiler.core.parser.Method;
 import com.insightfullogic.honest_profiler.core.parser.StackFrame;
 import com.insightfullogic.honest_profiler.core.parser.ThreadMeta;
 import com.insightfullogic.honest_profiler.core.parser.TraceStart;
+import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfile;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfileListener;
+import com.insightfullogic.honest_profiler.core.profiles.lean.info.FrameInfo;
 import com.insightfullogic.honest_profiler.core.profiles.lean.info.MethodInfo;
 import com.insightfullogic.honest_profiler.core.profiles.lean.info.ThreadInfo;
 
@@ -81,14 +88,11 @@ public class LeanProfileGenerator implements LeanProfileListener
     {
         asList(methods).forEach(method ->
         {
-            MethodInfo actual = currentProfile.getMethodInfoMap().get(method.getMethodId());
-            assertEquals("Method Id mismatch", method.getMethodId(), actual.getMethodId());
-            assertEquals("Method Name mismatch", method.getMethodName(), actual.getMethodName());
-            assertEquals(
-                "Method Class Name mismatch",
-                method.getClassName(),
-                actual.getClassName());
-            assertEquals("Method File Name mismatch", method.getFileName(), actual.getFileName());
+            MethodInfo info = currentProfile.getMethodInfoMap().get(method.getMethodId());
+            assertEquals("Method Id mismatch", method.getMethodId(), info.getMethodId());
+            assertEquals("Method Name mismatch", method.getMethodName(), info.getMethodName());
+            assertEquals("Method Class Name mismatch", method.getClassName(), info.getClassName());
+            assertEquals("Method File Name mismatch", method.getFileName(), info.getFileName());
         });
     }
 
@@ -96,26 +100,59 @@ public class LeanProfileGenerator implements LeanProfileListener
     {
         asList(threads).forEach(thread ->
         {
-            ThreadInfo actual = currentProfile.getThreadInfoMap().get(thread.getThreadId());
-            assertEquals("Thread Id mismatch", thread.getThreadId(), actual.getId());
-            assertEquals("Thread Name mismatch", thread.getThreadName(), actual.getName());
+            ThreadInfo info = currentProfile.getThreadInfoMap().get(thread.getThreadId());
+            assertEquals("Thread Id mismatch", thread.getThreadId(), info.getId());
+            assertEquals("Thread Name mismatch", thread.getThreadName(), info.getName());
         });
     }
 
     public void assertMethodMapSizeEquals(int size)
     {
-        assertEquals(
-            "MethodInfoMap contains wrong number of items",
-            size,
-            currentProfile.getMethodInfoMap().size());
+        assertEquals("MethodInfoMap size wrong", size, currentProfile.getMethodInfoMap().size());
     }
 
     public void assertThreadMapSizeEquals(int size)
     {
-        assertEquals(
-            "ThreadInfoMap contains wrong number of items",
-            size,
-            currentProfile.getThreadInfoMap().size());
+        assertEquals("ThreadInfoMap size wrong", size, currentProfile.getThreadInfoMap().size());
+    }
+
+    public void assertProfileThreadCountEquals(int size)
+    {
+        assertEquals("Wrong Thread count in Profile", size, currentProfile.getThreads().size());
+    }
+
+    public void assertProfileContainsThread(long id)
+    {
+        assertNotNull("Thread not found in Profile", currentProfile.getThreads().get(id));
+    }
+
+    public void assertProfileContainsStack(long threadId, StackFrame... stack)
+    {
+        LeanNode current = currentProfile.getThreads().get(threadId);
+        assertNotNull("Thread not found in Profile", current);
+
+        int level = 0;
+
+        List<StackFrame> frames = asList(stack);
+        reverse(frames);
+
+        for (StackFrame frame : frames)
+        {
+            level++;
+            Optional<LeanNode> child = current.getChildren().stream()
+                .filter(node -> node.getFrame().getMethodId() == frame.getMethodId()).findFirst();
+            assertTrue("Descendant at level " + level + " not found", child.isPresent());
+            current = child.get();
+            assertNodeRepresentsFrame(current, frame);
+        }
+    }
+
+    public void assertNodeRepresentsFrame(LeanNode node, StackFrame stackFrame)
+    {
+        FrameInfo info = node.getFrame();
+        assertEquals(stackFrame.getMethodId(), info.getMethodId());
+        assertEquals(stackFrame.getLineNumber(), info.getLineNr());
+        assertEquals(stackFrame.getBci(), info.getBci());
     }
 
     // Initialization

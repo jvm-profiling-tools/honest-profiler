@@ -21,6 +21,7 @@ import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFa
 import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.THREAD_04;
 import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.THREAD_05;
 import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.method;
+import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.start;
 import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.thread;
 
 import org.junit.Test;
@@ -107,7 +108,15 @@ public class LeanLogCollectorTest
         // R02 - Event mix without StackFrames + EOL
 
         generator = new LeanProfileGenerator(true);
-        generator.handle(START_01, START_02, THREAD_01, METHOD_01, START_03, START_04, METHOD_02, THREAD_02);
+        generator.handle(
+            START_01,
+            START_02,
+            THREAD_01,
+            METHOD_01,
+            START_03,
+            START_04,
+            METHOD_02,
+            THREAD_02);
         generator.endOfLog();
 
         generator.assertNothingEmitted();
@@ -234,6 +243,67 @@ public class LeanLogCollectorTest
         generator.assertContains(THREAD_01, THREAD_02, THREAD_03, THREAD_04, THREAD_05);
     }
 
+    @Test
+    public void stackFrameHandling()
+    {
+
+        LeanProfileGenerator generator;
+
+        // 1 Stack on 1 thread
+
+        generator = new LeanProfileGenerator();
+        generator.handle(THREAD_01);
+        generator.handle(METHOD_01, METHOD_02, METHOD_03, METHOD_04, METHOD_05);
+        generator.handle(start(1, 1, 1, 1));
+        generator.handle(FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
+        generator.handle(start(1, 1, 2, 1));
+        generator.endOfLog();
+
+        generator.assertSingleEmission();
+        generator.assertThreadMapSizeEquals(1);
+        generator.assertMethodMapSizeEquals(5);
+        generator.assertProfileThreadCountEquals(1);
+        generator.assertProfileContainsStack(1, FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
+
+        // Stacks on 2 threads, 1 stack per thread
+
+        generator = new LeanProfileGenerator();
+        generator.handle(THREAD_01, THREAD_02);
+        generator.handle(METHOD_01, METHOD_02, METHOD_03, METHOD_04, METHOD_05);
+        generator.handle(start(1, 1, 1, 1));
+        generator.handle(FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
+        generator.handle(start(1, 2, 2, 1));
+        generator.handle(FRAME_05, FRAME_04, FRAME_03, FRAME_02, FRAME_01);
+        generator.handle(start(1, 1, 3, 1));
+        generator.endOfLog();
+
+        generator.assertSingleEmission();
+        generator.assertThreadMapSizeEquals(2);
+        generator.assertMethodMapSizeEquals(5);
+        generator.assertProfileThreadCountEquals(2);
+        generator.assertProfileContainsStack(1, FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
+        generator.assertProfileContainsStack(2, FRAME_05, FRAME_04, FRAME_03, FRAME_02, FRAME_01);
+
+        // 2 Stacks on 1 thread
+
+        generator = new LeanProfileGenerator();
+        generator.handle(THREAD_01);
+        generator.handle(METHOD_01, METHOD_02, METHOD_03, METHOD_04, METHOD_05);
+        generator.handle(start(1, 1, 1, 1));
+        generator.handle(FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
+        generator.handle(start(1, 1, 2, 1));
+        generator.handle(FRAME_05, FRAME_04, FRAME_03, FRAME_02, FRAME_01);
+        generator.handle(start(1, 1, 3, 1));
+        generator.endOfLog();
+
+        generator.assertSingleEmission();
+        generator.assertThreadMapSizeEquals(1);
+        generator.assertMethodMapSizeEquals(5);
+        generator.assertProfileThreadCountEquals(1);
+        generator.assertProfileContainsStack(1, FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
+        generator.assertProfileContainsStack(1, FRAME_05, FRAME_04, FRAME_03, FRAME_02, FRAME_01);
+    }
+
     /**
      * Returns a new generator which has processed a trivial stacktrace and for which a profile has been requested. Use
      * this to declutter tests.
@@ -242,7 +312,6 @@ public class LeanLogCollectorTest
      */
     private LeanProfileGenerator getPrimedGenerator()
     {
-
         LeanProfileGenerator generator = new LeanProfileGenerator();
         generator.handle(START_01, FRAME_01, START_02);
         generator.requestProfile();

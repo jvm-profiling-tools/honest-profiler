@@ -19,11 +19,11 @@ public class LogEventFactory
     public static final StackFrame FRAME_04 = frame(4, 4, 4);
     public static final StackFrame FRAME_05 = frame(5, 5);
 
-    public static final Method METHOD_01 = method(1, "Foo.java", "com.test.Foo", "foo()");
-    public static final Method METHOD_02 = method(2, "Bar.java", "com.test.Bar", "bar()");
-    public static final Method METHOD_03 = method(3, "Baz.java", "com.test.Baz", "baz()");
-    public static final Method METHOD_04 = method(4, "Fnord.java", "com.test.Fnord", "fnord()");
-    public static final Method METHOD_05 = method(5, "Qux.java", "com.test.Qux", "qux()");
+    public static final Method METHOD_01 = method(1, "Foo.java", "/com/test/foo/", "foo()");
+    public static final Method METHOD_02 = method(2, "Bar.java", "/com/test/bar/", "bar()");
+    public static final Method METHOD_03 = method(3, "Baz.java", "/com/test/baz/", "baz()");
+    public static final Method METHOD_04 = method(4, "Fnord.java", "/com/test/fnord/", "fnord()");
+    public static final Method METHOD_05 = method(5, "Qux.java", "/com/test/qux/", "qux()");
 
     public static final ThreadMeta THREAD_01 = thread(1, "Thread-1");
     public static final ThreadMeta THREAD_02 = thread(2, "Thread-2");
