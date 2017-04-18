@@ -110,15 +110,8 @@ public class LeanLogCollectorTest
         // R02 - Event mix without StackFrames + EOL
 
         gen = new LeanProfileGenerator(true);
-        gen.handle(
-            START_01,
-            START_02,
-            THREAD_01,
-            METHOD_01,
-            START_03,
-            START_04,
-            METHOD_02,
-            THREAD_02);
+        gen.handle(START_01, START_02, THREAD_01, METHOD_01);
+        gen.handle(START_03, START_04, METHOD_02, THREAD_02);
         gen.endOfLog();
 
         gen.assertNothingEmitted();
