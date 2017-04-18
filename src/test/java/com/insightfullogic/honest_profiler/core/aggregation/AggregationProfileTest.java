@@ -55,8 +55,8 @@ public class AggregationProfileTest
         NumericInfo global = profile.getGlobalData();
 
         assertEquals("Global Self Count should be 0", 0, global.getSelfCnt());
-        assertEquals("Global Total Count wrong", 52, global.getTotalCnt());
+        assertEquals("Global Total Count wrong", 53, global.getTotalCnt());
         assertEquals("Global Self Time should be 0", ZERO, global.getSelfTime());
-        assertEquals("Global Total Time wrong", valueOf(nano(52)), global.getTotalTime());
+        assertEquals("Global Total Time wrong", valueOf(nano(53)), global.getTotalTime());
     }
 }
