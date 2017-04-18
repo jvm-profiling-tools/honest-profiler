@@ -1,5 +1,6 @@
 package com.insightfullogic.honest_profiler.core.collector.lean;
 
+import static com.insightfullogic.honest_profiler.core.aggregation.AggregationUtil.nano;
 import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.FRAME_01;
 import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.FRAME_02;
 import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.FRAME_03;
@@ -24,7 +25,6 @@ import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFa
 import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.method;
 import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.start;
 import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.thread;
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 import org.junit.Test;
 
@@ -556,10 +556,5 @@ public class LeanLogCollectorTest
         gen.handle(START_01, FRAME_01, START_02);
         gen.requestProfile();
         return gen;
-    }
-
-    private long nano(int seconds)
-    {
-        return SECONDS.toNanos(seconds);
     }
 }

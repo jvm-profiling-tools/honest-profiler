@@ -1,6 +1,6 @@
 package com.insightfullogic.honest_profiler.core.collector.lean;
 
-import com.insightfullogic.honest_profiler.core.LeanProfileGenerator;
+import com.insightfullogic.honest_profiler.core.LeanLogCollectorDriver;
 import com.insightfullogic.honest_profiler.core.parser.Method;
 import com.insightfullogic.honest_profiler.core.parser.StackFrame;
 import com.insightfullogic.honest_profiler.core.parser.ThreadMeta;
@@ -32,9 +32,8 @@ public class LogEventFactory
     public static final ThreadMeta THREAD_04 = thread(4, "Thread-4");
     public static final ThreadMeta THREAD_05 = thread(5, "Thread-5");
 
-    public static final LeanProfileGenerator getScenario()
+    public static final void applyScenario(LeanLogCollectorDriver gen)
     {
-        LeanProfileGenerator gen = new LeanProfileGenerator();
         gen.handle(THREAD_01, THREAD_02, THREAD_03, THREAD_04, THREAD_05);
         gen.handle(METHOD_01, METHOD_02, METHOD_03, METHOD_04, METHOD_05);
 
@@ -43,78 +42,86 @@ public class LogEventFactory
 
         // Thread 1
         thr++;
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
 
         // Thread 2
         thr++;
-        gen.handle(start(1, thr, sec++, 0), FRAME_05, FRAME_04, FRAME_03, FRAME_02, FRAME_01);
-        gen.handle(start(1, thr, sec++, 0), FRAME_05, FRAME_04, FRAME_03, FRAME_02, FRAME_01);
-        gen.handle(start(1, thr, sec++, 0), FRAME_05, FRAME_04, FRAME_03, FRAME_02, FRAME_01);
-        gen.handle(start(1, thr, sec++, 0), FRAME_05, FRAME_04, FRAME_03, FRAME_02, FRAME_01);
-        gen.handle(start(1, thr, sec++, 0), FRAME_05, FRAME_04, FRAME_03, FRAME_02, FRAME_01);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_05, FRAME_04, FRAME_03, FRAME_02, FRAME_01);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_05, FRAME_04, FRAME_03, FRAME_02, FRAME_01);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_05, FRAME_04, FRAME_03, FRAME_02, FRAME_01);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_05, FRAME_04, FRAME_03, FRAME_02, FRAME_01);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_05, FRAME_04, FRAME_03, FRAME_02, FRAME_01);
 
         // Thread 3
         thr++;
-        gen.handle(start(1, thr, sec++, 0), FRAME_05, FRAME_04, FRAME_03, FRAME_02, FRAME_01);
-        gen.handle(start(1, thr, sec++, 0), FRAME_05, FRAME_04, FRAME_03, FRAME_02, FRAME_01);
-        gen.handle(start(1, thr, sec++, 0), FRAME_05, FRAME_04, FRAME_03, FRAME_02, FRAME_01);
-        gen.handle(start(1, thr, sec++, 0), FRAME_05, FRAME_04, FRAME_03, FRAME_02, FRAME_01);
-        gen.handle(start(1, thr, sec++, 0), FRAME_05, FRAME_04, FRAME_03, FRAME_02, FRAME_01);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_05, FRAME_04, FRAME_03, FRAME_02, FRAME_01);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_05, FRAME_04, FRAME_03, FRAME_02, FRAME_01);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_05, FRAME_04, FRAME_03, FRAME_02, FRAME_01);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_05, FRAME_04, FRAME_03, FRAME_02, FRAME_01);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_05, FRAME_04, FRAME_03, FRAME_02, FRAME_01);
+
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
 
         // Thread 4
         thr++;
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_01);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_02);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_03);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_04);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_01);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_02);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_01);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_02);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_03);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_04);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
+
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03);
+
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_01);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_02);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02);
 
         // Thread 5
         thr++;
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_01);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_02);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_03);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_04);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_01);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_02);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_01);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_02);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_03);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_04);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
+
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03);
+
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_01);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_02);
+
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02);
 
         // Thread 6 (No ThreadInfo)
         thr++;
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_01);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_02);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_03);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_04);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_01);
-        gen.handle(start(1, thr, sec++, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_02);
-        gen.handle(start(1, thr, sec++, 0));
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_01);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_02);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_03);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_04);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_05);
+
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03);
+
+        gen.handle(start(1, thr, ++sec, 0), FRAME_02);
+
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_01);
+        gen.handle(start(1, thr, ++sec, 0), FRAME_01, FRAME_02, FRAME_03, FRAME_04, FRAME_02);
+        gen.handle(start(1, thr, ++sec, 0));
 
         gen.endOfLog();
-
-        return gen;
     }
 
     public static final TraceStart start(int numberOfFrames, long threadId, long sec, long nano)

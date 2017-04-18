@@ -11,24 +11,19 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 
-import com.insightfullogic.honest_profiler.core.collector.lean.LeanLogCollector;
 import com.insightfullogic.honest_profiler.core.parser.Method;
 import com.insightfullogic.honest_profiler.core.parser.StackFrame;
 import com.insightfullogic.honest_profiler.core.parser.ThreadMeta;
-import com.insightfullogic.honest_profiler.core.parser.TraceStart;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfile;
-import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfileListener;
 import com.insightfullogic.honest_profiler.core.profiles.lean.info.FrameInfo;
 import com.insightfullogic.honest_profiler.core.profiles.lean.info.MethodInfo;
 import com.insightfullogic.honest_profiler.core.profiles.lean.info.NumericInfo;
 import com.insightfullogic.honest_profiler.core.profiles.lean.info.ThreadInfo;
 
-public class LeanProfileGenerator implements LeanProfileListener
+public class LeanProfileGenerator extends LeanLogCollectorDriver
 {
     // Instance Properties
-
-    private LeanLogCollector collector;
 
     private LeanProfile previousProfile;
     private LeanProfile currentProfile;
@@ -155,11 +150,10 @@ public class LeanProfileGenerator implements LeanProfileListener
         for (StackFrame frame : frames)
         {
             level++;
-            Optional<LeanNode> child = current.getChildren().stream()
-                .filter(
-                    node -> node.getFrame().getMethodId() == frame.getMethodId()
-                        && node.getFrame().getLineNr() == frame.getLineNumber()
-                        && node.getFrame().getBci() == frame.getBci())
+            Optional<LeanNode> child = current.getChildren().stream().filter(
+                node -> node.getFrame().getMethodId() == frame.getMethodId()
+                    && node.getFrame().getLineNr() == frame.getLineNumber()
+                    && node.getFrame().getBci() == frame.getBci())
                 .findFirst();
             assertTrue("Descendant at level " + level + " not found", child.isPresent());
             current = child.get();
@@ -211,77 +205,5 @@ public class LeanProfileGenerator implements LeanProfileListener
         NumericInfo info = getNode(threadId, stack).getData();
         assertEquals("Wrong Self Time", BigInteger.valueOf(selfTime), info.getSelfTime());
         assertEquals("Wrong Total Time", BigInteger.valueOf(totalTime), info.getTotalTime());
-    }
-
-    // Initialization
-
-    public void resetAndRequest()
-    {
-        reset();
-        collector.requestProfile();
-    }
-
-    public void reset()
-    {
-        previousProfile = null;
-        currentProfile = null;
-        nrChanges = 0;
-
-        collector = new LeanLogCollector(this);
-    }
-
-    // Delegation for LogCollector
-
-    public void requestProfile()
-    {
-        collector.requestProfile();
-    }
-
-    public void handle(TraceStart... traceStarts)
-    {
-        asList(traceStarts).forEach(collector::handle);
-    }
-
-    public void handle(StackFrame... stackFrames)
-    {
-        asList(stackFrames).forEach(collector::handle);
-    }
-
-    public void handle(Method... methods)
-    {
-        asList(methods).forEach(collector::handle);
-    }
-
-    public void handle(ThreadMeta... threadMetas)
-    {
-        asList(threadMetas).forEach(collector::handle);
-    }
-
-    public void handle(Object... events)
-    {
-        asList(events).forEach(event ->
-        {
-            if (event instanceof TraceStart)
-            {
-                handle((TraceStart)event);
-            }
-            else if (event instanceof StackFrame)
-            {
-                handle((StackFrame)event);
-            }
-            else if (event instanceof Method)
-            {
-                handle((Method)event);
-            }
-            else if (event instanceof ThreadMeta)
-            {
-                handle((ThreadMeta)event);
-            }
-        });
-    }
-
-    public void endOfLog()
-    {
-        collector.endOfLog();
     }
 }
