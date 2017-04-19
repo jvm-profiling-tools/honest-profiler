@@ -84,6 +84,7 @@ public abstract class LeanLogCollectorDriver implements LeanProfileListener
         });
     }
 
+
     public void endOfLog()
     {
         collector.endOfLog();

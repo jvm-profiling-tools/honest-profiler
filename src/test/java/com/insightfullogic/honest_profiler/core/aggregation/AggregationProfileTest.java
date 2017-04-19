@@ -23,7 +23,7 @@ public class AggregationProfileTest
     public void checkThreadInfoLogic()
     {
         LeanProfileGenerator gen = new LeanProfileGenerator();
-        LogEventFactory.applyScenario(gen);
+        LogEventFactory.applyScenario09(gen);
         LeanProfile leanProfile = gen.getProfile();
 
         // Check initial state of ThreadNode ThreadInfo
@@ -50,13 +50,13 @@ public class AggregationProfileTest
     public void checkGlobalAggregation()
     {
         LeanProfileGenerator gen = new LeanProfileGenerator();
-        LogEventFactory.applyScenario(gen);
+        LogEventFactory.applyScenario09(gen);
         AggregationProfile profile = new AggregationProfile(gen.getProfile());
         NumericInfo global = profile.getGlobalData();
 
         assertEquals("Global Self Count should be 0", 0, global.getSelfCnt());
-        assertEquals("Global Total Count wrong", 53, global.getTotalCnt());
+        assertEquals("Global Total Count wrong", 91, global.getTotalCnt());
         assertEquals("Global Self Time should be 0", ZERO, global.getSelfTime());
-        assertEquals("Global Total Time wrong", valueOf(nano(53)), global.getTotalTime());
+        assertEquals("Global Total Time wrong", valueOf(nano(91)), global.getTotalTime());
     }
 }

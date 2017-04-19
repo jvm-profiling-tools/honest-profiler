@@ -3,6 +3,7 @@ package com.insightfullogic.honest_profiler.core.aggregation;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import com.insightfullogic.honest_profiler.core.parser.Method;
+import com.insightfullogic.honest_profiler.core.parser.StackFrame;
 
 public class AggregationUtil
 {
@@ -19,17 +20,17 @@ public class AggregationUtil
         return result.toString();
     }
 
-    public static final String getFqmnPlusBci(Method method)
+    public static final String getFqmnPlusBci(Method method, StackFrame frame)
     {
         StringBuilder result = new StringBuilder(getFqmn(method));
-        result.append(":").append(method.getBci());
+        result.append(":").append(frame.getBci());
         return result.toString();
     }
 
-    public static final String getFqmnPlusLineNr(Method method)
+    public static final String getFqmnPlusLineNr(Method method, StackFrame frame)
     {
         StringBuilder result = new StringBuilder(getFqmn(method));
-        result.append(":").append(method.getLine());
+        result.append(":").append(frame.getLineNumber());
         return result.toString();
     }
 

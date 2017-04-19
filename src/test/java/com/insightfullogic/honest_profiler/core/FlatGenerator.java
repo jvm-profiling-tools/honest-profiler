@@ -1,5 +1,6 @@
 package com.insightfullogic.honest_profiler.core;
 
+import static com.insightfullogic.honest_profiler.core.aggregation.AggregationUtil.nano;
 import static com.insightfullogic.honest_profiler.core.aggregation.grouping.CombinedGrouping.combine;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -47,7 +48,7 @@ public class FlatGenerator extends LeanLogCollectorDriver
 
     // Assertions
 
-    public void assertSizeEquals(int size)
+    public void assertAggregationSizeEquals(int size)
     {
         assertEquals("Wrong size of the Flat aggregation.", size, flat.getData().size());
     }
@@ -66,5 +67,10 @@ public class FlatGenerator extends LeanLogCollectorDriver
         assertEquals("Wrong total count for entry " + key, totalCount, entry.getTotalCnt());
         assertEquals("Wrong self time for entry " + key, selfTime, entry.getSelfTime());
         assertEquals("Wrong total time for entry " + key, totalTime, entry.getTotalTime());
+    }
+
+    public void assertContains(String key, int selfCount, int totalCount)
+    {
+        assertContains(key, selfCount, totalCount, nano(selfCount), nano(totalCount));
     }
 }
