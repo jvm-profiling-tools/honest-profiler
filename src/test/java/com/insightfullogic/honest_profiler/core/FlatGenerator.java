@@ -35,11 +35,6 @@ public class FlatGenerator extends LeanLogCollectorDriver
 
     // LeanProfileLister Implementation
 
-    public Flat getFlat()
-    {
-        return flat;
-    }
-
     @Override
     public void accept(LeanProfile profile)
     {
