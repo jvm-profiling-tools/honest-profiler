@@ -20,24 +20,47 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfile;
 
 public class TreeGenerator extends LeanLogCollectorDriver
 {
-    // Instance Properties
+    // Class Methods
 
-    private CombinedGrouping grouping;
-
-    private Tree tree;
-
-    // Instance Constructors
-
-    public TreeGenerator(ThreadGrouping threadGrouping, FrameGrouping frameGrouping)
+    public static final void assertAggregationSizeEquals(Tree tree, int size)
     {
-        grouping = combine(threadGrouping, frameGrouping);
-
-        reset();
+        assertEquals("Wrong size of the Tree aggregation.", size, tree.flatten().count());
     }
 
-    // Instance Accessors
+    public static final void assertContains(Tree tree, int selfCount, int totalCount, long selfTime,
+        long totalTime, String... keys)
+    {
+        Node node = getNode(tree, keys);
 
-    private Node getNode(String... keys)
+        assertNotNull(
+            "No node found with keys " + Arrays.toString(keys) + " (" + tree.getGrouping() + ")",
+            node);
+
+        assertEquals(
+            "Wrong self count for entry " + Arrays.toString(keys),
+            selfCount,
+            node.getSelfCnt());
+        assertEquals(
+            "Wrong total count for entry " + Arrays.toString(keys),
+            totalCount,
+            node.getTotalCnt());
+        assertEquals(
+            "Wrong self time for entry " + Arrays.toString(keys),
+            selfTime,
+            node.getSelfTime());
+        assertEquals(
+            "Wrong total time for entry " + Arrays.toString(keys),
+            totalTime,
+            node.getTotalTime());
+    }
+
+    public static final void assertContains(Tree tree, int selfCount, int totalCount,
+        String... keys)
+    {
+        assertContains(tree, selfCount, totalCount, nano(selfCount), nano(totalCount), keys);
+    }
+
+    public static final Node getNode(Tree tree, String... keys)
     {
         if (keys == null || keys.length == 0)
         {
@@ -61,6 +84,28 @@ public class TreeGenerator extends LeanLogCollectorDriver
         return result.get();
     }
 
+    // Instance Properties
+
+    private CombinedGrouping grouping;
+
+    private Tree tree;
+
+    // Instance Constructors
+
+    public TreeGenerator(ThreadGrouping threadGrouping, FrameGrouping frameGrouping)
+    {
+        grouping = combine(threadGrouping, frameGrouping);
+
+        reset();
+    }
+
+    // Instance Accessors
+
+    public Node getNode(String... keys)
+    {
+        return getNode(tree, keys);
+    }
+
     // LeanProfileLister Implementation
 
     @Override
@@ -73,36 +118,17 @@ public class TreeGenerator extends LeanLogCollectorDriver
 
     public void assertAggregationSizeEquals(int size)
     {
-        assertEquals("Wrong size of the Tree aggregation.", size, tree.flatten().count());
+        assertAggregationSizeEquals(tree, size);
     }
 
     public void assertContains(int selfCount, int totalCount, long selfTime, long totalTime,
         String... keys)
     {
-        Node node = getNode(keys);
-
-        assertNotNull("No node found with keys " + Arrays.toString(keys), node);
-
-        assertEquals(
-            "Wrong self count for entry " + Arrays.toString(keys),
-            selfCount,
-            node.getSelfCnt());
-        assertEquals(
-            "Wrong total count for entry " + Arrays.toString(keys),
-            totalCount,
-            node.getTotalCnt());
-        assertEquals(
-            "Wrong self time for entry " + Arrays.toString(keys),
-            selfTime,
-            node.getSelfTime());
-        assertEquals(
-            "Wrong total time for entry " + Arrays.toString(keys),
-            totalTime,
-            node.getTotalTime());
+        assertContains(tree, selfCount, totalCount, selfTime, totalTime, keys);
     }
 
     public void assertContains(int selfCount, int totalCount, String... keys)
     {
-        assertContains(selfCount, totalCount, nano(selfCount), nano(totalCount), keys);
+        assertContains(tree, selfCount, totalCount, keys);
     }
 }

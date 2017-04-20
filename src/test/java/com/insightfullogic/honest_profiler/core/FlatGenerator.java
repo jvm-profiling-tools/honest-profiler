@@ -18,6 +18,40 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfile;
 
 public class FlatGenerator extends LeanLogCollectorDriver
 {
+    // Class Methods
+
+    public static final void assertAggregationSizeEquals(Flat flat, int size)
+    {
+        assertEquals("Wrong size of the Flat aggregation.", size, flat.getData().size());
+    }
+
+    public static final void assertContains(Flat flat, String key, int selfCount, int totalCount,
+        long selfTime, long totalTime)
+    {
+        Optional<Entry> result = flat.getData().stream().filter(entry -> key.equals(entry.getKey()))
+            .findFirst();
+
+        assertTrue("No entry found with key " + key, result.isPresent());
+
+        Entry entry = result.get();
+
+        assertEquals("Wrong self count for entry " + key, selfCount, entry.getSelfCnt());
+        assertEquals("Wrong total count for entry " + key, totalCount, entry.getTotalCnt());
+        assertEquals("Wrong self time for entry " + key, selfTime, entry.getSelfTime());
+        assertEquals("Wrong total time for entry " + key, totalTime, entry.getTotalTime());
+    }
+
+    public static final void assertContains(Flat flat, String key, int selfCount, int totalCount)
+    {
+        assertContains(flat, key, selfCount, totalCount, nano(selfCount), nano(totalCount));
+    }
+
+    public static final Entry getEntry(Flat flat, String key)
+    {
+        return flat.getData().stream().filter(entry -> key.equals(entry.getKey())).findFirst()
+            .get();
+    }
+
     // Instance Properties
 
     private CombinedGrouping grouping;
@@ -33,6 +67,13 @@ public class FlatGenerator extends LeanLogCollectorDriver
         reset();
     }
 
+    // Instance accessors
+
+    public Entry getEntry(String key)
+    {
+        return getEntry(flat, key);
+    }
+
     // LeanProfileLister Implementation
 
     @Override
@@ -45,27 +86,17 @@ public class FlatGenerator extends LeanLogCollectorDriver
 
     public void assertAggregationSizeEquals(int size)
     {
-        assertEquals("Wrong size of the Flat aggregation.", size, flat.getData().size());
+        assertAggregationSizeEquals(flat, size);
     }
 
     public void assertContains(String key, int selfCount, int totalCount, long selfTime,
         long totalTime)
     {
-        Optional<Entry> result = flat.getData().stream().filter(entry -> key.equals(entry.getKey()))
-            .findFirst();
-
-        assertTrue("No entry found with key " + key, result.isPresent());
-
-        Entry entry = result.get();
-
-        assertEquals("Wrong self count for entry " + key, selfCount, entry.getSelfCnt());
-        assertEquals("Wrong total count for entry " + key, totalCount, entry.getTotalCnt());
-        assertEquals("Wrong self time for entry " + key, selfTime, entry.getSelfTime());
-        assertEquals("Wrong total time for entry " + key, totalTime, entry.getTotalTime());
+        assertContains(flat, key, selfCount, totalCount, selfTime, totalTime);
     }
 
     public void assertContains(String key, int selfCount, int totalCount)
     {
-        assertContains(key, selfCount, totalCount, nano(selfCount), nano(totalCount));
+        assertContains(flat, key, selfCount, totalCount);
     }
 }

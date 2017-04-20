@@ -45,7 +45,7 @@ public class AggregationUtil
         return null;
     }
 
-    // -> List of parents identifying a Tree node
+    // -> List of parents identifying a Tree node in a Tree with Thread root nodes
     public static final String[] keysFor(ThreadGrouping threadGrouping, FrameGrouping frameGrouping,
         ThreadMeta thread, StackFrame... frames)
     {
@@ -73,6 +73,22 @@ public class AggregationUtil
 
         return result;
     }
+
+    // -> List of parents identifying a Tree node in a Tree with non-Thread root nodes
+    public static final String[] keysFor(FrameGrouping frameGrouping, StackFrame... frames)
+    {
+
+        String[] result = new String[frames.length];
+
+        int idx = 0;
+        for (StackFrame frame : frames)
+        {
+            result[idx++] = keyFor(frameGrouping, frame);
+        }
+
+        return result;
+    }
+
     private static final String toFqmn(Method method)
     {
         StringBuilder result = new StringBuilder();
