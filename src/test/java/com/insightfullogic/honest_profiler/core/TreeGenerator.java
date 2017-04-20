@@ -11,6 +11,7 @@ import java.util.Optional;
 
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
 import com.insightfullogic.honest_profiler.core.aggregation.aggregator.TreeProfileAggregator;
+import com.insightfullogic.honest_profiler.core.aggregation.filter.FilterSpecification;
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.CombinedGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping;
@@ -104,6 +105,13 @@ public class TreeGenerator extends LeanLogCollectorDriver
     public Node getNode(String... keys)
     {
         return getNode(tree, keys);
+    }
+
+    // Filter delegation
+
+    public Tree filter(FilterSpecification<Node> filter)
+    {
+        return tree.filter(filter);
     }
 
     // LeanProfileLister Implementation

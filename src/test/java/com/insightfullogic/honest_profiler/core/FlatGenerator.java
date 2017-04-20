@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
 import com.insightfullogic.honest_profiler.core.aggregation.aggregator.FlatProfileAggregator;
+import com.insightfullogic.honest_profiler.core.aggregation.filter.FilterSpecification;
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.CombinedGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping;
@@ -72,6 +73,13 @@ public class FlatGenerator extends LeanLogCollectorDriver
     public Entry getEntry(String key)
     {
         return getEntry(flat, key);
+    }
+
+    // Filter delegation
+
+    public Flat filter(FilterSpecification<Entry> filter)
+    {
+        return flat.filter(filter);
     }
 
     // LeanProfileLister Implementation
