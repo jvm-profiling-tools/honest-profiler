@@ -64,7 +64,7 @@ public enum Comparison
         switch (comparison)
         {
             case EQUALS_NR:
-                return nr -> nr == value;
+                return nr -> nr.doubleValue() == value.doubleValue();
             case GT:
                 return nr -> nr > value;
             case LT:
@@ -92,7 +92,7 @@ public enum Comparison
         switch (comparison)
         {
             case EQUALS_NR:
-                return nr -> nr == value;
+                return nr -> nr.intValue() == value.intValue();
             case GT:
                 return nr -> nr > value;
             case LT:
@@ -120,7 +120,7 @@ public enum Comparison
         switch (comparison)
         {
             case EQUALS_NR:
-                return nr -> nr == value;
+                return nr -> nr.longValue() == value.longValue();
             case GT:
                 return nr -> nr > value;
             case LT:
