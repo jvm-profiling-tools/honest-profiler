@@ -2,9 +2,13 @@ package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
 import static com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping.BY_ID;
 import static com.insightfullogic.honest_profiler.framework.ParameterUtil.getScenariosAndFrameGroupings;
+import static com.insightfullogic.honest_profiler.ports.javafx.ViewType.FLAT;
 import static com.insightfullogic.honest_profiler.ports.javafx.framework.HPFXUtil.getFlatTableView;
 import static com.insightfullogic.honest_profiler.ports.javafx.framework.HPFXUtil.newProfileTab;
+import static com.insightfullogic.honest_profiler.ports.javafx.framework.HPFXUtil.selectFrameGrouping;
+import static com.insightfullogic.honest_profiler.ports.javafx.framework.HPFXUtil.selectView;
 import static com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext.ProfileMode.LOG;
+import static javafx.application.Platform.runLater;
 
 import java.util.Collection;
 
@@ -18,8 +22,6 @@ import com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGroupi
 import com.insightfullogic.honest_profiler.framework.checker.FlatTableViewCheckAdapter;
 import com.insightfullogic.honest_profiler.framework.scenario.SimplifiedLogScenario;
 import com.insightfullogic.honest_profiler.ports.javafx.framework.AbstractJavaFxTest;
-
-import javafx.scene.control.TableView;
 
 @RunWith(Parameterized.class)
 public class FlatViewTest extends AbstractJavaFxTest
@@ -35,14 +37,14 @@ public class FlatViewTest extends AbstractJavaFxTest
     // Instance Properties
 
     private SimplifiedLogScenario scenario;
-    private FrameGrouping grouping;
+    private FrameGrouping frameGrouping;
 
     // Instance Constructors
 
-    public FlatViewTest(SimplifiedLogScenario scenario, FrameGrouping grouping)
+    public FlatViewTest(SimplifiedLogScenario scenario, FrameGrouping frameGrouping)
     {
         this.scenario = scenario;
-        this.grouping = grouping;
+        this.frameGrouping = frameGrouping;
     }
 
     // Actual Test Method
@@ -52,8 +54,12 @@ public class FlatViewTest extends AbstractJavaFxTest
     {
         FxRobot robot = new FxRobot();
         newProfileTab(robot, app(), 0, scenario.getName(), scenario, LOG);
-        TableView<?> tableView = getFlatTableView(robot);
-        robot.clickOn("#frameGrouping").clickOn(grouping.toString());
-        scenario.checkLinearAggregation(new FlatTableViewCheckAdapter(BY_ID, grouping, tableView));
+
+        selectView(robot, FLAT);
+        selectFrameGrouping(robot, frameGrouping, "#flat");
+
+        runLater(
+            () -> scenario.checkLinearAggregation(
+                new FlatTableViewCheckAdapter(BY_ID, frameGrouping, getFlatTableView(robot))));
     }
 }

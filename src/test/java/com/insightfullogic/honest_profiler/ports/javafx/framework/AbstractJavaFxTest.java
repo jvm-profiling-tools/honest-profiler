@@ -1,5 +1,6 @@
 package com.insightfullogic.honest_profiler.ports.javafx.framework;
 
+import static com.insightfullogic.honest_profiler.ports.javafx.framework.HPFXUtil.isHeadless;
 import static org.junit.Assert.assertNotNull;
 import static org.testfx.api.FxToolkit.registerPrimaryStage;
 import static org.testfx.api.FxToolkit.setupApplication;
@@ -29,6 +30,15 @@ public abstract class AbstractJavaFxTest
     @BeforeClass
     public static void setupSpec() throws Exception
     {
+        if (isHeadless())
+        {
+            System.setProperty("testfx.robot", "glass");
+            System.setProperty("testfx.headless", "true");
+            System.setProperty("prism.order", "sw");
+            System.setProperty("prism.text", "t2k");
+            System.setProperty("java.awt.headless", "true");
+        }
+
         registerPrimaryStage();
         setupStage(stage -> stage.show());
     }
