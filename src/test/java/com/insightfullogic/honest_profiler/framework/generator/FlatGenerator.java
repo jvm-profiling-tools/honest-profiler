@@ -1,7 +1,7 @@
-package com.insightfullogic.honest_profiler.core;
+package com.insightfullogic.honest_profiler.framework.generator;
 
-import static com.insightfullogic.honest_profiler.core.aggregation.AggregationUtil.nano;
 import static com.insightfullogic.honest_profiler.core.aggregation.grouping.CombinedGrouping.combine;
+import static com.insightfullogic.honest_profiler.framework.AggregationUtil.nano;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -16,6 +16,7 @@ import com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGroup
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfile;
+import com.insightfullogic.honest_profiler.framework.LeanLogCollectorDriver;
 
 public class FlatGenerator extends LeanLogCollectorDriver
 {
@@ -69,6 +70,11 @@ public class FlatGenerator extends LeanLogCollectorDriver
     }
 
     // Instance accessors
+
+    public Flat getFlat()
+    {
+        return flat;
+    }
 
     public Entry getEntry(String key)
     {

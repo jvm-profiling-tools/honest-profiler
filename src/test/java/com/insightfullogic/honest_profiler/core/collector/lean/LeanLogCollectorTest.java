@@ -1,34 +1,34 @@
 package com.insightfullogic.honest_profiler.core.collector.lean;
 
-import static com.insightfullogic.honest_profiler.core.aggregation.AggregationUtil.nano;
-import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.F_01;
-import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.F_02;
-import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.F_03;
-import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.F_04;
-import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.F_05;
-import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.M_01;
-import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.M_02;
-import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.M_03;
-import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.M_04;
-import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.M_05;
-import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.S_01;
-import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.S_02;
-import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.S_03;
-import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.S_04;
-import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.S_05;
-import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.T_01;
-import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.T_02;
-import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.T_03;
-import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.T_04;
-import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.T_05;
-import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.frame;
-import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.method;
-import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.start;
-import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.thread;
+import static com.insightfullogic.honest_profiler.framework.AggregationUtil.nano;
+import static com.insightfullogic.honest_profiler.framework.LogEventFactory.F_01;
+import static com.insightfullogic.honest_profiler.framework.LogEventFactory.F_02;
+import static com.insightfullogic.honest_profiler.framework.LogEventFactory.F_03;
+import static com.insightfullogic.honest_profiler.framework.LogEventFactory.F_04;
+import static com.insightfullogic.honest_profiler.framework.LogEventFactory.F_05;
+import static com.insightfullogic.honest_profiler.framework.LogEventFactory.M_01;
+import static com.insightfullogic.honest_profiler.framework.LogEventFactory.M_02;
+import static com.insightfullogic.honest_profiler.framework.LogEventFactory.M_03;
+import static com.insightfullogic.honest_profiler.framework.LogEventFactory.M_04;
+import static com.insightfullogic.honest_profiler.framework.LogEventFactory.M_05;
+import static com.insightfullogic.honest_profiler.framework.LogEventFactory.S_01;
+import static com.insightfullogic.honest_profiler.framework.LogEventFactory.S_02;
+import static com.insightfullogic.honest_profiler.framework.LogEventFactory.S_03;
+import static com.insightfullogic.honest_profiler.framework.LogEventFactory.S_04;
+import static com.insightfullogic.honest_profiler.framework.LogEventFactory.S_05;
+import static com.insightfullogic.honest_profiler.framework.LogEventFactory.T_01;
+import static com.insightfullogic.honest_profiler.framework.LogEventFactory.T_02;
+import static com.insightfullogic.honest_profiler.framework.LogEventFactory.T_03;
+import static com.insightfullogic.honest_profiler.framework.LogEventFactory.T_04;
+import static com.insightfullogic.honest_profiler.framework.LogEventFactory.T_05;
+import static com.insightfullogic.honest_profiler.framework.LogEventFactory.frame;
+import static com.insightfullogic.honest_profiler.framework.LogEventFactory.method;
+import static com.insightfullogic.honest_profiler.framework.LogEventFactory.start;
+import static com.insightfullogic.honest_profiler.framework.LogEventFactory.thread;
 
 import org.junit.Test;
 
-import com.insightfullogic.honest_profiler.core.LeanProfileGenerator;
+import com.insightfullogic.honest_profiler.framework.generator.LeanProfileGenerator;
 
 public class LeanLogCollectorTest
 {

@@ -1,6 +1,7 @@
 package com.insightfullogic.honest_profiler.core.aggregation;
 
-import static com.insightfullogic.honest_profiler.core.aggregation.AggregationUtil.nano;
+import static com.insightfullogic.honest_profiler.framework.AggregationUtil.nano;
+import static com.insightfullogic.honest_profiler.framework.LogEventFactory.SCENARIOS;
 import static java.math.BigInteger.ZERO;
 import static java.math.BigInteger.valueOf;
 import static org.junit.Assert.assertEquals;
@@ -11,11 +12,10 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import com.insightfullogic.honest_profiler.core.LeanProfileGenerator;
-import com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfile;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanThreadNode;
 import com.insightfullogic.honest_profiler.core.profiles.lean.info.NumericInfo;
+import com.insightfullogic.honest_profiler.framework.generator.LeanProfileGenerator;
 
 public class AggregationProfileTest
 {
@@ -23,7 +23,7 @@ public class AggregationProfileTest
     public void checkThreadInfoLogic()
     {
         LeanProfileGenerator gen = new LeanProfileGenerator();
-        LogEventFactory.applyScenario09(gen);
+        SCENARIOS.get(7).executeAndEnd(gen);
         LeanProfile leanProfile = gen.getProfile();
 
         // Check initial state of ThreadNode ThreadInfo
@@ -50,7 +50,7 @@ public class AggregationProfileTest
     public void checkGlobalAggregation()
     {
         LeanProfileGenerator gen = new LeanProfileGenerator();
-        LogEventFactory.applyScenario09(gen);
+        SCENARIOS.get(7).executeAndEnd(gen);
         AggregationProfile profile = new AggregationProfile(gen.getProfile());
         NumericInfo global = profile.getGlobalData();
 

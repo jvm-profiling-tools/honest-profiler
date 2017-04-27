@@ -1,6 +1,6 @@
-package com.insightfullogic.honest_profiler.core.aggregation;
+package com.insightfullogic.honest_profiler.framework;
 
-import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.methodFor;
+import static com.insightfullogic.honest_profiler.framework.LogEventFactory.methodFor;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping;
@@ -130,5 +130,12 @@ public class AggregationUtil
         }
 
         return thread.getThreadName();
+    }
+
+    // Instance Constructors
+
+    private AggregationUtil()
+    {
+        // Private utility class constructor.
     }
 }

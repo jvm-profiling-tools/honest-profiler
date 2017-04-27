@@ -1,7 +1,7 @@
-package com.insightfullogic.honest_profiler.core;
+package com.insightfullogic.honest_profiler.framework.generator;
 
-import static com.insightfullogic.honest_profiler.core.aggregation.AggregationUtil.nano;
 import static com.insightfullogic.honest_profiler.core.aggregation.grouping.CombinedGrouping.combine;
+import static com.insightfullogic.honest_profiler.framework.AggregationUtil.nano;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -18,6 +18,7 @@ import com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGroup
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfile;
+import com.insightfullogic.honest_profiler.framework.LeanLogCollectorDriver;
 
 public class TreeGenerator extends LeanLogCollectorDriver
 {
@@ -101,6 +102,11 @@ public class TreeGenerator extends LeanLogCollectorDriver
     }
 
     // Instance Accessors
+
+    public Tree getTree()
+    {
+        return tree;
+    }
 
     public Node getNode(String... keys)
     {

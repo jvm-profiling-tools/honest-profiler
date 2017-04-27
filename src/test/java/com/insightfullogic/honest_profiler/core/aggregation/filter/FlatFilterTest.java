@@ -1,7 +1,5 @@
 package com.insightfullogic.honest_profiler.core.aggregation.filter;
 
-import static com.insightfullogic.honest_profiler.core.FlatGenerator.assertAggregationSizeEquals;
-import static com.insightfullogic.honest_profiler.core.aggregation.AggregationUtil.nano;
 import static com.insightfullogic.honest_profiler.core.aggregation.filter.Comparison.CONTAINS;
 import static com.insightfullogic.honest_profiler.core.aggregation.filter.Comparison.ENDS_WITH;
 import static com.insightfullogic.honest_profiler.core.aggregation.filter.Comparison.EQUALS_NR;
@@ -23,16 +21,18 @@ import static com.insightfullogic.honest_profiler.core.aggregation.filter.Target
 import static com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping.BY_FQMN;
 import static com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping.BY_ID;
 import static com.insightfullogic.honest_profiler.core.aggregation.result.ItemType.ENTRY;
-import static com.insightfullogic.honest_profiler.core.collector.lean.LogEventFactory.applyScenario09;
+import static com.insightfullogic.honest_profiler.framework.AggregationUtil.nano;
+import static com.insightfullogic.honest_profiler.framework.LogEventFactory.SCENARIOS;
+import static com.insightfullogic.honest_profiler.framework.generator.FlatGenerator.assertAggregationSizeEquals;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 import com.google.common.base.Predicate;
-import com.insightfullogic.honest_profiler.core.FlatGenerator;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
+import com.insightfullogic.honest_profiler.framework.generator.FlatGenerator;
 
 public class FlatFilterTest
 {
@@ -40,7 +40,7 @@ public class FlatFilterTest
     public void testFlatFiltering()
     {
         FlatGenerator gen = new FlatGenerator(BY_ID, BY_FQMN);
-        applyScenario09(gen);
+        SCENARIOS.get(7).executeAndEnd(gen);
 
         check(gen, SELF_COUNT, EQUALS_NR, 99, 0, entry -> entry.getSelfCnt() == 99);
         check(gen, SELF_COUNT, EQUALS_NR, 0, 1, entry -> entry.getSelfCnt() == 0);

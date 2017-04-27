@@ -1,8 +1,9 @@
-package com.insightfullogic.honest_profiler.core;
+package com.insightfullogic.honest_profiler.framework;
 
 import static java.util.Arrays.asList;
 
 import com.insightfullogic.honest_profiler.core.collector.lean.LeanLogCollector;
+import com.insightfullogic.honest_profiler.core.parser.LogEvent;
 import com.insightfullogic.honest_profiler.core.parser.Method;
 import com.insightfullogic.honest_profiler.core.parser.StackFrame;
 import com.insightfullogic.honest_profiler.core.parser.ThreadMeta;
@@ -61,7 +62,7 @@ public abstract class LeanLogCollectorDriver implements LeanProfileListener
         asList(threadMetas).forEach(collector::handle);
     }
 
-    public void handle(Object... events)
+    public void handle(LogEvent... events)
     {
         asList(events).forEach(event ->
         {
@@ -83,7 +84,6 @@ public abstract class LeanLogCollectorDriver implements LeanProfileListener
             }
         });
     }
-
 
     public void endOfLog()
     {

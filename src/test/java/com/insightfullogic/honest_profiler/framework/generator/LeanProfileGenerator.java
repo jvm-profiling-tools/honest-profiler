@@ -1,4 +1,4 @@
-package com.insightfullogic.honest_profiler.core;
+package com.insightfullogic.honest_profiler.framework.generator;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.reverse;
@@ -20,6 +20,7 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.info.FrameInfo;
 import com.insightfullogic.honest_profiler.core.profiles.lean.info.MethodInfo;
 import com.insightfullogic.honest_profiler.core.profiles.lean.info.NumericInfo;
 import com.insightfullogic.honest_profiler.core.profiles.lean.info.ThreadInfo;
+import com.insightfullogic.honest_profiler.framework.LeanLogCollectorDriver;
 
 public class LeanProfileGenerator extends LeanLogCollectorDriver
 {
