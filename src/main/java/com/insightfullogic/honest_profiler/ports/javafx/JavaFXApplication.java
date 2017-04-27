@@ -21,7 +21,11 @@ package com.insightfullogic.honest_profiler.ports.javafx;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.FXML_ROOT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.FxUtil.loaderFor;
 
+import java.io.File;
+
 import com.insightfullogic.honest_profiler.ports.javafx.controller.RootController;
+import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
+import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext.ProfileMode;
 import com.insightfullogic.honest_profiler.ports.javafx.util.FontUtil;
 
 import javafx.application.Application;
@@ -68,5 +72,22 @@ public class JavaFXApplication extends Application
     public static void main(String[] args)
     {
         launch(args);
+    }
+
+    // For Unit Testing Only
+
+    public ProfileContext getContextForFile(File file, ProfileMode mode)
+    {
+        return rootController.getContextForFile(file, mode);
+    }
+
+    public void testNewProfile(File file, boolean live)
+    {
+        rootController.testNewProfile(file, live);
+    }
+
+    public void testNewProfile(ProfileContext context)
+    {
+        rootController.testNewProfile(context);
     }
 }
