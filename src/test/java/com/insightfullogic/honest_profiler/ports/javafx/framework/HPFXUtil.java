@@ -1,13 +1,14 @@
 package com.insightfullogic.honest_profiler.ports.javafx.framework;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static javafx.application.Platform.runLater;
 import static javafx.scene.input.MouseButton.PRIMARY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.testfx.util.WaitForAsyncUtils.asyncFx;
 import static org.testfx.util.WaitForAsyncUtils.waitFor;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 
 import org.testfx.api.FxRobot;
@@ -67,14 +68,16 @@ public class HPFXUtil
 
     public static TableView<Entry> getFlatTableView(FxRobot robot)
     {
-        TableView<Entry> result = robot.from(robot.lookup("#flat")).lookup("#flatTable").query();
+        javafx.scene.Node context = getContext(robot, "#flat");
+        TableView<Entry> result = robot.from(context).lookup("#flatTable").query();
         wait(() -> result.isVisible());
         return result;
     }
 
     public static TreeTableView<Node> getTreeTableView(FxRobot robot)
     {
-        TreeTableView<Node> result = robot.from(robot.lookup("#tree")).lookup("#treeTable").query();
+        javafx.scene.Node context = getContext(robot, "#tree");
+        TreeTableView<Node> result = robot.from(context).lookup("#treeTable").query();
         wait(() -> result.isVisible());
         wait(() -> result.getRoot() != null);
         return result;
@@ -84,13 +87,14 @@ public class HPFXUtil
 
     public static void clickExpandAll(FxRobot robot, String contextId)
     {
-        Button button = robot.from(robot.lookup(contextId)).lookup("#expandAllButton").query();
+        javafx.scene.Node context = getContext(robot, contextId);
+        Button button = robot.from(context).lookup("#expandAllButton").query();
 
         wait(() -> button.isVisible() && !button.isDisabled());
 
         if (isHeadless())
         {
-            button.fire();
+            wait(asyncFx(() -> button.fire()));
         }
         else
         {
@@ -115,14 +119,12 @@ public class HPFXUtil
         }
         else
         {
-            wait(() -> robot.lookup(contextId).query() != null);
-            javafx.scene.Node context = robot.lookup(contextId).query();
+            javafx.scene.Node context = getContext(robot, contextId);
             choiceBox = robot.from(context).lookup(fxId).query();
         }
 
         wait(() -> choiceBox.isVisible() && !choiceBox.isDisabled());
-        runLater(() -> choiceBox.getSelectionModel().select(choice));
-        wait(() -> choiceBox.getSelectionModel().getSelectedItem() == choice);
+        wait(asyncFx(() -> choiceBox.getSelectionModel().select(choice)));
     }
 
     public static void selectView(FxRobot robot, ViewType viewType)
@@ -159,6 +161,16 @@ public class HPFXUtil
         selectChoice(robot, frameGrouping, "#frameGrouping", contextIdId);
     }
 
+    // Context Lookup
+
+    public static javafx.scene.Node getContext(FxRobot robot, String contextId)
+    {
+        wait(() -> robot.lookup(contextId).query() != null);
+        return robot.lookup(contextId).query();
+    }
+
+    // waitFor() Wrappers
+
     public static void wait(Callable<Boolean> condition)
     {
         wait(condition, null);
@@ -169,6 +181,28 @@ public class HPFXUtil
         try
         {
             waitFor(10, SECONDS, condition);
+        }
+        catch (TimeoutException toe)
+        {
+            toe.printStackTrace();
+            fail(
+                (failureMessage == null ? "A Timeout occurred : " : failureMessage + " : ")
+                    + toe.getClass().getCanonicalName()
+                    + " : "
+                    + toe.getMessage());
+        }
+    }
+
+    public static <T> void wait(Future<T> future)
+    {
+        wait(future, null);
+    }
+
+    public static <T> void wait(Future<T> future, String failureMessage)
+    {
+        try
+        {
+            waitFor(10, SECONDS, future);
         }
         catch (TimeoutException toe)
         {

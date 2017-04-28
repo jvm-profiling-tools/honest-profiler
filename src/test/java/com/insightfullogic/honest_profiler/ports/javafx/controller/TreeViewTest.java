@@ -60,17 +60,18 @@ public class TreeViewTest extends AbstractJavaFxTest
     public void testTreeViewScenario()
     {
         FxRobot robot = new FxRobot();
+
         newProfileTab(robot, app(), 0, scenario.getName(), scenario, LOG);
 
         selectView(robot, TREE);
         selectThreadGrouping(robot, threadGrouping, "#tree");
         selectFrameGrouping(robot, frameGrouping, "#tree");
+
         clickExpandAll(robot, "#tree");
 
         TreeTableView<Node> tableView = getTreeTableView(robot);
 
         runLater(() -> scenario.checkTreeAggregation(
             new TreeTableViewCheckAdapter(threadGrouping, frameGrouping, tableView)));
-
     }
 }
