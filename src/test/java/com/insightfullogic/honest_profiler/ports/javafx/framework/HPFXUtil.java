@@ -47,18 +47,18 @@ public class HPFXUtil
         int expectedIndex, String name, LogScenario scenario, ProfileMode mode)
     {
         TabPane tabPane = robot.lookup("#profileTabs").query();
-        wait(() -> tabPane.isVisible());
+        waitUntil(() -> tabPane.isVisible());
 
         assertEquals(expectedIndex, tabPane.getTabs().size());
 
         ProfileContextGenerator gen = new ProfileContextGenerator(application, name, mode);
-        gen.createNewProfile(scenario);
+        waitUntil(asyncFx(() -> gen.createNewProfile(scenario)));
 
-        wait(() -> tabPane.getTabs().size() == expectedIndex + 1);
+        waitUntil(() -> tabPane.getTabs().size() == expectedIndex + 1);
 
         Tab tab = tabPane.getTabs().get(expectedIndex);
 
-        wait(
+        waitUntil(
             () -> ((Parent)tab.getGraphic()).getChildrenUnmodifiable().stream()
                 .filter(node -> node instanceof Label && name.equals(((Label)node).getText()))
                 .findFirst().isPresent());
@@ -70,7 +70,7 @@ public class HPFXUtil
     {
         javafx.scene.Node context = getContext(robot, "#flat");
         TableView<Entry> result = robot.from(context).lookup("#flatTable").query();
-        wait(() -> result.isVisible());
+        waitUntil(() -> result.isVisible());
         return result;
     }
 
@@ -78,27 +78,55 @@ public class HPFXUtil
     {
         javafx.scene.Node context = getContext(robot, "#tree");
         TreeTableView<Node> result = robot.from(context).lookup("#treeTable").query();
-        wait(() -> result.isVisible());
-        wait(() -> result.getRoot() != null);
+        waitUntil(() -> result.isVisible());
+        waitUntil(() -> result.getRoot() != null);
         return result;
     }
 
-    // Button Clicking
+    // Clicking
 
-    public static void clickExpandAll(FxRobot robot, String contextId)
+    public static void clickButton(FxRobot robot, String nodeId, String contextId)
     {
         javafx.scene.Node context = getContext(robot, contextId);
-        Button button = robot.from(context).lookup("#expandAllButton").query();
+        Button button = robot.from(context).lookup(nodeId).query();
 
-        wait(() -> button.isVisible() && !button.isDisabled());
+        waitUntil(() -> button.isVisible() && !button.isDisabled());
 
         if (isHeadless())
         {
-            wait(asyncFx(() -> button.fire()));
+            waitUntil(asyncFx(() -> button.fire()));
         }
         else
         {
             robot.clickOn(button, PRIMARY);
+        }
+    }
+
+    public static void clickExpandAll(FxRobot robot, String contextId)
+    {
+        clickButton(robot, "#expandAllButton", contextId);
+    }
+
+    public static void clickQuickFilterButton(FxRobot robot, String contextId)
+    {
+        clickButton(robot, "#quickFilterButton", contextId);
+    }
+
+    public static void focusOn(FxRobot robot, String nodeId, String contextId)
+    {
+        javafx.scene.Node context = getContext(robot, contextId);
+        javafx.scene.Node node = robot.from(context).lookup(nodeId).query();
+
+        waitUntil(() -> node.isVisible() && !node.isDisabled());
+
+        if (isHeadless())
+        {
+            waitUntil(asyncFx(() -> node.requestFocus()));
+            waitUntil(asyncFx(() -> node.isFocused()));
+        }
+        else
+        {
+            robot.clickOn(node, PRIMARY);
         }
     }
 
@@ -123,8 +151,8 @@ public class HPFXUtil
             choiceBox = robot.from(context).lookup(fxId).query();
         }
 
-        wait(() -> choiceBox.isVisible() && !choiceBox.isDisabled());
-        wait(asyncFx(() -> choiceBox.getSelectionModel().select(choice)));
+        waitUntil(() -> choiceBox.isVisible() && !choiceBox.isDisabled());
+        waitUntil(asyncFx(() -> choiceBox.getSelectionModel().select(choice)));
     }
 
     public static void selectView(FxRobot robot, ViewType viewType)
@@ -133,16 +161,16 @@ public class HPFXUtil
         switch (viewType)
         {
             case FLAT:
-                wait(() -> robot.lookup("#flat").query() != null);
-                wait(() -> robot.lookup("#flat").query().isVisible());
+                waitUntil(() -> robot.lookup("#flat").query() != null);
+                waitUntil(() -> robot.lookup("#flat").query().isVisible());
                 return;
             case TREE:
-                wait(() -> robot.lookup("#tree").query() != null);
-                wait(() -> robot.lookup("#tree").query().isVisible());
+                waitUntil(() -> robot.lookup("#tree").query() != null);
+                waitUntil(() -> robot.lookup("#tree").query().isVisible());
                 return;
             case FLAME:
-                wait(() -> robot.lookup("#flame").query() != null);
-                wait(() -> robot.lookup("#flame").query().isVisible());
+                waitUntil(() -> robot.lookup("#flame").query() != null);
+                waitUntil(() -> robot.lookup("#flame").query().isVisible());
                 return;
             default:
                 break;
@@ -156,27 +184,27 @@ public class HPFXUtil
     }
 
     public static void selectFrameGrouping(FxRobot robot, FrameGrouping frameGrouping,
-        String contextIdId)
+        String contextId)
     {
-        selectChoice(robot, frameGrouping, "#frameGrouping", contextIdId);
+        selectChoice(robot, frameGrouping, "#frameGrouping", contextId);
     }
 
     // Context Lookup
 
     public static javafx.scene.Node getContext(FxRobot robot, String contextId)
     {
-        wait(() -> robot.lookup(contextId).query() != null);
+        waitUntil(() -> robot.lookup(contextId).query() != null);
         return robot.lookup(contextId).query();
     }
 
     // waitFor() Wrappers
 
-    public static void wait(Callable<Boolean> condition)
+    public static void waitUntil(Callable<Boolean> condition)
     {
-        wait(condition, null);
+        waitUntil(condition, null);
     }
 
-    public static void wait(Callable<Boolean> condition, String failureMessage)
+    public static void waitUntil(Callable<Boolean> condition, String failureMessage)
     {
         try
         {
@@ -193,12 +221,12 @@ public class HPFXUtil
         }
     }
 
-    public static <T> void wait(Future<T> future)
+    public static <T> void waitUntil(Future<T> future)
     {
-        wait(future, null);
+        waitUntil(future, null);
     }
 
-    public static <T> void wait(Future<T> future, String failureMessage)
+    public static <T> void waitUntil(Future<T> future, String failureMessage)
     {
         try
         {

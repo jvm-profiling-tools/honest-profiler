@@ -19,9 +19,12 @@ import org.junit.runners.Parameterized.Parameters;
 import org.testfx.api.FxRobot;
 
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping;
+import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
 import com.insightfullogic.honest_profiler.framework.checker.FlatTableViewCheckAdapter;
 import com.insightfullogic.honest_profiler.framework.scenario.SimplifiedLogScenario;
 import com.insightfullogic.honest_profiler.ports.javafx.framework.AbstractJavaFxTest;
+
+import javafx.scene.control.TableView;
 
 @RunWith(Parameterized.class)
 public class FlatViewTest extends AbstractJavaFxTest
@@ -53,13 +56,15 @@ public class FlatViewTest extends AbstractJavaFxTest
     public void testFlatViewScenario()
     {
         FxRobot robot = new FxRobot();
+
         newProfileTab(robot, app(), 0, scenario.getName(), scenario, LOG);
 
         selectView(robot, FLAT);
         selectFrameGrouping(robot, frameGrouping, "#flat");
 
-        runLater(
-            () -> scenario.checkLinearAggregation(
-                new FlatTableViewCheckAdapter(BY_ID, frameGrouping, getFlatTableView(robot))));
+        TableView<Entry> tableView = getFlatTableView(robot);
+
+        runLater(() -> scenario.checkFlatAggregation(
+            new FlatTableViewCheckAdapter(BY_ID, frameGrouping, tableView)));
     }
 }
