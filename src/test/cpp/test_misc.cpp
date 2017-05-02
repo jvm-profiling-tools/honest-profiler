@@ -1,4 +1,7 @@
 #include "test.h"
+
+#ifndef DISABLE_CPP11
+
 #include "../../main/cpp/globals.h"
 #include <thread>
 #include <chrono>
@@ -58,3 +61,5 @@ TEST(ClockConcurrent) {
 		CHECK(begin <= t && t <= end);
 	}
 }
+
+#endif
