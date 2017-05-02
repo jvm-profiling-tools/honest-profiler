@@ -13,17 +13,18 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping;
+import com.insightfullogic.honest_profiler.core.aggregation.result.diff.FlatDiff;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
 import com.insightfullogic.honest_profiler.core.parser.StackFrame;
 import com.insightfullogic.honest_profiler.core.parser.ThreadMeta;
 import com.insightfullogic.honest_profiler.core.parser.TraceStart;
 import com.insightfullogic.honest_profiler.framework.checker.CheckAdapter;
+import com.insightfullogic.honest_profiler.framework.checker.DiffCheckAdapter;
 
 /**
  * Implementation of {@link LogScenario} which allows creation of simplified {@link LogScenario}s, and which provides
@@ -166,8 +167,11 @@ public class SimplifiedLogScenario extends LogScenario
         }
 
         adapter.assertSizeEquals(totalCounts.size());
-        selfCounts.entrySet().forEach(entry -> checkFlatSelf(adapter, entry));
-        totalCounts.entrySet().forEach(entry -> checkFlatTotal(adapter, entry));
+
+        selfCounts.entrySet()
+            .forEach(entry -> checkSelf(entry.getKey(), entry.getValue(), adapter));
+        totalCounts.entrySet()
+            .forEach(entry -> checkTotal(entry.getKey(), entry.getValue(), adapter));
     }
 
     /**
@@ -197,11 +201,148 @@ public class SimplifiedLogScenario extends LogScenario
             filterTree(selfCounts, totalCounts, filters);
         }
 
-        int expectedSize = totalCounts.size();
+        adapter.assertSizeEquals(totalCounts.size());
 
-        adapter.assertSizeEquals(expectedSize);
-        selfCounts.entrySet().forEach(entry -> checkTreeSelf(adapter, entry));
-        totalCounts.entrySet().forEach(entry -> checkTreeTotal(adapter, entry));
+        selfCounts.entrySet()
+            .forEach(entry -> checkSelf(entry.getKey().elements, entry.getValue(), adapter));
+        totalCounts.entrySet()
+            .forEach(entry -> checkTotal(entry.getKey().elements, entry.getValue(), adapter));
+    }
+
+    /**
+     * Checks a representation of an aggregation based on a {@link FlatDiff} using the provided {@link DiffCheckAdapter}
+     * against the numbers calculated internally by the scenario.
+     * <p>
+     * @param adapter the adapter which can interpret the aggregation representation and verify the expected results
+     * @param filters the filters which will be applied to the results
+     */
+    public void checkFlatDiffAggregation(SimplifiedLogScenario newScenario,
+        DiffCheckAdapter<String> adapter, ScenarioDiffFilter... filters)
+    {
+        Map<String, Integer> baseSelfCounts = calculateFlatMap(
+            flatSelfCountsPerThread,
+            adapter.getThreadGrouping(),
+            adapter.getFrameGrouping());
+
+        Map<String, Integer> baseTotalCounts = calculateFlatMap(
+            flatTotalCountsPerThread,
+            adapter.getThreadGrouping(),
+            adapter.getFrameGrouping());
+
+        Map<String, Integer> newSelfCounts = newScenario.calculateFlatMap(
+            newScenario.flatSelfCountsPerThread,
+            adapter.getThreadGrouping(),
+            adapter.getFrameGrouping());
+
+        Map<String, Integer> newTotalCounts = newScenario.calculateFlatMap(
+            newScenario.flatTotalCountsPerThread,
+            adapter.getThreadGrouping(),
+            adapter.getFrameGrouping());
+
+        if (filters != null && filters.length > 0)
+        {
+            filterFlat(
+                nrTraces,
+                newScenario.nrTraces,
+                baseSelfCounts,
+                baseTotalCounts,
+                newSelfCounts,
+                newTotalCounts,
+                filters);
+        }
+
+        Set<String> keys = new HashSet<>(baseTotalCounts.keySet());
+        keys.addAll(newTotalCounts.keySet());
+
+        adapter.assertSizeEquals(keys.size());
+
+        keys.forEach(key ->
+        {
+            checkSelf(
+                key,
+                nrTraces,
+                newScenario.nrTraces,
+                baseSelfCounts.get(key),
+                newSelfCounts.get(key),
+                adapter);
+            checkTotal(
+                key,
+                nrTraces,
+                newScenario.nrTraces,
+                baseTotalCounts.get(key),
+                newTotalCounts.get(key),
+                adapter);
+        });
+    }
+
+    /**
+     * Checks a representation of an aggregation based on a {@link Tree} using the provided {@link CheckAdapter} against
+     * the numbers calculated internally by the scenario.
+     * <p>
+     * @param adapter the adapter which can interpret the aggregation representation and verify the expected results
+     * @param filters any filters which will be applied to the results
+     */
+    public void checkTreeDiffAggregation(SimplifiedLogScenario newScenario,
+        DiffCheckAdapter<String[]> adapter, ScenarioDiffFilter... filters)
+    {
+        Map<Tuple<String>, Integer> baseSelfCounts = calculateTreeMap(
+            treeSelfCountsPerThread,
+            adapter.getThreadGrouping(),
+            adapter.getFrameGrouping(),
+            true);
+
+        Map<Tuple<String>, Integer> baseTotalCounts = calculateTreeMap(
+            treeTotalCountsPerThread,
+            adapter.getThreadGrouping(),
+            adapter.getFrameGrouping(),
+            false);
+
+        Map<Tuple<String>, Integer> newSelfCounts = newScenario.calculateTreeMap(
+            newScenario.treeSelfCountsPerThread,
+            adapter.getThreadGrouping(),
+            adapter.getFrameGrouping(),
+            true);
+
+        Map<Tuple<String>, Integer> newTotalCounts = newScenario.calculateTreeMap(
+            newScenario.treeTotalCountsPerThread,
+            adapter.getThreadGrouping(),
+            adapter.getFrameGrouping(),
+            false);
+
+        if (filters != null && filters.length > 0)
+        {
+            filterTree(
+                nrTraces,
+                newScenario.nrTraces,
+                baseSelfCounts,
+                baseTotalCounts,
+                newSelfCounts,
+                newTotalCounts,
+                filters);
+        }
+
+        Set<Tuple<String>> keys = new HashSet<>(baseTotalCounts.keySet());
+        keys.addAll(newTotalCounts.keySet());
+
+        adapter.assertSizeEquals(keys.size());
+
+        keys.forEach(key ->
+        {
+            checkSelf(
+                key.elements,
+                nrTraces,
+                newScenario.nrTraces,
+                baseSelfCounts.get(key),
+                newSelfCounts.get(key),
+                adapter);
+            checkTotal(
+                key.elements,
+                nrTraces,
+                newScenario.nrTraces,
+                baseTotalCounts.get(key),
+                newTotalCounts.get(key),
+                adapter);
+        });
     }
 
     // Check Helper Methods
@@ -214,11 +355,8 @@ public class SimplifiedLogScenario extends LogScenario
      * @param checker the {@link CheckAdapter}
      * @param entry the calculated aggregation key and the expected self count
      */
-    private void checkFlatSelf(CheckAdapter<String> checker, Entry<String, Integer> entry)
+    private <T> void checkSelf(T key, Integer value, CheckAdapter<T> checker)
     {
-        String key = entry.getKey();
-        Integer value = entry.getValue();
-
         checker.assertSelfCntEquals(key, value);
         checker.assertSelfTimeEquals(key, nano(value));
         checker.assertSelfCntPctEquals(key, value / (double)nrTraces);
@@ -227,17 +365,14 @@ public class SimplifiedLogScenario extends LogScenario
 
     /**
      * Asks the {@link CheckAdapter} to verify the "total" data items against the calculated values for a single frame.
-     * The total time is calculated using the total count, since this is a built-in correspondence in the
+     * The self time is calculated using the self count, since this is a built-in correspondence in the
      * {@link SimplifiedLogScenario}.
      * <p>
      * @param checker the {@link CheckAdapter}
-     * @param entry the calculated aggregation key and the expected total count
+     * @param entry the calculated aggregation key and the expected self count
      */
-    private void checkFlatTotal(CheckAdapter<String> checker, Entry<String, Integer> entry)
+    private <T> void checkTotal(T key, Integer value, CheckAdapter<T> checker)
     {
-        String key = entry.getKey();
-        Integer value = entry.getValue();
-
         checker.assertTotalCntEquals(key, value);
         checker.assertTotalTimeEquals(key, nano(value));
         checker.assertTotalCntPctEquals(key, value / (double)nrTraces);
@@ -245,41 +380,73 @@ public class SimplifiedLogScenario extends LogScenario
     }
 
     /**
-     * Asks the {@link CheckAdapter} to verify the "self" data items against the calculated values for a (partial)
-     * stack. The self time is calculated using the self count, since this is a built-in correspondence in the
+     * Asks the {@link DiffCheckAdapter} to verify the "self" data items against the calculated values for a single
+     * frame. The self time is calculated using the self count, since this is a built-in correspondence in the
      * {@link SimplifiedLogScenario}.
      * <p>
-     * @param checker the {@link CheckAdapter}
-     * @param entry the calculated aggregation keys and the expected self count
+     * @param checker the {@link DiffCheckAdapter}
+     * @param entry the calculated aggregation key and the expected self count
      */
-    private void checkTreeSelf(CheckAdapter<String[]> checker, Entry<Tuple<String>, Integer> entry)
+    private <T> void checkSelf(T key, Integer baseNrTraces, Integer newNrTraces, Integer baseValue,
+        Integer newValue, DiffCheckAdapter<T> checker)
     {
-        String[] key = entry.getKey().elements;
-        Integer value = entry.getValue();
+        int baseCnt = baseValue == null ? 0 : baseValue;
+        int newCnt = newValue == null ? 0 : newValue;
 
-        checker.assertSelfCntEquals(key, value);
-        checker.assertSelfTimeEquals(key, nano(value));
-        checker.assertSelfCntPctEquals(key, value / (double)nrTraces);
-        checker.assertSelfTimePctEquals(key, nano(value) / (double)nano(nrTraces));
+        checker.assertBaseSelfCntEquals(key, baseCnt);
+        checker.assertBaseSelfTimeEquals(key, nano(baseCnt));
+        checker.assertBaseSelfCntPctEquals(key, baseCnt / (double)baseNrTraces);
+        checker.assertBaseSelfTimePctEquals(key, nano(baseCnt) / (double)nano(baseNrTraces));
+
+        checker.assertNewSelfCntEquals(key, newCnt);
+        checker.assertNewSelfTimeEquals(key, nano(newCnt));
+        checker.assertNewSelfCntPctEquals(key, newCnt / (double)newNrTraces);
+        checker.assertNewSelfTimePctEquals(key, nano(newCnt) / (double)nano(newNrTraces));
+
+        checker.assertSelfCntDiffEquals(key, newCnt - baseCnt);
+        checker.assertSelfTimeDiffEquals(key, nano(newCnt - baseCnt));
+        checker.assertSelfCntPctDiffEquals(
+            key,
+            (newCnt / (double)newNrTraces) - (baseCnt / (double)baseNrTraces));
+        checker.assertSelfTimePctDiffEquals(
+            key,
+            (nano(newCnt) / (double)nano(newNrTraces))
+                - (nano(baseCnt) / (double)nano(baseNrTraces)));
     }
 
     /**
-     * Asks the {@link CheckAdapter} to verify the "total" data items against the calculated values for a (partial)
-     * stack. The total time is calculated using the total count, since this is a built-in correspondence in the
+     * Asks the {@link DiffCheckAdapter} to verify the "self" data items against the calculated values for a single
+     * frame. The self time is calculated using the self count, since this is a built-in correspondence in the
      * {@link SimplifiedLogScenario}.
      * <p>
-     * @param checker the {@link CheckAdapter}
-     * @param entry the calculated aggregation keys and the expected total count
+     * @param checker the {@link DiffCheckAdapter}
+     * @param entry the calculated aggregation key and the expected self count
      */
-    private void checkTreeTotal(CheckAdapter<String[]> checker, Entry<Tuple<String>, Integer> entry)
+    private <T> void checkTotal(T key, Integer baseNrTraces, Integer newNrTraces, Integer baseValue,
+        Integer newValue, DiffCheckAdapter<T> checker)
     {
-        String[] key = entry.getKey().elements;
-        Integer value = entry.getValue();
+        int baseCnt = baseValue == null ? 0 : baseValue;
+        int newCnt = newValue == null ? 0 : newValue;
 
-        checker.assertTotalCntEquals(key, value);
-        checker.assertTotalTimeEquals(key, nano(value));
-        checker.assertTotalCntPctEquals(key, value / (double)nrTraces);
-        checker.assertTotalTimePctEquals(key, nano(value) / (double)nano(nrTraces));
+        checker.assertBaseTotalCntEquals(key, baseCnt);
+        checker.assertBaseTotalTimeEquals(key, nano(baseCnt));
+        checker.assertBaseTotalCntPctEquals(key, baseCnt / (double)baseNrTraces);
+        checker.assertBaseTotalTimePctEquals(key, nano(baseCnt) / (double)nano(baseNrTraces));
+
+        checker.assertNewTotalCntEquals(key, newCnt);
+        checker.assertNewTotalTimeEquals(key, nano(newCnt));
+        checker.assertNewTotalCntPctEquals(key, newCnt / (double)newNrTraces);
+        checker.assertNewTotalTimePctEquals(key, nano(newCnt) / (double)nano(newNrTraces));
+
+        checker.assertTotalCntDiffEquals(key, newCnt - baseCnt);
+        checker.assertTotalTimeDiffEquals(key, nano(newCnt - baseCnt));
+        checker.assertTotalCntPctDiffEquals(
+            key,
+            (newCnt / (double)newNrTraces) - (baseCnt / (double)baseNrTraces));
+        checker.assertTotalTimePctDiffEquals(
+            key,
+            (nano(newCnt) / (double)nano(newNrTraces))
+                - (nano(baseCnt) / (double)nano(baseNrTraces)));
     }
 
     private void filterFlat(Map<String, Integer> selfCounts, Map<String, Integer> totalCounts,
@@ -360,6 +527,161 @@ public class SimplifiedLogScenario extends LogScenario
         totalCounts.keySet().retainAll(retainedKeys);
     }
 
+    private void filterFlat(int baseNrTraces, int newNrTraces, Map<String, Integer> baseSelfCounts,
+        Map<String, Integer> baseTotalCounts, Map<String, Integer> newSelfCounts,
+        Map<String, Integer> newTotalCounts, ScenarioDiffFilter... filters)
+    {
+        Set<String> keys = new HashSet<>(baseTotalCounts.keySet());
+        keys.addAll(newTotalCounts.keySet());
+
+        keys.forEach(key ->
+        {
+            int baseSelfCnt = baseSelfCounts.get(key) == null ? 0 : baseSelfCounts.get(key);
+            int baseTotalCnt = baseTotalCounts.get(key);
+            long baseSelfTime = nano(baseSelfCnt);
+            long baseTotalTime = nano(baseTotalCnt);
+            double baseSelfCntPct = baseSelfCnt / (double)baseNrTraces;
+            double baseTotalCntPct = baseTotalCnt / (double)baseNrTraces;
+            double baseSelfTimePct = baseSelfTime / (double)nano(baseNrTraces);
+            double baseTotalTimePct = baseTotalTime / (double)nano(baseNrTraces);
+
+            int newSelfCnt = newSelfCounts.get(key) == null ? 0 : newSelfCounts.get(key);
+            int newTotalCnt = newTotalCounts.get(key);
+            long newSelfTime = nano(newSelfCnt);
+            long newTotalTime = nano(newTotalCnt);
+            double newSelfCntPct = newSelfCnt / (double)newNrTraces;
+            double newTotalCntPct = newTotalCnt / (double)newNrTraces;
+            double newSelfTimePct = newSelfTime / (double)nano(newNrTraces);
+            double newTotalTimePct = newTotalTime / (double)nano(newNrTraces);
+
+            int selfCntDiff = newSelfCnt - baseSelfCnt;
+            int totalCntDiff = newTotalCnt - baseTotalCnt;
+            long selfTimeDiff = newSelfTime - baseSelfTime;
+            long totalTimeDiff = newTotalTime - baseTotalTime;
+            double selfCntPctDiff = newSelfCntPct - baseSelfCntPct;
+            double totalCntPctDiff = newTotalCntPct - baseTotalCntPct;
+            double selfTimePctDiff = newSelfTimePct - baseSelfTimePct;
+            double totalTimePctDiff = newTotalTimePct - baseTotalTimePct;
+
+            if (!asList(filters).stream().allMatch(filter -> filter.accept(
+                key,
+                baseSelfCnt,
+                baseTotalCnt,
+                baseSelfTime,
+                baseTotalTime,
+                baseSelfCntPct,
+                baseTotalCntPct,
+                baseSelfTimePct,
+                baseTotalTimePct,
+                baseSelfCnt,
+                baseTotalCnt,
+                baseSelfTime,
+                baseTotalTime,
+                baseSelfCntPct,
+                baseTotalCntPct,
+                baseSelfTimePct,
+                baseTotalTimePct,
+                selfCntDiff,
+                totalCntDiff,
+                selfTimeDiff,
+                totalTimeDiff,
+                selfCntPctDiff,
+                totalCntPctDiff,
+                selfTimePctDiff,
+                totalTimePctDiff
+            )))
+            {
+                baseSelfCounts.remove(key);
+                baseTotalCounts.remove(key);
+                newSelfCounts.remove(key);
+                newTotalCounts.remove(key);
+            }
+        });
+    }
+
+    private void filterTree(int baseNrTraces, int newNrTraces,
+        Map<Tuple<String>, Integer> baseSelfCounts, Map<Tuple<String>, Integer> baseTotalCounts,
+        Map<Tuple<String>, Integer> newSelfCounts, Map<Tuple<String>, Integer> newTotalCounts,
+        ScenarioDiffFilter... filters)
+    {
+        Set<Tuple<String>> keys = new HashSet<>(baseTotalCounts.keySet());
+        keys.addAll(newTotalCounts.keySet());
+        final Set<Tuple<String>> acceptedKeys = new HashSet<>();
+        final Set<Tuple<String>> retainedKeys = new HashSet<>();
+
+        keys.forEach(key ->
+        {
+            int baseSelfCnt = baseSelfCounts.get(key) == null ? 0 : baseSelfCounts.get(key);
+            int baseTotalCnt = baseTotalCounts.get(key);
+            long baseSelfTime = nano(baseSelfCnt);
+            long baseTotalTime = nano(baseTotalCnt);
+            double baseSelfCntPct = baseSelfCnt / (double)baseNrTraces;
+            double baseTotalCntPct = baseTotalCnt / (double)baseNrTraces;
+            double baseSelfTimePct = baseSelfTime / (double)nano(baseNrTraces);
+            double baseTotalTimePct = baseTotalTime / (double)nano(baseNrTraces);
+
+            int newSelfCnt = newSelfCounts.get(key) == null ? 0 : newSelfCounts.get(key);
+            int newTotalCnt = newTotalCounts.get(key);
+            long newSelfTime = nano(newSelfCnt);
+            long newTotalTime = nano(newTotalCnt);
+            double newSelfCntPct = newSelfCnt / (double)newNrTraces;
+            double newTotalCntPct = newTotalCnt / (double)newNrTraces;
+            double newSelfTimePct = newSelfTime / (double)nano(newNrTraces);
+            double newTotalTimePct = newTotalTime / (double)nano(newNrTraces);
+
+            int selfCntDiff = newSelfCnt - baseSelfCnt;
+            int totalCntDiff = newTotalCnt - baseTotalCnt;
+            long selfTimeDiff = newSelfTime - baseSelfTime;
+            long totalTimeDiff = newTotalTime - baseTotalTime;
+            double selfCntPctDiff = newSelfCntPct - baseSelfCntPct;
+            double totalCntPctDiff = newTotalCntPct - baseTotalCntPct;
+            double selfTimePctDiff = newSelfTimePct - baseSelfTimePct;
+            double totalTimePctDiff = newTotalTimePct - baseTotalTimePct;
+            if (asList(filters).stream().allMatch(filter -> filter.accept(
+                key.elements[key.elements.length - 1],
+                baseSelfCnt,
+                baseTotalCnt,
+                baseSelfTime,
+                baseTotalTime,
+                baseSelfCntPct,
+                baseTotalCntPct,
+                baseSelfTimePct,
+                baseTotalTimePct,
+                baseSelfCnt,
+                baseTotalCnt,
+                baseSelfTime,
+                baseTotalTime,
+                baseSelfCntPct,
+                baseTotalCntPct,
+                baseSelfTimePct,
+                baseTotalTimePct,
+                selfCntDiff,
+                totalCntDiff,
+                selfTimeDiff,
+                totalTimeDiff,
+                selfCntPctDiff,
+                totalCntPctDiff,
+                selfTimePctDiff,
+                totalTimePctDiff
+            )))
+            {
+                acceptedKeys.add(key);
+            }
+        });
+
+        acceptedKeys.forEach(acceptedKey -> keys.forEach(key ->
+        {
+            if (acceptedKey.startsWith(key))
+            {
+                retainedKeys.add(key);
+            }
+        }));
+
+        baseSelfCounts.keySet().retainAll(retainedKeys);
+        baseTotalCounts.keySet().retainAll(retainedKeys);
+        newSelfCounts.keySet().retainAll(retainedKeys);
+        newTotalCounts.keySet().retainAll(retainedKeys);
+    }
     // Aggregation Calculation Helper Methods
 
     /**

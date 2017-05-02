@@ -43,6 +43,21 @@ public class ParameterUtil
         return result;
     }
 
+    public static final List<Object[]> getDiffScenariosAndGroupings()
+    {
+        List<Object[]> result = new ArrayList<>();
+        SCENARIOS.forEach(
+            sc -> asList(ThreadGrouping.values())
+                .forEach(tg -> asList(FrameGrouping.values()).forEach(fg ->
+                {
+                    result.add(new Object[]
+                    { sc, SCENARIOS.get(6), tg, fg });
+                    result.add(new Object[]
+                    { sc, SCENARIOS.get(7), tg, fg });
+                })));
+        return result;
+    }
+
     public static final List<Object[]> getFilterScenarios()
     {
         List<Object[]> result = new ArrayList<>();
