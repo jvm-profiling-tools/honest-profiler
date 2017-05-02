@@ -3,6 +3,7 @@ package com.insightfullogic.honest_profiler.ports.javafx.controller;
 import static com.insightfullogic.honest_profiler.framework.ParameterUtil.getScenarios;
 import static com.insightfullogic.honest_profiler.framework.scenario.ScenarioStraightFilter.keyFlt;
 import static com.insightfullogic.honest_profiler.ports.javafx.ViewType.TREE;
+import static com.insightfullogic.honest_profiler.ports.javafx.framework.HPFXUtil.clickExpandAll;
 import static com.insightfullogic.honest_profiler.ports.javafx.framework.HPFXUtil.clickQuickFilterButton;
 import static com.insightfullogic.honest_profiler.ports.javafx.framework.HPFXUtil.focusOn;
 import static com.insightfullogic.honest_profiler.ports.javafx.framework.HPFXUtil.getTreeTableView;
@@ -86,6 +87,7 @@ public class TreeViewQuickFilterTest extends AbstractJavaFxTest
             {
                 selectThreadGrouping(robot, tg, "#tree");
                 selectFrameGrouping(robot, fg, "#tree");
+                clickExpandAll(robot, "#tree");
 
                 TreeTableView<Node> tableView = getTreeTableView(robot);
 
