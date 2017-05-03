@@ -12,8 +12,21 @@ import org.junit.BeforeClass;
 
 import com.insightfullogic.honest_profiler.ports.javafx.JavaFXApplication;
 
+import javafx.stage.Stage;
+
 public abstract class AbstractJavaFxTest
 {
+    // Class properties
+
+    private static Stage mainStage;
+
+    // Class Accessors
+
+    public static Stage getMainStage()
+    {
+        return mainStage;
+    }
+
     // Instance Properties
 
     private JavaFXApplication app;
@@ -40,7 +53,11 @@ public abstract class AbstractJavaFxTest
         }
 
         registerPrimaryStage();
-        setupStage(stage -> stage.show());
+        setupStage(stage ->
+        {
+            mainStage = stage;
+            stage.show();
+        });
     }
 
     @Before

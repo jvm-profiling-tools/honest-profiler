@@ -1,7 +1,11 @@
 package com.insightfullogic.honest_profiler.ports.javafx.framework;
 
+import static java.lang.Boolean.getBoolean;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static javafx.scene.input.KeyCode.DOWN;
+import static javafx.scene.input.KeyCode.ENTER;
 import static javafx.scene.input.MouseButton.PRIMARY;
+import static javafx.scene.input.MouseButton.SECONDARY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.testfx.util.WaitForAsyncUtils.asyncFx;
@@ -15,6 +19,8 @@ import org.testfx.api.FxRobot;
 
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping;
+import com.insightfullogic.honest_profiler.core.aggregation.result.diff.DiffEntry;
+import com.insightfullogic.honest_profiler.core.aggregation.result.diff.DiffNode;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 import com.insightfullogic.honest_profiler.framework.generator.ProfileContextGenerator;
@@ -23,14 +29,20 @@ import com.insightfullogic.honest_profiler.ports.javafx.JavaFXApplication;
 import com.insightfullogic.honest_profiler.ports.javafx.ViewType;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext.ProfileMode;
 
+import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TreeTableView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 
 public class HPFXUtil
 {
@@ -38,7 +50,7 @@ public class HPFXUtil
 
     public static boolean isHeadless()
     {
-        return Boolean.getBoolean("headless");
+        return getBoolean("headless");
     }
 
     // Profile Creation
@@ -78,6 +90,21 @@ public class HPFXUtil
     {
         javafx.scene.Node context = getContext(robot, "#tree");
         TreeTableView<Node> result = robot.from(context).lookup("#treeTable").query();
+        waitUntil(() -> result.isVisible());
+        waitUntil(() -> result.getRoot() != null);
+        return result;
+    }
+
+    public static TableView<DiffEntry> getFlatDiffTableView(FxRobot robot)
+    {
+        TableView<DiffEntry> result = robot.lookup("#flatDiffTable").query();
+        waitUntil(() -> result != null && result.isVisible());
+        return result;
+    }
+
+    public static TreeTableView<DiffNode> getTreeDiffTableView(FxRobot robot)
+    {
+        TreeTableView<DiffNode> result = robot.lookup("#treeDiffTable").query();
         waitUntil(() -> result.isVisible());
         waitUntil(() -> result.getRoot() != null);
         return result;
@@ -189,6 +216,72 @@ public class HPFXUtil
         selectChoice(robot, frameGrouping, "#frameGrouping", contextId);
     }
 
+    // Tab Selection
+
+    public static void selectTab(FxRobot robot, int index)
+    {
+        TabPane tabPane = robot.lookup("#profileTabs").query();
+        waitUntil(() -> tabPane.isVisible());
+        waitUntil(() -> tabPane.getTabs().size() >= index + 1);
+        waitUntil(asyncFx(() -> tabPane.getSelectionModel().select(index)));
+        waitUntil(
+            () -> tabPane.getTabs().get(index).isSelected()
+                && tabPane.getTabs().get(index).getContent().isVisible());
+    }
+
+    // Context Menu Selection
+
+    public static void selectCtxMenu(FxRobot robot, String triggerId, int itemIndex,
+        String expectedName)
+    {
+        javafx.scene.Node node = robot.lookup(triggerId).query();
+        waitUntil(() -> node.isVisible() && !node.isDisabled());
+
+        if (isHeadless())
+        {
+            EventHandler<? super MouseEvent> handler = ((Control)node).onMousePressedProperty()
+                .get();
+            waitUntil(
+                asyncFx(() -> handler.handle(
+                    new MouseEvent(
+                        MouseEvent.MOUSE_CLICKED,
+                        0,
+                        0,
+                        0,
+                        0,
+                        MouseButton.PRIMARY,
+                        1,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        null)
+                ))
+            );
+            waitUntil(() -> ((Control)node).getContextMenu() != null);
+
+            ContextMenu menu = waitUntil(asyncFx(() -> ((Control)node).getContextMenu()));
+            MenuItem item = waitUntil(asyncFx(() -> (menu.getItems().get(itemIndex))));
+            assertEquals("Wrong ContextMenu MenuItem", expectedName, item.getText());
+            waitUntil(asyncFx(() -> item.fire()));
+        }
+        else
+        {
+            robot.clickOn(node, SECONDARY);
+            for (int i = 0; i < itemIndex + 1; i++)
+            {
+                robot.type(DOWN);
+            }
+            robot.type(ENTER);
+        }
+    }
+
     // Context Lookup
 
     public static javafx.scene.Node getContext(FxRobot robot, String contextId)
@@ -221,16 +314,16 @@ public class HPFXUtil
         }
     }
 
-    public static <T> void waitUntil(Future<T> future)
+    public static <T> T waitUntil(Future<T> future)
     {
-        waitUntil(future, null);
+        return waitUntil(future, null);
     }
 
-    public static <T> void waitUntil(Future<T> future, String failureMessage)
+    public static <T> T waitUntil(Future<T> future, String failureMessage)
     {
         try
         {
-            waitFor(10, SECONDS, future);
+            return waitFor(10, SECONDS, future);
         }
         catch (TimeoutException toe)
         {
@@ -240,6 +333,7 @@ public class HPFXUtil
                     + toe.getClass().getCanonicalName()
                     + " : "
                     + toe.getMessage());
+            return null;
         }
     }
 }
