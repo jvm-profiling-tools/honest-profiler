@@ -1,12 +1,14 @@
 package com.insightfullogic.honest_profiler.ports.javafx.framework;
 
 import static com.insightfullogic.honest_profiler.ports.javafx.framework.HPFXUtil.isHeadless;
+import static java.lang.System.gc;
 import static org.junit.Assert.assertNotNull;
 import static org.testfx.api.FxToolkit.registerPrimaryStage;
 import static org.testfx.api.FxToolkit.setupApplication;
 import static org.testfx.api.FxToolkit.setupStage;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
@@ -60,6 +62,12 @@ public abstract class AbstractJavaFxTest
         });
     }
 
+    @AfterClass
+    public static void teardownSpec() throws Exception
+    {
+        mainStage = null;
+    }
+
     @Before
     public void setup() throws Exception
     {
@@ -71,5 +79,7 @@ public abstract class AbstractJavaFxTest
     public void teardown() throws Exception
     {
         app.stop();
+        app = null;
+        gc();
     }
 }

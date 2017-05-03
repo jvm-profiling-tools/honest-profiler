@@ -15,6 +15,7 @@ import static org.testfx.util.WaitForAsyncUtils.asyncFx;
 
 import java.util.Collection;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -30,6 +31,7 @@ import com.insightfullogic.honest_profiler.ports.javafx.framework.AbstractJavaFx
 import javafx.scene.control.TableView;
 
 @RunWith(Parameterized.class)
+@Ignore
 public class FlatDiffViewTest extends AbstractJavaFxTest
 {
     // Class Methods
