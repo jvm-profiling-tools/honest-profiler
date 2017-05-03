@@ -52,11 +52,11 @@ public class LeanProfile
                        Map<Long, LeanThreadNode> threadData,
                        long totalNanos)
     {
-        this.methodInfoMap = new HashMap<>(methodMap);
-        this.threadInfoMap = new HashMap<>(threadMap);
-        this.threads = new HashMap<>();
+        methodInfoMap = new HashMap<>(methodMap);
+        threadInfoMap = new HashMap<>(threadMap);
+        threads = new HashMap<>();
         this.totalNanos = totalNanos;
-        threadData.forEach((key, value) -> this.threads.put(key, value.copy()));
+        threadData.forEach((key, value) -> threads.put(key, value.copy()));
     }
 
     // Instance Accessors
@@ -139,9 +139,9 @@ public class LeanProfile
 
     /**
      * Return the number of nanoseconds which elapsed between the first and last samples in the profile.
-     * 
+     *
      * @return the number of nanoseconds which elapsed between the first and last samples in the profile
-     */    
+     */
     public long getTotalNanos()
     {
         return totalNanos;
