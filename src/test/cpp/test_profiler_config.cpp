@@ -1,7 +1,10 @@
+#include "test.h"
+
+#ifndef DISABLE_CPP11
+
 #include <thread>
 #include <vector>
 #include <iostream>
-#include "test.h"
 #include "../../main/cpp/profiler.h"
 
 #ifndef __APPLE__
@@ -222,3 +225,5 @@ TEST_FIXTURE(ProfilerControl, ProfilerConcurrentModification) {
 }
 
 #endif
+
+#endif // DISABLE_CPP11

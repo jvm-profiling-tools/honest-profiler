@@ -82,6 +82,8 @@ public abstract class AbstractProfileViewController<T, U> extends AbstractViewCo
     public void setProfileContext(ProfileContext profileContext)
     {
         this.profileContext = profileContext;
+
+        initializeTable();
     }
 
     /**

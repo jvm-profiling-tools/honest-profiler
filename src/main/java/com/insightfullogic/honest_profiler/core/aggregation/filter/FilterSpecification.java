@@ -1,7 +1,6 @@
 package com.insightfullogic.honest_profiler.core.aggregation.filter;
 
 import static com.insightfullogic.honest_profiler.core.aggregation.filter.Comparison.CONTAINS;
-import static com.insightfullogic.honest_profiler.core.aggregation.filter.Comparison.NOT_CONTAINS;
 import static com.insightfullogic.honest_profiler.core.aggregation.filter.Comparison.NOT_STARTS_WITH;
 import static com.insightfullogic.honest_profiler.core.aggregation.filter.Target.KEY;
 import static java.util.Collections.emptyList;
@@ -152,7 +151,7 @@ public class FilterSpecification<T>
      */
     private final Predicate<T> errorFilter()
     {
-        return new FilterPredicate<T, String>(type, KEY, NOT_CONTAINS, "[ERR=").and(
+        return new FilterPredicate<T, String>(type, KEY, NOT_STARTS_WITH, "AGCT.").and(
             new FilterPredicate<T, String>(type, KEY, NOT_STARTS_WITH, "Unknown <"));
     }
 }
