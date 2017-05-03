@@ -37,6 +37,7 @@ import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.insightfullogic.honest_profiler.ports.javafx.UserInterfaceConfigurationException;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
+import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext.ProfileMode;
 import com.insightfullogic.honest_profiler.ports.javafx.model.task.InitializeProfileTask;
 import com.insightfullogic.honest_profiler.ports.sources.LocalMachineSource;
 
@@ -114,7 +115,7 @@ public class RootController extends AbstractController implements MachineListene
     /**
      * Add a JVM to the Monitor menu.
      * <p>
-     * 
+     *
      * @param vm the JVM to be added
      */
     private void addToMachineMenu(final VirtualMachine vm)
@@ -141,7 +142,7 @@ public class RootController extends AbstractController implements MachineListene
     /**
      * remove a JVM from the Monitor menu.
      * <p>
-     * 
+     *
      * @param vm the JVM to be removed
      */
     private void removeFromMachineMenu(final VirtualMachine vm)
@@ -163,7 +164,7 @@ public class RootController extends AbstractController implements MachineListene
     /**
      * Create a {@link Tab} which will contain the Views for a newly opened profile.
      * <p>
-     * 
+     *
      * @param source the source of the profile
      * @param live a boolean indicating whether the source is "live"
      */
@@ -206,7 +207,7 @@ public class RootController extends AbstractController implements MachineListene
     /**
      * Initializes the {@link ProfileRootController} for a new {@link Tab} with the specified {@link ProfileContext}.
      * <p>
-     * 
+     *
      * @param tab the {@link Tab} in which the profile data will be shown
      * @param controller the {@link ProfileRootController} controlling the Views for the profile
      * @param profileContext the {@link ProfileContext} for the profile
@@ -224,7 +225,7 @@ public class RootController extends AbstractController implements MachineListene
     /**
      * Create a {@link Tab} which will contain the Views for the Diff between two opened profiles.
      * <p>
-     * 
+     *
      * @param baseName the name of the Base {@link ProfileContext}
      * @param newName the name of the New {@link ProfileContext}
      */
@@ -254,7 +255,7 @@ public class RootController extends AbstractController implements MachineListene
     /**
      * Set the title of a {@link Tab} for a profile.
      * <p>
-     * 
+     *
      * @param tab the {@link Tab} whose title will be set
      * @param profileContext the {@link ProfileContext} for the profile
      */
@@ -273,7 +274,7 @@ public class RootController extends AbstractController implements MachineListene
     /**
      * Loads the View using the specifie FXML file into the {@link Tab}.
      * <p>
-     * 
+     *
      * @param <T> the type of the resulting controller
      * @param fxml the path of the FXML file
      * @param tab the {@link Tab} into which the View will be loaded
@@ -301,7 +302,7 @@ public class RootController extends AbstractController implements MachineListene
     /**
      * Create a {@link Tab} with a {@link ProgressIndicator} in the {@link Tab} header.
      * <p>
-     * 
+     *
      * @return a new {@link Tab} with a {@link ProgressIndicator} in the {@link Tab} header
      */
     private Tab newLoadingTab()
@@ -315,7 +316,7 @@ public class RootController extends AbstractController implements MachineListene
      * Helper method which presents the user with a {@link FileChooser} dialog, and executes an action based on the
      * selected {@link File}.
      * <p>
-     * 
+     *
      * @param fileBasedAction the action to be executed if a {@link File} was selected
      */
     private void doWithFile(Consumer<File> fileBasedAction)
@@ -344,7 +345,7 @@ public class RootController extends AbstractController implements MachineListene
     /**
      * Disable or enable the root-level controls.
      * <p>
-     * 
+     *
      * @param disable a boolean indicating whether the controls should be disabled
      */
     private void setRootDisabled(boolean disable)
@@ -367,5 +368,29 @@ public class RootController extends AbstractController implements MachineListene
         openLogItem.setOnAction(event -> doWithFile(file -> createNewProfile(file, false)));
         openLiveItem.setOnAction(event -> doWithFile(file -> createNewProfile(file, true)));
         quitItem.setOnAction(event -> exit());
+    }
+
+    // For Unit Tests Only
+
+    public void testNewProfile(File file, boolean live)
+    {
+        runLater(() -> createNewProfile(file, live));
+    }
+
+    public ProfileContext getContextForFile(File file, ProfileMode mode)
+    {
+        return new ProfileContext(appCtx(), file.getName(), mode, file);
+    }
+
+    public void testNewProfile(ProfileContext context)
+    {
+        runLater(() ->
+        {
+            Tab tab = newLoadingTab();
+            ProfileRootController controller = loadViewIntoTab(FXML_PROFILE_ROOT, tab);
+            tab.getContent().setVisible(false);
+            appCtx().registerProfileContext(context);
+            handleNewProfile(tab, controller, context);
+        });
     }
 }

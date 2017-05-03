@@ -43,6 +43,16 @@ public class ParameterUtil
         return result;
     }
 
+    public static final Collection<Object[]> getDebugScenariosAndGroupings()
+    {
+        List<Object[]> result = new ArrayList<>();
+        SCENARIOS.forEach(
+            sc -> asList(ThreadGrouping.values())
+                .forEach(tg -> asList(FrameGrouping.values()).forEach(fg -> result.add(new Object[]
+            { sc, tg, fg }))));
+        return result.subList(0, 5);
+    }
+
     // Instance Constructors
 
     private ParameterUtil()
