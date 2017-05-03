@@ -42,7 +42,7 @@ import javafx.scene.text.Text;
  * The superclass also provides some common UI helper methods for column configuration.
  * <p>
  * @see AbstractDiff class javadoc for an explanation of the "Base" and "New" terminology
- * <p>
+ *      <p>
  * @param <T> the data type of the targets
  * @param <U> the type of the items contained in the View
  */
@@ -131,6 +131,10 @@ public abstract class AbstractProfileDiffViewController<T, U> extends AbstractVi
     {
         this.baseContext = baseContext;
         this.newContext = newContext;
+
+        // Called here because for the Diff column headers, the profile contexts are needed to display the profile
+        // number label.
+        initializeTable();
     }
 
     // Source-Target Binding

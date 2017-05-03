@@ -32,6 +32,18 @@ public class CombinedGrouping implements BiFunction<AggregationProfile, LeanNode
     private ThreadGrouping threadGrouping;
     private FrameGrouping frameGrouping;
 
+    // Instance Accessors
+
+    public ThreadGrouping getThreadGrouping()
+    {
+        return threadGrouping;
+    }
+
+    public FrameGrouping getFrameGrouping()
+    {
+        return frameGrouping;
+    }
+
     // Instance Constructors
 
     private CombinedGrouping(ThreadGrouping threadGrouping, FrameGrouping frameGrouping)

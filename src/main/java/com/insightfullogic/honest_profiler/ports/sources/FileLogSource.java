@@ -48,7 +48,7 @@ public class FileLogSource implements LogSource
     // Class Properties
 
     // Fixed buffer size
-    private static final int BUFFER_SIZE = 1024 * 1024 * 2; // 2 MB
+    private static final int BUFFER_SIZE = 1024 * 1024 * 100; // 100 MB
     // Remap if more than ELASTICITY has been read from the current buffer
     private static final int ELASTICITY = 1024 * 1024 * 1; // 1 MB
 
@@ -97,20 +97,17 @@ public class FileLogSource implements LogSource
         {
             int position = buffer.position();
             boolean hasRemaining = buffer.hasRemaining();
-            long channelSize = channel.size();
-
-            // System.err.println("REM ? "+ hasRemaining+ " - OFF "+ currentOffset+ " - CSZ "+ channelSize+ " - POS "+
-            // position);
 
             if (position == previousPosition)
             {
                 // The buffer was rewound after the previous read. Either the data was not written (0 was read) or a
-                // buffer underflow occurred. Don't update currentOffset, or we'll read over
+                // buffer underflow occurred. Don't update currentOffset, or we'll skip data.
                 mapBuffer(currentOffset);
             }
-            else if ((!hasRemaining && currentOffset < channelSize) || position > ELASTICITY)
+            // channel.size() is *very* expensive so we try and minimize its invocation.
+            else if (position > ELASTICITY || (!hasRemaining && currentOffset < channel.size()))
             {
-                // If the buffer is empty but the file size increaded, or we've read more than ELASTICITY bytes, the
+                // If the buffer is empty but the file size increased, or we've read more than ELASTICITY bytes, the
                 // currentOffset is updated and the buffer is remapped.
                 currentOffset += position;
                 mapBuffer(currentOffset);
