@@ -49,10 +49,10 @@ public class LeanProfile
                        Map<Long, ThreadInfo> threadMap,
                        Map<Long, LeanThreadNode> threadData)
     {
-        this.methodInfoMap = new HashMap<>(methodMap);
-        this.threadInfoMap = new HashMap<>(threadMap);
-        this.threads = new HashMap<>();
-        threadData.forEach((key, value) -> this.threads.put(key, value.copy()));
+        methodInfoMap = new HashMap<>(methodMap);
+        threadInfoMap = new HashMap<>(threadMap);
+        threads = new HashMap<>();
+        threadData.forEach((key, value) -> threads.put(key, value.copy()));
     }
 
     // Instance Accessors
@@ -101,6 +101,22 @@ public class LeanProfile
     // Key and/or name Construction Methods
 
     /**
+     * Calculates the FQMN. Introduced for hardening, based on a profile which contained a Method Id for which no
+     * MethodInfo was available.
+     * <p>
+     *
+     * @return the FQMN for the node
+     */
+    public String getFqmn(LeanNode node)
+    {
+        long methodId = node.getFrame().getMethodId();
+        MethodInfo info = getMethodInfoMap().get(methodId);
+
+        // Explicit NULL check because we encountered a profile where a particular MethodInfo wasn't present
+        return info == null ? "<UNIDENTIFIED : Method Id = " + methodId + ">" : info.getFqmn();
+    }
+
+    /**
      * Return the key for a {@link LeanNode} representing a frame, constructed by appending the line number to the FQMN,
      * separated by a colon.
      * <p>
@@ -110,8 +126,7 @@ public class LeanProfile
     public String getFqmnPlusLineNr(LeanNode node)
     {
         StringBuilder result = new StringBuilder();
-        MethodInfo method = getMethodInfoMap().get(node.getFrame().getMethodId());
-        result.append(method.getFqmn()).append(":").append(node.getFrame().getLineNr());
+        result.append(getFqmn(node)).append(":").append(node.getFrame().getLineNr());
         return result.toString();
     }
 
@@ -125,8 +140,21 @@ public class LeanProfile
     public String getBciKey(LeanNode node)
     {
         StringBuilder result = new StringBuilder();
-        MethodInfo method = getMethodInfoMap().get(node.getFrame().getMethodId());
-        result.append(method.getFqmn()).append(":").append(node.getFrame().getBci());
+        result.append(getFqmn(node)).append(":").append(node.getFrame().getBci());
+        return result.toString();
+    }
+
+    /**
+     * Return the key for a {@link LeanNode} representing a frame, constructed by prepending the method Id to the FQMN.
+     * <p>
+     * @param node the node for which the key is calculated
+     * @return the aggregation key for the node consisting of the method Id and the FQMN
+     */
+    public String getMethodIdKey(LeanNode node)
+    {
+        StringBuilder result = new StringBuilder();
+        result.append("(").append(Long.toString(node.getFrame().getMethodId())).append(") ");
+        result.append(getFqmn(node));
         return result.toString();
     }
 
