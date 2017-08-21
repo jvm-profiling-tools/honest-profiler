@@ -22,7 +22,6 @@
 package com.insightfullogic.honest_profiler.core;
 
 import com.insightfullogic.honest_profiler.core.parser.*;
-import com.insightfullogic.honest_profiler.ports.web.store.LogSaver;
 import com.insightfullogic.lambdabehave.JunitSuiteRunner;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -42,7 +41,6 @@ public class ConductorTest
 
             it.should("parse a basic log", expect -> {
                 LogEventListener listener = mock(LogEventListener.class);
-                LogSaver saver = mock(LogSaver.class);
                 Logger logger = mock(Logger.class);
                 LogParser parser = new LogParser(logger, listener);
                 Conductor consumer = new Conductor(logger, Util.log0Source(), parser, false);
