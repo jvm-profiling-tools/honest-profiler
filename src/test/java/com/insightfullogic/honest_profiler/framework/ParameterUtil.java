@@ -4,11 +4,11 @@ import static com.insightfullogic.honest_profiler.framework.LogEventFactory.SCEN
 import static java.util.Arrays.asList;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping;
+import com.insightfullogic.honest_profiler.framework.scenario.FltScenario;
 
 /**
  * Utility class for constructing parameter collections for JUnit parameterized tests.
@@ -17,7 +17,7 @@ public class ParameterUtil
 {
     // Class Methods
 
-    public static final Collection<Object[]> getScenarios()
+    public static final List<Object[]> getScenarios()
     {
         List<Object[]> result = new ArrayList<>();
         SCENARIOS.forEach(sc -> result.add(new Object[]
@@ -25,7 +25,7 @@ public class ParameterUtil
         return result;
     }
 
-    public static final Collection<Object[]> getScenariosAndFrameGroupings()
+    public static final List<Object[]> getScenariosAndFrameGroupings()
     {
         List<Object[]> result = new ArrayList<>();
         SCENARIOS.forEach(sc -> asList(FrameGrouping.values()).forEach(fg -> result.add(new Object[]
@@ -33,7 +33,7 @@ public class ParameterUtil
         return result;
     }
 
-    public static final Collection<Object[]> getScenariosAndGroupings()
+    public static final List<Object[]> getScenariosAndGroupings()
     {
         List<Object[]> result = new ArrayList<>();
         SCENARIOS.forEach(
@@ -41,6 +41,56 @@ public class ParameterUtil
                 .forEach(tg -> asList(FrameGrouping.values()).forEach(fg -> result.add(new Object[]
             { sc, tg, fg }))));
         return result;
+    }
+
+    public static final List<Object[]> getDiffScenariosAndFrameGroupings()
+    {
+        List<Object[]> result = new ArrayList<>();
+        SCENARIOS.forEach(
+            sc -> asList(FrameGrouping.values()).forEach(fg ->
+            {
+                result.add(new Object[]
+                { sc, SCENARIOS.get(6), fg });
+                result.add(new Object[]
+                { sc, SCENARIOS.get(7), fg });
+            }));
+        return result;
+    }
+
+    public static final List<Object[]> getDiffScenariosAndGroupings()
+    {
+        List<Object[]> result = new ArrayList<>();
+        SCENARIOS.forEach(
+            sc -> asList(ThreadGrouping.values())
+                .forEach(tg -> asList(FrameGrouping.values()).forEach(fg ->
+                {
+                    result.add(new Object[]
+                    { sc, SCENARIOS.get(6), tg, fg });
+                    result.add(new Object[]
+                    { sc, SCENARIOS.get(7), tg, fg });
+                })));
+        return result;
+    }
+
+    public static final List<Object[]> getFilterScenarios()
+    {
+        List<Object[]> result = new ArrayList<>();
+        SCENARIOS.forEach(
+            sc -> asList(ThreadGrouping.values()).forEach(
+                tg -> asList(FrameGrouping.values())
+                    .forEach(fg -> FltScenario.getScenarios().forEach(fsc -> result.add(new Object[]
+                { sc, tg, fg, fsc })))));
+        return result;
+    }
+
+    public static final List<Object[]> getDebugScenariosAndGroupings()
+    {
+        List<Object[]> result = new ArrayList<>();
+        SCENARIOS.forEach(
+            sc -> asList(ThreadGrouping.values())
+                .forEach(tg -> asList(FrameGrouping.values()).forEach(fg -> result.add(new Object[]
+            { sc, tg, fg }))));
+        return result.subList(0, 5);
     }
 
     // Instance Constructors

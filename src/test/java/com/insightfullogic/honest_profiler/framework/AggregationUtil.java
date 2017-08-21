@@ -52,18 +52,7 @@ public class AggregationUtil
 
         String[] result = new String[frames.length + 1];
 
-        switch (threadGrouping)
-        {
-            case BY_ID:
-                result[0] = getThreadIdKey(thread);
-                break;
-            case BY_NAME:
-                result[0] = getThreadNameKey(thread);
-                break;
-            case ALL_TOGETHER:
-                result[0] = "All Threads";
-                break;
-        }
+        result[0] = keyFor(threadGrouping, thread);
 
         int idx = 1;
         for (StackFrame frame : frames)
@@ -98,6 +87,26 @@ public class AggregationUtil
     }
 
     // Thread key conversion
+
+    public static final String keyFor(ThreadGrouping threadGrouping, ThreadMeta thread)
+    {
+        if (thread == null)
+        {
+
+        }
+
+        switch (threadGrouping)
+        {
+            case BY_ID:
+                return getThreadIdKey(thread);
+            case BY_NAME:
+                return getThreadNameKey(thread);
+            case ALL_TOGETHER:
+                return "All Threads";
+            default:
+                return null;
+        }
+    }
 
     public static final String getThreadIdKey(ThreadMeta thread)
     {
