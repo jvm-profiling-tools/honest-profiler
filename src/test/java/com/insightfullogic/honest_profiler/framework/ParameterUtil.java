@@ -15,9 +15,7 @@ import com.insightfullogic.honest_profiler.framework.scenario.FltScenario;
  */
 public class ParameterUtil
 {
-    // Class Methods
-
-    public static final List<Object[]> getScenarios()
+    public static List<Object[]> getScenarios()
     {
         List<Object[]> result = new ArrayList<>();
         SCENARIOS.forEach(sc -> result.add(new Object[]
@@ -25,7 +23,7 @@ public class ParameterUtil
         return result;
     }
 
-    public static final List<Object[]> getScenariosAndFrameGroupings()
+    public static List<Object[]> getScenariosAndFrameGroupings()
     {
         List<Object[]> result = new ArrayList<>();
         SCENARIOS.forEach(sc -> asList(FrameGrouping.values()).forEach(fg -> result.add(new Object[]
@@ -33,7 +31,7 @@ public class ParameterUtil
         return result;
     }
 
-    public static final List<Object[]> getScenariosAndGroupings()
+    public static List<Object[]> getScenariosAndGroupings()
     {
         List<Object[]> result = new ArrayList<>();
         SCENARIOS.forEach(
@@ -43,7 +41,7 @@ public class ParameterUtil
         return result;
     }
 
-    public static final List<Object[]> getDiffScenariosAndFrameGroupings()
+    public static List<Object[]> getDiffScenariosAndFrameGroupings()
     {
         List<Object[]> result = new ArrayList<>();
         SCENARIOS.forEach(
@@ -57,7 +55,7 @@ public class ParameterUtil
         return result;
     }
 
-    public static final List<Object[]> getDiffScenariosAndGroupings()
+    public static List<Object[]> getDiffScenariosAndGroupings()
     {
         List<Object[]> result = new ArrayList<>();
         SCENARIOS.forEach(
@@ -72,7 +70,7 @@ public class ParameterUtil
         return result;
     }
 
-    public static final List<Object[]> getFilterScenarios()
+    public static List<Object[]> getFilterScenarios()
     {
         List<Object[]> result = new ArrayList<>();
         SCENARIOS.forEach(
@@ -82,18 +80,6 @@ public class ParameterUtil
                 { sc, tg, fg, fsc })))));
         return result;
     }
-
-    public static final List<Object[]> getDebugScenariosAndGroupings()
-    {
-        List<Object[]> result = new ArrayList<>();
-        SCENARIOS.forEach(
-            sc -> asList(ThreadGrouping.values())
-                .forEach(tg -> asList(FrameGrouping.values()).forEach(fg -> result.add(new Object[]
-            { sc, tg, fg }))));
-        return result.subList(0, 5);
-    }
-
-    // Instance Constructors
 
     private ParameterUtil()
     {
