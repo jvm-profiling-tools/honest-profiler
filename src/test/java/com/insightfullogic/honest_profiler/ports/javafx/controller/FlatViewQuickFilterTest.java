@@ -35,26 +35,18 @@ import javafx.scene.control.TableView;
 @RunWith(Parameterized.class)
 public class FlatViewQuickFilterTest extends AbstractJavaFxTest
 {
-    // Class Methods
-
     @Parameters(name = "{0}")
     public static Collection<Object[]> data()
     {
         return getScenarios();
     }
 
-    // Instance Properties
-
     private SimplifiedLogScenario scenario;
-
-    // Instance Constructors
 
     public FlatViewQuickFilterTest(SimplifiedLogScenario scenario)
     {
         this.scenario = scenario;
     }
-
-    // Actual Test Method
 
     @Test
     public void testFlatQuickFilterScenario()
