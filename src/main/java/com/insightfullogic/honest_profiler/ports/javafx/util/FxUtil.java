@@ -22,7 +22,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.TableColumnBase;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TreeTableColumn;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -150,10 +152,46 @@ public final class FxUtil
         return createColoredLabelContainer(CENTER_LEFT);
     }
 
-    // Hack to work around defective TableView refresh. Tables do not properly
-    // update when items are added or removed.
-    // See :
-    // http://stackoverflow.com/questions/11065140/javafx-2-1-tableview-refresh-items
+    /**
+     * Calculate a column width for a column with the specified box as header graphic.
+     * <p>
+     *
+     * @param box the header graphic for the column
+     * @return the calculated width
+     */
+    public static double calculateHeaderWidth(HBox box)
+    {
+        double width = 0;
+        for (Node node : box.getChildren())
+        {
+            width += node.getBoundsInLocal().getWidth();
+        }
+        width += box.getSpacing() * (box.getChildren().size() - 1);
+        width += box.getPadding().getLeft() + box.getPadding().getRight();
+        return width;
+    }
+
+    /**
+     * Set various {@link TableColumnBase} properties. Somehow it's hard to get a TableColumn to resize properly.
+     * Therefore, we calculate a fair width ourselves.
+     * <p>
+     *
+     * @param column the {@link TreeTableColumn} to be reconfigured
+     * @param graphic the graphic to be displayed in the column header
+     */
+    public static final void reconfigureColumn(TableColumnBase<?, ?> column, HBox graphic)
+    {
+        if (graphic == null)
+        {
+            return;
+        }
+
+        double width = calculateHeaderWidth(graphic);
+
+        column.setGraphic(graphic);
+        column.setMinWidth(width);
+        column.setPrefWidth(width + 5);
+    }
 
     /**
      * Hack to work around defective TableView refresh. Tables do not always properly update when items are added or

@@ -12,6 +12,8 @@ import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableObjectValue;
+import javafx.scene.control.TableColumnBase;
+import javafx.scene.layout.HBox;
 
 /**
  * Superclass for all View Controllers in the application which provide a view on a "target", a data structure of type T
@@ -157,8 +159,9 @@ public abstract class AbstractProfileViewController<T, U> extends AbstractViewCo
      * defined in the FXML.
      */
     @Override
-    protected <C> void setColumnHeader(C column, String title, ProfileContext context)
+    protected HBox getColumnHeader(TableColumnBase<?, ?> column, String title,
+        ProfileContext context)
     {
-        // NOOP
+        return null;
     }
 }
