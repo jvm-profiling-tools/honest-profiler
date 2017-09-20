@@ -1,7 +1,9 @@
 package com.insightfullogic.honest_profiler.framework.checker;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -115,6 +117,11 @@ public class TreeCheckAdapter implements CheckAdapter<String[]>
 
             if (!result.isPresent())
             {
+                fail(
+                    "Node not found in Tree : Keys = "
+                        + Arrays.toString(keys)
+                        + "\n"
+                        + tree.toString());
                 return null;
             }
 

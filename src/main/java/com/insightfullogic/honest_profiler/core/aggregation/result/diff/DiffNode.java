@@ -2,12 +2,15 @@ package com.insightfullogic.honest_profiler.core.aggregation.result.diff;
 
 import static java.lang.Math.max;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Stream.concat;
+import static java.util.stream.Stream.of;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
 import com.insightfullogic.honest_profiler.core.aggregation.result.Parent;
@@ -34,7 +37,7 @@ public class DiffNode extends DiffEntry implements Parent<DiffNode>
     {
         super(baseNode, newNode);
 
-        this.children = new HashMap<>();
+        children = new HashMap<>();
         addBaseChildren(baseNode);
         addNewChildren(newNode);
     }
@@ -191,5 +194,15 @@ public class DiffNode extends DiffEntry implements Parent<DiffNode>
         children.compute(
             child.getKey(),
             (k, v) -> v == null ? new DiffNode(null, child) : v.setNew(child));
+    }
+
+    /**
+     * Return a {@link Stream} of DiffNodes consisting of this Node and all its descendants.
+     * <p>
+     * @return a {@link Stream} of DiffNodes consisting of this Node and all its descendants
+     */
+    public Stream<DiffNode> flatten()
+    {
+        return concat(of(this), children.values().stream().flatMap(DiffNode::flatten));
     }
 }

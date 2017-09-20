@@ -50,6 +50,6 @@ public class FlatProfileAggregatorTest
 
         gen = new FlatGenerator(threadGrouping, frameGrouping);
         scenario.executeAndEnd(gen);
-        scenario.checkLinearAggregation(new FlatCheckAdapter(gen.getFlat()));
+        scenario.checkFlatAggregation(new FlatCheckAdapter(gen.getFlat()));
     }
 }
