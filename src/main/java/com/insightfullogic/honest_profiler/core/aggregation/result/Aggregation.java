@@ -87,8 +87,8 @@ public abstract class Aggregation<T extends Keyed<String>>
     public String toString()
     {
         StringBuilder result = new StringBuilder();
-        result.append("Aggregation :\n");
-        data.forEach(result::append);
+        result.append("Aggregation " + getClass().getSimpleName() + " (" + grouping + ") :\n");
+        data.forEach(t -> result.append(t).append("\n"));
         return result.toString();
     }
 }

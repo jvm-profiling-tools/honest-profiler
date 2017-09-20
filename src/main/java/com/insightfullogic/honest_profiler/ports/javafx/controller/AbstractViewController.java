@@ -158,9 +158,6 @@ public abstract class AbstractViewController<T> extends AbstractController
             return;
         }
 
-        // Called here because I18N is needed, so there's a dependency on the availability of the ApplicationContext.
-        initializeTable();
-
         initializeFilters(applicationContext);
     }
 
@@ -219,11 +216,13 @@ public abstract class AbstractViewController<T> extends AbstractController
     protected abstract void refresh();
 
     /**
-     * Initialize the {@link TableView} or {@link TreeTableView} which contains the View data.
+     * Initialize the {@link TableView} or {@link TreeTableView} which contains the View data, if applicable.
      * <p>
-     * This method is provided because, due to I18N, the {@link ApplicationContext} is needed for proper initialization,
-     * since the column headers are internationalized. This method is therefore called in this class in the
-     * {@link #setApplicationContext(ApplicationContext)} method.
+     * Care should be taken in the subclassed to call this at the right time, because some contextual information may be
+     * needed. The {@link ApplicationContext} must be set for the I18N to work, and in the case of Diff column headers,
+     * the {@link ProfileContext}s for the profiles being compared should also be known. In the current implementation
+     * therefore, the method is called in the {@link AbstractProfileViewController#setProfileContext(ProfileContext)}
+     * and {@link AbstractProfileDiffViewController#setProfileContexts(ProfileContext, ProfileContext)} methods.
      */
     protected abstract void initializeTable();
 

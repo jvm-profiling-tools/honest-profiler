@@ -38,7 +38,7 @@ public class Node extends Entry implements Parent<Node>
     public <T extends Keyed<String>> Node(Aggregation<T> aggregation)
     {
         super(aggregation);
-        this.children = new HashMap<>();
+        children = new HashMap<>();
     }
 
     /**
@@ -194,5 +194,24 @@ public class Node extends Entry implements Parent<Node>
     public Stream<Node> flattenDescendants()
     {
         return children.values().stream().flatMap(Node::flatten);
+    }
+
+    @Override
+    public String toString()
+    {
+        return toString(0);
+    }
+
+    public String toString(int level)
+    {
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < level; i++)
+        {
+            result.append("  ");
+        }
+        result.append(super.toString());
+        getChildren()
+            .forEach((Node child) -> result.append("\n").append(child.toString(level + 1)));
+        return result.toString();
     }
 }
