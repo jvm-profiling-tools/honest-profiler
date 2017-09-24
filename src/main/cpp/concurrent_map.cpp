@@ -22,18 +22,21 @@ TRACE_DEFINE_BEGIN(LFMap, kTraceLFMapTotal)
     TRACE_DEFINE("[Migration::run] Can't participate in job that already ended")
     TRACE_DEFINE("[Migration::run] Migration interrupted by end of job")
     TRACE_DEFINE("[Migration::run] Overflow detected during migration")
+    TRACE_DEFINE("[Migration::run] Data was migrated completely")
     TRACE_DEFINE("[Migration::run] No more blocks to migrate")
     TRACE_DEFINE("[Migration::run] Not the last thread")
-    TRACE_DEFINE("[Migration::run] Overflow migration already started")
+    TRACE_DEFINE("[Migration::run] Publishing successful migration")
+    TRACE_DEFINE("[Migration::run] Starting successful overflow migration")
+    TRACE_DEFINE("[Migration::run] Overflow migration already started before")
     TRACE_DEFINE("[Migration::migrateRange] Unallocated cell migration flag")
     TRACE_DEFINE("[Migration::migrateRange] Unallocated cell insert race")
     TRACE_DEFINE("[Migration::migrateRange] Allocated cell value insert race")
     TRACE_DEFINE("[Migration::migrateRange] Allocated cell migration flag")
+    TRACE_DEFINE("[Migration::migrateRange] Destination insert overflow when migrating a bucket")
     TRACE_DEFINE("[Migration::migrateRange] Racing erase when migrating allocated bucket")
 TRACE_DEFINE_END(LFMap, kTraceLFMapTotal);
 
 const GC::EpochType GC::kEpochInitial = -1;
 
 GC DefaultGC;
-
 }
