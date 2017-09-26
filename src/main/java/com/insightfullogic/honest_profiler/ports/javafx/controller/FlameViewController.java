@@ -99,10 +99,4 @@ public class FlameViewController extends AbstractProfileViewController<FlameGrap
     {
         // NOOP
     }
-
-    @Override
-    protected <C> void setColumnHeader(C column, String title, ProfileContext context)
-    {
-        // NOOP
-    }
 }

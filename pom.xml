@@ -62,9 +62,21 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.loadui</groupId>
-            <artifactId>testFx</artifactId>
-            <version>3.1.2</version>
+            <groupId>org.testfx</groupId>
+            <artifactId>testfx-core</artifactId>
+            <version>4.0.6-alpha</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testfx</groupId>
+            <artifactId>testfx-junit</artifactId>
+            <version>4.0.6-alpha</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jfxtras</groupId>
+            <artifactId>openjfx-monocle</artifactId>
+            <version>1.8.0_20</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -137,7 +149,7 @@
 			    <artifactId>maven-surefire-plugin</artifactId>
 			    <version>2.19.1</version>
 			    <configuration>
-			    	<argLine>-Duser.country=US -Duser.language=en</argLine>
+			    	<argLine>-Duser.country=US -Duser.language=en -Dheadless=true</argLine>
 			    </configuration>
 			</plugin>
         </plugins>
@@ -199,38 +211,6 @@
                                 </goals>
                                 <configuration>
                                     <executable>make</executable>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <profile>
-            <id>npm</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.1</version>
-                        <executions>
-                            <execution>
-                                <id>npm-test</id>
-                                <phase>test</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <configuration>
-                                    <skip>${skipTests}</skip>
-                                    <executable>npm</executable>
-                                    <arguments>
-                                        <argument>test</argument>
-                                    </arguments>
                                 </configuration>
                             </execution>
                         </executions>

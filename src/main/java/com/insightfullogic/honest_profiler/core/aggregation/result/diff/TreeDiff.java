@@ -2,10 +2,11 @@ package com.insightfullogic.honest_profiler.core.aggregation.result.diff;
 
 import static java.util.stream.Collectors.toList;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import com.insightfullogic.honest_profiler.core.aggregation.filter.FilterSpecification;
 import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
@@ -43,6 +44,8 @@ public class TreeDiff extends AbstractDiff<Node, DiffNode, Tree>
         entries.forEach(entry -> data.put(entry.getKey(), entry));
     }
 
+    // Instance Accessors
+
     /**
      * Sets the Base and New {@link Tree}s, and calculates the diff contents.
      * <p>
@@ -65,13 +68,23 @@ public class TreeDiff extends AbstractDiff<Node, DiffNode, Tree>
     }
 
     /**
+     * Returns a {@link Stream} of all {@link DiffNode}s contained in this Tree.
+     * <p>
+     * @return a {@link Stream} of all {@link DiffNode}s contained in this Tree
+     */
+    public Stream<DiffNode> flatten()
+    {
+        return getData().stream().flatMap(DiffNode::flatten);
+    }
+
+    /**
      * Returns the {@link DiffNode}s from this Diff.
      * <p>
-     * @return a {@link Collection} containing the {@link DiffNode}s from this Diff
+     * @return a {@link List} containing the {@link DiffNode}s from this Diff
      */
-    public Collection<DiffNode> getData()
+    public List<DiffNode> getData()
     {
-        return data.values();
+        return new ArrayList<>(data.values());
     }
 
     // AbstractDiff Implementation
