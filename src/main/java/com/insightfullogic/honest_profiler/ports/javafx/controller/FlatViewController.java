@@ -29,12 +29,27 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_CNT_PCT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_TIME;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.COLUMN_TOTAL_TIME_PCT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.CTXMENU_COLVW_HIDECNTALL;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.CTXMENU_COLVW_HIDEPCTALL;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.CTXMENU_COLVW_HIDESELFALL;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.CTXMENU_COLVW_HIDETIMEALL;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.CTXMENU_COLVW_HIDETOTALALL;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.CTXMENU_COLVW_SHOWCNTALL;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.CTXMENU_COLVW_SHOWPCTALL;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.CTXMENU_COLVW_SHOWSELFALL;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.CTXMENU_COLVW_SHOWTIMEALL;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.CTXMENU_COLVW_SHOWTOTALALL;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_COLUMNVIEW;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_EXPORT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_FILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_QUICKFILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_INPUT_QUICKFILTER;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_TABLE_FLAT;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil.writeFlatProfileCsv;
+import static java.util.Arrays.asList;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.FrameGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.ThreadGrouping;
@@ -42,6 +57,7 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entry;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
 import com.insightfullogic.honest_profiler.ports.javafx.controller.filter.FilterDialogController;
+import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.util.report.ReportUtil;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.GraphicalShareTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.MethodNameTableCell;
@@ -53,6 +69,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumnBase;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -64,6 +81,8 @@ public class FlatViewController extends AbstractProfileViewController<Flat, Entr
 {
     @FXML
     private Button filterButton;
+    @FXML
+    private Button columnViewButton;
     @FXML
     private Button exportButton;
     @FXML
@@ -108,6 +127,12 @@ public class FlatViewController extends AbstractProfileViewController<Flat, Entr
 
     private ObservableList<Entry> flatProfile;
 
+    private Set<TableColumnBase<?, ?>> selfColumns;
+    private Set<TableColumnBase<?, ?>> totalColumns;
+    private Set<TableColumnBase<?, ?>> cntColumns;
+    private Set<TableColumnBase<?, ?>> pctColumns;
+    private Set<TableColumnBase<?, ?>> timeColumns;
+
     // FXML Implementation
 
     @Override
@@ -117,8 +142,36 @@ public class FlatViewController extends AbstractProfileViewController<Flat, Entr
         flatProfile = flatTable.getItems();
 
         super.initialize(ENTRY);
-        super.initialize(filterController, filterButton, quickFilterButton, quickFilterText);
-        super.initialize(threadGroupingLabel, threadGrouping, frameGroupingLabel, frameGrouping);
+        super.initializeFiltering(
+            filterController,
+            filterButton,
+            quickFilterButton,
+            quickFilterText);
+        super.initializeGrouping(
+            threadGroupingLabel,
+            threadGrouping,
+            frameGroupingLabel,
+            frameGrouping);
+        super.initializeColumnView(columnViewButton);
+
+        createColumnSets();
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext)
+    {
+        super.setApplicationContext(applicationContext);
+
+        addColumnGroupMenuItem(appCtx().textFor(CTXMENU_COLVW_SHOWCNTALL), true, cntColumns);
+        addColumnGroupMenuItem(appCtx().textFor(CTXMENU_COLVW_HIDECNTALL), false, cntColumns);
+        addColumnGroupMenuItem(appCtx().textFor(CTXMENU_COLVW_SHOWPCTALL), true, pctColumns);
+        addColumnGroupMenuItem(appCtx().textFor(CTXMENU_COLVW_HIDEPCTALL), false, pctColumns);
+        addColumnGroupMenuItem(appCtx().textFor(CTXMENU_COLVW_SHOWTIMEALL), true, timeColumns);
+        addColumnGroupMenuItem(appCtx().textFor(CTXMENU_COLVW_HIDETIMEALL), false, timeColumns);
+        addColumnGroupMenuItem(appCtx().textFor(CTXMENU_COLVW_SHOWSELFALL), true, selfColumns);
+        addColumnGroupMenuItem(appCtx().textFor(CTXMENU_COLVW_HIDESELFALL), false, selfColumns);
+        addColumnGroupMenuItem(appCtx().textFor(CTXMENU_COLVW_SHOWTOTALALL), true, totalColumns);
+        addColumnGroupMenuItem(appCtx().textFor(CTXMENU_COLVW_HIDETOTALALL), false, totalColumns);
     }
 
     // Instance Accessors
@@ -140,6 +193,7 @@ public class FlatViewController extends AbstractProfileViewController<Flat, Entr
     protected void initializeInfoText()
     {
         info(filterButton, INFO_BUTTON_FILTER);
+        info(columnViewButton, INFO_BUTTON_COLUMNVIEW);
         info(exportButton, INFO_BUTTON_EXPORT);
         info(quickFilterText, INFO_INPUT_QUICKFILTER);
         info(quickFilterButton, INFO_BUTTON_QUICKFILTER);
@@ -189,6 +243,12 @@ public class FlatViewController extends AbstractProfileViewController<Flat, Entr
         selfTimeGraphical.setCellValueFactory(new PropertyValueFactory<>("selfCntPct"));
         selfTimeGraphical.setCellFactory(col -> new GraphicalShareTableCell<>());
 
+        // The column configuration methods should (for now) be called in the same order as the columns are declared in
+        // the FXML.
+        // The only reason is the column view context menu, which collects its menu items in the order of these
+        // declarations. If the order is out of sync, the column view context menu will not have its items in the
+        // correct order.
+        // This will probably, eventually, be remedied by reordering but for now this comment will have to do.
         cfgPctCol(selfCntPct, "selfCntPct", prfCtx(), COLUMN_SELF_CNT_PCT);
         cfgPctCol(totalCntPct, "totalCntPct", prfCtx(), COLUMN_TOTAL_CNT_PCT);
         cfgNrCol(selfCnt, "selfCnt", prfCtx(), COLUMN_SELF_CNT);
@@ -197,5 +257,17 @@ public class FlatViewController extends AbstractProfileViewController<Flat, Entr
         cfgPctCol(totalTimePct, "totalTimePct", prfCtx(), COLUMN_TOTAL_TIME_PCT);
         cfgTimeCol(selfTime, "selfTime", prfCtx(), COLUMN_SELF_TIME);
         cfgTimeCol(totalTime, "totalTime", prfCtx(), COLUMN_TOTAL_TIME);
+    }
+
+    /**
+     * Defines the column sets for collective showing or hiding.
+     */
+    private void createColumnSets()
+    {
+        selfColumns = new HashSet<>(asList(selfCnt, selfCntPct, selfTime, selfTimePct));
+        totalColumns = new HashSet<>(asList(totalCnt, totalCntPct, totalTime, totalTimePct));
+        cntColumns = new HashSet<>(asList(selfCnt, totalCnt));
+        pctColumns = new HashSet<>(asList(selfCntPct, totalCntPct, selfTimePct, totalTimePct));
+        timeColumns = new HashSet<>(asList(selfTime, totalTime, selfTimePct, totalTimePct));
     }
 }

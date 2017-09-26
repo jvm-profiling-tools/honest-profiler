@@ -36,6 +36,7 @@ public final class ResourceUtil
     public static final String INFO_BUTTON_FREEZE_FROZEN = "button.freeze.frozen.info";
     public static final String INFO_BUTTON_COMPARE = "button.compare.info";
     public static final String INFO_BUTTON_FILTER = "button.filter.info";
+    public static final String INFO_BUTTON_COLUMNVIEW = "button.columnView.info";
     public static final String INFO_BUTTON_EXPORT = "button.flat.export.info";
     public static final String INFO_BUTTON_QUICKFILTER = "button.quickFilter.info";
     public static final String INFO_BUTTON_EXPANDALL = "button.expandAll.info";
@@ -86,6 +87,22 @@ public final class ResourceUtil
     public static final String CTXMENU_TREE_EXPANDFIRSTONLY = "ctxmenu.tree.expandFirstOnly";
     public static final String CTXMENU_TREE_COLLAPSE = "ctxmenu.tree.collapse";
     public static final String CTXMENU_TREE_EXPORTSUBTREE = "ctxmenu.tree.exportSubtree";
+
+    // -- For Column View Groups
+    public static final String CTXMENU_COLVW_SHOWSELFALL = "ctxmenu.colView.showSelfAll";
+    public static final String CTXMENU_COLVW_HIDESELFALL = "ctxmenu.colView.hideSelfAll";
+    public static final String CTXMENU_COLVW_SHOWTOTALALL = "ctxmenu.colView.showTotalAll";
+    public static final String CTXMENU_COLVW_HIDETOTALALL = "ctxmenu.colView.hideTotalAll";
+    public static final String CTXMENU_COLVW_SHOWCNTALL = "ctxmenu.colView.showCntAll";
+    public static final String CTXMENU_COLVW_HIDECNTALL = "ctxmenu.colView.hideCntAll";
+    public static final String CTXMENU_COLVW_SHOWPCTALL = "ctxmenu.colView.showPctAll";
+    public static final String CTXMENU_COLVW_HIDEPCTALL = "ctxmenu.colView.hidePctAll";
+    public static final String CTXMENU_COLVW_SHOWTIMEALL = "ctxmenu.colView.showTimeAll";
+    public static final String CTXMENU_COLVW_HIDETIMEALL = "ctxmenu.colView.hideTimeAll";
+    public static final String CTXMENU_COLVW_SHOWNONDIFFALL = "ctxmenu.colView.showNonDiffAll";
+    public static final String CTXMENU_COLVW_HIDENONDIFFALL = "ctxmenu.colView.hideNonDiffAll";
+    public static final String CTXMENU_COLVW_SHOWDIFFALL = "ctxmenu.colView.showDiffAll";
+    public static final String CTXMENU_COLVW_HIDEDIFFALL = "ctxmenu.colView.hideDiffAll";
 
     // - Tooltip messages
 
