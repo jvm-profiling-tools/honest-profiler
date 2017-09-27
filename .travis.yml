@@ -8,6 +8,9 @@ os:
   - osx
 osx_image: xcode7
 dist: trusty
+env:
+  - CMAKE_CXX_FLAGS="-fsanitize=address -DDEBUG_MAP_GC"
+  - ASAN_OPTIONS="detect_odr_violation=0"
 branches:
   only:
   - master

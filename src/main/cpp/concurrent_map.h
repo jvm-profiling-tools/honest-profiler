@@ -19,7 +19,7 @@
 #include <cassert>
 
 #if !defined(nullptr)
-	#define nullptr NULL
+#	define nullptr NULL
 #endif
 
 #include <vector>

@@ -79,7 +79,6 @@ set(SOURCE_FILES
 
 set(TEST_FILES
     ${SRC_TEST}/fixtures.h
-    ${SRC_TEST}/test_misc.cpp
     ${SRC_TEST}/test_circular_queue.cpp
     ${SRC_TEST}/test.cpp
     ${SRC_TEST}/test_log_writer.cpp

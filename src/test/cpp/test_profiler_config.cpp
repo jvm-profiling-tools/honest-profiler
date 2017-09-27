@@ -7,7 +7,8 @@
 #include <iostream>
 #include "../../main/cpp/profiler.h"
 
-#ifndef __APPLE__
+// Do not test profiler by default, since it breaks address sanizer
+#if TEST_PROFILER_USAGE
 
 static JavaVM *jvm = NULL;
 static JNIEnv *env = NULL;
