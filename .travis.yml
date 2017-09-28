@@ -22,7 +22,7 @@ matrix:
       osx_image: xcode9
       compiler: clang
 env:
-  - CMAKE_CXX_FLAGS="-fsanitize=address -DDEBUG_MAP_GC" ASAN_OPTIONS="detect_odr_violation=0"
+  - EXT_CXX_FLAGS="-fsanitize=address -DDEBUG_MAP_GC -DTEST_SKIP_PROFILER" ASAN_OPTIONS="detect_odr_violation=0"
 branches:
   only:
   - master
@@ -33,6 +33,8 @@ before_install:
   - g++ --version
   - clang++ --version
   - java -version
-install: cmake CMakeLists.txt
+install:
+  - if [ $TRAVIS_OS_NAME == osx ]; export UNITTEST_INCLUDE_DIRS=/usr/local/Cellar/unittest-cpp/; fi
+  - cmake CMakeLists.txt
 script: make && build/unitTests
 after_script: rm -f *.hpl *.log

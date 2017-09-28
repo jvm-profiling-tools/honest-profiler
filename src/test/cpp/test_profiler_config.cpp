@@ -8,7 +8,7 @@
 #include "../../main/cpp/profiler.h"
 
 // Do not test profiler by default, since it breaks address sanizer
-#if TEST_PROFILER_USAGE
+#ifndef TEST_SKIP_PROFILER
 
 static JavaVM *jvm = NULL;
 static JNIEnv *env = NULL;
