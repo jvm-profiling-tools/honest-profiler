@@ -10,9 +10,14 @@
 
 #if __GNUC__ == 4 && __GNUC_MINOR__ < 6 && !defined(__APPLE__) && !defined(__FreeBSD__) && !defined(__clang__)
 #	include <cstdatomic>
-#	define C_ATOMICS
+#	define C_ATOMICS 
 #else
 #	include <atomic>
+#endif
+
+// Disable asserts if tracing or gc debug are enabled
+#if !defined(ENABLE_TRACING) && !defined(DEBUG_MAP_GC)
+#	define NDEBUG 
 #endif
 
 #include <cstddef>
