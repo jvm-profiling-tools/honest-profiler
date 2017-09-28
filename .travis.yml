@@ -30,11 +30,10 @@ branches:
 before_install:
   - if [ $TRAVIS_OS_NAME == linux ]; then sudo apt-get update && sudo apt-get install -y libunittest++-dev; fi
   - if [ $TRAVIS_OS_NAME == osx ]; then brew update && brew install unittest-cpp && brew uninstall cmake && brew install cmake; fi
+  - if [ $TRAVIS_OS_NAME == osx ]; export UNITTEST_INCLUDE_DIRS=/usr/local/Cellar/unittest-cpp/; fi
   - g++ --version
   - clang++ --version
   - java -version
-install:
-  - if [ $TRAVIS_OS_NAME == osx ]; export UNITTEST_INCLUDE_DIRS=/usr/local/Cellar/unittest-cpp/; fi
-  - cmake CMakeLists.txt
+install: cmake CMakeLists.txt
 script: make && build/unitTests
 after_script: rm -f *.hpl *.log
