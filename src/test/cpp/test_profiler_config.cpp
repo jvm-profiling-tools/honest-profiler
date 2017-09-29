@@ -7,7 +7,7 @@
 #include <iostream>
 #include "../../main/cpp/profiler.h"
 
-// Do not test profiler by default, since it breaks address sanizer
+// Heavy tests that require a JVM instance can be disabled
 #ifndef TEST_SKIP_PROFILER
 
 static JavaVM *jvm = NULL;

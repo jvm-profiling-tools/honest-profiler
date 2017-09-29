@@ -15,7 +15,7 @@
 #	include <atomic>
 #endif
 
-// Disable asserts if tracing or gc debug are enabled
+// Disable asserts (cassert) if tracing and gc debug are disabled
 #if !defined(ENABLE_TRACING) && !defined(DEBUG_MAP_GC)
 #	define NDEBUG 
 #endif
