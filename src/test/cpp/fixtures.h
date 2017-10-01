@@ -30,24 +30,18 @@ public:
 // Queue too big to stack allocate,
 // So we use a fixture
 struct GivenQueue {
-  GivenQueue() {
-    holder = new ItemHolder();
-    queue = new CircularQueue(*holder, DEFAULT_MAX_FRAMES_TO_CAPTURE);
+  GivenQueue() : holder(), queue(holder, DEFAULT_MAX_FRAMES_TO_CAPTURE) {
   }
 
-  ~GivenQueue() {
-    delete holder;
-    delete queue;
-  }
+  ~GivenQueue() {}
 
-  ItemHolder *holder;
-
-  CircularQueue *queue;
+  ItemHolder holder;
+  CircularQueue queue;
 
   // wrap an easy to test api around the queue
   bool pop(const long envId) {
-    holder->envId = envId;
-    return queue->pop();
+    holder.envId = envId;
+    return queue.pop();
   }
 };
 

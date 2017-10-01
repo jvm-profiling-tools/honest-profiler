@@ -29,7 +29,7 @@ TEST_FIXTURE(GivenQueue, OnlyInOnlyOut) {
   givenStackTrace(5);
 
   // when you push then pop
-  CHECK(queue->push(trace));
+  CHECK(queue.push(trace));
   // then you get the same value back
   CHECK(pop(5));
   // and no more
@@ -42,7 +42,7 @@ void pushLocalTraceOnto(CircularQueue &queue, const long envId) {
 }
 
 TEST_FIXTURE(GivenQueue, ElementsAreGenuinelyCopied) {
-  pushLocalTraceOnto(*queue, 5);
+  pushLocalTraceOnto(queue, 5);
 
   CHECK(pop(5));
 
@@ -51,8 +51,8 @@ TEST_FIXTURE(GivenQueue, ElementsAreGenuinelyCopied) {
 }
 
 TEST_FIXTURE(GivenQueue, FirstInFirstOut) {
-  pushLocalTraceOnto(*queue, 5);
-  pushLocalTraceOnto(*queue, 6);
+  pushLocalTraceOnto(queue, 5);
+  pushLocalTraceOnto(queue, 6);
 
   CHECK(pop(5));
 
@@ -63,11 +63,11 @@ TEST_FIXTURE(GivenQueue, FirstInFirstOut) {
 
 TEST_FIXTURE(GivenQueue, CantOverWriteUnreadInput) {
   for (int i = 0; i < Size; i++) {
-    pushLocalTraceOnto(*queue, 5);
+    pushLocalTraceOnto(queue, 5);
   }
 
   givenStackTrace(5);
-  CHECK(!queue->push(trace));
+  CHECK(!queue.push(trace));
 
   for (int i = 0; i < Size; i++) {
     CHECK(pop(5));
@@ -81,13 +81,13 @@ const int THREAD_COUNT = std::thread::hardware_concurrency() ?
   std::thread::hardware_concurrency() : 1;
 const int THREAD_GAP = Size / THREAD_COUNT;
 
-void runnable(long start, CircularQueue* queue) {
+void runnable(long start, CircularQueue& queue) {
   start *= THREAD_GAP;
   givenStackTrace(start);
   int end = start + THREAD_GAP;
   for (long i = start; i < end; i++) {
     trace.env_id = (JNIEnv *) i;
-    CHECK(queue->push(trace));
+    CHECK(queue.push(trace));
   }
 }
 
