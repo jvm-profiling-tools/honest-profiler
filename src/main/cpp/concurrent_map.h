@@ -357,6 +357,8 @@ public:
 						TRACE(LFMap, 3);
 					} else {
 						TRACE(LFMap, 4);
+						if (oldValue == MapValMove)
+							return INSERT_HELP_MIGRATION;
 					}
 
 					// if there's a concurrent write or erase (i.e. CAS failed), giving up and pretending that value was overwritten
@@ -728,16 +730,15 @@ public:
 			}
 
 			ValueType oldValue = entr->value.load(std::memory_order_relaxed);
-			if (oldValue == MapValMove) {
-				root->coordinator.participate();
-			} else if (entr->value.compare_exchange_strong(oldValue, MapValEmpty, std::memory_order_consume)) {
+			if (oldValue != MapValMove && entr->value.compare_exchange_strong(oldValue, MapValEmpty, std::memory_order_consume)) {
 				TRACE(LFMap, 12);
 				return oldValue;
-			} else { // CAS failed
+			} else if (oldValue != MapValMove) { // CAS failed
 				// there's a concurrent write or erase, giving up and pretending that value was overwritten
 				TRACE(LFMap, 13);
 				return MapValEmpty;
 			}
+			root->coordinator.participate();
 		}
 	}
 
