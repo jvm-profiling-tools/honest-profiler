@@ -135,75 +135,14 @@ public:
 	}
 };
 
-struct HashTable {
-	struct LockFreeMapEntry {
-		std::atomic<HashType> hash;
-		std::atomic<ValueType> value;
-		std::atomic<DeltaType> deltaNext;
-
-		LockFreeMapEntry() : hash(MapHashEmpty), value(MapValEmpty), deltaNext(MapDeltaEmpty) {}
-		LockFreeMapEntry(HashType h, ValueType v) : hash(h), value(v), deltaNext(MapDeltaEmpty) {}
-	};
-
-	int sizeMask;
-	LockFreeMapEntry *array;
-	std::atomic_int freeBuckets;
-	std::mutex mutex; // for allocation guard
-	JobCoordinator coordinator; // migration coordinator
-#ifdef C_ATOMICS
-	std::atomic_address victim; // comleted migration job
-#else
-	std::atomic<JobCoordinator::Job*> victim; // comleted migration job
-#endif
-
-	HashTable(size_t initialSize) : victim(nullptr) {
-		int allocatedSize = std::max(nearestPow2(initialSize), kSizeMin);
-		freeBuckets.store((int)(0.75 * allocatedSize)); // resize when 75% of map is full
-		sizeMask = allocatedSize - 1;
-		array = new LockFreeMapEntry[allocatedSize];
-		for (int i = 0; i < allocatedSize; i++) {
-			array[i].hash = MapHashEmpty;
-			array[i].value = MapValEmpty;
-		}
-	}
-
-	~HashTable() {
-		coordinator.end();
-		JobCoordinator::Job *v = getVictim(std::memory_order_relaxed);
-		if (v != nullptr) delete v;
-		delete[] array;
-	}
-
-	int getMigrationSize() {
-		return (sizeMask + 1) / kMigrationChunkSize; // both are powers of 2
-	}
-
-	inline JobCoordinator::Job* getVictim(std::memory_order order = std::memory_order_seq_cst) {
-#ifdef C_ATOMICS
-		return reinterpret_cast<JobCoordinator::Job*>(victim.load(order));
-#else
-		return victim.load(order);
-#endif
-	}
-
-	inline void setVictim(JobCoordinator::Job *newJob, std::memory_order order = std::memory_order_seq_cst) {
-		assert(getVictim(std::memory_order_relaxed) == nullptr);
-#ifdef C_ATOMICS
-		victim.store(reinterpret_cast<void*>(newJob), order);
-#else
-		victim.store(newJob, order);
-#endif
-	}
-};
-
 class GC {
 private:
 	std::mutex mutex;
 	int totalThreads;
 	std::atomic_int globalEpoch;
 	std::atomic_int remaining;
-	std::vector<HashTable*> recentGarbage;
-	std::vector<HashTable*> oldGarbage;
+	std::vector<JobCoordinator::Job*> recentGarbage;
+	std::vector<JobCoordinator::Job*> oldGarbage;
 #ifdef DEBUG_MAP_GC
 public:
 	int statsScheduled;
@@ -214,7 +153,7 @@ public:
 #ifdef DEBUG_MAP_GC
 		statsRemoved += oldGarbage.size();
 #endif
-		for (std::vector<HashTable*>::iterator it = oldGarbage.begin() ; it != oldGarbage.end(); ++it) {
+		for (std::vector<JobCoordinator::Job*>::iterator it = oldGarbage.begin() ; it != oldGarbage.end(); ++it) {
 			delete *it;
 		}
 		oldGarbage.clear();
@@ -229,8 +168,8 @@ public:
 
 	GC() : totalThreads(0), globalEpoch(1), remaining(0) {
 #ifdef DEBUG_MAP_GC
-	statsScheduled = 0;
-	statsRemoved = 0;
+		statsScheduled = 0;
+		statsRemoved = 0;
 #endif
 	}
 
@@ -278,12 +217,12 @@ public:
 		}
 	}
 
-	void scheduleDelete(HashTable *pointer) {
+	void scheduleDelete(JobCoordinator::Job *successfulMigration) {
 		std::lock_guard<std::mutex> guard(mutex);
 #ifdef DEBUG_MAP_GC
 		statsScheduled++;
 #endif
-		recentGarbage.push_back(pointer);
+		recentGarbage.push_back(successfulMigration);
 	}
 
 	~GC() {
@@ -294,6 +233,43 @@ public:
 };
 
 extern GC DefaultGC;
+
+struct HashTable {
+	struct LockFreeMapEntry {
+		std::atomic<HashType> hash;
+		std::atomic<ValueType> value;
+		std::atomic<DeltaType> deltaNext;
+
+		LockFreeMapEntry() : hash(MapHashEmpty), value(MapValEmpty), deltaNext(MapDeltaEmpty) {}
+		LockFreeMapEntry(HashType h, ValueType v) : hash(h), value(v), deltaNext(MapDeltaEmpty) {}
+	};
+
+	int sizeMask;
+	LockFreeMapEntry *array;
+	std::atomic_int freeBuckets;
+	std::mutex mutex; // for allocation guard
+	JobCoordinator coordinator; // migration coordinator
+
+	HashTable(size_t initialSize) {
+		int allocatedSize = std::max(nearestPow2(initialSize), kSizeMin);
+		freeBuckets.store((int)(0.75 * allocatedSize)); // resize when 75% of map is full
+		sizeMask = allocatedSize - 1;
+		array = new LockFreeMapEntry[allocatedSize];
+		for (int i = 0; i < allocatedSize; i++) {
+			array[i].hash = MapHashEmpty;
+			array[i].value = MapValEmpty;
+		}
+	}
+
+	~HashTable() {
+		coordinator.end();
+		delete[] array;
+	}
+
+	int getMigrationSize() {
+		return (sizeMask + 1) / kMigrationChunkSize; // both are powers of 2
+	}
+};
 
 enum InsertOutcome { INSERT_OK, INSERT_OVERFLOW, INSERT_HELP_MIGRATION };
 
@@ -427,30 +403,38 @@ public:
 	}
 };
 
-template <typename Map>
+class AbstractMapProvider {
+public:
+	virtual ValueType put(KeyType key, ValueType value) = 0;
+	virtual ValueType get(KeyType key) = 0;
+	virtual ValueType remove(KeyType key) = 0;
+	virtual void finishMigration(HashTable *expectedOldRoot, HashTable *newRoot) = 0;
+	virtual ~AbstractMapProvider() {}
+};
+
 struct Migration : public JobCoordinator::Job {
 	struct Source {
 		HashTable *table;
 		std::atomic_int index;
 	};
 
-	Map &map;
+	AbstractMapProvider &map;
 	HashTable *dest;
 	int nSources;
 	Source *sources;
 	std::atomic<bool> overflowed;
 	std::atomic<int> state; // odd means migration completed
 	std::atomic<int> unitsRemaining;
-	Migration<Map> *prev;
+	Migration *prev;
 
-	Migration(Map &self, int numSources) : map(self), nSources(numSources),
+	Migration(AbstractMapProvider &self, int numSources) : map(self), nSources(numSources),
 			  overflowed(false), state(0), unitsRemaining(0), prev(nullptr) {
 		sources = new Source[nSources];
 	}
 
 	virtual ~Migration() {
 		if (prev != nullptr) delete prev;
-		for (int i = 1; i < nSources; ++i) { // skip 0
+		for (int i = 0; i < nSources; ++i) {
 			if (sources[i].table) delete sources[i].table;
 		}
 		delete[] sources;
@@ -505,8 +489,8 @@ end_migration:
 		if (!overflowed.load(std::memory_order_relaxed)) {
 			TRACE(LFMap, 22);
 			map.finishMigration(sources[0].table, dest);
-			sources[0].table->setVictim(this, std::memory_order_release);
 			sources[0].table->coordinator.end();
+			DefaultGC.scheduleDelete(this);
 		} else {
 			HashTable *origTable = sources[0].table;
 			std::lock_guard<std::mutex> guard(origTable->mutex);
@@ -592,14 +576,6 @@ end_migration:
 	}
 };
 
-class AbstractMapProvider {
-public:
-	virtual ValueType put(KeyType key, ValueType value) = 0;
-	virtual ValueType get(KeyType key) = 0;
-	virtual ValueType remove(KeyType key) = 0;
-	virtual ~AbstractMapProvider() {}
-};
-
 /* Hasher assumed to be collision free. */
 template <typename Hasher, bool signalSafeReaders>
 class ConcurrentMapProvider : public AbstractMapProvider {
@@ -609,7 +585,6 @@ private:
 #else
 	std::atomic<HashTable*> current;
 #endif
-
 	HashFunction hasher;
 
 	inline HashTable* curr_load(std::memory_order order = std::memory_order_seq_cst) {
@@ -663,7 +638,7 @@ private:
 			return;
 		}
 
-		auto *m = new Migration<ConcurrentMapProvider<Hasher, signalSafeReaders> >(*this, 1);
+		auto *m = new Migration(*this, 1);
 		m->dest = new HashTable(targetSize);
 		m->sources[0].table = table;
 		m->sources[0].index.store(0, std::memory_order_relaxed);
@@ -682,7 +657,7 @@ public:
 		delete curr_load(std::memory_order_consume);
 	}
 
-	ValueType put(KeyType key, ValueType value) {
+	virtual ValueType put(KeyType key, ValueType value) {
 		bool doubleSize = false;
 		while (true) {
 			HashTable *root = curr_load(std::memory_order_consume);
@@ -704,7 +679,7 @@ public:
 	}
 
 	// this is the only function that can be called from signal handler
-	ValueType get(KeyType key) {
+	virtual ValueType get(KeyType key) {
 		while (true) {
 			HashTable *root = curr_load(std::memory_order_consume);
 
@@ -719,7 +694,7 @@ public:
 		}
 	}
 
-	ValueType remove(KeyType key) {
+	virtual ValueType remove(KeyType key) {
 		while (true) {
 			HashTable *root = curr_load(std::memory_order_consume);
 
@@ -743,12 +718,11 @@ public:
 	}
 
 	// Migration callback, called once per successful migration
-	void finishMigration(HashTable *expectedOldRoot, HashTable *newRoot) {
+	virtual void finishMigration(HashTable *expectedOldRoot, HashTable *newRoot) {
 		HashTable *oldRoot = curr_load(std::memory_order_consume);
 		assert(expectedOldRoot == oldRoot);
 
 		curr_store(newRoot, std::memory_order_release);
-		DefaultGC.scheduleDelete(oldRoot);
 	}
 
 	int capacity() {
