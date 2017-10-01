@@ -75,27 +75,28 @@ public:
 	};
 
 private:
+
 #ifdef C_ATOMICS
 	std::atomic_address job;
-#else
-	std::atomic<Job*> job;
-#endif
 
 	inline Job* job_load(std::memory_order order = std::memory_order_seq_cst) {
-#ifdef C_ATOMICS
-		return reinterpret_cast<Job*>(job.load(order));
-#else
-		return job.load(order);
-#endif
+		return reinterpret_cast<Job*>(job.load(order));	
 	}
 
 	inline void job_store(Job *newJob, std::memory_order order = std::memory_order_seq_cst) {
-#ifdef C_ATOMICS
 		job.store(reinterpret_cast<void*>(newJob), order);
-#else
-		job.store(newJob, order);
-#endif
 	}
+#else
+	std::atomic<Job*> job;
+
+	inline Job* job_load(std::memory_order order = std::memory_order_seq_cst) {
+		return job.load(order);
+	}
+		
+	inline void job_store(Job *newJob, std::memory_order order = std::memory_order_seq_cst) {
+		job.store(newJob, order);
+	}	
+#endif
 
 public:
 	JobCoordinator() : job(nullptr) {}
@@ -109,16 +110,16 @@ public:
 	}
 
 	Job* get() {
-		return job_load(std::memory_order_consume);
+		return job_load(std::memory_order_acquire);
 	}
 
 	void participate() {
 		Job *prevJob = nullptr;
 		while (true) {
-			Job *cjob = job_load(std::memory_order_consume);
+			Job *cjob = job_load(std::memory_order_acquire);
 			if (cjob == prevJob) { // this job is done, wait for a new job
 				while (true) {
-					cjob = job_load(std::memory_order_consume);
+					cjob = job_load(std::memory_order_acquire);
 					if (cjob != prevJob)
 						break;
 					sched_yield();
@@ -143,6 +144,7 @@ private:
 	std::atomic_int remaining;
 	std::vector<JobCoordinator::Job*> recentGarbage;
 	std::vector<JobCoordinator::Job*> oldGarbage;
+
 #ifdef DEBUG_MAP_GC
 public:
 	int statsScheduled;
@@ -416,28 +418,42 @@ struct Migration : public JobCoordinator::Job {
 	struct Source {
 		HashTable *table;
 		std::atomic_int index;
+
+		Source() : table(nullptr), index(0) {
+		}
+
+		void destroy() {
+			delete table;
+		}
+
+		// do not delete pointer
+		~Source() {}
 	};
 
 	AbstractMapProvider &map;
-	HashTable *dest;
-	int nSources;
-	Source *sources;
+	HashTable *const dest;
+	const int nSources;
+	std::vector<Source> sources;
 	std::atomic<bool> overflowed;
 	std::atomic<int> state; // odd means migration completed
 	std::atomic<int> unitsRemaining;
-	Migration *prev;
+	Migration *const prev;
 
-	Migration(AbstractMapProvider &self, int numSources) : map(self), nSources(numSources),
+	Migration(AbstractMapProvider &self, int numSources, int destSize) : 
+			  map(self), dest(new HashTable(destSize)), nSources(numSources), sources(numSources), 
 			  overflowed(false), state(0), unitsRemaining(0), prev(nullptr) {
-		sources = new Source[nSources];
+	}
+
+	Migration(AbstractMapProvider &self, Migration *prev, int numSources, int destSize) : 
+			  map(self), dest(new HashTable(destSize)), nSources(numSources), sources(numSources), 
+			  overflowed(false), state(0), unitsRemaining(0), prev(prev) {
 	}
 
 	virtual ~Migration() {
 		if (prev != nullptr) delete prev;
-		for (int i = 0; i < nSources; ++i) {
-			if (sources[i].table) delete sources[i].table;
+		for (std::vector<Source>::iterator it = sources.begin() ; it != sources.end(); ++it) {
+			it->destroy();
 		}
-		delete[] sources;
 	}
 
 	virtual void run() {
@@ -499,20 +515,19 @@ end_migration:
 
 			if (startedMigration == this) { // make sure no new migrations started
 				TRACE(LFMap, 23);
-				Migration *m = new Migration(map, nSources + 1);
-				m->dest = new HashTable((dest->sizeMask + 1) << 1);
+				Migration *m = new Migration(map, this, nSources + 1, (dest->sizeMask + 1) << 1);
 				int unitsRemaining = 0;
 				for (int it = 0; it < nSources; it++) {
 					unitsRemaining += sources[it].table->getMigrationSize();
 					m->sources[it].table = sources[it].table;
 					m->sources[it].index.store(0, std::memory_order_relaxed);
-					sources[it].table = nullptr;
 				}
+				sources.clear();
 
 				m->sources[nSources].table = dest;
 				m->sources[nSources].index.store(0, std::memory_order_relaxed);
+				
 				m->unitsRemaining = unitsRemaining + dest->getMigrationSize();
-				m->prev = this;
 
 				origTable->coordinator.set(m);
 			} else {
@@ -582,26 +597,26 @@ class ConcurrentMapProvider : public AbstractMapProvider {
 private:
 #ifdef C_ATOMICS
 	std::atomic_address current;
-#else
-	std::atomic<HashTable*> current;
-#endif
-	HashFunction hasher;
 
 	inline HashTable* curr_load(std::memory_order order = std::memory_order_seq_cst) {
-#ifdef C_ATOMICS
 		return reinterpret_cast<HashTable*>(current.load(order));
-#else
-		return current.load(order);
-#endif
 	}
-
+		
 	inline void curr_store(HashTable *newTable, std::memory_order order = std::memory_order_seq_cst) {
-#ifdef C_ATOMICS
 		current.store(reinterpret_cast<void*>(newTable), order);
-#else
-		current.store(newTable, order);
-#endif
 	}
+#else
+	std::atomic<HashTable*> current;
+
+	inline HashTable* curr_load(std::memory_order order = std::memory_order_seq_cst) {
+		return current.load(order);
+	}
+		
+	inline void curr_store(HashTable *newTable, std::memory_order order = std::memory_order_seq_cst) {
+		current.store(newTable, order);
+	}
+#endif
+	HashFunction hasher;
 
 	void migrationStart(HashTable *table, bool doubleSize) {
 		int newSize;
@@ -638,8 +653,7 @@ private:
 			return;
 		}
 
-		auto *m = new Migration(*this, 1);
-		m->dest = new HashTable(targetSize);
+		auto *m = new Migration(*this, 1, targetSize);
 		m->sources[0].table = table;
 		m->sources[0].index.store(0, std::memory_order_relaxed);
 		m->unitsRemaining = table->getMigrationSize();
@@ -654,13 +668,13 @@ public:
 	}
 
 	virtual ~ConcurrentMapProvider() {
-		delete curr_load(std::memory_order_consume);
+		delete curr_load(std::memory_order_acquire);
 	}
 
 	virtual ValueType put(KeyType key, ValueType value) {
 		bool doubleSize = false;
 		while (true) {
-			HashTable *root = curr_load(std::memory_order_consume);
+			HashTable *root = curr_load(std::memory_order_acquire);
 			ValueType oldValue;
 			InsertOutcome res = LockFreeMapPrimitives::insertOrUpdate(root, key, value, hasher, oldValue);
 
@@ -681,10 +695,10 @@ public:
 	// this is the only function that can be called from signal handler
 	virtual ValueType get(KeyType key) {
 		while (true) {
-			HashTable *root = curr_load(std::memory_order_consume);
+			HashTable *root = curr_load(std::memory_order_acquire);
 
 			HashTable::LockFreeMapEntry *el = LockFreeMapPrimitives::find(root, key, hasher);
-			ValueType res = el ? el->value.load(std::memory_order_consume) : MapValEmpty;
+			ValueType res = el ? el->value.load(std::memory_order_acquire) : MapValEmpty;
 
 			if (res != MapValMove)
 				return res;
@@ -696,7 +710,7 @@ public:
 
 	virtual ValueType remove(KeyType key) {
 		while (true) {
-			HashTable *root = curr_load(std::memory_order_consume);
+			HashTable *root = curr_load(std::memory_order_acquire);
 
 			HashTable::LockFreeMapEntry *entr = LockFreeMapPrimitives::find(root, key, hasher);
 			if (entr == nullptr) { // not found
@@ -705,7 +719,7 @@ public:
 			}
 
 			ValueType oldValue = entr->value.load(std::memory_order_relaxed);
-			if (oldValue != MapValMove && entr->value.compare_exchange_strong(oldValue, MapValEmpty, std::memory_order_consume)) {
+			if (oldValue != MapValMove && entr->value.compare_exchange_strong(oldValue, MapValEmpty, std::memory_order_acquire)) {
 				TRACE(LFMap, 12);
 				return oldValue;
 			} else if (oldValue != MapValMove) { // CAS failed
@@ -719,20 +733,20 @@ public:
 
 	// Migration callback, called once per successful migration
 	virtual void finishMigration(HashTable *expectedOldRoot, HashTable *newRoot) {
-		HashTable *oldRoot = curr_load(std::memory_order_consume);
+		HashTable *oldRoot = curr_load(std::memory_order_acquire);
 		assert(expectedOldRoot == oldRoot);
 
 		curr_store(newRoot, std::memory_order_release);
 	}
 
 	int capacity() {
-		HashTable *root = curr_load(std::memory_order_consume);
+		HashTable *root = curr_load(std::memory_order_acquire);
 		return root->sizeMask + 1;
 	}
 
 	int unsafeUsed() {
 		int size = 0;
-		HashTable *root = curr_load(std::memory_order_consume);
+		HashTable *root = curr_load(std::memory_order_acquire);
 		for (int i = 0; i < root->sizeMask + 1; i++) {
 			ValueType value = root->array[i].value.load(std::memory_order_relaxed);
 			if (value != MapValEmpty && value != MapValMove)
@@ -743,7 +757,7 @@ public:
 
 	int unsafeDirty() {
 		int size = 0;
-		HashTable *root = curr_load(std::memory_order_consume);
+		HashTable *root = curr_load(std::memory_order_acquire);
 		for (int i = 0; i < root->sizeMask + 1; i++) {
 			if (root->array[i].hash.load(std::memory_order_relaxed) != MapHashEmpty)
 				size++;
