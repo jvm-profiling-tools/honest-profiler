@@ -136,6 +136,42 @@ public:
 	}
 };
 
+struct HashTable {
+	struct LockFreeMapEntry {
+		std::atomic<HashType> hash;
+		std::atomic<ValueType> value;
+		std::atomic<DeltaType> deltaNext;
+
+		LockFreeMapEntry() : hash(MapHashEmpty), value(MapValEmpty), deltaNext(MapDeltaEmpty) {}
+		LockFreeMapEntry(HashType h, ValueType v) : hash(h), value(v), deltaNext(MapDeltaEmpty) {}
+	};
+
+	const int sizeMask;
+	LockFreeMapEntry *const array;
+	std::atomic_int freeBuckets;
+	std::mutex mutex; // for allocation guard
+	JobCoordinator coordinator; // migration coordinator
+
+	HashTable(size_t initialSize) : 
+			  sizeMask(std::max(nearestPow2(initialSize), kSizeMin) - 1),
+			  array(new LockFreeMapEntry[sizeMask + 1]),
+			  freeBuckets(0.75 * (sizeMask + 1)) {
+		for (int i = 0; i < sizeMask + 1; i++) {
+			array[i].hash = MapHashEmpty;
+			array[i].value = MapValEmpty;
+		}
+	}
+
+	~HashTable() {
+		coordinator.end();
+		delete[] array;
+	}
+
+	int getMigrationSize() {
+		return (sizeMask + 1) / kMigrationChunkSize; // both are powers of 2
+	}
+};
+
 class GC {
 private:
 	std::mutex mutex;
@@ -235,43 +271,6 @@ public:
 };
 
 extern GC DefaultGC;
-
-struct HashTable {
-	struct LockFreeMapEntry {
-		std::atomic<HashType> hash;
-		std::atomic<ValueType> value;
-		std::atomic<DeltaType> deltaNext;
-
-		LockFreeMapEntry() : hash(MapHashEmpty), value(MapValEmpty), deltaNext(MapDeltaEmpty) {}
-		LockFreeMapEntry(HashType h, ValueType v) : hash(h), value(v), deltaNext(MapDeltaEmpty) {}
-	};
-
-	int sizeMask;
-	LockFreeMapEntry *array;
-	std::atomic_int freeBuckets;
-	std::mutex mutex; // for allocation guard
-	JobCoordinator coordinator; // migration coordinator
-
-	HashTable(size_t initialSize) {
-		int allocatedSize = std::max(nearestPow2(initialSize), kSizeMin);
-		freeBuckets.store((int)(0.75 * allocatedSize)); // resize when 75% of map is full
-		sizeMask = allocatedSize - 1;
-		array = new LockFreeMapEntry[allocatedSize];
-		for (int i = 0; i < allocatedSize; i++) {
-			array[i].hash = MapHashEmpty;
-			array[i].value = MapValEmpty;
-		}
-	}
-
-	~HashTable() {
-		coordinator.end();
-		delete[] array;
-	}
-
-	int getMigrationSize() {
-		return (sizeMask + 1) / kMigrationChunkSize; // both are powers of 2
-	}
-};
 
 enum InsertOutcome { INSERT_OK, INSERT_OVERFLOW, INSERT_HELP_MIGRATION };
 
@@ -653,7 +652,7 @@ private:
 			return;
 		}
 
-		auto *m = new Migration(*this, 1, targetSize);
+		Migration *m = new Migration(*this, 1, targetSize);
 		m->sources[0].table = table;
 		m->sources[0].index.store(0, std::memory_order_relaxed);
 		m->unitsRemaining = table->getMigrationSize();
@@ -733,8 +732,7 @@ public:
 
 	// Migration callback, called once per successful migration
 	virtual void finishMigration(HashTable *expectedOldRoot, HashTable *newRoot) {
-		HashTable *oldRoot = curr_load(std::memory_order_acquire);
-		assert(expectedOldRoot == oldRoot);
+		assert(expectedOldRoot == curr_load(std::memory_order_acquire));
 
 		curr_store(newRoot, std::memory_order_release);
 	}
