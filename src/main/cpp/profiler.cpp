@@ -19,11 +19,13 @@ bool Profiler::lookupFrameInformation(const JVMPI_CallFrame &frame,
                                       jvmtiEnv *jvmti,
                                       MethodListener &logWriter) {
     jint error;
-    JvmtiScopedPtr<char> methodName(jvmti);
+    JvmtiScopedPtr<char> methodName(jvmti), methodSignature(jvmti), methodGenericSignature(jvmti);
 
-    error = jvmti->GetMethodName(frame.method_id, methodName.GetRef(), NULL, NULL);
+    error = jvmti->GetMethodName(frame.method_id, methodName.GetRef(), methodSignature.GetRef(), methodGenericSignature.GetRef());
     if (error != JVMTI_ERROR_NONE) {
         methodName.AbandonBecauseOfError();
+        methodSignature.AbandonBecauseOfError();
+        methodGenericSignature.AbandonBecauseOfError();
         if (error == JVMTI_ERROR_INVALID_METHODID) {
             static int once = 0;
             if (!once) {
@@ -44,10 +46,10 @@ bool Profiler::lookupFrameInformation(const JVMPI_CallFrame &frame,
     JVMTI_ERROR_RET(
         jvmti->GetMethodDeclaringClass(frame.method_id, &declaring_class), false);
 
-    JvmtiScopedPtr<char> signature_ptr2(jvmti);
+    JvmtiScopedPtr<char> classSignature(jvmti), classSignatureGeneric(jvmti);
     JVMTI_ERROR_CLEANUP_RET(
-        jvmti->GetClassSignature(declaring_class, signature_ptr2.GetRef(), NULL),
-        false, signature_ptr2.AbandonBecauseOfError());
+        jvmti->GetClassSignature(declaring_class, classSignature.GetRef(), classSignatureGeneric.GetRef()),
+        false, { classSignature.AbandonBecauseOfError(); classSignatureGeneric.AbandonBecauseOfError(); });
 
     // Get source file, put it in source_name_ptr
     char *fileName;
@@ -61,8 +63,15 @@ bool Profiler::lookupFrameInformation(const JVMPI_CallFrame &frame,
         fileName = source_name_ptr.Get();
     }
 
-    logWriter.recordNewMethod((method_id) frame.method_id, fileName,
-                              signature_ptr2.Get(), methodName.Get());
+    logWriter.recordNewMethod(
+        (method_id) frame.method_id,
+        fileName,
+        classSignature.Get(),
+        classSignatureGeneric.Get(),
+        methodName.Get(),
+        methodSignature.Get(),
+        methodGenericSignature.Get()
+    );
 
     return true;
 }

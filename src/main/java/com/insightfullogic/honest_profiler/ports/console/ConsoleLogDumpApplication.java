@@ -118,8 +118,10 @@ public class ConsoleLogDumpApplication
             @Override
             public void handle(Method method)
             {
-                BoundMethod boundMethod = new BoundMethod(method.getClassName(), method.getMethodName());
-                out.printf("Method    : %d -> %s.%s\n", method.getMethodId(), method.getClassName(), method.getMethodName());
+                BoundMethod boundMethod = new BoundMethod(method.getClassName(), 
+                    method.getMethodReturnType(), method.getMethodName(), method.getMethodSignature());
+                out.printf("Method    : %d -> %s %s.%s%s\n", method.getMethodId(), method.getMethodReturnType(),
+                    method.getClassName(), method.getMethodName(), method.getMethodSignature());
                 methodNames.put(method.getMethodId(), boundMethod);
             }
 
@@ -146,7 +148,7 @@ public class ConsoleLogDumpApplication
                     // bad sample dressed up as a frame
                     out.print("StackFrame: ");
                     indent(out);
-                    out.printf("%s::%s \n", boundMethod.className, boundMethod.methodName);
+                    out.printf("%s %s::%s%s \n", boundMethod.returnType, boundMethod.className, boundMethod.methodName, boundMethod.methodSignature);
                     Counter counter = errHistogram.computeIfAbsent(boundMethod.methodName, k -> new Counter());
                     counter.inc();
                 }
@@ -160,7 +162,8 @@ public class ConsoleLogDumpApplication
                 {
                     out.print("StackFrame: ");
                     indent(out);
-                    out.printf("%s::%s @ %s (bci=%s)\n", boundMethod.className, boundMethod.methodName, stackFrame.getLineNumber(), stackFrame.getBci());
+                    out.printf("%s %s::%s%s @ %s (bci=%s)\n", boundMethod.returnType, boundMethod.className, boundMethod.methodName, 
+                        boundMethod.methodSignature, stackFrame.getLineNumber(), stackFrame.getBci());
                 }
             }
 
@@ -212,13 +215,17 @@ public class ConsoleLogDumpApplication
 
     private static class BoundMethod
     {
+        private final String returnType;
         private final String className;
         private final String methodName;
+        private final String methodSignature;
 
-        public BoundMethod(String className, String methodName)
+        public BoundMethod(String className, String returnType, String methodName, String methodSignature)
         {
             this.className = className;
+            this.returnType = returnType;
             this.methodName = methodName;
+            this.methodSignature = methodSignature;
         }
     }
 

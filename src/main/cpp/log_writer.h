@@ -22,6 +22,10 @@ public:
             const char *class_name,
             const char *method_name) = 0;
 
+    virtual void recordNewMethod(const map::HashType methodId, const char *fileName, 
+            const char *className, const char *genericClassName, 
+            const char *methodName, const char *methodSignature, const char *genericMethodSignature) = 0;
+
     virtual ~MethodListener() {
     }
 };
@@ -34,7 +38,8 @@ const byte TRACE_START = 1; // maintain backward compatibility
 const byte TRACE_WITH_TIME = 11; 
 const byte FRAME_BCI_ONLY = 2; // maintain backward compatibility
 const byte FRAME_FULL = 21;
-const byte NEW_METHOD = 3;
+const byte NEW_METHOD = 3; // maintain backward compatibility
+const byte NEW_METHOD_SIGNATURE = 31;
 const byte THREAD_META = 4;
 // Error values for line number. If BCI is an error value we report the BCI error value.
 const jint ERR_NO_LINE_INFO = -100;
@@ -67,6 +72,10 @@ public:
 
     virtual void recordNewMethod(method_id methodId, const char *file_name,
             const char *class_name, const char *method_name);
+
+    virtual void recordNewMethod(const map::HashType methodId, const char *fileName, 
+            const char *className, const char *genericClassName, 
+            const char *methodName, const char *methodSignature, const char *genericMethodSignature);
 
 private:
     ostream &output_;
