@@ -15,7 +15,6 @@
 #include "log_writer.h"
 
 using namespace std::chrono;
-using std::ofstream;
 using std::ostringstream;
 using std::string;
 
@@ -68,22 +67,15 @@ public:
 
 class Profiler {
 public:
-    explicit Profiler(JavaVM *jvm, jvmtiEnv *jvmti, ConfigurationOptions *configuration, ThreadMap &tMap)
+    explicit Profiler(JavaVM *jvm, jvmtiEnv *jvmti, ConfigurationOptions &configuration, ThreadMap &tMap)
         : jvm_(jvm), jvmti_(jvmti), tMap_(tMap), liveConfiguration(configuration),
-          logFile(NULL), writer(NULL), buffer(NULL), processor(NULL), handler_(NULL),
-          ongoingConf(false) {
-        // main object graph instantiated here
-        // these objects all live for the lifecycle of the program
-
-        // main object graph instantiated here
-        // these objects all live for the lifecycle of the program
-        configuration_ = new ConfigurationOptions();
+          writer(NULL), buffer(NULL), processor(NULL), handler_(NULL), ongoingConf(false) {
         pid = (long) getpid();
 
         // explicitly call setters to validate input params
-        setSamplingInterval(liveConfiguration->samplingIntervalMin,
-                            liveConfiguration->samplingIntervalMax);
-        setMaxFramesToCapture(liveConfiguration->maxFramesToCapture);
+        setSamplingInterval(liveConfiguration.samplingIntervalMin,
+                            liveConfiguration.samplingIntervalMax);
+        setMaxFramesToCapture(liveConfiguration.maxFramesToCapture);
 
         configure();
     }
@@ -116,35 +108,23 @@ public:
 
 private:
     JavaVM *jvm_;
-
     jvmtiEnv *jvmti_;
 
     ThreadMap &tMap_;
 
-    ConfigurationOptions *configuration_;
-
-    ConfigurationOptions *liveConfiguration;
-
-    ostream *logFile;
+    ConfigurationOptions configuration_;
+    ConfigurationOptions liveConfiguration;
 
     LogWriter *writer;
-
     CircularQueue *buffer;
-
     Processor *processor;
-
     SignalHandler* handler_;
 
     bool reloadConfig;
-
     long pid;
 
     // indicates change of internal state
     std::atomic<bool> ongoingConf;
-
-    static bool lookupFrameInformation(const JVMPI_CallFrame &frame,
-                                       jvmtiEnv *jvmti,
-                                       MethodListener &logWriter);
 
     static void current_utc_time(timespec *ts);
 

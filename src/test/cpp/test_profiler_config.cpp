@@ -41,12 +41,11 @@ static void init() {
 class ProfilerControl {
 public:
 	Profiler *profiler;
-	ConfigurationOptions *liveConfig;
+	ConfigurationOptions liveConfig;
 
 public:
 	ProfilerControl() {
 		init();
-		liveConfig = new ConfigurationOptions();
 		profiler = new Profiler(jvm, jvmti, liveConfig, threadMap);
 
 		// otherwise Profiler::handle called from bootstrapHandle in agent.cpp will fail
@@ -56,7 +55,6 @@ public:
 
 	~ProfilerControl() {
 		delete profiler;
-		delete liveConfig;
 	}
 };
 
@@ -82,12 +80,16 @@ static void threadStopFunction(Profiler *p) {
 TEST_FIXTURE(ProfilerControl, ProfilerInitialization) {
 	CHECK(profiler);
 	CHECK(!profiler->isRunning());
-	CHECK(liveConfig);
 
-	CHECK_EQUAL(liveConfig->samplingIntervalMin, profiler->getSamplingIntervalMin());
-	CHECK_EQUAL(liveConfig->samplingIntervalMax, profiler->getSamplingIntervalMax());
-	CHECK_EQUAL(liveConfig->maxFramesToCapture, profiler->getMaxFramesToCapture());
-	CHECK_EQUAL(std::string(liveConfig->logFilePath), profiler->getFilePath());
+	CHECK_EQUAL(liveConfig.samplingIntervalMin, profiler->getSamplingIntervalMin());
+	CHECK_EQUAL(liveConfig.samplingIntervalMax, profiler->getSamplingIntervalMax());
+	CHECK_EQUAL(liveConfig.maxFramesToCapture, profiler->getMaxFramesToCapture());
+
+	std::string path = profiler->getFilePath();
+	std::string expectedPrefix = "log-";
+	std::string expectedSuffix = ".hpl";
+	CHECK(path.compare(0, expectedPrefix.size(), expectedPrefix) == 0 && 
+		path.compare(path.size() - expectedSuffix.size(), expectedSuffix.size(), expectedSuffix) == 0);
 }
 
 TEST_FIXTURE(ProfilerControl, ProfilerChangeSettings) {
@@ -107,7 +109,7 @@ TEST_FIXTURE(ProfilerControl, ProfilerChangeSettings) {
 	CHECK_EQUAL(newSamplingIntervalMin, profiler->getSamplingIntervalMin());
 	CHECK_EQUAL(newSamplingIntervalMax, profiler->getSamplingIntervalMax());
 	CHECK_EQUAL(newMaxFramesToCapture, profiler->getMaxFramesToCapture());
-	CHECK_EQUAL(std::string(newFilePath1), profiler->getFilePath());
+	CHECK_EQUAL(newFilePath1, profiler->getFilePath());
 
 #ifdef ENABLE_TRACING
 	int prev = Trace_Processor[kTraceProcessorStart].count.load();
@@ -132,7 +134,7 @@ TEST_FIXTURE(ProfilerControl, ProfilerChangeSettings) {
 	CHECK_EQUAL(newSamplingIntervalMin, profiler->getSamplingIntervalMin());
 	CHECK_EQUAL(newSamplingIntervalMax, profiler->getSamplingIntervalMax());
 	CHECK_EQUAL(newMaxFramesToCapture, profiler->getMaxFramesToCapture());
-	CHECK_EQUAL(std::string(newFilePath1), profiler->getFilePath());
+	CHECK_EQUAL(newFilePath1, profiler->getFilePath());
 
 	// no changes allowed when profiler is running
 	profiler->setFilePath(newFilePath2);
@@ -141,14 +143,14 @@ TEST_FIXTURE(ProfilerControl, ProfilerChangeSettings) {
 	// set 2 values in a row (valgrind: check that memory is reclaimed)
 	profiler->stop();
 	profiler->setFilePath(newFilePath2);
-	profiler->setFilePath(NULL);
+	profiler->setFilePath((char*)"");
 
 	// set bad input 
 	profiler->setMaxFramesToCapture(-100);
 
 	// check that memory is freed in hidden config
 	profiler->start(env);
-	CHECK(std::string() != profiler->getFilePath());
+	CHECK("" != profiler->getFilePath());
 	CHECK(profiler->getMaxFramesToCapture() > 0);
 
 	profiler->stop();

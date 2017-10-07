@@ -14,8 +14,7 @@ using std::ofstream;
   strcpy(to, from)
 
 // leaks memory during tests
-bool stubFrameInformation(const JVMPI_CallFrame &frame, jvmtiEnv *jvmti,
-                          MethodListener &listener) {
+bool stubFrameInformation(const JVMPI_CallFrame &frame, MethodListener &listener) {
   listener.recordNewMethod((method_id)frame.method_id, "c", "b", "a");
   return true;
 }
@@ -167,8 +166,7 @@ TEST(ExtractsStackTraceInformation) {
   done();
 }
 
-bool dumpStubFrameInformation(const JVMPI_CallFrame &frame, jvmtiEnv *jvmti,
-                              MethodListener &listener) {
+bool dumpStubFrameInformation(const JVMPI_CallFrame &frame, MethodListener &listener) {
   method_id id = (method_id)frame.method_id;
   if (frame.method_id == (jmethodID)1) {
     listener.recordNewMethod(id, "PrintStream.java", "Ljava/io/PrintStream;",
