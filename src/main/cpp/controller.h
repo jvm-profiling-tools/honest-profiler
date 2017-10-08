@@ -36,7 +36,7 @@ private:
     JavaVM *jvm_;
     jvmtiEnv *jvmti_;
     Profiler *profiler_;
-    ConfigurationOptions &configuration_;
+    const ConfigurationOptions &configuration_;
     std::atomic_bool isRunning_;
 
     void startSampling();

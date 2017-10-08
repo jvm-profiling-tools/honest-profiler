@@ -27,20 +27,23 @@ void Profiler::handle(int signum, siginfo_t *info, void *context) {
 
     JVMPI_CallTrace trace;
     trace.frames = frames;
-    JNIEnv *jniEnv = getJNIEnv(jvm_);
-    TimeUtils::current_utc_time(&spec); // sample current time
-    if (jniEnv == NULL) {
-        trace.num_frames = -3; // ticks_unknown_not_Java
-        threadInfo = nullptr;
-    } else {
-        trace.env_id = jniEnv;
-        ASGCTType asgct = Asgct::GetAsgct();
-        (*asgct)(&trace, configuration_.maxFramesToCapture, context);
-        threadInfo = tMap_.get(jniEnv);
+    
+    if (jvm_) {
+        JNIEnv *jniEnv = getJNIEnv(jvm_);
+        TimeUtils::current_utc_time(&spec); // sample current time
+        if (jniEnv == NULL) {
+            trace.num_frames = -3; // ticks_unknown_not_Java
+            threadInfo = nullptr;
+        } else {
+            trace.env_id = jniEnv;
+            ASGCTType asgct = Asgct::GetAsgct();
+            (*asgct)(&trace, configuration_.maxFramesToCapture, context);
+            threadInfo = tMap_.get(jniEnv);
+        }
+    
+        // log all samples, failures included, let the post processing sift through the data
+        buffer->push(spec, trace, threadInfo);
     }
-
-    // log all samples, failures included, let the post processing sift through the data
-    buffer->push(spec, trace, threadInfo);
 }
 
 bool Profiler::start(JNIEnv *jniEnv) {
