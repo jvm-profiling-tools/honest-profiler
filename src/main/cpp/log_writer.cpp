@@ -17,7 +17,7 @@ LogWriter::LogWriter(std::string &fileName, jvmtiEnv *jvmti) :
     frameInfoFoo(NULL), jvmti_(jvmti) {
     if (output_.fail()) {
         // The JVM will still continue to run though; could call abort() to terminate the JVM abnormally.
-        logError("ERROR: Failed to open file %s for writing\n", fileName);
+        logError("ERROR: Failed to open file %s for writing\n", fileName.c_str());
     }
 }
 
