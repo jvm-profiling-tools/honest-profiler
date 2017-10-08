@@ -284,13 +284,13 @@ static void parseArguments(char *options, ConfigurationOptions &configuration) {
             } else if (strstr(key, "interval") == key) {
                 configuration.samplingIntervalMin = configuration.samplingIntervalMax = atoi(value);
             } else if (strstr(key, "logPath") == key) {
-                configuration.logFilePath = std::move(std::string(value, STR_SIZE(value, next)));
+                configuration.logFilePath = std::string(value, STR_SIZE(value, next));
             } else if (strstr(key, "start") == key) {
                 configuration.start = atoi(value);
             } else if (strstr(key, "host") == key) {
-                configuration.host = std::move(std::string(value, STR_SIZE(value, next)));
+                configuration.host = std::string(value, STR_SIZE(value, next));
             } else if (strstr(key, "port") == key) {
-                configuration.port = std::move(std::string(value, STR_SIZE(value, next)));
+                configuration.port = std::string(value, STR_SIZE(value, next));
             } else if (strstr(key, "maxFrames") == key) {
                 configuration.maxFramesToCapture = atoi(value);
             } else {

@@ -7,7 +7,6 @@
 #include <sstream>
 #include <string>
 
-#include "globals.h"
 #include "thread_map.h"
 #include "signal_handler.h"
 #include "stacktraces.h"
