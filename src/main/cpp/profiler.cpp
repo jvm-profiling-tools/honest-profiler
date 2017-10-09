@@ -107,8 +107,7 @@ void Profiler::setFilePath(char *newFilePath) {
 
     TRACE(Profiler, kTraceProfilerSetFileOk);
     
-    std::string newFilePathStr(newFilePath);
-    liveConfiguration.logFilePath = std::move(newFilePathStr);
+    liveConfiguration.logFilePath.assign(newFilePath);
     reloadConfig = true;
 }
 
@@ -177,8 +176,6 @@ void Profiler::configure() {
 
     needsUpdate = needsUpdate || configuration_.logFilePath != liveConfiguration.logFilePath;
     if (needsUpdate) {
-        if (writer) delete writer;
-
         if (liveConfiguration.logFilePath.empty()) {
             std::ostringstream fileBuilder;
             long epochMillis = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
@@ -188,36 +185,28 @@ void Profiler::configure() {
         } else {
             configuration_.logFilePath = liveConfiguration.logFilePath;
         }
-
-        writer = new LogWriter(liveConfiguration.logFilePath, jvmti_);
+        writer = std::unique_ptr<LogWriter>(new LogWriter(liveConfiguration.logFilePath, jvmti_));
     }
 
     needsUpdate = needsUpdate || configuration_.maxFramesToCapture != liveConfiguration.maxFramesToCapture;
     if (needsUpdate) {
-        if (buffer) delete buffer;
         configuration_.maxFramesToCapture = liveConfiguration.maxFramesToCapture;
-        buffer = new CircularQueue(*writer, configuration_.maxFramesToCapture);
+        buffer = std::unique_ptr<CircularQueue>(new CircularQueue(*writer.get(), configuration_.maxFramesToCapture));
     }
 
     needsUpdate = needsUpdate ||
                   configuration_.samplingIntervalMin != liveConfiguration.samplingIntervalMin ||
                   configuration_.samplingIntervalMax != liveConfiguration.samplingIntervalMax;
     if (needsUpdate) {
-        if (processor) delete processor;
-        if (handler_) delete handler_;
         configuration_.samplingIntervalMin = liveConfiguration.samplingIntervalMin;
         configuration_.samplingIntervalMax = liveConfiguration.samplingIntervalMax;
-        handler_ = new SignalHandler(configuration_.samplingIntervalMin, configuration_.samplingIntervalMax);
+        handler_ = std::unique_ptr<SignalHandler>(
+            new SignalHandler(configuration_.samplingIntervalMin, configuration_.samplingIntervalMax));
         int processor_interval = Size * configuration_.samplingIntervalMin / 1000 / 2;
-        processor = new Processor(jvmti_, *writer, *buffer, *handler_, processor_interval > 0 ? processor_interval : 1);
+        processor = std::unique_ptr<Processor>(
+            new Processor(jvmti_, *writer.get(), *buffer.get(), *handler_.get(), processor_interval > 0 ? processor_interval : 1));
     }
     reloadConfig = false;
 }
 
-Profiler::~Profiler() {
-    SimpleSpinLockGuard<false> guard(ongoingConf); // nonblocking
-    delete processor;
-    delete handler_;
-    delete buffer;
-    delete writer;
-}
+Profiler::~Profiler() {}

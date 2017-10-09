@@ -6,6 +6,7 @@
 #include <chrono>
 #include <sstream>
 #include <string>
+#include <memory>
 
 #include "thread_map.h"
 #include "signal_handler.h"
@@ -67,13 +68,16 @@ public:
 class Profiler {
 public:
     explicit Profiler(JavaVM *jvm, jvmtiEnv *jvmti, ConfigurationOptions &configuration, ThreadMap &tMap)
-        : jvm_(jvm), jvmti_(jvmti), tMap_(tMap), liveConfiguration(configuration),
-          writer(NULL), buffer(NULL), processor(NULL), handler_(NULL), ongoingConf(false) {
+        : jvm_(jvm), jvmti_(jvmti), tMap_(tMap), liveConfiguration(configuration), ongoingConf(false) {
         pid = (long) getpid();
 
+        writer = nullptr; 
+        buffer = nullptr; 
+        processor = nullptr;
+        handler_ = nullptr;
+
         // explicitly call setters to validate input params
-        setSamplingInterval(liveConfiguration.samplingIntervalMin,
-                            liveConfiguration.samplingIntervalMax);
+        setSamplingInterval(liveConfiguration.samplingIntervalMin, liveConfiguration.samplingIntervalMax);
         setMaxFramesToCapture(liveConfiguration.maxFramesToCapture);
 
         configure();
@@ -114,10 +118,10 @@ private:
     ConfigurationOptions configuration_;
     ConfigurationOptions liveConfiguration;
 
-    LogWriter *writer;
-    CircularQueue *buffer;
-    Processor *processor;
-    SignalHandler* handler_;
+    std::unique_ptr<LogWriter> writer;
+    std::unique_ptr<CircularQueue> buffer;
+    std::unique_ptr<Processor> processor;
+    std::unique_ptr<SignalHandler> handler_;
 
     bool reloadConfig;
     long pid;
