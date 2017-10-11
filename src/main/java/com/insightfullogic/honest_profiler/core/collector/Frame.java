@@ -36,6 +36,10 @@ public interface Frame
 
     String getMethodName();
 
+    String getMethodSignature();
+
+    String getMethodReturnType();
+
     int getBci();
 
     int getLine();

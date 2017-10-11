@@ -65,6 +65,18 @@ public class FullFrame implements Frame
     }
 
     @Override
+    public String getMethodSignature()
+    {
+        return method.getMethodSignature();
+    }
+    
+    @Override
+    public String getMethodReturnType()
+    {
+        return method.getMethodReturnType();
+    }
+
+    @Override
     public int getBci()
     {
         return frame.getBci();

@@ -193,3 +193,17 @@ void LogWriter::recordNewMethod(const map::HashType methodId, const char *fileNa
     writeWithSize(methodName);
     output_.flush();
 }
+
+void LogWriter::recordNewMethod(const map::HashType methodId, const char *fileName, 
+    const char *className, const char *genericClassName, 
+    const char *methodName, const char *methodSignature, const char *genericMethodSignature) {
+    output_.put(NEW_METHOD_SIGNATURE);
+    writeValue(methodId);
+    writeWithSize(fileName);
+    writeWithSize(className);
+    writeWithSize(genericClassName ? genericClassName : "");
+    writeWithSize(methodName);
+    writeWithSize(methodSignature);
+    writeWithSize(genericMethodSignature ? genericMethodSignature : "");
+    output_.flush();
+}
