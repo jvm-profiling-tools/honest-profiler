@@ -420,7 +420,8 @@ struct Migration : public JobCoordinator::Job {
 
 		Source() : table(nullptr), index(0) {
 		}
-
+		
+		// Workaround for cstdatomic
 		Source(const Source& src) : table(src.table), index(src.index.load(std::memory_order_relaxed)) {
 		}
 
