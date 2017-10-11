@@ -88,11 +88,7 @@ void Controller::run() {
         }
 
         if ((bytesRead = recv(clientConnection, buf, MAX_DATA_SIZE - 1, 0)) == -1) {
-            if (bytesRead == 0) {
-                // client closed the connection
-            } else {
-                logError("ERROR: Failed to read data from client: %s\n", strerror(errno));
-            }
+            logError("ERROR: Failed to read data from client: %s\n", strerror(errno));
         } else {
             buf[bytesRead] = '\0';
 
