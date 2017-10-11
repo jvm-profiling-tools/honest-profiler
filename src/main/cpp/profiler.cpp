@@ -180,8 +180,9 @@ void Profiler::configure() {
             std::ostringstream fileBuilder;
             long epochMillis = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
             fileBuilder << "log-" << pid << "-" << epochMillis << ".hpl";
-            configuration_.logFilePath = fileBuilder.str();
-            liveConfiguration.logFilePath = fileBuilder.str();
+            std::string filename(fileBuilder.str());
+            configuration_.logFilePath = filename;
+            liveConfiguration.logFilePath = std::move(filename);
         } else {
             configuration_.logFilePath = liveConfiguration.logFilePath;
         }
