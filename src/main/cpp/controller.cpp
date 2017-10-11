@@ -58,7 +58,7 @@ void Controller::run() {
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
 
-    if ((result = getaddrinfo(configuration_->host, configuration_->port, &hints, &res)) != 0) {
+    if ((result = getaddrinfo(configuration_.host.c_str(), configuration_.port.c_str(), &hints, &res)) != 0) {
         logError("ERROR: getaddrinfo: %s\n", gai_strerror(result));
         return;
     }

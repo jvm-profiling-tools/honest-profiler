@@ -22,7 +22,7 @@ matrix:
       osx_image: xcode9
       compiler: clang
 env:
-  - EXT_CXX_FLAGS="-fsanitize=address -DDEBUG_MAP_GC -DTEST_SKIP_PROFILER" ASAN_OPTIONS="detect_odr_violation=0"
+  - EXT_CXX_FLAGS="-fsanitize=address,leak -DDEBUG_MAP_GC" ASAN_OPTIONS="detect_odr_violation=0"
 branches:
   only:
   - master

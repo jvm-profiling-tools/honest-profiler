@@ -1,7 +1,7 @@
 #include <jvmti.h>
+
 #include <unordered_set>
-#include <iostream>
-#include <string.h>
+#include <fstream>
 
 #include "thread_map.h"
 #include "circular_queue.h"
@@ -11,6 +11,7 @@
 #define LOG_WRITER_H
 
 using std::ostream;
+using std::ofstream;
 using std::unordered_set;
 
 typedef unsigned char byte;
@@ -22,7 +23,7 @@ public:
             const char *class_name,
             const char *method_name) = 0;
 
-    virtual void recordNewMethod(const map::HashType methodId, const char *fileName, 
+    virtual void recordNewMethod(const map::HashType methodId, const char *fileName,
             const char *className, const char *genericClassName, 
             const char *methodName, const char *methodSignature, const char *genericMethodSignature) = 0;
 
@@ -30,8 +31,7 @@ public:
     }
 };
 
-typedef bool (*GetFrameInformation)(const JVMPI_CallFrame &frame,
-        jvmtiEnv *jvmti, MethodListener &logWriter);
+typedef bool (*GetFrameInformation)(const JVMPI_CallFrame &frame, MethodListener &logWriter);
 
 const size_t FIFO_SIZE = 10;
 const byte TRACE_START = 1; // maintain backward compatibility
@@ -51,10 +51,9 @@ const jint ERR_NO_LINE_FOUND= -101;
 class LogWriter : public QueueListener, public MethodListener {
 
 public:
-    explicit LogWriter(ostream &output, GetFrameInformation frameLookup,
-            jvmtiEnv *jvmti)
-            : output_(output), frameLookup_(frameLookup), jvmti_(jvmti) {
-    }
+    explicit LogWriter(std::string &fileName, jvmtiEnv *jvmti);
+
+    explicit LogWriter(ostream &output, GetFrameInformation frameLookup, jvmtiEnv *jvmti);
 
     virtual void record(const timespec &ts, const JVMPI_CallTrace &trace, ThreadBucket *info = nullptr);
 
@@ -70,6 +69,8 @@ public:
 
     void recordFrame(const jint bci, method_id methodId);
 
+    bool lookupFrameInformation(const JVMPI_CallFrame &frame);
+
     virtual void recordNewMethod(method_id methodId, const char *file_name,
             const char *class_name, const char *method_name);
 
@@ -78,9 +79,9 @@ public:
             const char *methodName, const char *methodSignature, const char *genericMethodSignature);
 
 private:
-    ostream &output_;
-
-    GetFrameInformation frameLookup_;
+    ofstream file;
+    ostream& output_;
+    GetFrameInformation frameInfoFoo; 
 
     jvmtiEnv *jvmti_;
 
