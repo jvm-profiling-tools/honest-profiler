@@ -18,55 +18,30 @@ TRACE_DEFINE_END(Profiler, kTraceProfilerTotal);
 void Profiler::handle(int signum, siginfo_t *info, void *context) {
     IMPLICITLY_USE(signum);
     IMPLICITLY_USE(info);
-    SimpleSpinLockGuard<false> guard(ongoingConf); // sync buffer
-    ThreadBucket *threadInfo;
     timespec spec;
-
-    // sample data structure
-    STATIC_ARRAY(frames, JVMPI_CallFrame, configuration_.maxFramesToCapture, MAX_FRAMES_TO_CAPTURE);
-
-    JVMPI_CallTrace trace;
-    trace.frames = frames;
     
     if (jvm_) {
         JNIEnv *jniEnv = getJNIEnv(jvm_);
         TimeUtils::current_utc_time(&spec); // sample current time
-        if (jniEnv == NULL) {
-            trace.num_frames = -3; // ticks_unknown_not_Java
-            threadInfo = nullptr;
-        } else {
-            trace.env_id = jniEnv;
-            ASGCTType asgct = Asgct::GetAsgct();
-            (*asgct)(&trace, configuration_.maxFramesToCapture, context);
-            threadInfo = tMap_.get(jniEnv);
-        }
-    
-        // log all samples, failures included, let the post processing sift through the data
-        buffer->push(spec, trace, threadInfo);
+        processor->handle(jniEnv, spec, jniEnv ? tMap_.get(jniEnv) : nullptr, context);
     }
 }
 
 bool Profiler::start(JNIEnv *jniEnv) {
     SimpleSpinLockGuard<true> guard(ongoingConf);
     /* within critical section */
-
+    
     if (__is_running()) {
         TRACE(Profiler, kTraceProfilerStartFailed);
         logError("WARN: Start called but sampling is already running\n");
         return true;
     }
-
+    
     TRACE(Profiler, kTraceProfilerStartOk);
-
-    if (reloadConfig)
-        configure();
-
-    // reference back to Profiler::handle on the singleton
-    // instance of Profiler
-    handler_->SetAction(&bootstrapHandle);
-    processor->start(jniEnv);
-    bool res = handler_->updateSigprofInterval();
-    return res;
+    
+    if (reloadConfig) configure();
+    
+    return processor->start(jniEnv);
 }
 
 void Profiler::stop() {
@@ -78,9 +53,7 @@ void Profiler::stop() {
         return;
     }
 
-    handler_->stopSigprof();
     processor->stop();
-    signal(SIGPROF, SIG_IGN);
 }
 
 bool Profiler::isRunning() {
@@ -189,23 +162,15 @@ void Profiler::configure() {
         writer = std::unique_ptr<LogWriter>(new LogWriter(liveConfiguration.logFilePath, jvmti_));
     }
 
-    needsUpdate = needsUpdate || configuration_.maxFramesToCapture != liveConfiguration.maxFramesToCapture;
-    if (needsUpdate) {
-        configuration_.maxFramesToCapture = liveConfiguration.maxFramesToCapture;
-        buffer = std::unique_ptr<CircularQueue>(new CircularQueue(*writer.get(), configuration_.maxFramesToCapture));
-    }
-
     needsUpdate = needsUpdate ||
+                  configuration_.maxFramesToCapture != liveConfiguration.maxFramesToCapture ||
                   configuration_.samplingIntervalMin != liveConfiguration.samplingIntervalMin ||
                   configuration_.samplingIntervalMax != liveConfiguration.samplingIntervalMax;
     if (needsUpdate) {
+        configuration_.maxFramesToCapture = liveConfiguration.maxFramesToCapture;
         configuration_.samplingIntervalMin = liveConfiguration.samplingIntervalMin;
         configuration_.samplingIntervalMax = liveConfiguration.samplingIntervalMax;
-        handler_ = std::unique_ptr<SignalHandler>(
-            new SignalHandler(configuration_.samplingIntervalMin, configuration_.samplingIntervalMax));
-        int processor_interval = Size * configuration_.samplingIntervalMin / 1000 / 2;
-        processor = std::unique_ptr<Processor>(
-            new Processor(jvmti_, *writer.get(), *buffer.get(), *handler_.get(), processor_interval > 0 ? processor_interval : 1));
+        processor = std::unique_ptr<Processor>(new Processor(jvmti_, *writer.get(), configuration_));
     }
     reloadConfig = false;
 }

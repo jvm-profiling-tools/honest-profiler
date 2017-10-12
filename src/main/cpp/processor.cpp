@@ -30,26 +30,23 @@ void Processor::run() {
     int popped = 0;
 
     while (true) {
-        while (buffer_.pop()) {
+        while (buffer.pop()) {
             ++popped;
         }
-
         if (popped > 200) {
-            if (!handler_.updateSigprofInterval()) {
+            if (!handler.updateSigprofInterval()) {
                 break;
             }
             popped = 0;
         }
-
         if (!isRunning_.load(std::memory_order_relaxed)) {
             break;
         }
-
         sleep_for_millis(interval_);
     }
 
-    handler_.stopSigprof();
-    workerDone.clear(std::memory_order_relaxed);
+    // handler.stopSigprof();
+    workerDone.clear(std::memory_order_release);
     // no shared data access after this point, can be safely deleted
 }
 
@@ -67,15 +64,16 @@ void callbackToRunProcessor(jvmtiEnv *jvmti_env, JNIEnv *jni_env, void *arg) {
     processor->run();
 }
 
-void Processor::start(JNIEnv *jniEnv) {
+bool Processor::start(JNIEnv *jniEnv) {
     TRACE(Processor, kTraceProcessorStart);
     jvmtiError result;
 
     std::cout << "Starting sampling\n";
-    isRunning_.store(true, std::memory_order_relaxed);
+    isRunning_.store(true, std::memory_order_relaxed); // sequential
     workerDone.test_and_set(std::memory_order_relaxed); // initial is true
+    handler.SetAction(&bootstrapHandle);
 
-    if (jniEnv) {    
+    if (jniEnv) {
         jthread thread = newThread(jniEnv, "Honest Profiler Processing Thread");
         jvmtiStartFunction callback = callbackToRunProcessor;
         result = jvmti_->RunAgentThread(thread, callback, this, JVMTI_THREAD_NORM_PRIORITY);
@@ -83,20 +81,42 @@ void Processor::start(JNIEnv *jniEnv) {
         if (result != JVMTI_ERROR_NONE) {
             logError("ERROR: Running agent thread failed with: %d\n", result);
         }
-    } else {
-        workerDone.clear(std::memory_order_relaxed);
-    }
+        return handler.updateSigprofInterval();
+    } 
+    workerDone.clear(std::memory_order_relaxed);
+    return true;
 }
 
 void Processor::stop() {
     TRACE(Processor, kTraceProcessorStop);
 
-    isRunning_.store(false, std::memory_order_relaxed);
+    handler.stopSigprof();
+    isRunning_.store(false, std::memory_order_seq_cst);
     std::cout << "Stopping sampling\n";
-    while (workerDone.test_and_set(std::memory_order_relaxed)) sched_yield();
+    while (workerDone.test_and_set(std::memory_order_seq_cst)) sched_yield();
+    signal(SIGPROF, SIG_IGN);
 }
 
 bool Processor::isRunning() const {
     TRACE(Processor, kTraceProcessorRunning);
     return isRunning_.load(std::memory_order_relaxed);
+}
+
+void Processor::handle(JNIEnv *jniEnv, const timespec& ts, ThreadBucket *threadInfo, void *context) {
+    // sample data structure
+    STATIC_ARRAY(frames, JVMPI_CallFrame, config.maxFramesToCapture, MAX_FRAMES_TO_CAPTURE);
+
+    JVMPI_CallTrace trace;
+    trace.frames = frames;
+
+    if (jniEnv == nullptr) {
+        trace.num_frames = -3; // ticks_unknown_not_Java
+    } else {
+        trace.env_id = jniEnv;
+        ASGCTType asgct = Asgct::GetAsgct();
+        (*asgct)(&trace, config.maxFramesToCapture, context);
+    }
+
+    // log all samples, failures included, let the post processing sift through the data
+    buffer.push(ts, trace, threadInfo);
 }

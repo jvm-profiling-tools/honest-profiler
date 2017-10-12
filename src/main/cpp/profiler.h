@@ -72,9 +72,7 @@ public:
         pid = (long) getpid();
 
         writer = nullptr; 
-        buffer = nullptr; 
         processor = nullptr;
-        handler_ = nullptr;
 
         // explicitly call setters to validate input params
         setSamplingInterval(liveConfiguration.samplingIntervalMin, liveConfiguration.samplingIntervalMax);
@@ -110,8 +108,8 @@ public:
     ~Profiler();
 
 private:
-    JavaVM *jvm_;
-    jvmtiEnv *jvmti_;
+    JavaVM *const jvm_;
+    jvmtiEnv *const jvmti_;
 
     ThreadMap &tMap_;
 
@@ -119,10 +117,8 @@ private:
     ConfigurationOptions liveConfiguration;
 
     std::unique_ptr<LogWriter> writer;
-    std::unique_ptr<CircularQueue> buffer;
     std::unique_ptr<Processor> processor;
-    std::unique_ptr<SignalHandler> handler_;
-
+    
     bool reloadConfig;
     long pid;
 
