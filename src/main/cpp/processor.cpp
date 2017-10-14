@@ -40,12 +40,13 @@ void Processor::run() {
             popped = 0;
         }
         if (!isRunning_.load(std::memory_order_relaxed)) {
+            while (buffer.pop()); // make all items are processed and released
             break;
         }
         sleep_for_millis(interval_);
     }
 
-    // handler.stopSigprof();
+    // SIGPROF is already stopped in Profiler::stop, no need to call handler.stopSigprof();
     workerDone.clear(std::memory_order_release);
     // no shared data access after this point, can be safely deleted
 }
