@@ -36,7 +36,7 @@ import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.FLA
 import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.flatExtractor;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.BindUtil.treeExtractor;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ConversionUtil.getStringConverterForType;
-import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.CONTENT_LABEL_PROFILESAMPLECOUNT;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.ConversionUtil.toMillis;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_COMPARE;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_FREEZE_FROZEN;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.ResourceUtil.INFO_BUTTON_FREEZE_UNFROZEN;
@@ -53,9 +53,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
 import com.insightfullogic.honest_profiler.ports.javafx.ViewType;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
+import com.insightfullogic.honest_profiler.ports.javafx.util.ConversionUtil;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -84,6 +86,8 @@ public class ProfileRootController extends AbstractController
     private Button compareButton;
     @FXML
     private Label profileSampleCount;
+    @FXML
+    private Label profileDuration;
     @FXML
     private AnchorPane content;
     @FXML
@@ -177,20 +181,12 @@ public class ProfileRootController extends AbstractController
         flameController.setProfileContext(prCtx);
         flameController.bind(prCtx.flameGraphProperty(), FLAME_EXTRACTOR);
 
-        // Bind the profile sample count display
-        prCtx.profileProperty().addListener(
-            (property, oldValue, newValue) -> profileSampleCount.setText(
-                newValue == null ? null : getText(
-                    CONTENT_LABEL_PROFILESAMPLECOUNT,
-                    newValue.getGlobalData().getTotalCnt())));
+        // Bind the profile sample count display so it changes when new Profiles come in
+        prCtx.profileProperty()
+            .addListener((property, oldValue, newValue) -> updateSampleCount(newValue));
 
-        if (prCtx.getProfile() != null)
-        {
-            profileSampleCount.setText(
-                getText(
-                    CONTENT_LABEL_PROFILESAMPLECOUNT,
-                    prCtx.getProfile().getGlobalData().getTotalCnt()));
-        }
+        // Display the initial sample count
+        updateSampleCount(prCtx);
 
         // Configure the View choice
         viewChoice.setConverter(getStringConverterForType(ViewType.class));
@@ -200,6 +196,36 @@ public class ProfileRootController extends AbstractController
         viewChoice.getSelectionModel().select(FLAT);
 
         freezeButton.setDisable(prCtx.getMode() != LIVE);
+    }
+
+    // Sample Count Display
+
+    /**
+     * Update the sample count based on the {@link ProfileContext}.
+     *
+     * @param profileContext the {@link ProfileContext}
+     */
+    private void updateSampleCount(ProfileContext profileContext)
+    {
+        updateSampleCount(profileContext == null ? null : profileContext.getProfile());
+    }
+
+    /**
+     * Update the sample count for the {@link AggregationProfile}.
+     *
+     * @param profile the {@link AggregationProfile}
+     */
+    private void updateSampleCount(AggregationProfile profile)
+    {
+
+        if (profile == null)
+        {
+            profileSampleCount.setText(null);
+            return;
+        }
+
+        profileSampleCount.setText(Long.toString(profile.getGlobalData().getTotalCnt()));
+        profileDuration.setText(Long.toString(toMillis(profile.getSource().getTotalNanos())) + " ms");
     }
 
     // View Methods
