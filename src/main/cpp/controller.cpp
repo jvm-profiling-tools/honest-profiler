@@ -58,7 +58,7 @@ void Controller::run() {
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
 
-    if ((result = getaddrinfo(configuration_->host, configuration_->port, &hints, &res)) != 0) {
+    if ((result = getaddrinfo(configuration_.host.c_str(), configuration_.port.c_str(), &hints, &res)) != 0) {
         logError("ERROR: getaddrinfo: %s\n", gai_strerror(result));
         return;
     }
@@ -88,11 +88,7 @@ void Controller::run() {
         }
 
         if ((bytesRead = recv(clientConnection, buf, MAX_DATA_SIZE - 1, 0)) == -1) {
-            if (bytesRead == 0) {
-                // client closed the connection
-            } else {
-                logError("ERROR: Failed to read data from client: %s\n", strerror(errno));
-            }
+            logError("ERROR: Failed to read data from client: %s\n", strerror(errno));
         } else {
             buf[bytesRead] = '\0';
 

@@ -9,21 +9,22 @@
 #include <unistd.h>
 #include <chrono>
 
+#include <array>
+#include <iterator>
+
 #include "globals.h"
 
 const int NUMBER_OF_INTERVALS = 1024;
 
 class SignalHandler {
 public:
-    SignalHandler(const int samplingIntervalMin, const int samplingIntervalMax) {
-        intervalIndex = 0;
-        timingIntervals = new int[NUMBER_OF_INTERVALS];
+    SignalHandler(const int samplingIntervalMin, const int samplingIntervalMax) 
+        : intervalIndex(0), currentInterval(-1), timingIntervals() {
         srand (time(NULL));
         int range = samplingIntervalMax - samplingIntervalMin + 1;
-        for (int i = 0; i < NUMBER_OF_INTERVALS; i++) {
-            timingIntervals[i] = samplingIntervalMin + rand() % range;
+        for (auto it = timingIntervals.begin(); it != timingIntervals.end(); ++it) {
+            *it = samplingIntervalMin + rand() % range;
         }
-        currentInterval = -1;
     }
 
     struct sigaction SetAction(void (*sigaction)(int, siginfo_t *, void *));
@@ -34,14 +35,12 @@ public:
 
     bool stopSigprof() { return updateSigprofInterval(0); }
 
-    ~SignalHandler() {
-        delete[] timingIntervals;
-    }
+    ~SignalHandler() {}
 
 private:
     int intervalIndex;
-    int *timingIntervals;
     int currentInterval;
+    std::array<int, NUMBER_OF_INTERVALS> timingIntervals;
 
     DISALLOW_COPY_AND_ASSIGN(SignalHandler);
 };

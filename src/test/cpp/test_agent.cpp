@@ -8,9 +8,9 @@
 TEST(ParseSetsDefaultOptions) {
     ConfigurationOptions options;
     parseArguments((char*) NULL, options);
-    CHECK_EQUAL(options.samplingIntervalMin, DEFAULT_SAMPLING_INTERVAL);
-    CHECK_EQUAL(options.samplingIntervalMax, DEFAULT_SAMPLING_INTERVAL);
-    CHECK(!options.logFilePath);
+    CHECK_EQUAL(DEFAULT_SAMPLING_INTERVAL, options.samplingIntervalMin);
+    CHECK_EQUAL(DEFAULT_SAMPLING_INTERVAL, options.samplingIntervalMax);
+    CHECK_EQUAL("", options.logFilePath);
 }
 
 TEST(ParsesSamplingInterval) {
@@ -28,7 +28,6 @@ TEST(ParsesLogPath) {
     ConfigurationOptions options;
     char* string = (char *) "logPath=/home/richard/log.hpl";
     parseArguments(string, options);
-    CHECK(options.logFilePath > (string + strlen(string)));
     CHECK_EQUAL("/home/richard/log.hpl", options.logFilePath);
 }
 
@@ -39,7 +38,6 @@ TEST(ParsesMultipleArguments) {
     CHECK_EQUAL(10, options.samplingIntervalMin);
     CHECK_EQUAL(10, options.samplingIntervalMax);
     CHECK_EQUAL("/home/richard/log.hpl", options.logFilePath);
-    safe_free_string(options.logFilePath);
 
     string = (char *) "logPath=/home/richard/log.hpl,interval=10";
     parseArguments(string, options);
