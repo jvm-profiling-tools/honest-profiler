@@ -23,7 +23,7 @@ void Profiler::handle(int signum, siginfo_t *info, void *context) {
     if (jvm_) {
         JNIEnv *jniEnv = getJNIEnv(jvm_);
         TimeUtils::current_utc_time(&spec); // sample current time
-        processor->handle(jniEnv, spec, jniEnv ? tMap_.get(jniEnv) : nullptr, context);
+        processor->handle(jniEnv, spec, jniEnv ? tMap_.get(jniEnv) : ThreadBucketPtr(nullptr), context);
     }
 }
 

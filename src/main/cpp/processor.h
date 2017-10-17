@@ -36,7 +36,7 @@ public:
 
     bool isRunning() const;
 
-    void handle(JNIEnv *jni_env, const timespec& ts, ThreadBucket *threadInfo, void *context);
+    void handle(JNIEnv *jni_env, const timespec& ts, ThreadBucketPtr threadInfo, void *context);
 
 private:
     jvmtiEnv *const jvmti_;

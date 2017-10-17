@@ -7,7 +7,6 @@
 #include <iostream>
 #include "../../main/cpp/profiler.h"
 
-// Heavy tests that require a JVM instance can be disabled
 #ifndef TEST_SKIP_PROFILER
 
 static ThreadMap threadMap; // empty map

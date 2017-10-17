@@ -103,7 +103,7 @@ bool Processor::isRunning() const {
     return isRunning_.load(std::memory_order_relaxed);
 }
 
-void Processor::handle(JNIEnv *jniEnv, const timespec& ts, ThreadBucket *threadInfo, void *context) {
+void Processor::handle(JNIEnv *jniEnv, const timespec& ts, ThreadBucketPtr threadInfo, void *context) {
     // sample data structure
     STATIC_ARRAY(frames, JVMPI_CallFrame, config.maxFramesToCapture, MAX_FRAMES_TO_CAPTURE);
 
@@ -119,5 +119,5 @@ void Processor::handle(JNIEnv *jniEnv, const timespec& ts, ThreadBucket *threadI
     }
 
     // log all samples, failures included, let the post processing sift through the data
-    buffer.push(ts, trace, threadInfo);
+    buffer.push(ts, trace, std::move(threadInfo));
 }

@@ -22,10 +22,9 @@ const size_t Capacity = Size + 1;
 
 class QueueListener {
 public:
-    virtual void record(const timespec &ts, const JVMPI_CallTrace &item, ThreadBucket *info = nullptr) = 0;
+    virtual void record(const timespec &ts, const JVMPI_CallTrace &item, ThreadBucketPtr info = ThreadBucketPtr(nullptr)) = 0;
 
-    virtual ~QueueListener() {
-    }
+    virtual ~QueueListener() {}
 };
 
 const int COMMITTED = 1;
@@ -35,7 +34,10 @@ struct TraceHolder {
     timespec tspec;
     std::atomic<int> is_committed;
     JVMPI_CallTrace trace;
-    ThreadBucket *info;
+    ThreadBucketPtr info;
+
+    TraceHolder() : info(nullptr) {
+    }
 };
 
 class CircularQueue {
@@ -52,9 +54,9 @@ public:
             delete[] frame_buffer_[i];
     }
 
-    bool push(const timespec &ts, const JVMPI_CallTrace &item, ThreadBucket *info = nullptr);
+    bool push(const timespec &ts, const JVMPI_CallTrace &item, ThreadBucketPtr info = ThreadBucketPtr(nullptr));
 
-    bool push(const JVMPI_CallTrace &item, ThreadBucket *info = nullptr);
+    bool push(const JVMPI_CallTrace &item, ThreadBucketPtr info = ThreadBucketPtr(nullptr));
 
     bool pop();
 

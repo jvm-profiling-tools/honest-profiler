@@ -54,74 +54,105 @@ public:
 
 struct ThreadBucket {
 	const int tid;
-	char *name;
+	std::string name;
 	std::atomic_int refs;
 	map::GC::EpochType localEpoch;
 
-	ThreadBucket(int id, const char *n) : tid(id), refs(1), localEpoch(GCHelper::attach()) {
-		int len = strlen(n) + 1;
-		name = new char[len];
-		std::copy(n, n + len, name);
+	explicit ThreadBucket(int id, const char *n) : tid(id), name(n), refs(1), localEpoch(GCHelper::attach()) {
 	}
 
-	void release() {
-		int prev = refs.fetch_sub(1, std::memory_order_acquire);
-		if (prev == 1)
-			delete this;
+	int release() {
+		return refs.fetch_sub(1, std::memory_order_acquire);
 	}
 
-	~ThreadBucket() {
-		delete[] name;
-	}
+	~ThreadBucket() {}
 };
 
+// ThreadBucket* wrapper that does atomic reference counting and only supports move semantic
+class ThreadBucketPtr {
+public:
+	explicit ThreadBucketPtr(ThreadBucket *b, bool weak = true) : bucket(b) {
+		if (bucket && !weak) {
+			int prev = bucket->refs.fetch_add(1, std::memory_order_relaxed);
+			assert(prev >= 0);
+			if (prev == 0) {
+				// return to released state
+				bucket->refs.fetch_sub(1, std::memory_order_relaxed);
+			}
+		}
+	}
+
+	ThreadBucketPtr(ThreadBucketPtr&& tb) : bucket(tb.bucket) {
+		tb.bucket = nullptr;
+	}
+
+	ThreadBucketPtr(const ThreadBucketPtr& tb) = delete;
+
+	ThreadBucketPtr& operator=(ThreadBucketPtr&& tb) {
+		if (bucket && bucket->release() == 1) {
+			delete bucket;
+		}
+		bucket = tb.bucket;
+		tb.bucket = nullptr;
+		return *this;
+	}
+
+	ThreadBucketPtr& operator=(const ThreadBucketPtr& tb) = delete;
+
+	ThreadBucket* operator->() {
+		return bucket;
+	}
+
+	bool defined() const {
+		return bucket != nullptr;
+	}
+
+	void reset() {
+		if (bucket && bucket->release() == 1) {
+			delete bucket;
+		}
+		bucket = nullptr;
+	}
+
+	~ThreadBucketPtr() {
+		if (bucket && bucket->release() == 1) {
+			delete bucket;
+		}
+	}
+
+private:
+	ThreadBucket *bucket;
+};
 
 template <typename MapProvider>
 class ThreadMapBase {
 private:
 	MapProvider map;
 
-	static ThreadBucket *acq_bucket(ThreadBucket *tb) {
-		if (tb != nullptr) {
-			int prev = tb->refs.fetch_add(1, std::memory_order_relaxed);
-			if (prev > 0) {
-				return tb;
-			}
-			tb->refs.fetch_sub(1, std::memory_order_relaxed);
-		}
-		return nullptr;
-	}
-
 public:
-
-	ThreadMapBase(int capacity = kInitialMapSize) : map(capacity) {}
+	explicit ThreadMapBase(int capacity = kInitialMapSize) : map(capacity) {}
 
 	void put(JNIEnv *jni_env, const char *name) {
 		put(jni_env, name, gettid());
 	}
 
 	void put(JNIEnv *jni_env, const char *name, int tid) {
-		// constructor == call to acquire
 		ThreadBucket *info = new ThreadBucket(tid, name);
-		ThreadBucket *old = (ThreadBucket*)map.put((map::KeyType)jni_env, (map::ValueType)info);
-		if (old != nullptr)
-			old->release();
+		ThreadBucketPtr oldRef((ThreadBucket*)map.put((map::KeyType)jni_env, (map::ValueType)info)); // weak ref to object
 		GCHelper::safepoint(info->localEpoch); // each thread inserts once
 	}
 
-	ThreadBucket *get(JNIEnv *jni_env) {
-		ThreadBucket *info = acq_bucket((ThreadBucket*)map.get((map::KeyType)jni_env));
-		if (info != nullptr)
+	ThreadBucketPtr get(JNIEnv *jni_env) {
+		ThreadBucketPtr info((ThreadBucket*)map.get((map::KeyType)jni_env), false); // non-weak ref
+		if (info.defined())
 			GCHelper::signalSafepoint(info->localEpoch);
-		return info;
+		return info; // move
 	}
 
 	void remove(JNIEnv *jni_env) {
-		ThreadBucket *info = (ThreadBucket*)map.remove((map::KeyType)jni_env);
-		if (info != nullptr) {
+		ThreadBucketPtr info((ThreadBucket*)map.remove((map::KeyType)jni_env)); // weak ref to object
+		if (info.defined())
 			GCHelper::detach(info->localEpoch);
-			info->release();
-		}
 	}
 };
 
