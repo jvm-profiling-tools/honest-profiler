@@ -59,9 +59,9 @@ public:
 
     void record(const JVMPI_CallTrace &trace, ThreadBucketPtr info = ThreadBucketPtr(nullptr));
 
-    void recordTraceStart(const jint numFrames, map::HashType envHash, ThreadBucketPtr info);
+    void recordTraceStart(const jint numFrames, map::HashType envHash, ThreadBucketPtr& info);
 
-    void recordTraceStart(const jint numFrames, map::HashType envHash, const timespec &ts, ThreadBucketPtr info);
+    void recordTraceStart(const jint numFrames, map::HashType envHash, const timespec &ts, ThreadBucketPtr& info);
 
     // method are unique pointers, use a long to standardise
     // between 32 and 64 bits
@@ -96,7 +96,7 @@ private:
 
     void inspectMethod(const method_id methodId, const JVMPI_CallFrame &frame);
 
-    void inspectThread(map::HashType &threadId, ThreadBucketPtr info);
+    void inspectThread(map::HashType &threadId, ThreadBucketPtr& info);
 
     jint getLineNo(jint bci, jmethodID methodId);
 

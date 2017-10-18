@@ -37,7 +37,7 @@ TEST(RecordsStartOfStackTrace) {
   timespec tspec = {44, 55};
   ThreadBucketPtr tptr(threadInfo.get(), false);
 
-  logWriter.recordTraceStart(2, 3, tspec, std::move(tptr));
+  logWriter.recordTraceStart(2, 3, tspec, tptr);
   int cnt = 0; 
 
   CHECK_EQUAL(THREAD_META, buffer[cnt]);
@@ -63,7 +63,8 @@ TEST(SupportsHighThreadId) {
 
   // LONG_MAX
   long bigNumber = std::numeric_limits<long>::max();
-  logWriter.recordTraceStart(2, (map::HashType)bigNumber, tspec, ThreadBucketPtr(nullptr));
+  ThreadBucketPtr tBuck(nullptr);
+  logWriter.recordTraceStart(2, (map::HashType)bigNumber, tspec, tBuck);
 
   CHECK_EQUAL(THREAD_META, buffer[0]);
   CHECK_EQUAL(0, buffer[12]);

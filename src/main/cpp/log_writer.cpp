@@ -102,7 +102,7 @@ void LogWriter::record(const JVMPI_CallTrace &trace, ThreadBucketPtr info) {
 }
 
 void LogWriter::record(const timespec &ts, const JVMPI_CallTrace &trace, ThreadBucketPtr info) {
-    recordTraceStart(trace.num_frames, (map::HashType)trace.env_id, ts, std::move(info));
+    recordTraceStart(trace.num_frames, (map::HashType)trace.env_id, ts, info);
 
     for (int i = 0; i < trace.num_frames; i++) {
         JVMPI_CallFrame frame = trace.frames[i];
@@ -135,7 +135,7 @@ void LogWriter::inspectMethod(const method_id methodId, const JVMPI_CallFrame &f
     }
 }
 
-void LogWriter::inspectThread(map::HashType &threadId, ThreadBucketPtr info) {
+void LogWriter::inspectThread(map::HashType &threadId, ThreadBucketPtr& info) {
     std::string threadName;
 
     if (info.defined()) {
@@ -155,10 +155,10 @@ void LogWriter::inspectThread(map::HashType &threadId, ThreadBucketPtr info) {
     output_.flush();
 }
 
-void LogWriter::recordTraceStart(const jint numFrames, map::HashType envHash, ThreadBucketPtr info) {
+void LogWriter::recordTraceStart(const jint numFrames, map::HashType envHash, ThreadBucketPtr& info) {
     map::HashType threadId = -envHash;
 
-    inspectThread(threadId, std::move(info));
+    inspectThread(threadId, info);
 
     output_.put(TRACE_START);
     writeValue(numFrames);
@@ -166,10 +166,10 @@ void LogWriter::recordTraceStart(const jint numFrames, map::HashType envHash, Th
     output_.flush();
 }
 
-void LogWriter::recordTraceStart(const jint numFrames, map::HashType envHash, const timespec &ts, ThreadBucketPtr info) {
+void LogWriter::recordTraceStart(const jint numFrames, map::HashType envHash, const timespec &ts, ThreadBucketPtr& info) {
     map::HashType threadId = -envHash; // mark unrecognized threads with negative id's
     
-    inspectThread(threadId, std::move(info));
+    inspectThread(threadId, info);
 
     output_.put(TRACE_WITH_TIME);
     writeValue(numFrames);

@@ -68,7 +68,9 @@ struct ThreadBucket {
 	~ThreadBucket() {}
 };
 
-// ThreadBucket* wrapper that does atomic reference counting and only supports move semantic
+// ThreadBucket* wrapper that does atomic reference counting and only supports move semantic.
+// Here weak means that ref counter is not incremented when wrapper is created, but it will 
+// be decremented once object is destroyed.
 class ThreadBucketPtr {
 public:
 	explicit ThreadBucketPtr(ThreadBucket *b, bool weak = true) : bucket(b) {
