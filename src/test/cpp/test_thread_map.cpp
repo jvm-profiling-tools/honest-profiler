@@ -35,6 +35,40 @@ TEST(ThreadMapPutGetDeleteTest) {
   CHECK(!map.get(p1.get()).defined());
 }
 
+TEST(ThreadMapUpdateTest) {
+  ThreadMap map;
+  auto p1 = ptr();
+  auto pid1 = 999, pid2 = 111;
+  auto name1 = "name321", name2 = "name123";
+
+  // map is empty
+  CHECK(!map.get(p1.get()).defined());
+
+  map.put(p1.get(), name1, pid1);
+
+  {
+    ThreadBucketPtr r1 = map.get(p1.get());
+    CHECK(r1.defined());
+    CHECK_EQUAL(pid1, r1->tid);
+    CHECK_EQUAL(name1, r1->name);
+  }
+
+  // update
+  map.put(p1.get(), name2, pid2);
+
+  {
+    ThreadBucketPtr r1 = map.get(p1.get());
+    CHECK(r1.defined());
+    CHECK_EQUAL(pid2, r1->tid);
+    CHECK_EQUAL(name2, r1->name);
+  }
+
+  map.remove(p1.get());
+
+  // map is empty again
+  CHECK(!map.get(p1.get()).defined());
+}
+
 TEST(ThreadMapPutDeleteGetTest) {
   ThreadMap map;
   auto p1 = ptr();
@@ -47,8 +81,7 @@ TEST(ThreadMapPutDeleteGetTest) {
   map.put(p1.get(), name, pid);
 
   {
-    ThreadBucketPtr r1 = map.get(p1.get()), r2 = map.get(p1.get()),
-                    r3 = map.get(p1.get());
+    ThreadBucketPtr r1 = map.get(p1.get()), r2 = map.get(p1.get()), r3 = map.get(p1.get());
     map.remove(p1.get());
     CHECK(!map.get(p1.get()).defined());
 
@@ -104,8 +137,7 @@ TEST(ThreadMapAssignResetTest) {
   CHECK(!map.get(p2.get()).defined());
 }
 
-void reader(ThreadMap &map, const int id, JNIEnv *const p,
-            std::atomic_int &read) {
+void reader(ThreadMap &map, const int id, JNIEnv *const p, std::atomic_int &read) {
   ThreadBucketPtr ptr = map.get(p);
   std::string name("thread-" + std::to_string(id));
 
@@ -132,8 +164,7 @@ TEST(ThreadMapConcurrentTest) {
   for (auto it = ps.begin(); it != ps.end(); ++it) {
     *it = ptr();
     int id = it - ps.begin();
-    tvec[id] =
-        std::thread(reader, std::ref(map), id, it->get(), std::ref(read));
+    tvec[id] = std::thread(reader, std::ref(map), id, it->get(), std::ref(read));
   }
 
   for (auto it = ps.begin(); it != ps.end(); ++it) {
