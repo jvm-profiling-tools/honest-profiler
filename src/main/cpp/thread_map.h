@@ -39,13 +39,9 @@ public:
       map::DefaultGC.detachThread(localEpoch);
   }
 
-  static void safepoint(map::GC::EpochType &localEpoch) {
-    map::DefaultGC.safepoint(localEpoch);
-  }
+  static void safepoint(map::GC::EpochType &localEpoch) { map::DefaultGC.safepoint(localEpoch); }
 
-  static void signalSafepoint(map::GC::EpochType &localEpoch) {
-    map::DefaultGC.ss_safepoint(localEpoch);
-  }
+  static void signalSafepoint(map::GC::EpochType &localEpoch) { map::DefaultGC.ss_safepoint(localEpoch); }
 };
 
 struct ThreadBucket {
@@ -54,8 +50,7 @@ struct ThreadBucket {
   std::atomic_int refs;
   map::GC::EpochType localEpoch;
 
-  explicit ThreadBucket(int id, const char *n)
-      : tid(id), name(n), refs(1), localEpoch(GCHelper::attach()) {}
+  explicit ThreadBucket(int id, const char *n) : tid(id), name(n), refs(1), localEpoch(GCHelper::attach()) {}
 
   int release() { return refs.fetch_sub(1, std::memory_order_acquire); }
 
@@ -79,9 +74,7 @@ public:
     }
   }
 
-  ThreadBucketPtr(ThreadBucketPtr &&tb) : bucket(tb.bucket) {
-    tb.bucket = nullptr;
-  }
+  ThreadBucketPtr(ThreadBucketPtr &&tb) : bucket(tb.bucket) { tb.bucket = nullptr; }
 
   ThreadBucketPtr(const ThreadBucketPtr &tb) = delete;
 
@@ -128,28 +121,24 @@ public:
 
   void put(JNIEnv *jni_env, const char *name, int tid) {
     ThreadBucket *info = new ThreadBucket(tid, name);
-    ThreadBucketPtr oldRef((ThreadBucket *)map.put(
-        (map::KeyType)jni_env, (map::ValueType)info)); // weak ref to object
+    ThreadBucketPtr oldRef((ThreadBucket *)map.put((map::KeyType)jni_env, (map::ValueType)info)); // weak ref to object
     GCHelper::safepoint(info->localEpoch); // each thread inserts once
   }
 
   ThreadBucketPtr get(JNIEnv *jni_env) {
-    ThreadBucketPtr info((ThreadBucket *)map.get((map::KeyType)jni_env),
-                         false); // non-weak ref
+    ThreadBucketPtr info((ThreadBucket *)map.get((map::KeyType)jni_env), false); // non-weak ref
     if (info.defined())
       GCHelper::signalSafepoint(info->localEpoch);
     return info; // move
   }
 
   void remove(JNIEnv *jni_env) {
-    ThreadBucketPtr info((ThreadBucket *)map.remove(
-        (map::KeyType)jni_env)); // weak ref to object
+    ThreadBucketPtr info((ThreadBucket *)map.remove((map::KeyType)jni_env)); // weak ref to object
     if (info.defined())
       GCHelper::detach(info->localEpoch);
   }
 };
 
-typedef ThreadMapBase<map::ConcurrentMapProvider<PointerHasher<JNIEnv>, true>>
-    ThreadMap;
+typedef ThreadMapBase<map::ConcurrentMapProvider<PointerHasher<JNIEnv>, true>> ThreadMap;
 
 #endif
