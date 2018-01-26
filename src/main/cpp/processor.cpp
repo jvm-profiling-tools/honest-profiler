@@ -12,12 +12,21 @@
 
 const uint MILLIS_IN_MICRO = 1000;
 
-void sleep_for_millis(uint period) {
+void Processor::sleep_for_millis(uint period) {
+    // check 'isRunning_' every 100 ms in case period is too large
+    // Allows agent to respond to stop/VM quit within 100ms at the cost of fudging
+    // accuracy of sleep a bit
+    int sleep_time = std::min(period, (uint) 100);
+    const int required = period / 100;
+    int count = 0;
+    do {
 #ifdef WINDOWS
-    Sleep(period);
+      Sleep(sleep_time);
 #else
-    usleep(period * MILLIS_IN_MICRO);
+      usleep(sleep_time * MILLIS_IN_MICRO);
 #endif
+        count ++;
+    } while (count < required && isRunning_.load(std::memory_order_relaxed));
 }
 
 TRACE_DEFINE_BEGIN(Processor, kTraceProcessorTotal)
