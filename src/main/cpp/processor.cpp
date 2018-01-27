@@ -22,17 +22,20 @@ void sleep_for_millis(uint period) {
 }
 
 void Processor::sleep(uint period) {
+    // check 'isRunning_' every STATUS_CHECK_PERIOD ms in case period is too large.
+    // Allows agent to respond to stop/VM quit within STATUS_CHECK_PERIOD ms at the cost of fudging
+    // accuracy of sleep a bit
     const int loop = period / STATUS_CHECK_PERIOD;
     const int remainder = period % STATUS_CHECK_PERIOD;
 
     int count = 0;
     while (count < loop && isRunning_.load(std::memory_order_relaxed)) {
-      count ++;
-      sleep_for_millis(STATUS_CHECK_PERIOD);
+       count ++;
+       sleep_for_millis(STATUS_CHECK_PERIOD);
     }
 
     if (remainder > 0 && isRunning_.load(std::memory_order_relaxed)) {
-      sleep_for_millis(remainder);
+       sleep_for_millis(remainder);
     }
 }
 
