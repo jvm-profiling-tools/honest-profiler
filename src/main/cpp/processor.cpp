@@ -11,6 +11,7 @@
 #endif
 
 const uint MILLIS_IN_MICRO = 1000;
+const uint STATUS_CHECK_PERIOD = 100;
 
 void sleep_for_millis(uint period) {
 #ifdef WINDOWS
@@ -18,6 +19,24 @@ void sleep_for_millis(uint period) {
 #else
     usleep(period * MILLIS_IN_MICRO);
 #endif
+}
+
+void Processor::sleep(uint period) {
+    // check 'isRunning_' every STATUS_CHECK_PERIOD ms in case period is too large.
+    // Allows agent to respond to stop/VM quit within STATUS_CHECK_PERIOD ms at the cost of fudging
+    // accuracy of sleep a bit
+    const int loop = period / STATUS_CHECK_PERIOD;
+    const int remainder = period % STATUS_CHECK_PERIOD;
+
+    int count = 0;
+    while (count < loop && isRunning_.load(std::memory_order_relaxed)) {
+       count ++;
+       sleep_for_millis(STATUS_CHECK_PERIOD);
+    }
+
+    if (remainder > 0 && isRunning_.load(std::memory_order_relaxed)) {
+       sleep_for_millis(remainder);
+    }
 }
 
 TRACE_DEFINE_BEGIN(Processor, kTraceProcessorTotal)
@@ -43,7 +62,7 @@ void Processor::run() {
             while (buffer.pop()); // make all items are processed and released
             break;
         }
-        sleep_for_millis(interval_);
+        sleep(interval_);
     }
 
     // SIGPROF is already stopped in Profiler::stop, no need to call handler.stopSigprof();

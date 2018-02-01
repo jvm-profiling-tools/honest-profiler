@@ -54,6 +54,8 @@ private:
 
     void startCallback(jvmtiEnv *jvmti_env, JNIEnv *jni_env, void *arg);
 
+    void sleep(uint period);
+
     DISALLOW_COPY_AND_ASSIGN(Processor);
 };
 
