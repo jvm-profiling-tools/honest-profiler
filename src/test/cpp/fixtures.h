@@ -8,14 +8,14 @@ class ItemHolder : public QueueListener {
 public:
   explicit ItemHolder() {}
 
-  void record(const JVMPI_CallTrace &trace, ThreadBucket *info) {
+  void record(const JVMPI_CallTrace &trace, ThreadBucketPtr info) {
     timespec spec;
     TimeUtils::current_utc_time(&spec);
 
-    record(spec, trace, info);
+    record(spec, trace, std::move(info));
   }
 
-  virtual void record(const timespec &ts, const JVMPI_CallTrace &trace, ThreadBucket *info) {
+  virtual void record(const timespec &ts, const JVMPI_CallTrace &trace, ThreadBucketPtr info) {
     CHECK_EQUAL(2, trace.num_frames);
     CHECK_EQUAL((JNIEnv *)envId, trace.env_id);
 

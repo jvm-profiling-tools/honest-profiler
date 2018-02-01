@@ -85,7 +85,8 @@ set(TEST_FILES
     ${SRC_TEST}/test_agent.cpp
     ${SRC_TEST}/test.h
     ${SRC_TEST}/test_profiler_config.cpp
-    ${SRC_TEST}/test_maps.cpp)
+    ${SRC_TEST}/test_maps.cpp
+    ${SRC_TEST}/test_thread_map.cpp)
 
 
 ##########################################################

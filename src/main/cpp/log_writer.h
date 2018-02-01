@@ -55,13 +55,13 @@ public:
 
     explicit LogWriter(ostream &output, GetFrameInformation frameLookup, jvmtiEnv *jvmti);
 
-    virtual void record(const timespec &ts, const JVMPI_CallTrace &trace, ThreadBucket *info = nullptr);
+    virtual void record(const timespec &ts, const JVMPI_CallTrace &trace, ThreadBucketPtr info = ThreadBucketPtr(nullptr));
 
-    void record(const JVMPI_CallTrace &trace, ThreadBucket *info = nullptr);
+    void record(const JVMPI_CallTrace &trace, ThreadBucketPtr info = ThreadBucketPtr(nullptr));
 
-    void recordTraceStart(const jint numFrames, map::HashType envHash, ThreadBucket *info);
+    void recordTraceStart(const jint numFrames, map::HashType envHash, ThreadBucketPtr& info);
 
-    void recordTraceStart(const jint numFrames, map::HashType envHash, const timespec &ts, ThreadBucket *info);
+    void recordTraceStart(const jint numFrames, map::HashType envHash, const timespec &ts, ThreadBucketPtr& info);
 
     // method are unique pointers, use a long to standardise
     // between 32 and 64 bits
@@ -83,7 +83,7 @@ private:
     ostream& output_;
     GetFrameInformation frameInfoFoo; 
 
-    jvmtiEnv *jvmti_;
+    jvmtiEnv *const jvmti_;
 
     unordered_set<method_id> knownMethods;
 
@@ -96,7 +96,7 @@ private:
 
     void inspectMethod(const method_id methodId, const JVMPI_CallFrame &frame);
 
-    void inspectThread(map::HashType &threadId, ThreadBucket *info);
+    void inspectThread(map::HashType &threadId, ThreadBucketPtr& info);
 
     jint getLineNo(jint bci, jmethodID methodId);
 

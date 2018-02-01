@@ -70,11 +70,9 @@ void JNICALL OnVMInit(jvmtiEnv *jvmti, JNIEnv *jniEnv, jthread thread) {
         CreateJMethodIDsForClass(jvmti, klass);
     }
 
-#ifndef GETENV_NEW_THREAD_ASYNC_UNSAFE
     if (!configuration.host.empty() && !configuration.port.empty()) {
         controller->start();
     }
-#endif
 }
 
 void JNICALL OnClassPrepare(jvmtiEnv *jvmti_env, JNIEnv *jni_env,

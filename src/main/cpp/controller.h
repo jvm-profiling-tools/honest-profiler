@@ -33,9 +33,10 @@ public:
     bool isRunning() const;
 
 private:
-    JavaVM *jvm_;
-    jvmtiEnv *jvmti_;
-    Profiler *profiler_;
+    JavaVM *const jvm_;
+    jvmtiEnv *const jvmti_;
+    Profiler *const profiler_;
+    
     const ConfigurationOptions &configuration_;
     std::atomic_bool isRunning_;
 
