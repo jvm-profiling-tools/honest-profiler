@@ -28,7 +28,7 @@ public final class Rendering
 
     public static String renderPercentage(double percentage)
     {
-        return MessageFormat.format("{0,number,0.00%}", percentage);
+        return MessageFormat.format("{0,number,0.00 %}", percentage);
     }
 
     public static String renderMethod(Frame method)

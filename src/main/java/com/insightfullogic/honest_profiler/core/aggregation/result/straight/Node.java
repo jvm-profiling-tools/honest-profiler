@@ -15,12 +15,13 @@ import java.util.stream.Stream;
 import com.insightfullogic.honest_profiler.core.aggregation.grouping.CombinedGrouping;
 import com.insightfullogic.honest_profiler.core.aggregation.result.Aggregation;
 import com.insightfullogic.honest_profiler.core.aggregation.result.Keyed;
+import com.insightfullogic.honest_profiler.core.aggregation.result.Parent;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 
 /**
  * Wrapper for {@link Entry} which allows organizing them into a tree structure.
  */
-public class Node extends Entry
+public class Node extends Entry implements Parent<Node>
 {
     // Instance Properties
 
@@ -64,11 +65,14 @@ public class Node extends Entry
         children.forEach(child -> this.children.put(child.getKey(), child));
     }
 
+    // Instance Accessors
+
     /**
      * Returns the children of the Node.
      * <p>
      * @return the children of the Node
      */
+    @Override
     public List<Node> getChildren()
     {
         return new ArrayList<>(children.values());

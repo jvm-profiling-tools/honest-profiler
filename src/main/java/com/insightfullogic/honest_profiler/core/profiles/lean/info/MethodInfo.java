@@ -92,6 +92,22 @@ public class MethodInfo
         return cachedFqmn;
     }
 
+    /**
+     * Returns the "simple" class name + "." + method name.
+     * <p>
+     * @return the "simple" class name + "." + method name
+     */
+    public String getCompactName()
+    {
+        StringBuilder result = new StringBuilder();
+
+        int offset = className.lastIndexOf(".");
+        result.append(offset < 0 ? className : className.substring(offset + 1));
+        result.append(".").append(methodName);
+
+        return result.toString();
+    }
+
     // Object Implementation
 
     @Override
