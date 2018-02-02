@@ -25,6 +25,8 @@ import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.NumberTableCell;
 import com.insightfullogic.honest_profiler.ports.javafx.view.cell.NumberTreeTableCell;
+import com.insightfullogic.honest_profiler.ports.javafx.view.menu.ColumnGroupMenuItem;
+import com.insightfullogic.honest_profiler.ports.javafx.view.menu.ColumnMenuItem;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
