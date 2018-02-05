@@ -13,7 +13,7 @@ int gettid() {
 #if defined(__linux__)
   ret = syscall(SYS_gettid);
 #elif defined(__APPLE__)
-  //ret = pthread_getthreadid_np();
+  // ret = pthread_getthreadid_np();
   ret = mach_thread_self();
   mach_port_deallocate(mach_task_self(), ret);
 #elif defined(__NetBSD__)

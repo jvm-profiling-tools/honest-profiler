@@ -79,14 +79,14 @@ set(SOURCE_FILES
 
 set(TEST_FILES
     ${SRC_TEST}/fixtures.h
-    ${SRC_TEST}/test_misc.cpp
     ${SRC_TEST}/test_circular_queue.cpp
     ${SRC_TEST}/test.cpp
     ${SRC_TEST}/test_log_writer.cpp
     ${SRC_TEST}/test_agent.cpp
     ${SRC_TEST}/test.h
     ${SRC_TEST}/test_profiler_config.cpp
-    ${SRC_TEST}/test_maps.cpp)
+    ${SRC_TEST}/test_maps.cpp
+    ${SRC_TEST}/test_thread_map.cpp)
 
 
 ##########################################################
@@ -123,7 +123,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 endif()
 
 # to enable tracing add: -DENABLE_TRACING
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GLOBAL_WARNINGS} ${GLOBAL_COPTS} -pthread -std=c++0x")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GLOBAL_WARNINGS} ${GLOBAL_COPTS} -pthread -std=c++0x $ENV{EXT_CXX_FLAGS}")
 
 ##########################################################
 # Build

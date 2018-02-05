@@ -1,7 +1,5 @@
 package com.insightfullogic.honest_profiler.ports.javafx.model;
 
-import static javafx.application.Platform.isFxApplicationThread;
-import static javafx.application.Platform.runLater;
 import static javafx.util.Duration.seconds;
 
 import java.io.File;
@@ -9,8 +7,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.insightfullogic.honest_profiler.core.aggregation.AggregationProfile;
 import com.insightfullogic.honest_profiler.core.collector.lean.ProfileSource;
-import com.insightfullogic.honest_profiler.core.profiles.FlameGraph;
-import com.insightfullogic.honest_profiler.core.profiles.FlameGraphListener;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfile;
 import com.insightfullogic.honest_profiler.core.profiles.lean.LeanProfileListener;
 import com.insightfullogic.honest_profiler.ports.javafx.model.task.AggregateProfileTask;
@@ -55,16 +51,14 @@ public class ProfileContext
     private ProfileSource profileSource;
 
     private final SimpleObjectProperty<AggregationProfile> profile;
-    private final SimpleObjectProperty<FlameGraph> flameGraph;
 
     private boolean frozen;
 
     private Duration refreshInterval;
     private Timeline timeline;
 
-    // While frozen, incoming profiles/graphs are cached in the following 2 instance properties.
+    // While frozen, incoming profiles are cached here.
     private LeanProfile cachedProfile;
-    private FlameGraph cachedFlameGraph;
 
     // Instance Constructors
 
@@ -90,7 +84,6 @@ public class ProfileContext
         id = counter.incrementAndGet();
 
         profile = new SimpleObjectProperty<>();
-        flameGraph = new SimpleObjectProperty<>();
 
         refreshInterval = seconds(1);
     }
@@ -193,16 +186,6 @@ public class ProfileContext
     }
 
     /**
-     * Returns the {@link ObjectProperty} encapsulating the current {@link FlameGraph}.
-     * <p>
-     * @return the {@link ObjectProperty} encapsulating the current {@link FlameGraph}
-     */
-    public ObjectProperty<FlameGraph> flameGraphProperty()
-    {
-        return flameGraph;
-    }
-
-    /**
      * Returns a boolean indicating whether the ProfileContext is currently frozen, i.e. not requesting any
      * {@link LeanProfile} updates from the {@link ProfileSource}.
      * <p>
@@ -238,12 +221,6 @@ public class ProfileContext
             // cachedProfile property. When unfreezing, such cached profiles are processed here, to ensure the most
             // recent emitted LeanProfile is definitely shown.
             appCtx.execute(new AggregateProfileTask(ProfileContext.this, cachedProfile));
-
-            if (cachedFlameGraph != null)
-            {
-                update(cachedFlameGraph);
-                cachedFlameGraph = null;
-            }
         }
     }
 
@@ -277,32 +254,6 @@ public class ProfileContext
     }
 
     /**
-     * Returns a {@link FlameGraphListener} which accepts new emitted {@link FlameGraph}s and updates the ProfileContext
-     * accordingly.
-     * <p>
-     * @return a {@link FlameGraphListener} which accepts new emitted {@link FlameGraph}s
-     */
-    public FlameGraphListener getFlameGraphListener()
-    {
-        return new FlameGraphListener()
-        {
-            @Override
-            public void accept(FlameGraph t)
-            {
-                // Ensure the update is run on the FX Thread.
-                if (isFxApplicationThread())
-                {
-                    update(t);
-                }
-                else
-                {
-                    runLater(() -> update(t));
-                }
-            }
-        };
-    }
-
-    /**
      * Update the {@link AggregationProfile} {@link ObjectProperty}. This method may only be called on the FX thread.
      * <p>
      * @param profile the new {@link AggregationProfile}
@@ -310,24 +261,6 @@ public class ProfileContext
     public void update(AggregationProfile profile)
     {
         this.profile.set(profile);
-    }
-
-    /**
-     * Update the {@link FlameGraph} {@link ObjectProperty} if the ProfileContext is not frozen, or cache it if frozen.
-     * This method may only be called on the FX thread.
-     * <p>
-     * @param flameGraph the new {@link FlameGraph}
-     */
-    private void update(FlameGraph flameGraph)
-    {
-        if (frozen)
-        {
-            cachedFlameGraph = flameGraph;
-        }
-        else
-        {
-            this.flameGraph.set(flameGraph);
-        }
     }
 
     /**

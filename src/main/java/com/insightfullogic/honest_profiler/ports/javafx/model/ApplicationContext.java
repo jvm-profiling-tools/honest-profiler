@@ -220,7 +220,7 @@ public final class ApplicationContext
 
     /**
      * Sets the text in the InfoBar.
-     *
+     * 
      * @param text the raw text
      */
     public void setRawInfo(String text)

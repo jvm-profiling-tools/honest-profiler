@@ -13,7 +13,7 @@
 #define GETENV_NEW_THREAD_ASYNC_UNSAFE
 #endif
 
-static ConfigurationOptions* CONFIGURATION;
+static ConfigurationOptions configuration;
 static Profiler* prof;
 static Controller* controller;
 static ThreadMap threadMap;
@@ -70,11 +70,9 @@ void JNICALL OnVMInit(jvmtiEnv *jvmti, JNIEnv *jniEnv, jthread thread) {
         CreateJMethodIDsForClass(jvmti, klass);
     }
 
-#ifndef GETENV_NEW_THREAD_ASYNC_UNSAFE
-    if (CONFIGURATION->host != NULL && CONFIGURATION->port != NULL) {
+    if (!configuration.host.empty() && !configuration.port.empty()) {
         controller->start();
     }
-#endif
 }
 
 void JNICALL OnClassPrepare(jvmtiEnv *jvmti_env, JNIEnv *jni_env,
@@ -198,7 +196,7 @@ void JNICALL OnThreadStart(jvmtiEnv *jvmti_env, JNIEnv *jni_env, jthread thread)
         if (!main_started) {
             if (strcmp(thread_info.name, "main") == 0) {
                 main_started = true;
-                if (CONFIGURATION->start) {
+                if (configuration.start) {
                     prof->start(jni_env);
                 }
             }
@@ -267,13 +265,6 @@ char *safe_copy_string(const char *value, const char *next) {
     return dest;
 }
 
-void safe_free_string(char *&value) {
-    /** Prevent Profiler from calling delete/free explicitly when string goes
-     *  out of the scope. */
-    free(value);
-    value = NULL;
-}
-
 static void parseArguments(char *options, ConfigurationOptions &configuration) {
     char* next = options;
     for (char *key = options; next != NULL; key = next + 1) {
@@ -291,13 +282,13 @@ static void parseArguments(char *options, ConfigurationOptions &configuration) {
             } else if (strstr(key, "interval") == key) {
                 configuration.samplingIntervalMin = configuration.samplingIntervalMax = atoi(value);
             } else if (strstr(key, "logPath") == key) {
-                configuration.logFilePath = safe_copy_string(value, next);
+                configuration.logFilePath.assign(value, STR_SIZE(value, next));
             } else if (strstr(key, "start") == key) {
                 configuration.start = atoi(value);
             } else if (strstr(key, "host") == key) {
-                configuration.host = safe_copy_string(value, next);
+                configuration.host.assign(value, STR_SIZE(value, next));
             } else if (strstr(key, "port") == key) {
-                configuration.port = safe_copy_string(value, next);
+                configuration.port.assign(value, STR_SIZE(value, next));
             } else if (strstr(key, "maxFrames") == key) {
                 configuration.maxFramesToCapture = atoi(value);
             } else {
@@ -311,8 +302,7 @@ AGENTEXPORT jint JNICALL Agent_OnLoad(JavaVM *jvm, char *options, void *reserved
     IMPLICITLY_USE(reserved);
     int err;
     jvmtiEnv *jvmti;
-    CONFIGURATION = new ConfigurationOptions();
-    parseArguments(options, *CONFIGURATION);
+    parseArguments(options, configuration);
 
     if ((err = (jvm->GetEnv(reinterpret_cast<void **>(&jvmti), JVMTI_VERSION))) !=
             JNI_OK) {
@@ -344,8 +334,8 @@ AGENTEXPORT jint JNICALL Agent_OnLoad(JavaVM *jvm, char *options, void *reserved
 
     Asgct::SetAsgct(Accessors::GetJvmFunction<ASGCTType>("AsyncGetCallTrace"));
 
-    prof = new Profiler(jvm, jvmti, CONFIGURATION, threadMap);
-    controller = new Controller(jvm, jvmti, prof, CONFIGURATION);
+    prof = new Profiler(jvm, jvmti, configuration, threadMap);
+    controller = new Controller(jvm, jvmti, prof, configuration);
 
     return 0;
 }
@@ -358,7 +348,6 @@ AGENTEXPORT void JNICALL Agent_OnUnload(JavaVM *vm) {
 
     delete controller;
     delete prof;
-    delete CONFIGURATION;
 }
 
 void bootstrapHandle(int signum, siginfo_t *info, void *context) {

@@ -8,14 +8,14 @@ class ItemHolder : public QueueListener {
 public:
   explicit ItemHolder() {}
 
-  void record(const JVMPI_CallTrace &trace, ThreadBucket *info) {
+  void record(const JVMPI_CallTrace &trace, ThreadBucketPtr info) {
     timespec spec;
     TimeUtils::current_utc_time(&spec);
 
-    record(spec, trace, info);
+    record(spec, trace, std::move(info));
   }
 
-  virtual void record(const timespec &ts, const JVMPI_CallTrace &trace, ThreadBucket *info) {
+  virtual void record(const timespec &ts, const JVMPI_CallTrace &trace, ThreadBucketPtr info) {
     CHECK_EQUAL(2, trace.num_frames);
     CHECK_EQUAL((JNIEnv *)envId, trace.env_id);
 
@@ -30,24 +30,18 @@ public:
 // Queue too big to stack allocate,
 // So we use a fixture
 struct GivenQueue {
-  GivenQueue() {
-    holder = new ItemHolder();
-    queue = new CircularQueue(*holder, DEFAULT_MAX_FRAMES_TO_CAPTURE);
+  GivenQueue() : holder(), queue(holder, DEFAULT_MAX_FRAMES_TO_CAPTURE) {
   }
 
-  ~GivenQueue() {
-    delete holder;
-    delete queue;
-  }
+  ~GivenQueue() {}
 
-  ItemHolder *holder;
-
-  CircularQueue *queue;
+  ItemHolder holder;
+  CircularQueue queue;
 
   // wrap an easy to test api around the queue
   bool pop(const long envId) {
-    holder->envId = envId;
-    return queue->pop();
+    holder.envId = envId;
+    return queue.pop();
   }
 };
 

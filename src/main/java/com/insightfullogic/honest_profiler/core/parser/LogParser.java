@@ -62,6 +62,7 @@ public class LogParser
     private static final int STACK_FRAME_BCI_ONLY = 2;
     private static final int STACK_FRAME_FULL = 21;
     private static final int NEW_METHOD = 3;
+    private static final int NEW_METHOD_SIGNATURE = 31;
     private static final int THREAD_META = 4;
 
     private final LogEventListener listener;
@@ -117,6 +118,9 @@ public class LogParser
                 case NEW_METHOD:
                     readNewMethod(input);
                     return COMPLETE_RECORD;
+                case NEW_METHOD_SIGNATURE:
+                    readNewMethodSignature(input);
+                    return COMPLETE_RECORD;
                 case THREAD_META:
                     readNewThreadMeta(input);
                     return COMPLETE_RECORD;
@@ -142,6 +146,13 @@ public class LogParser
     private void readNewMethod(ByteBuffer input)
     {
         Method newMethod = new Method(input.getLong(), readString(input), readString(input), readString(input));
+        newMethod.accept(listener);
+    }
+
+    private void readNewMethodSignature(ByteBuffer input)
+    {
+        Method newMethod = new Method(input.getLong(), readString(input), readString(input), readString(input), 
+            readString(input), readString(input), readString(input));
         newMethod.accept(listener);
     }
 

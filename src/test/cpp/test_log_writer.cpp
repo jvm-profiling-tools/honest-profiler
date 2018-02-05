@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <limits>
+#include <memory>
+
 #include "fixtures.h"
 #include "ostreambuf.h"
 #include "test.h"
@@ -14,8 +16,7 @@ using std::ofstream;
   strcpy(to, from)
 
 // leaks memory during tests
-bool stubFrameInformation(const JVMPI_CallFrame &frame, jvmtiEnv *jvmti,
-                          MethodListener &listener) {
+bool stubFrameInformation(const JVMPI_CallFrame &frame, MethodListener &listener) {
   listener.recordNewMethod((method_id)frame.method_id, "c", "b", "a");
   return true;
 }
@@ -32,18 +33,19 @@ bool stubFrameInformation(const JVMPI_CallFrame &frame, jvmtiEnv *jvmti,
 
 TEST(RecordsStartOfStackTrace) {
   givenLogWriter();
-  ThreadBucket threadInfo(22, "Thr-222");
+  auto threadInfo = std::unique_ptr<ThreadBucket>(new ThreadBucket(22, "Thr-222"));
   timespec tspec = {44, 55};
+  ThreadBucketPtr tptr(threadInfo.get(), false);
 
-  logWriter.recordTraceStart(2, 3, tspec, &threadInfo);
-
+  logWriter.recordTraceStart(2, 3, tspec, tptr);
   int cnt = 0; 
 
   CHECK_EQUAL(THREAD_META, buffer[cnt]);
   CHECK_EQUAL(22, buffer[cnt+=8]);
-  CHECK_EQUAL(strlen(threadInfo.name), buffer[cnt+=4]);
-  CHECK_ARRAY_EQUAL(threadInfo.name, &buffer[++cnt], strlen(threadInfo.name));
-  cnt += strlen(threadInfo.name);
+  CHECK_EQUAL(threadInfo->name.size(), buffer[cnt+=4]);
+  cnt++;
+  CHECK_EQUAL(threadInfo->name, std::string(buffer + cnt, threadInfo->name.size()));
+  cnt += threadInfo->name.size();
 
   CHECK_EQUAL(TRACE_WITH_TIME, buffer[cnt]);
   CHECK_EQUAL(2, buffer[cnt+=4]);
@@ -51,7 +53,7 @@ TEST(RecordsStartOfStackTrace) {
   CHECK_EQUAL(44, buffer[cnt+=8]);
   CHECK_EQUAL(55, buffer[cnt+=8]);
 
-  GCHelper::detach(threadInfo.localEpoch);
+  GCHelper::detach(threadInfo->localEpoch);
   done();
 }
 
@@ -61,7 +63,8 @@ TEST(SupportsHighThreadId) {
 
   // LONG_MAX
   long bigNumber = std::numeric_limits<long>::max();
-  logWriter.recordTraceStart(2, (map::HashType)bigNumber, tspec, nullptr);
+  ThreadBucketPtr tBuck(nullptr);
+  logWriter.recordTraceStart(2, (map::HashType)bigNumber, tspec, tBuck);
 
   CHECK_EQUAL(THREAD_META, buffer[0]);
   CHECK_EQUAL(0, buffer[12]);
@@ -167,8 +170,7 @@ TEST(ExtractsStackTraceInformation) {
   done();
 }
 
-bool dumpStubFrameInformation(const JVMPI_CallFrame &frame, jvmtiEnv *jvmti,
-                              MethodListener &listener) {
+bool dumpStubFrameInformation(const JVMPI_CallFrame &frame, MethodListener &listener) {
   method_id id = (method_id)frame.method_id;
   if (frame.method_id == (jmethodID)1) {
     listener.recordNewMethod(id, "PrintStream.java", "Ljava/io/PrintStream;",

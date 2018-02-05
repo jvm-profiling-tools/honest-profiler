@@ -1,7 +1,7 @@
 #include <jvmti.h>
+
 #include <unordered_set>
-#include <iostream>
-#include <string.h>
+#include <fstream>
 
 #include "thread_map.h"
 #include "circular_queue.h"
@@ -11,6 +11,7 @@
 #define LOG_WRITER_H
 
 using std::ostream;
+using std::ofstream;
 using std::unordered_set;
 
 typedef unsigned char byte;
@@ -22,19 +23,23 @@ public:
             const char *class_name,
             const char *method_name) = 0;
 
+    virtual void recordNewMethod(const map::HashType methodId, const char *fileName,
+            const char *className, const char *genericClassName, 
+            const char *methodName, const char *methodSignature, const char *genericMethodSignature) = 0;
+
     virtual ~MethodListener() {
     }
 };
 
-typedef bool (*GetFrameInformation)(const JVMPI_CallFrame &frame,
-        jvmtiEnv *jvmti, MethodListener &logWriter);
+typedef bool (*GetFrameInformation)(const JVMPI_CallFrame &frame, MethodListener &logWriter);
 
 const size_t FIFO_SIZE = 10;
 const byte TRACE_START = 1; // maintain backward compatibility
 const byte TRACE_WITH_TIME = 11; 
 const byte FRAME_BCI_ONLY = 2; // maintain backward compatibility
 const byte FRAME_FULL = 21;
-const byte NEW_METHOD = 3;
+const byte NEW_METHOD = 3; // maintain backward compatibility
+const byte NEW_METHOD_SIGNATURE = 31;
 const byte THREAD_META = 4;
 // Error values for line number. If BCI is an error value we report the BCI error value.
 const jint ERR_NO_LINE_INFO = -100;
@@ -46,18 +51,17 @@ const jint ERR_NO_LINE_FOUND= -101;
 class LogWriter : public QueueListener, public MethodListener {
 
 public:
-    explicit LogWriter(ostream &output, GetFrameInformation frameLookup,
-            jvmtiEnv *jvmti)
-            : output_(output), frameLookup_(frameLookup), jvmti_(jvmti) {
-    }
+    explicit LogWriter(std::string &fileName, jvmtiEnv *jvmti);
 
-    virtual void record(const timespec &ts, const JVMPI_CallTrace &trace, ThreadBucket *info = nullptr);
+    explicit LogWriter(ostream &output, GetFrameInformation frameLookup, jvmtiEnv *jvmti);
 
-    void record(const JVMPI_CallTrace &trace, ThreadBucket *info = nullptr);
+    virtual void record(const timespec &ts, const JVMPI_CallTrace &trace, ThreadBucketPtr info = ThreadBucketPtr(nullptr));
 
-    void recordTraceStart(const jint numFrames, map::HashType envHash, ThreadBucket *info);
+    void record(const JVMPI_CallTrace &trace, ThreadBucketPtr info = ThreadBucketPtr(nullptr));
 
-    void recordTraceStart(const jint numFrames, map::HashType envHash, const timespec &ts, ThreadBucket *info);
+    void recordTraceStart(const jint numFrames, map::HashType envHash, ThreadBucketPtr& info);
+
+    void recordTraceStart(const jint numFrames, map::HashType envHash, const timespec &ts, ThreadBucketPtr& info);
 
     // method are unique pointers, use a long to standardise
     // between 32 and 64 bits
@@ -65,15 +69,21 @@ public:
 
     void recordFrame(const jint bci, method_id methodId);
 
+    bool lookupFrameInformation(const JVMPI_CallFrame &frame);
+
     virtual void recordNewMethod(method_id methodId, const char *file_name,
             const char *class_name, const char *method_name);
 
+    virtual void recordNewMethod(const map::HashType methodId, const char *fileName, 
+            const char *className, const char *genericClassName, 
+            const char *methodName, const char *methodSignature, const char *genericMethodSignature);
+
 private:
-    ostream &output_;
+    ofstream file;
+    ostream& output_;
+    GetFrameInformation frameInfoFoo; 
 
-    GetFrameInformation frameLookup_;
-
-    jvmtiEnv *jvmti_;
+    jvmtiEnv *const jvmti_;
 
     unordered_set<method_id> knownMethods;
 
@@ -86,7 +96,7 @@ private:
 
     void inspectMethod(const method_id methodId, const JVMPI_CallFrame &frame);
 
-    void inspectThread(map::HashType &threadId, ThreadBucket *info);
+    void inspectThread(map::HashType &threadId, ThreadBucketPtr& info);
 
     jint getLineNo(jint bci, jmethodID methodId);
 

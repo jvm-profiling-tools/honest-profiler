@@ -19,7 +19,7 @@
 
 class Controller {
 public:
-    explicit Controller(JavaVM *jvm, jvmtiEnv *jvmti, Profiler *profiler, ConfigurationOptions *configuration) :
+    explicit Controller(JavaVM *jvm, jvmtiEnv *jvmti, Profiler *profiler, ConfigurationOptions &configuration) :
             jvm_(jvm), jvmti_(jvmti), profiler_(profiler), configuration_(configuration), isRunning_(false) {
 
     }
@@ -33,12 +33,12 @@ public:
     bool isRunning() const;
 
 private:
-    JavaVM *jvm_;
-    jvmtiEnv *jvmti_;
-    Profiler *profiler_;
-    ConfigurationOptions *configuration_;
+    JavaVM *const jvm_;
+    jvmtiEnv *const jvmti_;
+    Profiler *const profiler_;
+    
+    const ConfigurationOptions &configuration_;
     std::atomic_bool isRunning_;
-
 
     void startSampling();
 

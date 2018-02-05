@@ -7,7 +7,6 @@ import static com.insightfullogic.honest_profiler.ports.javafx.model.ProfileCont
 
 import java.io.File;
 
-import com.insightfullogic.honest_profiler.core.collector.FlameGraphCollector;
 import com.insightfullogic.honest_profiler.core.collector.lean.LeanLogCollector;
 import com.insightfullogic.honest_profiler.core.parser.LogEventListener;
 import com.insightfullogic.honest_profiler.core.parser.LogEventPublisher;
@@ -149,16 +148,14 @@ public class InitializeProfileTask extends Task<ProfileContext>
      * Returns a {@link ProfileContext} which will emit {@link LeanProfile}s produced by consuming a non-live log file.
      * <p>
      * @param fileLogSource the non-live log file which will be processed
-     * @return a new {@link ProfileContext} for non-live log file comsumption
+     * @return a new {@link ProfileContext} for non-live log file consumption
      */
     private ProfileContext consume(FileLogSource fileLogSource)
     {
         ProfileContext profileContext = newProfileContext(LOG, fileLogSource);
         final LogEventListener collector = new LogEventPublisher()
             // Multiplex Log Events to the LeanLogCollector
-            .publishTo(getCollector(profileContext))
-            // Multiplex Log Events to the FlameGraphCollector
-            .publishTo(new FlameGraphCollector(profileContext.getFlameGraphListener()));
+            .publishTo(getCollector(profileContext));
 
         pipe(fileLogSource, collector, false).run();
 

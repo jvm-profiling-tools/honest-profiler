@@ -38,8 +38,9 @@ public class TreeDiff extends AbstractDiff<Node, DiffNode, Tree>
      * <p>
      * @param entries the {@link List} of {@link DiffNode}s to be copied into this Diff
      */
-    private TreeDiff(List<DiffNode> entries)
+    private TreeDiff(Tree baseTree, Tree newTree, List<DiffNode> entries)
     {
+        super.setAggregations(baseTree, newTree);
         data = new HashMap<>();
         entries.forEach(entry -> data.put(entry.getKey(), entry));
     }
@@ -93,6 +94,8 @@ public class TreeDiff extends AbstractDiff<Node, DiffNode, Tree>
     public TreeDiff filter(FilterSpecification<DiffNode> filterSpec)
     {
         return new TreeDiff(
+            getBaseAggregation(),
+            getNewAggregation(),
             getData().stream().map(node -> node.copyWithFilter(filterSpec.getFilter()))
                 .filter(node -> node != null).collect(toList()));
     }

@@ -7,6 +7,12 @@
 
 #include <iostream>
 
+#ifdef ENABLE_TRACING
+    #define TRACE_HISTORY_SZ (1<<6)
+#else
+    #define TRACE_HISTORY_SZ 1
+#endif
+
 class TraceGroup {
 public:
     struct Counter {
@@ -31,7 +37,7 @@ public:
     }
 
     void dump() {
-    	printf("--------------- %s\n", m_name);
+        std::cout << "--------------- " << m_name << std::endl;
     	for (int i = 0; i < m_numCounters; i++) {
             std::cout << "#### " << m_counters[i].str << ": " << m_counters[i].count.load(std::memory_order_relaxed) << std::endl;
     	}
@@ -53,16 +59,56 @@ public:
     }
 };
 
-#define TRACE_DECLARE(group, count)      extern TraceGroup::Counter Trace_##group[count]; extern TraceGroup TraceGroup_##group;
-#define TRACE_DEFINE_BEGIN(group, count) TraceGroup::Counter Trace_##group[count] = {
-#define TRACE_DEFINE(desc)                   TraceGroup::Counter(0, desc),
-#define TRACE_DEFINE_END(group, count)   }; \
-                                         TraceGroup TraceGroup_##group(#group, Trace_##group, count);
+class HistoryRecorder {
+public:
+    HistoryRecorder(TraceGroup::Counter* counters) : m_current(0), m_counters(counters) {
+    }
+
+    void record(int traceid) {
+        m_history[m_current++ & (TRACE_HISTORY_SZ - 1)] = traceid;
+    }
+
+    void reset() {
+        m_current = 0;
+    }
+
+    void dump() {
+        std::cout << "--------------- THREAD HISTORY DUMP" << std::endl;
+        int last = m_current - 1;
+        for (int i = last; i > (last > TRACE_HISTORY_SZ ? last - TRACE_HISTORY_SZ : 0); i--) {
+            std::cout << "#### " <<  m_counters[m_history[i & (TRACE_HISTORY_SZ - 1)]].str << std::endl;
+        }
+    }
+
+private:
+    unsigned int m_current;
+    int m_history[TRACE_HISTORY_SZ];
+    TraceGroup::Counter* m_counters;
+};
 
 #ifndef ENABLE_TRACING
-	#define TRACE(group, index) 	     do {} while(0)
+    #define TRACE(group, index) 	            do {} while(0)
+    
+    #define TRACE_DECLARE(group, count)         extern TraceGroup::Counter Trace_##group[count]; \
+                                                extern TraceGroup TraceGroup_##group;
+
+    #define TRACE_DEFINE_BEGIN(group, count)    TraceGroup::Counter Trace_##group[count] = {
+    #define TRACE_DEFINE(desc)                      TraceGroup::Counter(0, desc),
+    #define TRACE_DEFINE_END(group, count)      }; \
+                                                TraceGroup TraceGroup_##group(#group, Trace_##group, count);
 #else
-	#define TRACE(group, index) 	     Trace_##group[index].count.fetch_add(1, std::memory_order_relaxed)
+    #define TRACE(group, index) 	            Trace_##group[index].count.fetch_add(1, std::memory_order_relaxed); \
+                                                History_##group.record(index)
+
+    #define TRACE_DECLARE(group, count)         extern TraceGroup::Counter Trace_##group[count]; \
+                                                extern TraceGroup TraceGroup_##group; \
+                                                extern thread_local HistoryRecorder History_##group;                              
+
+    #define TRACE_DEFINE_BEGIN(group, count)    TraceGroup::Counter Trace_##group[count] = {
+    #define TRACE_DEFINE(desc)                      TraceGroup::Counter(0, desc),
+    #define TRACE_DEFINE_END(group, count)      }; \
+                                                TraceGroup TraceGroup_##group(#group, Trace_##group, count); \
+                                                thread_local HistoryRecorder History_##group(Trace_##group);
 #endif
 
 #endif

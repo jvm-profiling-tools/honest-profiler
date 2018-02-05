@@ -13,7 +13,6 @@ import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Entr
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Flat;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Node;
 import com.insightfullogic.honest_profiler.core.aggregation.result.straight.Tree;
-import com.insightfullogic.honest_profiler.core.profiles.FlameGraph;
 import com.insightfullogic.honest_profiler.ports.javafx.controller.AbstractViewController;
 import com.insightfullogic.honest_profiler.ports.javafx.util.extraction.FlatExtractor;
 import com.insightfullogic.honest_profiler.ports.javafx.util.extraction.TreeExtractor;
@@ -32,11 +31,6 @@ public class BindUtil
     private static final DescendantFlatAggregator DESCENDANT_FLAT_AGGREGATOR = new DescendantFlatAggregator();
     private static final AncestorTreeAggregator ANCESTOR_TREE_AGGREGATOR = new AncestorTreeAggregator();
     private static final DescendantTreeAggregator DESCENDANT_TREE_AGGREGATOR = new DescendantTreeAggregator();
-
-    /**
-     * Extraction {@link Function} for binding a target to a {@link FlameGraph}.
-     */
-    public static final Function<Object, FlameGraph> FLAME_EXTRACTOR = o -> (FlameGraph)o;
 
     /**
      * Extraction {@link Function} for binding a target to the {@link Tree} result of aggregating the source

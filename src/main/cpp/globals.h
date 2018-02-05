@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <signal.h>
 #include <time.h>
+#include <string>
 
 #ifdef __MACH__
 #   include <mach/clock.h>
@@ -33,32 +34,40 @@ const int MAX_FRAMES_TO_CAPTURE = 2048;
   #define STATIC_ARRAY(NAME, TYPE, SIZE, MAXSZ) TYPE NAME[SIZE]
 #endif
 
+#define STR_SIZE(VALUE, NEXT) ((NEXT == 0) ? strlen(VALUE) : (size_t) (NEXT - VALUE))
+
 char *safe_copy_string(const char *value, const char *next);
-void safe_free_string(char *&value);
 
 struct ConfigurationOptions {
     /** Interval in microseconds */
     int samplingIntervalMin, samplingIntervalMax;
-    char* logFilePath;
-    char* host;
-    char* port;
+    std::string logFilePath;
+    std::string host;
+    std::string port;
     bool start;
     int maxFramesToCapture;
 
     ConfigurationOptions() :
             samplingIntervalMin(DEFAULT_SAMPLING_INTERVAL),
             samplingIntervalMax(DEFAULT_SAMPLING_INTERVAL),
-            logFilePath(NULL),
-            host(NULL),
-            port(NULL),
+            logFilePath(""),
+            host(""),
+            port(""),
             start(true),
             maxFramesToCapture(DEFAULT_MAX_FRAMES_TO_CAPTURE) {
     }
 
+    ConfigurationOptions(const ConfigurationOptions &config) :
+            samplingIntervalMin(config.samplingIntervalMin),
+            samplingIntervalMax(config.samplingIntervalMax),
+            logFilePath(config.logFilePath),
+            host(config.host),
+            port(config.port),
+            start(config.start),
+            maxFramesToCapture(config.maxFramesToCapture) {
+    }
+
     virtual ~ConfigurationOptions() {
-      if (logFilePath) safe_free_string(logFilePath);
-      if (host) safe_free_string(host);
-      if (port) safe_free_string(port);
     }
 };
 

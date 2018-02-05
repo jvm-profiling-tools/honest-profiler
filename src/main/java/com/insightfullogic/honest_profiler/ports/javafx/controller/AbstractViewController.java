@@ -390,6 +390,7 @@ public abstract class AbstractViewController<T> extends AbstractController
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
         column.setCellFactory(col -> new NumberTableCell<>(appCtx()::displayPercent, null));
         configureHeader(column, title, profileContext);
+        addColumnMenuItem(column, title, profileContext);
     }
 
     /**
@@ -408,6 +409,7 @@ public abstract class AbstractViewController<T> extends AbstractController
         column.setCellFactory(
             col -> new NumberTableCell<>(appCtx()::displayPercent, doubleDiffStyler));
         configureHeader(column, title, null);
+        addColumnMenuItem(column, title, null);
     }
 
     /**
@@ -426,6 +428,7 @@ public abstract class AbstractViewController<T> extends AbstractController
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
         column.setCellFactory(col -> new NumberTableCell<>(appCtx()::displayIntegral, null));
         configureHeader(column, title, profileContext);
+        addColumnMenuItem(column, title, profileContext);
     }
 
     /**
@@ -443,6 +446,7 @@ public abstract class AbstractViewController<T> extends AbstractController
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
         column.setCellFactory(col -> new NumberTableCell<>(appCtx()::displayIntegral, intDiffStyler));
         configureHeader(column, title, null);
+        addColumnMenuItem(column, title, null);
     }
 
     /**
@@ -461,6 +465,7 @@ public abstract class AbstractViewController<T> extends AbstractController
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
         column.setCellFactory(col -> new NumberTableCell<>(appCtx()::displayTime, null));
         configureHeader(column, title, profileContext);
+        addColumnMenuItem(column, title, profileContext);
     }
 
     /**
@@ -478,6 +483,7 @@ public abstract class AbstractViewController<T> extends AbstractController
         column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
         column.setCellFactory(col -> new NumberTableCell<>(appCtx()::displayTime, longDiffStyler));
         configureHeader(column, title, null);
+        addColumnMenuItem(column, title, null);
     }
 
     // UI Helper Methods : TreeTable Column Configuration
@@ -498,6 +504,7 @@ public abstract class AbstractViewController<T> extends AbstractController
         column.setCellValueFactory(new TreeItemPropertyValueFactory<>(propertyName));
         column.setCellFactory(col -> new NumberTreeTableCell<>(appCtx()::displayPercent, null));
         configureHeader(column, title, profileContext);
+        addColumnMenuItem(column, title, profileContext);
     }
 
     /**
@@ -516,6 +523,7 @@ public abstract class AbstractViewController<T> extends AbstractController
         column.setCellFactory(
             col -> new NumberTreeTableCell<>(appCtx()::displayPercent, doubleDiffStyler));
         configureHeader(column, title, null);
+        addColumnMenuItem(column, title, null);
     }
 
     /**
@@ -534,6 +542,7 @@ public abstract class AbstractViewController<T> extends AbstractController
         column.setCellValueFactory(new TreeItemPropertyValueFactory<>(propertyName));
         column.setCellFactory(col -> new NumberTreeTableCell<>(appCtx()::displayIntegral, null));
         configureHeader(column, title, profileContext);
+        addColumnMenuItem(column, title, profileContext);
     }
 
     /**
@@ -552,6 +561,7 @@ public abstract class AbstractViewController<T> extends AbstractController
         column
             .setCellFactory(col -> new NumberTreeTableCell<>(appCtx()::displayIntegral, intDiffStyler));
         configureHeader(column, title, null);
+        addColumnMenuItem(column, title, null);
     }
 
     /**
@@ -570,6 +580,7 @@ public abstract class AbstractViewController<T> extends AbstractController
         column.setCellValueFactory(new TreeItemPropertyValueFactory<>(propertyName));
         column.setCellFactory(col -> new NumberTreeTableCell<>(appCtx()::displayTime, null));
         configureHeader(column, title, profileContext);
+        addColumnMenuItem(column, title, profileContext);
     }
 
     /**
@@ -588,6 +599,7 @@ public abstract class AbstractViewController<T> extends AbstractController
         column.setCellFactory(
             col -> new NumberTreeTableCell<>(appCtx()::displayTime, longDiffStyler));
         configureHeader(column, title, null);
+        addColumnMenuItem(column, title, null);
     }
 
     // Filter-related methods

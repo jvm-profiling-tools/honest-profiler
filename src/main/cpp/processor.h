@@ -16,17 +16,19 @@ const int kTraceProcessorRunning = 2;
 
 TRACE_DECLARE(Processor, kTraceProcessorTotal);
 
-
 class Processor {
 
 public:
-    explicit Processor(jvmtiEnv* jvmti, LogWriter& logWriter,
-                       CircularQueue& buffer, SignalHandler& handler, int interval)
-        : jvmti_(jvmti), logWriter_(logWriter), buffer_(buffer),
-          isRunning_(false), handler_(handler), interval_(interval) {
+    explicit Processor(jvmtiEnv* jvmti, LogWriter& logWriter, const ConfigurationOptions &conf)
+        : jvmti_(jvmti), config(conf), logWriter_(logWriter), 
+          buffer(logWriter_, config.maxFramesToCapture), 
+          handler(config.samplingIntervalMin, config.samplingIntervalMax),
+          isRunning_(false) {
+        interval_ = Size * config.samplingIntervalMin / 1000 / 2;
+        interval_ = interval_ > 0 ? interval_ : 1;
     }
 
-    void start(JNIEnv *jniEnv);
+    bool start(JNIEnv *jniEnv);
 
     void run();
 
@@ -34,22 +36,25 @@ public:
 
     bool isRunning() const;
 
+    void handle(JNIEnv *jni_env, const timespec& ts, ThreadBucketPtr threadInfo, void *context);
+
 private:
-    jvmtiEnv* jvmti_;
+    jvmtiEnv *const jvmti_;
+
+    const ConfigurationOptions &config;
 
     LogWriter& logWriter_;
-
-    CircularQueue& buffer_;
+    CircularQueue buffer;
+    SignalHandler handler;
 
     std::atomic_bool isRunning_;
-
     std::atomic_flag workerDone;
-
-    SignalHandler& handler_;
 
     int interval_;
 
     void startCallback(jvmtiEnv *jvmti_env, JNIEnv *jni_env, void *arg);
+
+    void sleep(uint period);
 
     DISALLOW_COPY_AND_ASSIGN(Processor);
 };
