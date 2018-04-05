@@ -38,7 +38,14 @@ else()
         find_package(UnitTest++ REQUIRED NO_MODULE)
         include_directories(${UTPP_INCLUDE_DIRS})
     else()
-        pkg_check_modules (unittest++ REQUIRED unittest++)
+        #Debian/Ubuntu have their own unittest++ pkg-config package
+        pkg_check_modules (unittest++ QUIET unittest++)
+        if (${unittest++_FOUND})
+            message("Found unittest++, version " ${unittest++_VERSION})
+        else()
+            #Upstream has a UnitTest++ pkg-config package
+            pkg_check_modules (unittest++ REQUIRED UnitTest++)
+        endif()
         include_directories(${unittest++_INCLUDE_DIRS})
     endif()
     file(GLOB_RECURSE UNIT_TEST_H ${unittest++_INCLUDE_DIRS}/*UnitTest++.h)
@@ -120,6 +127,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     set(GLOBAL_WARNINGS, "${GLOBAL_WARNINGS} -Wframe-larger-than=16384 -Wno-unused-but-set-variable")
     set(GLOBAL_WARNINGS, "${GLOBAL_WARNINGS} -Wunused-but-set-parameter -Wvla -Wno-conversion-null")
     set(GLOBAL_WARNINGS, "${GLOBAL_WARNINGS} -Wno-unknown-pragmas -Wno-builtin-macro-redefined -Wl,-fatal_warnings")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -static-libgcc -static-libstdc++")
 endif()
 
 # to enable tracing add: -DENABLE_TRACING
