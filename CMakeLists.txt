@@ -104,7 +104,10 @@ set(GLOBAL_WARNINGS "${GLOBAL_WARNINGS} -Wno-sign-compare -Wno-strict-overflow -
 set(GLOBAL_WARNINGS "${GLOBAL_WARNINGS} -Wnon-virtual-dtor -Woverloaded-virtual")
 
 set(GLOBAL_COPTS "-fdiagnostics-show-option -fno-omit-frame-pointer -fno-strict-aliasing")
-set(GLOBAL_COPTS "${GLOBAL_COPTS} -funsigned-char -fno-asynchronous-unwind-tables -msse2 -g -D__STDC_FORMAT_MACROS -O2")
+set(GLOBAL_COPTS "${GLOBAL_COPTS} -funsigned-char -fno-asynchronous-unwind-tables -g -D__STDC_FORMAT_MACROS -O2")
+IF(${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86_64")
+    set(GLOBAL_COPTS "${GLOBAL_COPTS} -msse2")
+endif()
 
 # Platform Specific
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -123,7 +126,10 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     message("-- using GCC")
     #set(GLOBAL_COPTS "${GLOBAL_COPTS} -mfpmath=sse -fno-tree-loop-distribute-patterns")
-    set(GLOBAL_COPTS "${GLOBAL_COPTS} -mfpmath=sse")
+    IF(${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86_64")
+        set(GLOBAL_COPTS "${GLOBAL_COPTS} -mfpmath=sse")
+    endif()
+
     set(GLOBAL_WARNINGS, "${GLOBAL_WARNINGS} -Wframe-larger-than=16384 -Wno-unused-but-set-variable")
     set(GLOBAL_WARNINGS, "${GLOBAL_WARNINGS} -Wunused-but-set-parameter -Wvla -Wno-conversion-null")
     set(GLOBAL_WARNINGS, "${GLOBAL_WARNINGS} -Wno-unknown-pragmas -Wno-builtin-macro-redefined -Wl,-fatal_warnings")
