@@ -21,6 +21,9 @@ matrix:
     - os: osx
       osx_image: xcode9
       compiler: clang
+    - os: osx
+      osx_image: xcode9.3
+      compiler: clang
 env:
   - EXT_CXX_FLAGS="-fsanitize=address -DDEBUG_MAP_GC" ASAN_OPTIONS="detect_odr_violation=0"
 branches:
