@@ -23,7 +23,7 @@
 #include <cstddef>
 #include <cassert>
 
-#if !defined(nullptr)
+#if __cplusplus < 201103L 
 #	define nullptr NULL
 #endif
 
