@@ -99,3 +99,9 @@ JNIEXPORT void JNICALL Java_com_insightfullogic_honest_1profiler_core_control_Ag
 
     prof->setMaxFramesToCapture(maxFramesToCapture);
 }
+
+extern "C"
+JNIEXPORT jint JNICALL Java_com_insightfullogic_honest_1profiler_core_control_Agent_getCurrentNativeThreadId(JNIEnv *env, jclass klass) {
+
+    return gettid();
+}
