@@ -42,4 +42,6 @@ public class Agent
     public static native void setSamplingInterval(int intervalMin, int intervalMax);
 
     public static native void setMaxFramesToCapture(int maxFramesToCapture);
+
+    public static native int getCurrentNativeThreadId();
 }
