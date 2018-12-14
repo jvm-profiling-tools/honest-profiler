@@ -44,3 +44,9 @@ Testing
 .settings
 
 /bin/
+
+.project
+.cproject
+
+src/main/cpp/CMakeLists.txt
+src/main/cpp/cmake-build-debug/

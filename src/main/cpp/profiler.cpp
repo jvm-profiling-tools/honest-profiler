@@ -159,7 +159,7 @@ void Profiler::configure() {
         } else {
             configuration_.logFilePath = liveConfiguration.logFilePath;
         }
-        writer = std::unique_ptr<LogWriter>(new LogWriter(liveConfiguration.logFilePath, jvmti_));
+        writer = std::unique_ptr<LogWriter>(new LogWriter(liveConfiguration.logFilePath, liveConfiguration.rotateNum, liveConfiguration.rotateSizeMB, jvmti_));
     }
 
     needsUpdate = needsUpdate ||
