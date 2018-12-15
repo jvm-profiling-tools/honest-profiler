@@ -1,11 +1,12 @@
 #include <jvmti.h>
-
-#include <unordered_set>
 #include <fstream>
+#include <unordered_set>
 
-#include "thread_map.h"
 #include "circular_queue.h"
+#include "concurrent_map.h"
+#include "globals.h"
 #include "stacktraces.h"
+#include "thread_map.h"
 
 #ifndef LOG_WRITER_H
 #define LOG_WRITER_H
@@ -53,7 +54,7 @@ class LogWriter : public QueueListener, public MethodListener {
 public:
     explicit LogWriter(std::string &fileName, int rotateNum, int rotateSizeMB, jvmtiEnv *jvmti);
 
-    explicit LogWriter(ofstream &output, GetFrameInformation frameLookup, jvmtiEnv *jvmti);
+    explicit LogWriter(ofstream &output, int rotateNum, int rotateSizeMB, GetFrameInformation frameLookup, jvmtiEnv *jvmti);
 
     virtual void record(const timespec &ts, const JVMPI_CallTrace &trace, ThreadBucketPtr info = ThreadBucketPtr(nullptr));
 
@@ -70,8 +71,8 @@ public:
 
 private:
     std::string fileName;
-    int rotateSize;
     int rotateNum;
+    int rotateSize;
     int size;
 
     ofstream file;

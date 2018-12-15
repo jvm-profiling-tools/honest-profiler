@@ -7,3 +7,4 @@ A usable and honest profiler for the JVM. For documentation please refer to
 
 * [Download the Binary](http://insightfullogic.com/honest-profiler.zip)
 * [How to Build](https://github.com/RichardWarburton/honest-profiler/wiki/How-to-build)
+UNITTEST_INCLUDE_DIRS="/usr/local/Cellar/unittest-cpp/2.0.0/include/UnitTest++/" UNITTEST_LIBRARIES="UnitTest++" cmake CMakeLists.txt

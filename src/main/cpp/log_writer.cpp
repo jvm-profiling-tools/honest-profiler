@@ -18,10 +18,10 @@ static bool IS_LITTLE_ENDIAN = isLittleEndian();
 
 LogWriter::LogWriter(std::string &fileName, int rotateNum, int rotateSizeMB, jvmtiEnv *jvmti) :
 	fileName(fileName),
-    file(fileName, std::ofstream::out | std::ofstream::binary),
 	rotateNum(rotateNum),
 	rotateSize(rotateSizeMB * 1024 * 1024),
 	size(0),
+    file(fileName, std::ofstream::out | std::ofstream::binary),
 	output_(this->file),
     frameInfoFoo(NULL), jvmti_(jvmti) {
     if (output_.fail()) {
@@ -30,18 +30,20 @@ LogWriter::LogWriter(std::string &fileName, int rotateNum, int rotateSizeMB, jvm
     }
 }
 
-LogWriter::LogWriter(ostream &output, int rotateNum, int rotateSizeMB, GetFrameInformation frameLookup, jvmtiEnv *jvmti) :
-    file(),
-	output_(output),
+LogWriter::LogWriter(ofstream &output, int rotateNum, int rotateSizeMB, GetFrameInformation frameLookup, jvmtiEnv *jvmti) :
+	fileName(),
 	rotateNum(rotateNum),
 	rotateSize(rotateSizeMB * 1024 * 1024),
+	size(0),
+    file(),
+	output_(output),
 	frameInfoFoo(frameLookup),
 	jvmti_(jvmti) {
     // Old interface for backward compatibility and testing purposes
 }
 
 template<typename T>
-void LogWriter::writeValue(ofstream& fout, const T &value) {
+void LogWriter::writeValue(ofstream & fout, const T &value) {
     if (IS_LITTLE_ENDIAN) {
         const char *data = reinterpret_cast<const char *>(&value);
         for (int i = sizeof(value) - 1; i >= 0; i--) {
@@ -117,7 +119,7 @@ void LogWriter::record(const JVMPI_CallTrace &trace, ThreadBucketPtr info) {
 }
 
 void LogWriter::record(const timespec &ts, const JVMPI_CallTrace &trace, ThreadBucketPtr info) {
-	ofstream& fout = getOut();
+	ofstream & fout = getOut();
     recordTraceStart(fout, trace.num_frames, (map::HashType)trace.env_id, ts, info);
 
     for (int i = 0; i < trace.num_frames; i++) {
@@ -128,16 +130,16 @@ void LogWriter::record(const timespec &ts, const JVMPI_CallTrace &trace, ThreadB
         jint bci = frame.lineno;
         if (bci > 0) {
             jint lineno = getLineNo(bci, frame.method_id);
-            recordFrame(bci, lineno, methodId);
+            recordFrame(fout, bci, lineno, methodId);
         }
         else {
-            recordFrame(bci, methodId);
+            recordFrame(fout, bci, methodId);
         }
-        inspectMethod(methodId, frame);
+        inspectMethod(fout, methodId, frame);
     }
 }
 
-void LogWriter::inspectMethod(ofstream& fout, const method_id methodId, const JVMPI_CallFrame &frame) {
+void LogWriter::inspectMethod(ofstream & fout, const method_id methodId, const JVMPI_CallFrame &frame) {
     if (knownMethods.count(methodId) > 0) {
         return;
     }
@@ -151,7 +153,7 @@ void LogWriter::inspectMethod(ofstream& fout, const method_id methodId, const JV
     }
 }
 
-void LogWriter::inspectThread(ofstream& fout, map::HashType &threadId, ThreadBucketPtr& info) {
+void LogWriter::inspectThread(ofstream & fout, map::HashType &threadId, ThreadBucketPtr& info) {
     std::string threadName;
 
     if (info.defined()) {
@@ -166,31 +168,31 @@ void LogWriter::inspectThread(ofstream& fout, map::HashType &threadId, ThreadBuc
     knownThreads.insert(threadId);
 
     fout.put(THREAD_META);
-    size++;
+    size+=8;
     writeValue(fout, threadId);
     writeWithSize(fout, threadName.c_str());
     fout.flush();
 }
 
-void LogWriter::recordTraceStart(ofstream& fout, const jint numFrames, map::HashType envHash, ThreadBucketPtr& info) {
+void LogWriter::recordTraceStart(ofstream & fout, const jint numFrames, map::HashType envHash, ThreadBucketPtr& info) {
     map::HashType threadId = -envHash;
 
-    inspectThread(threadId, info);
+    inspectThread(fout, threadId, info);
 
     fout.put(TRACE_START);
-    size++;
+    size+=8;
     writeValue(fout, numFrames);
     writeValue(fout, threadId);
     fout.flush();
 }
 
-void LogWriter::recordTraceStart(ofstream& fout, const jint numFrames, map::HashType envHash, const timespec &ts, ThreadBucketPtr& info) {
+void LogWriter::recordTraceStart(ofstream & fout, const jint numFrames, map::HashType envHash, const timespec &ts, ThreadBucketPtr& info) {
     map::HashType threadId = -envHash; // mark unrecognized threads with negative id's
     
     inspectThread(fout, threadId, info);
 
     fout.put(TRACE_WITH_TIME);
-    size++;
+    size+=8;
     writeValue(fout, numFrames);
     writeValue(fout, threadId);
     writeValue(fout, (int64_t)ts.tv_sec);
@@ -198,9 +200,9 @@ void LogWriter::recordTraceStart(ofstream& fout, const jint numFrames, map::Hash
     fout.flush();
 }
 
-void LogWriter::recordFrame(ofstream& fout, const jint bci, const jint lineNumber, const method_id methodId) {
+void LogWriter::recordFrame(ofstream &fout, const jint bci, const jint lineNumber, const method_id methodId) {
     fout.put(FRAME_FULL);
-    size++;
+    size+=8;
     writeValue(fout, bci);
     writeValue(fout, lineNumber);
     writeValue(fout, methodId);
@@ -208,25 +210,26 @@ void LogWriter::recordFrame(ofstream& fout, const jint bci, const jint lineNumbe
 }
 
 // kept for old format tests
-void LogWriter::recordFrame(ofstream& fout, const jint bci, const method_id methodId) {
+void LogWriter::recordFrame(ofstream &fout, const jint bci, const method_id methodId) {
     fout.put(FRAME_BCI_ONLY);
-    size++;
+    size+=8;
     writeValue(fout, bci);
     writeValue(fout, methodId);
     fout.flush();
 }
 
-void LogWriter::writeWithSize(ofstream& fout, const char *value) {
+void LogWriter::writeWithSize(ofstream &fout, const char *value) {
     jint size = (jint) strlen(value);
     writeValue(fout, size);
     fout.write(value, size);
+    this->size=+size;
 }
 
 void LogWriter::recordNewMethod(const map::HashType methodId, const char *fileName,
         const char *className, const char *methodName) {
-	ofstream& fout = getOut();
+	ofstream & fout = getOut();
     fout.put(NEW_METHOD);
-    size++;
+    size+=8;
     writeValue(fout, methodId);
     writeWithSize(fout, fileName);
     writeWithSize(fout, className);
@@ -237,9 +240,9 @@ void LogWriter::recordNewMethod(const map::HashType methodId, const char *fileNa
 void LogWriter::recordNewMethod(const map::HashType methodId, const char *fileName, 
     const char *className, const char *genericClassName, 
     const char *methodName, const char *methodSignature, const char *genericMethodSignature) {
-	ofstream& fout = getOut();
+	ofstream & fout = getOut();
     fout.put(NEW_METHOD_SIGNATURE);
-    size++;
+    size+=8;
     writeValue(fout, methodId);
     writeWithSize(fout, fileName);
     writeWithSize(fout, className);
@@ -308,8 +311,8 @@ bool LogWriter::lookupFrameInformation(const JVMPI_CallFrame &frame) {
     return true;
 }
 
-ofstream& LogWriter::getOut() {
-	if (size >= rotateSize) {
+ofstream & LogWriter::getOut() {
+	if (!fileName.empty() && size >= rotateSize) {
 		// rotate
 		file.close();
 		size = 0;
@@ -317,20 +320,19 @@ ofstream& LogWriter::getOut() {
 			// rename files: delete logN, rename logN-1 to logN; ...; delete log1, log to log1
 			char buff[1024];
 			if (i > 1) {
-				snprintf(buff, sizeof(buff), "%s.%d", fileName, i - 1);
+				snprintf(buff, sizeof(buff), "%s.%d", fileName.c_str(), i - 1);
 			} else {
-				snprintf(buff, sizeof(buff), "%s", fileName);
+				snprintf(buff, sizeof(buff), "%s", fileName.c_str());
 			}
 
 			char buff_target[1024];
-			snprintf(buff_target, sizeof(buff_target), "%s.%d", fileName, i);
+			snprintf(buff_target, sizeof(buff_target), "%s.%d", fileName.c_str(), i);
 
 			std::remove(buff_target);
 			std::rename(buff, buff_target);
 		}
 		// recreate log
 		file = std::ofstream(fileName, std::ofstream::out | std::ofstream::binary);
-	} else {
-		return file;
 	}
+	return file;
 }
