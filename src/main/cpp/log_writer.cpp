@@ -30,8 +30,13 @@ LogWriter::LogWriter(std::string &fileName, int rotateNum, int rotateSizeMB, jvm
     }
 }
 
-LogWriter::LogWriter(ostream &output, GetFrameInformation frameLookup, jvmtiEnv *jvmti) :
-    file(), output_(output), frameInfoFoo(frameLookup), jvmti_(jvmti) {
+LogWriter::LogWriter(ostream &output, int rotateNum, int rotateSizeMB, GetFrameInformation frameLookup, jvmtiEnv *jvmti) :
+    file(),
+	output_(output),
+	rotateNum(rotateNum),
+	rotateSize(rotateSizeMB * 1024 * 1024),
+	frameInfoFoo(frameLookup),
+	jvmti_(jvmti) {
     // Old interface for backward compatibility and testing purposes
 }
 
