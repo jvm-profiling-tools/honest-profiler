@@ -3,8 +3,6 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include "concurrent_map.h"
-#include "globals.h"
 
 using std::copy;
 
@@ -21,21 +19,22 @@ LogWriter::LogWriter(std::string &fileName, int rotateNum, int rotateSizeMB, jvm
 	rotateNum(rotateNum),
 	rotateSize(rotateSizeMB * 1024 * 1024),
 	size(0),
-    file(fileName, std::ofstream::out | std::ofstream::binary),
-	output_(this->file),
+    file(NULL),
+	output_(*this->file),
     frameInfoFoo(NULL), jvmti_(jvmti) {
+	file = new std::ofstream(fileName, std::ofstream::out | std::ofstream::binary);
     if (output_.fail()) {
         // The JVM will still continue to run though; could call abort() to terminate the JVM abnormally.
         logError("ERROR: Failed to open file %s for writing\n", fileName.c_str());
     }
 }
 
-LogWriter::LogWriter(ofstream &output, int rotateNum, int rotateSizeMB, GetFrameInformation frameLookup, jvmtiEnv *jvmti) :
+LogWriter::LogWriter(ostream &output, int rotateNum, int rotateSizeMB, GetFrameInformation frameLookup, jvmtiEnv *jvmti) :
 	fileName(),
 	rotateNum(rotateNum),
 	rotateSize(rotateSizeMB * 1024 * 1024),
 	size(0),
-    file(),
+    file(NULL),
 	output_(output),
 	frameInfoFoo(frameLookup),
 	jvmti_(jvmti) {
@@ -43,7 +42,7 @@ LogWriter::LogWriter(ofstream &output, int rotateNum, int rotateSizeMB, GetFrame
 }
 
 template<typename T>
-void LogWriter::writeValue(ofstream & fout, const T &value) {
+void LogWriter::writeValue(ostream & fout, const T &value) {
     if (IS_LITTLE_ENDIAN) {
         const char *data = reinterpret_cast<const char *>(&value);
         for (int i = sizeof(value) - 1; i >= 0; i--) {
@@ -119,7 +118,7 @@ void LogWriter::record(const JVMPI_CallTrace &trace, ThreadBucketPtr info) {
 }
 
 void LogWriter::record(const timespec &ts, const JVMPI_CallTrace &trace, ThreadBucketPtr info) {
-	ofstream & fout = getOut();
+	ostream & fout = getOut();
     recordTraceStart(fout, trace.num_frames, (map::HashType)trace.env_id, ts, info);
 
     for (int i = 0; i < trace.num_frames; i++) {
@@ -139,7 +138,7 @@ void LogWriter::record(const timespec &ts, const JVMPI_CallTrace &trace, ThreadB
     }
 }
 
-void LogWriter::inspectMethod(ofstream & fout, const method_id methodId, const JVMPI_CallFrame &frame) {
+void LogWriter::inspectMethod(ostream & fout, const method_id methodId, const JVMPI_CallFrame &frame) {
     if (knownMethods.count(methodId) > 0) {
         return;
     }
@@ -153,7 +152,7 @@ void LogWriter::inspectMethod(ofstream & fout, const method_id methodId, const J
     }
 }
 
-void LogWriter::inspectThread(ofstream & fout, map::HashType &threadId, ThreadBucketPtr& info) {
+void LogWriter::inspectThread(ostream & fout, map::HashType &threadId, ThreadBucketPtr& info) {
     std::string threadName;
 
     if (info.defined()) {
@@ -174,7 +173,7 @@ void LogWriter::inspectThread(ofstream & fout, map::HashType &threadId, ThreadBu
     fout.flush();
 }
 
-void LogWriter::recordTraceStart(ofstream & fout, const jint numFrames, map::HashType envHash, ThreadBucketPtr& info) {
+void LogWriter::recordTraceStart(ostream & fout, const jint numFrames, map::HashType envHash, ThreadBucketPtr& info) {
     map::HashType threadId = -envHash;
 
     inspectThread(fout, threadId, info);
@@ -186,7 +185,7 @@ void LogWriter::recordTraceStart(ofstream & fout, const jint numFrames, map::Has
     fout.flush();
 }
 
-void LogWriter::recordTraceStart(ofstream & fout, const jint numFrames, map::HashType envHash, const timespec &ts, ThreadBucketPtr& info) {
+void LogWriter::recordTraceStart(ostream & fout, const jint numFrames, map::HashType envHash, const timespec &ts, ThreadBucketPtr& info) {
     map::HashType threadId = -envHash; // mark unrecognized threads with negative id's
     
     inspectThread(fout, threadId, info);
@@ -200,7 +199,7 @@ void LogWriter::recordTraceStart(ofstream & fout, const jint numFrames, map::Has
     fout.flush();
 }
 
-void LogWriter::recordFrame(ofstream &fout, const jint bci, const jint lineNumber, const method_id methodId) {
+void LogWriter::recordFrame(ostream & fout, const jint bci, const jint lineNumber, const method_id methodId) {
     fout.put(FRAME_FULL);
     size+=8;
     writeValue(fout, bci);
@@ -210,7 +209,7 @@ void LogWriter::recordFrame(ofstream &fout, const jint bci, const jint lineNumbe
 }
 
 // kept for old format tests
-void LogWriter::recordFrame(ofstream &fout, const jint bci, const method_id methodId) {
+void LogWriter::recordFrame(ostream & fout, const jint bci, const method_id methodId) {
     fout.put(FRAME_BCI_ONLY);
     size+=8;
     writeValue(fout, bci);
@@ -218,7 +217,7 @@ void LogWriter::recordFrame(ofstream &fout, const jint bci, const method_id meth
     fout.flush();
 }
 
-void LogWriter::writeWithSize(ofstream &fout, const char *value) {
+void LogWriter::writeWithSize(ostream & fout, const char *value) {
     jint size = (jint) strlen(value);
     writeValue(fout, size);
     fout.write(value, size);
@@ -227,7 +226,7 @@ void LogWriter::writeWithSize(ofstream &fout, const char *value) {
 
 void LogWriter::recordNewMethod(const map::HashType methodId, const char *fileName,
         const char *className, const char *methodName) {
-	ofstream & fout = getOut();
+	ostream & fout = getOut();
     fout.put(NEW_METHOD);
     size+=8;
     writeValue(fout, methodId);
@@ -240,7 +239,7 @@ void LogWriter::recordNewMethod(const map::HashType methodId, const char *fileNa
 void LogWriter::recordNewMethod(const map::HashType methodId, const char *fileName, 
     const char *className, const char *genericClassName, 
     const char *methodName, const char *methodSignature, const char *genericMethodSignature) {
-	ofstream & fout = getOut();
+	ostream & fout = getOut();
     fout.put(NEW_METHOD_SIGNATURE);
     size+=8;
     writeValue(fout, methodId);
@@ -311,10 +310,11 @@ bool LogWriter::lookupFrameInformation(const JVMPI_CallFrame &frame) {
     return true;
 }
 
-ofstream & LogWriter::getOut() {
+ostream& LogWriter::getOut() {
 	if (!fileName.empty() && size >= rotateSize) {
 		// rotate
-		file.close();
+		file->close();
+		file = NULL;
 		size = 0;
 		for (int i = rotateNum; i > 0; --i) {
 			// rename files: delete logN, rename logN-1 to logN; ...; delete log1, log to log1
@@ -332,7 +332,9 @@ ofstream & LogWriter::getOut() {
 			std::rename(buff, buff_target);
 		}
 		// recreate log
-		file = std::ofstream(fileName, std::ofstream::out | std::ofstream::binary);
+		file = new std::ofstream(fileName, std::ofstream::out | std::ofstream::binary);
+		return *file;
+	} else {
+		return output_;
 	}
-	return file;
 }

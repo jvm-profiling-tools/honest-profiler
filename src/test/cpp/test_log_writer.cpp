@@ -1,12 +1,16 @@
+#include <stddef.h>
+#include <sys/_types/_timespec.h>
 #include <iostream>
-#include <fstream>
 #include <limits>
 #include <memory>
 
-#include "fixtures.h"
-#include "ostreambuf.h"
-#include "test.h"
+#include "../../main/cpp/circular_queue.h"
+#include "../../main/cpp/concurrent_map.h"
+#include "../../main/cpp/globals.h"
 #include "../../main/cpp/log_writer.h"
+#include "../../main/cpp/stacktraces.h"
+#include "../../main/cpp/thread_map.h"
+#include "ostreambuf.h"
 
 using std::ostream;
 using std::ofstream;
@@ -26,7 +30,7 @@ bool stubFrameInformation(const JVMPI_CallFrame &frame, MethodListener &listener
   char buffer[100] = {};                                                       \
   ostreambuf<char> outputBuffer(buffer, sizeof(buffer));                       \
   ostream output(&outputBuffer);                                               \
-  LogWriter logWriter(output, &stubFrameInformation, NULL);                    \
+  LogWriter logWriter(output, 5, 5, &stubFrameInformation, NULL);                    \
   CircularQueue *queue = new CircularQueue(logWriter, DEFAULT_MAX_FRAMES_TO_CAPTURE);  
 
 #define done() delete queue;
@@ -37,7 +41,7 @@ TEST(RecordsStartOfStackTrace) {
   timespec tspec = {44, 55};
   ThreadBucketPtr tptr(threadInfo.get(), false);
 
-  logWriter.recordTraceStart(2, 3, tspec, tptr);
+  logWriter.recordTraceStart(output, 2, 3, tspec, tptr);
   int cnt = 0; 
 
   CHECK_EQUAL(THREAD_META, buffer[cnt]);
@@ -64,7 +68,7 @@ TEST(SupportsHighThreadId) {
   // LONG_MAX
   long bigNumber = std::numeric_limits<long>::max();
   ThreadBucketPtr tBuck(nullptr);
-  logWriter.recordTraceStart(2, (map::HashType)bigNumber, tspec, tBuck);
+  logWriter.recordTraceStart(output, 2, (map::HashType)bigNumber, tspec, tBuck);
 
   CHECK_EQUAL(THREAD_META, buffer[0]);
   CHECK_EQUAL(0, buffer[12]);
@@ -78,7 +82,7 @@ TEST(SupportsHighThreadId) {
 TEST(RecordsStackFrames) {
   givenLogWriter();
 
-  logWriter.recordFrame(5, 6);
+  logWriter.recordFrame(output, 5, 6);
   CHECK_EQUAL(FRAME_BCI_ONLY, buffer[0]);
   CHECK_EQUAL(5, buffer[4]);
   CHECK_EQUAL(0, buffer[3]);
@@ -186,7 +190,7 @@ TEST(DumpTestFile) {
   givenStackTrace();
 
   ofstream output("dump.hpl", ofstream::out | ofstream::binary);
-  LogWriter logWriter(output, &dumpStubFrameInformation, NULL);
+  LogWriter logWriter(output, 5, 5, &dumpStubFrameInformation, NULL);
 
   logWriter.record(trace);
   logWriter.record(trace);

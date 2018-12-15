@@ -51,4 +51,4 @@ Testing
 src/main/cpp/CMakeLists.txt
 src/main/cpp/cmake-build-debug/
 
-src/main/cpp/src/
+# src/main/cpp/src/
