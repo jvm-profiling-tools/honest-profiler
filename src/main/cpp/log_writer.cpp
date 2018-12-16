@@ -20,9 +20,10 @@ LogWriter::LogWriter(std::string &fileName, int rotateNum, int rotateSizeMB, jvm
 	rotateSize(rotateSizeMB * 1024 * 1024),
 	size(0),
     file(NULL),
-	output_(*this->file),
+	output_(NULL),
     frameInfoFoo(NULL), jvmti_(jvmti) {
 	file = new std::ofstream(fileName, std::ofstream::out | std::ofstream::binary);
+	output_ = *this->file;
     if (output_.fail()) {
         // The JVM will still continue to run though; could call abort() to terminate the JVM abnormally.
         logError("ERROR: Failed to open file %s for writing\n", fileName.c_str());
