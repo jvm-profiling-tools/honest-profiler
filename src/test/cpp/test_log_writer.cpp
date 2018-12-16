@@ -1,14 +1,12 @@
 #include <stddef.h>
 #include <iostream>
+#include <fstream>
 #include <limits>
 #include <memory>
 
-#include "../../main/cpp/circular_queue.h"
-#include "../../main/cpp/concurrent_map.h"
-#include "../../main/cpp/globals.h"
+#include "test.h"
+#include "fixtures.h"
 #include "../../main/cpp/log_writer.h"
-#include "../../main/cpp/stacktraces.h"
-#include "../../main/cpp/thread_map.h"
 #include "ostreambuf.h"
 
 using std::ostream;
@@ -29,7 +27,7 @@ bool stubFrameInformation(const JVMPI_CallFrame &frame, MethodListener &listener
   char buffer[100] = {};                                                       \
   ostreambuf<char> outputBuffer(buffer, sizeof(buffer));                       \
   ostream output(&outputBuffer);                                               \
-  LogWriter logWriter(output, 5, 5, &stubFrameInformation, NULL);                    \
+  LogWriter logWriter(output, 5, 5, &stubFrameInformation, NULL);              \
   CircularQueue *queue = new CircularQueue(logWriter, DEFAULT_MAX_FRAMES_TO_CAPTURE);  
 
 #define done() delete queue;
