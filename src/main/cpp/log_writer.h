@@ -90,7 +90,7 @@ private:
     int size;
 
     ofstream* file;
-    ostream& output_;
+    ostream* output_;
     GetFrameInformation frameInfoFoo; 
 
     jvmtiEnv *const jvmti_;
