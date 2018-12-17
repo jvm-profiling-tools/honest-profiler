@@ -330,17 +330,17 @@ ostream& LogWriter::getOut() {
 			char buff_target[1024];
 			snprintf(buff_target, sizeof(buff_target), "%s.%d", fileName.c_str(), i);
 
-			printf("remove target %s ", buff_target);
+			printf("remove target %s \n", buff_target);
 			std::remove(buff_target);
 			std::rename(buff, buff_target);
-			printf("rename from %s to target %s ", buff, buff_target);
+			printf("rename from %s to target %s \n", buff, buff_target);
 		}
 		printf("rotating file end <<< ");
 		// recreate log
 		file = new std::ofstream(fileName, std::ofstream::out | std::ofstream::binary);
 		return *file;
 	} else {
-		printf("rotateSize: %d, rotateNum: %d, current size: %d", rotateSize, rotateNum, size);
+		printf("rotateSize: %d, rotateNum: %d, current size: %d\n", rotateSize, rotateNum, size);
 		return *output_;
 	}
 }
