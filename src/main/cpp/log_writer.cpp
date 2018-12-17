@@ -222,7 +222,7 @@ void LogWriter::writeWithSize(ostream & fout, const char *value) {
     jint size = (jint) strlen(value);
     writeValue(fout, size);
     fout.write(value, size);
-    this->size=+size;
+    this->size=+4;
 }
 
 void LogWriter::recordNewMethod(const map::HashType methodId, const char *fileName,
