@@ -317,6 +317,7 @@ ostream& LogWriter::getOut() {
 		file->close();
 		file = NULL;
 		size = 0;
+		printf("rotating file start >>> ");
 		for (int i = rotateNum; i > 0; --i) {
 			// rename files: delete logN, rename logN-1 to logN; ...; delete log1, log to log1
 			char buff[1024];
@@ -325,17 +326,20 @@ ostream& LogWriter::getOut() {
 			} else {
 				snprintf(buff, sizeof(buff), "%s", fileName.c_str());
 			}
-
 			char buff_target[1024];
 			snprintf(buff_target, sizeof(buff_target), "%s.%d", fileName.c_str(), i);
 
+			printf("remove target %s ", buff_target);
 			std::remove(buff_target);
 			std::rename(buff, buff_target);
+			printf("rename from %s to target %s ", buff, buff_target);
 		}
+		printf("rotating file end <<< ");
 		// recreate log
 		file = new std::ofstream(fileName, std::ofstream::out | std::ofstream::binary);
 		return *file;
 	} else {
+		printf("rotateSize: %d, rotateNum: %d, current size: %d", rotateSize, rotateNum, size);
 		return *output_;
 	}
 }
