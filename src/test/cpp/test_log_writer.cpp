@@ -192,3 +192,19 @@ TEST(DumpTestFile) {
   logWriter.record(trace);
   logWriter.record(trace);
 }
+
+TEST(FileRotation) {
+	givenStackTrace();
+	ofstream output("dump-rotate.hpl", ofstream::out | ofstream::binary);
+	LogWriter logWriter(output, 3, 1, &dumpStubFrameInformation, NULL);
+
+	// write 1M times, which must exceeds 1M log rotation size
+	for (int i = 0; i < 1024*1024; i++) {
+		logWriter.record(trace);
+	}
+	// Now verify the rotated file exists, and it's readable by the log reader
+	std::ifstream infile("dump-rotate.hpl.1");
+	CHECK_EQUAL(0, infile.good());
+
+	done();
+}
