@@ -206,5 +206,4 @@ TEST(FileRotation) {
 	std::ifstream infile("dump-rotate.hpl.1");
 	CHECK_EQUAL(0, infile.good());
 
-	done();
 }
