@@ -2,7 +2,8 @@
 
 #include <cstdio>
 #include <cstdlib>
-
+#include <thread>
+#include <iostream>
 
 using std::copy;
 
@@ -168,7 +169,7 @@ void LogWriter::inspectThread(ostream & fout, map::HashType &threadId, ThreadBuc
     knownThreads.insert(threadId);
 
     fout.put(THREAD_META);
-    size+=8;
+    size++;
     writeValue(fout, threadId);
     writeWithSize(fout, threadName.c_str());
     fout.flush();
@@ -180,7 +181,7 @@ void LogWriter::recordTraceStart(ostream & fout, const jint numFrames, map::Hash
     inspectThread(fout, threadId, info);
 
     fout.put(TRACE_START);
-    size+=8;
+    size++;
     writeValue(fout, numFrames);
     writeValue(fout, threadId);
     fout.flush();
@@ -192,7 +193,7 @@ void LogWriter::recordTraceStart(ostream & fout, const jint numFrames, map::Hash
     inspectThread(fout, threadId, info);
 
     fout.put(TRACE_WITH_TIME);
-    size+=8;
+    size++;
     writeValue(fout, numFrames);
     writeValue(fout, threadId);
     writeValue(fout, (int64_t)ts.tv_sec);
@@ -202,7 +203,7 @@ void LogWriter::recordTraceStart(ostream & fout, const jint numFrames, map::Hash
 
 void LogWriter::recordFrame(ostream & fout, const jint bci, const jint lineNumber, const method_id methodId) {
     fout.put(FRAME_FULL);
-    size+=8;
+    size++;
     writeValue(fout, bci);
     writeValue(fout, lineNumber);
     writeValue(fout, methodId);
@@ -212,7 +213,7 @@ void LogWriter::recordFrame(ostream & fout, const jint bci, const jint lineNumbe
 // kept for old format tests
 void LogWriter::recordFrame(ostream & fout, const jint bci, const method_id methodId) {
     fout.put(FRAME_BCI_ONLY);
-    size+=8;
+    size++;
     writeValue(fout, bci);
     writeValue(fout, methodId);
     fout.flush();
@@ -222,14 +223,14 @@ void LogWriter::writeWithSize(ostream & fout, const char *value) {
     jint size = (jint) strlen(value);
     writeValue(fout, size);
     fout.write(value, size);
-    this->size=+4;
+    this->size+=4;
 }
 
 void LogWriter::recordNewMethod(const map::HashType methodId, const char *fileName,
         const char *className, const char *methodName) {
 	ostream & fout = getOut();
     fout.put(NEW_METHOD);
-    size+=8;
+    size++;
     writeValue(fout, methodId);
     writeWithSize(fout, fileName);
     writeWithSize(fout, className);
@@ -242,7 +243,7 @@ void LogWriter::recordNewMethod(const map::HashType methodId, const char *fileNa
     const char *methodName, const char *methodSignature, const char *genericMethodSignature) {
 	ostream & fout = getOut();
     fout.put(NEW_METHOD_SIGNATURE);
-    size+=8;
+    size++;
     writeValue(fout, methodId);
     writeWithSize(fout, fileName);
     writeWithSize(fout, className);
@@ -312,13 +313,14 @@ bool LogWriter::lookupFrameInformation(const JVMPI_CallFrame &frame) {
 }
 
 ostream& LogWriter::getOut() {
+	std::thread::id this_id = std::this_thread::get_id();
 	if (!fileName.empty() && size >= rotateSize) {
 		// rotate
 		file->close();
 		delete file;
 		file = NULL;
 		size = 0;
-		printf("rotating file start >>> ");
+		std::cout <<" threadId: " << this_id << " rotating file start >>> \n";
 		for (int i = rotateNum; i > 0; --i) {
 			// rename files: delete logN, rename logN-1 to logN; ...; delete log1, log to log1
 			char buff[1024];
@@ -330,17 +332,18 @@ ostream& LogWriter::getOut() {
 			char buff_target[1024];
 			snprintf(buff_target, sizeof(buff_target), "%s.%d", fileName.c_str(), i);
 
-			printf("remove target %s \n", buff_target);
+			std::cout <<" threadId: " << this_id << " remove target " << buff_target << " \n";
 			std::remove(buff_target);
 			std::rename(buff, buff_target);
-			printf("rename from %s to target %s \n", buff, buff_target);
+			std::cout <<" threadId: " << this_id << " rename from " << buff << " to " <<  buff_target << " \n";
 		}
-		printf("rotating file end <<< ");
+		std::cout <<" threadId: " << "rotating file end <<< \n";
 		// recreate log
 		file = new std::ofstream(fileName, std::ofstream::out | std::ofstream::binary);
 		return *file;
 	} else {
-		printf("rotateSize: %d, rotateNum: %d, current size: %d\n", rotateSize, rotateNum, size);
+		std::cout <<" threadId: " << "rotateSize: " << rotateSize <<
+				", rotateNum: " << rotateNum << " current size: " << size << "\n";
 		return *output_;
 	}
 }
