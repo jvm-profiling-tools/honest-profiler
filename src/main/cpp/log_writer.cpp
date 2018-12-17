@@ -315,6 +315,7 @@ ostream& LogWriter::getOut() {
 	if (!fileName.empty() && size >= rotateSize) {
 		// rotate
 		file->close();
+		delete file;
 		file = NULL;
 		size = 0;
 		printf("rotating file start >>> ");
