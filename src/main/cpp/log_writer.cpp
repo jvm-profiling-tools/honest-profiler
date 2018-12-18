@@ -320,7 +320,7 @@ ostream& LogWriter::getOut() {
 		delete file;
 		file = NULL;
 		size = 0;
-		std::cout <<" threadId: " << this_id << " rotating file start >>> \n";
+		// std::cout <<" threadId: " << this_id << " rotating file start >>> \n";
 		for (int i = rotateNum; i > 0; --i) {
 			// rename files: delete logN, rename logN-1 to logN; ...; delete log1, log to log1
 			char buff[1024];
@@ -332,18 +332,18 @@ ostream& LogWriter::getOut() {
 			char buff_target[1024];
 			snprintf(buff_target, sizeof(buff_target), "%s.%d", fileName.c_str(), i);
 
-			std::cout <<" threadId: " << this_id << " remove target " << buff_target << " \n";
+			// std::cout <<" threadId: " << this_id << " remove target " << buff_target << " \n";
 			std::remove(buff_target);
 			std::rename(buff, buff_target);
-			std::cout <<" threadId: " << this_id << " rename from " << buff << " to " <<  buff_target << " \n";
+			// std::cout <<" threadId: " << this_id << " rename from " << buff << " to " <<  buff_target << " \n";
 		}
-		std::cout <<" threadId: " << "rotating file end <<< \n";
+		// std::cout <<" threadId: " << "rotating file end <<< \n";
 		// recreate log
 		file = new std::ofstream(fileName, std::ofstream::out | std::ofstream::binary);
 		return *file;
 	} else {
-		std::cout <<" threadId: " << "rotateSize: " << rotateSize <<
-				", rotateNum: " << rotateNum << " current size: " << size << "\n";
+		// std::cout <<" threadId: " << "rotateSize: " << rotateSize <<
+		//		", rotateNum: " << rotateNum << " current size: " << size << "\n";
 		return *output_;
 	}
 }
