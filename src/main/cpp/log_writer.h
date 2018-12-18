@@ -83,6 +83,8 @@ public:
             const char *className, const char *genericClassName, 
             const char *methodName, const char *methodSignature, const char *genericMethodSignature);
 
+    virtual ~LogWriter();
+
 private:
     std::string fileName;
     int rotateNum;

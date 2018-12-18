@@ -313,7 +313,7 @@ bool LogWriter::lookupFrameInformation(const JVMPI_CallFrame &frame) {
 }
 
 ostream& LogWriter::getOut() {
-	std::thread::id this_id = std::this_thread::get_id();
+	// std::thread::id this_id = std::this_thread::get_id();
 	if (!fileName.empty() && size >= rotateSize) {
 		// rotate
 		file->close();
@@ -345,5 +345,13 @@ ostream& LogWriter::getOut() {
 		// std::cout <<" threadId: " << "rotateSize: " << rotateSize <<
 		//		", rotateNum: " << rotateNum << " current size: " << size << "\n";
 		return *output_;
+	}
+}
+
+LogWriter::~LogWriter() {
+	if (file != NULL) {
+		file->close();
+		delete file;
+		file = NULL;
 	}
 }
