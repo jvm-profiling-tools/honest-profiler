@@ -340,7 +340,8 @@ ostream& LogWriter::getOut() {
 		// std::cout <<" threadId: " << "rotating file end <<< \n";
 		// recreate log
 		file = new std::ofstream(fileName, std::ofstream::out | std::ofstream::binary);
-		return *file;
+		output_ = file;
+		return *output_;
 	} else {
 		// std::cout <<" threadId: " << "rotateSize: " << rotateSize <<
 		//		", rotateNum: " << rotateNum << " current size: " << size << "\n";
