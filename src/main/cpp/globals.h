@@ -54,8 +54,8 @@ struct ConfigurationOptions {
     ConfigurationOptions() :
             samplingIntervalMin(DEFAULT_SAMPLING_INTERVAL),
             samplingIntervalMax(DEFAULT_SAMPLING_INTERVAL),
-			rotateNum(DEFAULT_ROTATE_NUM),
-			rotateSizeMB(DEFAULT_ROTATE_SIZE_MB),
+            rotateNum(DEFAULT_ROTATE_NUM),
+            rotateSizeMB(DEFAULT_ROTATE_SIZE_MB),
             logFilePath(""),
             host(""),
             port(""),
@@ -66,8 +66,8 @@ struct ConfigurationOptions {
     ConfigurationOptions(const ConfigurationOptions &config) :
             samplingIntervalMin(config.samplingIntervalMin),
             samplingIntervalMax(config.samplingIntervalMax),
-			rotateNum(config.rotateNum),
-			rotateSizeMB(config.rotateSizeMB),
+            rotateNum(config.rotateNum),
+            rotateSizeMB(config.rotateSizeMB),
             logFilePath(config.logFilePath),
             host(config.host),
             port(config.port),

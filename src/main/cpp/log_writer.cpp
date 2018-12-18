@@ -16,15 +16,15 @@ bool isLittleEndian() {
 static bool IS_LITTLE_ENDIAN = isLittleEndian();
 
 LogWriter::LogWriter(std::string &fileName, int rotateNum, int rotateSizeMB, jvmtiEnv *jvmti) :
-	fileName(fileName),
-	rotateNum(rotateNum),
-	rotateSize(rotateSizeMB * 1024 * 1024),
-	size(0),
+    fileName(fileName),
+    rotateNum(rotateNum),
+    rotateSize(rotateSizeMB * 1024 * 1024),
+    size(0),
     file(NULL),
-	output_(NULL),
+    output_(NULL),
     frameInfoFoo(NULL), jvmti_(jvmti) {
-	file = new std::ofstream(fileName, std::ofstream::out | std::ofstream::binary);
-	output_ = this->file;
+    file = new std::ofstream(fileName, std::ofstream::out | std::ofstream::binary);
+    output_ = this->file;
     if (output_->fail()) {
         // The JVM will still continue to run though; could call abort() to terminate the JVM abnormally.
         logError("ERROR: Failed to open file %s for writing\n", fileName.c_str());
@@ -32,14 +32,14 @@ LogWriter::LogWriter(std::string &fileName, int rotateNum, int rotateSizeMB, jvm
 }
 
 LogWriter::LogWriter(ostream &output, int rotateNum, int rotateSizeMB, GetFrameInformation frameLookup, jvmtiEnv *jvmti) :
-	fileName(),
-	rotateNum(rotateNum),
-	rotateSize(rotateSizeMB * 1024 * 1024),
-	size(0),
+    fileName(),
+    rotateNum(rotateNum),
+    rotateSize(rotateSizeMB * 1024 * 1024),
+    size(0),
     file(NULL),
-	output_(&output),
-	frameInfoFoo(frameLookup),
-	jvmti_(jvmti) {
+    output_(&output),
+    frameInfoFoo(frameLookup),
+    jvmti_(jvmti) {
     // Old interface for backward compatibility and testing purposes
 }
 
@@ -48,31 +48,31 @@ void LogWriter::writeValue(ostream & fout, const T &value) {
     if (IS_LITTLE_ENDIAN) {
         const char *data = reinterpret_cast<const char *>(&value);
         for (int i = sizeof(value) - 1; i >= 0; i--) {
-        	fout.put(data[i]);
+            fout.put(data[i]);
         }
     } else {
-    	fout.write(reinterpret_cast<const char *>(&value), sizeof(value));
+        fout.write(reinterpret_cast<const char *>(&value), sizeof(value));
     }
     size += sizeof(value);
 }
 
 static jint bci2line(jint bci, jvmtiLineNumberEntry *table, jint entry_count) {
-	jint line_number = -101;
-	if ( entry_count == 0 ) {
-		return line_number;
-	}
-	line_number = -102;
+    jint line_number = -101;
+    if ( entry_count == 0 ) {
+        return line_number;
+    }
+    line_number = -102;
     // We're looking for a line whose 'start_location' is nearest AND >= BCI
-	// We assume the table is sorted by 'start_location'
+    // We assume the table is sorted by 'start_location'
     // Do a binary search to quickly approximate 'start_index" in table
-	int half = entry_count >> 1;
+    int half = entry_count >> 1;
     int start_index = 0;
     while ( half > 0 ) {
         jint start_location = table[start_index + half].start_location;
         if ( bci > start_location ) {
             start_index = start_index + half;
         } else if ( bci == start_location ) {
-        	// gotcha
+            // gotcha
             return table[start_index + half].line_number;
         }
         half = half >> 1;
@@ -80,13 +80,13 @@ static jint bci2line(jint bci, jvmtiLineNumberEntry *table, jint entry_count) {
 
     /* Now start the table search from approximated start_index */
     for (int i = start_index ; i < entry_count ; i++ ) {
-    	// start_location > BCI: means line starts after the BCI, we'll take the previous match
+        // start_location > BCI: means line starts after the BCI, we'll take the previous match
         if ( bci < table[i].start_location ) {
             break;
         }
         else if (bci == table[i].start_location) {
-        	// gotcha
-        	return table[i].line_number;
+            // gotcha
+            return table[i].line_number;
         }
         line_number = table[i].line_number;
     }
@@ -120,7 +120,7 @@ void LogWriter::record(const JVMPI_CallTrace &trace, ThreadBucketPtr info) {
 }
 
 void LogWriter::record(const timespec &ts, const JVMPI_CallTrace &trace, ThreadBucketPtr info) {
-	ostream & fout = getOut();
+    ostream & fout = getOut();
     recordTraceStart(fout, trace.num_frames, (map::HashType)trace.env_id, ts, info);
 
     for (int i = 0; i < trace.num_frames; i++) {
@@ -228,7 +228,7 @@ void LogWriter::writeWithSize(ostream & fout, const char *value) {
 
 void LogWriter::recordNewMethod(const map::HashType methodId, const char *fileName,
         const char *className, const char *methodName) {
-	ostream & fout = getOut();
+    ostream & fout = getOut();
     fout.put(NEW_METHOD);
     size++;
     writeValue(fout, methodId);
@@ -241,7 +241,7 @@ void LogWriter::recordNewMethod(const map::HashType methodId, const char *fileNa
 void LogWriter::recordNewMethod(const map::HashType methodId, const char *fileName, 
     const char *className, const char *genericClassName, 
     const char *methodName, const char *methodSignature, const char *genericMethodSignature) {
-	ostream & fout = getOut();
+    ostream & fout = getOut();
     fout.put(NEW_METHOD_SIGNATURE);
     size++;
     writeValue(fout, methodId);
@@ -313,46 +313,46 @@ bool LogWriter::lookupFrameInformation(const JVMPI_CallFrame &frame) {
 }
 
 ostream& LogWriter::getOut() {
-	// std::thread::id this_id = std::this_thread::get_id();
-	if (!fileName.empty() && size >= rotateSize) {
-		// rotate
-		file->close();
-		delete file;
-		file = NULL;
-		size = 0;
-		// std::cout <<" threadId: " << this_id << " rotating file start >>> \n";
-		for (int i = rotateNum; i > 0; --i) {
-			// rename files: delete logN, rename logN-1 to logN; ...; delete log1, log to log1
-			char buff[1024];
-			if (i > 1) {
-				snprintf(buff, sizeof(buff), "%s.%d", fileName.c_str(), i - 1);
-			} else {
-				snprintf(buff, sizeof(buff), "%s", fileName.c_str());
-			}
-			char buff_target[1024];
-			snprintf(buff_target, sizeof(buff_target), "%s.%d", fileName.c_str(), i);
+    // std::thread::id this_id = std::this_thread::get_id();
+    if (!fileName.empty() && size >= rotateSize) {
+        // rotate
+        file->close();
+        delete file;
+        file = NULL;
+        size = 0;
+        // std::cout <<" threadId: " << this_id << " rotating file start >>> \n";
+        for (int i = rotateNum; i > 0; --i) {
+            // rename files: delete logN, rename logN-1 to logN; ...; delete log1, log to log1
+            char buff[1024];
+            if (i > 1) {
+                snprintf(buff, sizeof(buff), "%s.%d", fileName.c_str(), i - 1);
+            } else {
+                snprintf(buff, sizeof(buff), "%s", fileName.c_str());
+            }
+            char buff_target[1024];
+            snprintf(buff_target, sizeof(buff_target), "%s.%d", fileName.c_str(), i);
 
-			// std::cout <<" threadId: " << this_id << " remove target " << buff_target << " \n";
-			std::remove(buff_target);
-			std::rename(buff, buff_target);
-			// std::cout <<" threadId: " << this_id << " rename from " << buff << " to " <<  buff_target << " \n";
-		}
-		// std::cout <<" threadId: " << "rotating file end <<< \n";
-		// recreate log
-		file = new std::ofstream(fileName, std::ofstream::out | std::ofstream::binary);
-		output_ = file;
-		return *output_;
-	} else {
-		// std::cout <<" threadId: " << "rotateSize: " << rotateSize <<
-		//		", rotateNum: " << rotateNum << " current size: " << size << "\n";
-		return *output_;
-	}
+            // std::cout <<" threadId: " << this_id << " remove target " << buff_target << " \n";
+            std::remove(buff_target);
+            std::rename(buff, buff_target);
+            // std::cout <<" threadId: " << this_id << " rename from " << buff << " to " <<  buff_target << " \n";
+        }
+        // std::cout <<" threadId: " << "rotating file end <<< \n";
+        // recreate log
+        file = new std::ofstream(fileName, std::ofstream::out | std::ofstream::binary);
+        output_ = file;
+        return *output_;
+    } else {
+        // std::cout <<" threadId: " << "rotateSize: " << rotateSize <<
+        //      ", rotateNum: " << rotateNum << " current size: " << size << "\n";
+        return *output_;
+    }
 }
 
 LogWriter::~LogWriter() {
-	if (file != NULL) {
-		file->close();
-		delete file;
-		file = NULL;
-	}
+    if (file != NULL) {
+        file->close();
+        delete file;
+        file = NULL;
+    }
 }
