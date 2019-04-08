@@ -34,7 +34,9 @@ import com.insightfullogic.honest_profiler.core.profiles.lean.LeanNode;
 import com.insightfullogic.honest_profiler.core.profiles.lean.info.MethodInfo;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 
+import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.paint.Color;
 
 /**
@@ -96,16 +98,28 @@ public class FlameDiffViewCanvas extends AbstractFlameCanvas<TreeDiff, DiffNode>
         // .flatMap(node -> node.getAggregatedNodes().stream())
         // .mapToLong(node -> node.getData().getTotalCnt()).sum();
 
+        final ScrollPane sp = getScrollPane();
+        final Bounds viewport = sp.getViewportBounds();
+        // viewport.[width|height] probably get updated asynchronously after we have set prefSize in the caller
+        // so we have cannot simply use viewport.[getWidth()|getHeight()].
+        // But the difference (sp.getWidth() - viewport.getWidth()) (actually equal to scroll bar width plus some
+        // other things) should be invariant and we can thus use it to compute the not yet set viewport size.
+        final double viewportWidth = sp.getPrefWidth() - (sp.getWidth() - viewport.getWidth());
+        final double viewportHeight = sp.getPrefHeight() - (sp.getHeight() - viewport.getHeight());
+
         // Any frame will be represented with its width proportional to its total sample count divided by the profile
         // total sample count
-        double colWidth = getWidth() / nrSamples;
+        double colWidth = viewportWidth / nrSamples;
 
         // Nr Rows = max depth of a stack. The root Node represents all threads, but since the descendant depth of a
         // Node without children is defined as 0, this works out fine.
         int nrRows = tree.getData().stream().mapToInt(DiffNode::getDescendantDepth).max().getAsInt()
             + 1;
 
-        double rowHeight = max(getHeight() / nrRows, ctx.getFont().getSize() + 2);
+        double rowHeight = max(viewportHeight / nrRows, ctx.getFont().getSize() + 2);
+
+        setWidth((int)viewportWidth);
+        setHeight((int) (rowHeight * nrRows));
 
         double startX = 0;
         double startY = getHeight() - rowHeight;

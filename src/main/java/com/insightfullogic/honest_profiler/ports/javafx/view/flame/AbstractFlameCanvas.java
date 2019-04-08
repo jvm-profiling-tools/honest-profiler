@@ -21,6 +21,7 @@ import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
@@ -51,6 +52,7 @@ public abstract class AbstractFlameCanvas<T, U extends Keyed<String> & Parent<U>
     private ApplicationContext appCtx;
     private List<FlameBlock<U>> flameBlocks;
     private Tooltip tooltip;
+    private final ScrollPane scrollPane;
 
     // Instance COnstructors
 
@@ -65,6 +67,13 @@ public abstract class AbstractFlameCanvas<T, U extends Keyed<String> & Parent<U>
 
         this.flameBlocks = new ArrayList<>();
         this.tooltip = new Tooltip();
+
+        final ScrollPane sp = new ScrollPane();
+        sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        sp.setFitToWidth(true);
+        sp.setContent(this);
+        this.scrollPane = sp;
 
         setOnMouseMoved(this::displayMethodName);
     }
@@ -98,6 +107,11 @@ public abstract class AbstractFlameCanvas<T, U extends Keyed<String> & Parent<U>
      * @param tree the {@link Tree} or {@link TreeDiff} to be rendered
      */
     public abstract void render(T tree);
+
+    public ScrollPane getScrollPane()
+    {
+        return scrollPane;
+    }
 
     /**
      * Returns the total sample count for the specified {@link Node} or {@link DiffNode}.

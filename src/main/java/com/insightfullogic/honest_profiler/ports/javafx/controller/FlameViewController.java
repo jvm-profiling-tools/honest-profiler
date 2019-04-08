@@ -86,7 +86,7 @@ public class FlameViewController extends AbstractProfileViewController<Tree, Nod
         super.setApplicationContext(applicationContext);
 
         flameCanvas = new FlameViewCanvas(applicationContext);
-        flameBox.getChildren().add(flameCanvas);
+        flameBox.getChildren().add(flameCanvas.getScrollPane());
     }
 
     @Override
@@ -111,8 +111,7 @@ public class FlameViewController extends AbstractProfileViewController<Tree, Nod
 
         if (tree != null)
         {
-            flameCanvas.setWidth(currentWidth);
-            flameCanvas.setHeight(currentHeight);
+            flameCanvas.getScrollPane().setPrefSize(currentWidth, currentHeight);
             flameCanvas.render(tree.filter(getFilterSpecification()));
         }
     }
