@@ -89,7 +89,7 @@ public class FlameDiffViewController extends AbstractProfileDiffViewController<T
         super.setApplicationContext(applicationContext);
 
         flameCanvas = new FlameDiffViewCanvas(applicationContext);
-        flameBox.getChildren().add(flameCanvas);
+        flameBox.getChildren().add(flameCanvas.getScrollPane());
     }
 
     @Override
@@ -156,8 +156,7 @@ public class FlameDiffViewController extends AbstractProfileDiffViewController<T
         {
             diff.set(baseTree, newTree);
 
-            flameCanvas.setWidth(currentWidth);
-            flameCanvas.setHeight(currentHeight);
+            flameCanvas.getScrollPane().setPrefSize(currentWidth, currentHeight);
             flameCanvas.render(diff.filter(getFilterSpecification()));
         }
     }
