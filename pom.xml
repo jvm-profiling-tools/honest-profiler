@@ -151,6 +151,7 @@
 			    <version>2.19.1</version>
 			    <configuration>
 			    	<argLine>-Duser.country=US -Duser.language=en -Dheadless=true</argLine>
+			    	<forkCount>1.5C</forkCount>
 			    </configuration>
 			</plugin>
         </plugins>
