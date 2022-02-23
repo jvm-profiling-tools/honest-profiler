@@ -1,6 +1,7 @@
 package com.insightfullogic.honest_profiler.ports.javafx.controller;
 
 import static com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext.ProfileMode.LOG;
+import static com.insightfullogic.honest_profiler.ports.javafx.model.configuration.Configuration.DEFAULT_CONFIGURATION;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.selectLogFile;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.showErrorDialog;
 import static com.insightfullogic.honest_profiler.ports.javafx.util.DialogUtil.showExceptionDialog;
@@ -35,6 +36,7 @@ import java.util.function.Consumer;
 import com.insightfullogic.honest_profiler.core.MachineListener;
 import com.insightfullogic.honest_profiler.core.sources.VirtualMachine;
 import com.insightfullogic.honest_profiler.ports.javafx.UserInterfaceConfigurationException;
+import com.insightfullogic.honest_profiler.ports.javafx.controller.configuration.ConfigurationDialogController;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ApplicationContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext;
 import com.insightfullogic.honest_profiler.ports.javafx.model.ProfileContext.ProfileMode;
@@ -68,6 +70,8 @@ public class RootController extends AbstractController implements MachineListene
     @FXML
     private MenuItem openLiveItem;
     @FXML
+    private MenuItem preferencesItem;
+    @FXML
     private MenuItem quitItem;
     @FXML
     private Menu monitorMenu;
@@ -75,6 +79,8 @@ public class RootController extends AbstractController implements MachineListene
     private TabPane profileTabs;
     @FXML
     private Label info;
+    @FXML
+    private ConfigurationDialogController configurationController;
 
     private LocalMachineSource machineSource;
 
@@ -94,6 +100,9 @@ public class RootController extends AbstractController implements MachineListene
         // Monitor running VMs on the local machine.
         machineSource = new LocalMachineSource(getLogger(getClass()), this);
         machineSource.start();
+
+        appCtx().setConfiguration(DEFAULT_CONFIGURATION);
+        configurationController.readConfiguration(DEFAULT_CONFIGURATION);
     }
 
     // MachineListener Implementation
@@ -367,6 +376,8 @@ public class RootController extends AbstractController implements MachineListene
     {
         openLogItem.setOnAction(event -> doWithFile(file -> createNewProfile(file, false)));
         openLiveItem.setOnAction(event -> doWithFile(file -> createNewProfile(file, true)));
+        preferencesItem.setOnAction(
+            event -> appCtx().setConfiguration(configurationController.showAndWait().get()));
         quitItem.setOnAction(event -> exit());
     }
 

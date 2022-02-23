@@ -237,7 +237,7 @@ public class TreeViewController extends AbstractProfileViewController<Tree, Node
         methodColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("key"));
 
         percentColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("totalCntPct"));
-        percentColumn.setCellFactory(param -> new GraphicalShareTreeTableCell());
+        percentColumn.setCellFactory(param -> new GraphicalShareTreeTableCell(appCtx()));
 
         // The column configuration methods should (for now) be called in the same order as the columns are declared in
         // the FXML.

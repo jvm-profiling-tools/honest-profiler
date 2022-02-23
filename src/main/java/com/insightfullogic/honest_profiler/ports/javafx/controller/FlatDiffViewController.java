@@ -253,7 +253,7 @@ public class FlatDiffViewController extends AbstractProfileDiffViewController<Fl
                 appCtx(),
                 exportButton.getScene().getWindow(),
                 "flat_diff_profile.csv",
-                out -> writeFlatProfileDiffCsv(out, diff.getData(), ReportUtil.Mode.CSV)
+                out -> writeFlatProfileDiffCsv(appCtx(), out, diff.getData(), ReportUtil.Mode.CSV)
             ));
     }
 

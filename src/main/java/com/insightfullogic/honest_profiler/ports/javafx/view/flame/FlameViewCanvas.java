@@ -21,7 +21,7 @@
  **/
 package com.insightfullogic.honest_profiler.ports.javafx.view.flame;
 
-import static com.insightfullogic.honest_profiler.ports.javafx.view.Rendering.renderPercentage;
+import static com.insightfullogic.honest_profiler.ports.javafx.util.RenderUtil.renderPercentage;
 import static java.lang.Math.max;
 
 import java.util.Map;

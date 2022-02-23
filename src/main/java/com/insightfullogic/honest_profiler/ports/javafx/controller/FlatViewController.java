@@ -208,7 +208,7 @@ public class FlatViewController extends AbstractProfileViewController<Flat, Entr
                 appCtx(),
                 exportButton.getScene().getWindow(),
                 "flat_profile.csv",
-                out -> writeFlatProfileCsv(out, flatProfile, ReportUtil.Mode.CSV)
+                out -> writeFlatProfileCsv(appCtx(), out, flatProfile, ReportUtil.Mode.CSV)
             ));
     }
 
@@ -241,7 +241,7 @@ public class FlatViewController extends AbstractProfileViewController<Flat, Entr
         method.setCellFactory(col -> new MethodNameTableCell<Entry>());
 
         selfTimeGraphical.setCellValueFactory(new PropertyValueFactory<>("selfCntPct"));
-        selfTimeGraphical.setCellFactory(col -> new GraphicalShareTableCell<>());
+        selfTimeGraphical.setCellFactory(col -> new GraphicalShareTableCell<>(appCtx()));
 
         // The column configuration methods should (for now) be called in the same order as the columns are declared in
         // the FXML.

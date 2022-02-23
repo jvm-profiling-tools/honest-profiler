@@ -1,6 +1,12 @@
 package com.insightfullogic.honest_profiler.ports.javafx.util;
 
+import static java.time.temporal.ChronoUnit.MICROS;
+import static java.time.temporal.ChronoUnit.MILLIS;
+import static java.time.temporal.ChronoUnit.NANOS;
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.EnumSet.allOf;
+
+import java.time.temporal.ChronoUnit;
 
 import javafx.util.StringConverter;
 
@@ -10,6 +16,9 @@ import javafx.util.StringConverter;
 public final class ConversionUtil
 {
     // Class Properties
+
+    private static final ChronoUnit[] UNITS =
+    { NANOS, MICROS, MILLIS, SECONDS };
 
     private static final long NS_TO_MS = 1000 * 1000;
 
@@ -23,6 +32,43 @@ public final class ConversionUtil
      * @return the number of milliseconds
      */
     public static final long toMillis(long nanos)
+    {
+        return nanos / NS_TO_MS;
+    }
+
+    /**
+     * Convert the specified number of nanoseconds to the corresponding amount expressed in the specified
+     * {@link ChronoUnit}.
+     * <p>
+     *
+     * @param unit the {@link ChronoUnit} to which the number of nanoseconds will be converted
+     * @param nanos the number of nanoseconds
+     * @return the duration value expressed in the specified {@link ChronoUnit}
+     */
+    public static final double convert(ChronoUnit unit, long nanos)
+    {
+        double result = nanos;
+        for (int i = 0; i < UNITS.length; i++)
+        {
+            if (UNITS[i] == unit)
+            {
+                return result;
+            }
+            result /= 1000;
+        }
+
+        return result;
+    }
+
+    /**
+     * Convert the specified number of nanoseconds to the corresponding amount expressed in the specified
+     * {@link ChronoUnit}, ignoring the fractional part of the result.
+     * <p>
+     * @param unit the {@link ChronoUnit} to which the number of nanoseconds will be converted
+     * @param nanos the number of nanoseconds
+     * @return the duration value expressed in the specified {@link ChronoUnit}
+     */
+    public static final long to(long nanos)
     {
         return nanos / NS_TO_MS;
     }

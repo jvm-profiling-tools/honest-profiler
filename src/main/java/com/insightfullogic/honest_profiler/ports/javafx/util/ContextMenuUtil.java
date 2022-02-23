@@ -183,7 +183,7 @@ public final class ContextMenuUtil
                     appCtx,
                     menu.getScene().getWindow(),
                     "stack_profile.txt",
-                    out -> writeStack(out, (Node)treeItem.getValue())
+                    out -> writeStack(appCtx, out, (Node)treeItem.getValue())
                 ));
         }
         return menu;
