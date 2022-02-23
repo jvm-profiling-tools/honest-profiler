@@ -1,11 +1,12 @@
 #include <jvmti.h>
-
-#include <unordered_set>
 #include <fstream>
+#include <unordered_set>
 
-#include "thread_map.h"
 #include "circular_queue.h"
+#include "concurrent_map.h"
+#include "globals.h"
 #include "stacktraces.h"
+#include "thread_map.h"
 
 #ifndef LOG_WRITER_H
 #define LOG_WRITER_H
@@ -51,23 +52,27 @@ const jint ERR_NO_LINE_FOUND= -101;
 class LogWriter : public QueueListener, public MethodListener {
 
 public:
-    explicit LogWriter(std::string &fileName, jvmtiEnv *jvmti);
+    explicit LogWriter(std::string &fileName, int rotateNum, int rotateSizeMB, jvmtiEnv *jvmti);
 
-    explicit LogWriter(ostream &output, GetFrameInformation frameLookup, jvmtiEnv *jvmti);
+    explicit LogWriter(ostream &output, int rotateNum, int rotateSizeMB, GetFrameInformation frameLookup, jvmtiEnv *jvmti);
 
     virtual void record(const timespec &ts, const JVMPI_CallTrace &trace, ThreadBucketPtr info = ThreadBucketPtr(nullptr));
 
     void record(const JVMPI_CallTrace &trace, ThreadBucketPtr info = ThreadBucketPtr(nullptr));
 
-    void recordTraceStart(const jint numFrames, map::HashType envHash, ThreadBucketPtr& info);
+    void inspectMethod(ostream& fout, const method_id methodId, const JVMPI_CallFrame &frame);
 
-    void recordTraceStart(const jint numFrames, map::HashType envHash, const timespec &ts, ThreadBucketPtr& info);
+    void inspectThread(ostream& fout, map::HashType &threadId, ThreadBucketPtr& info);
+
+    void recordTraceStart(ostream& fout, const jint numFrames, map::HashType envHash, ThreadBucketPtr& info);
+
+    void recordTraceStart(ostream& fout, const jint numFrames, map::HashType envHash, const timespec &ts, ThreadBucketPtr& info);
 
     // method are unique pointers, use a long to standardise
     // between 32 and 64 bits
-    void recordFrame(const jint bci, const jint lineNumber, method_id methodId);
+    void recordFrame(ostream& fout, const jint bci, const jint lineNumber, method_id methodId);
 
-    void recordFrame(const jint bci, method_id methodId);
+    void recordFrame(ostream& fout, const jint bci, method_id methodId);
 
     bool lookupFrameInformation(const JVMPI_CallFrame &frame);
 
@@ -78,9 +83,16 @@ public:
             const char *className, const char *genericClassName, 
             const char *methodName, const char *methodSignature, const char *genericMethodSignature);
 
+    virtual ~LogWriter();
+
 private:
-    ofstream file;
-    ostream& output_;
+    std::string fileName;
+    int rotateNum;
+    int rotateSize;
+    int size;
+
+    ofstream* file;
+    ostream* output_;
     GetFrameInformation frameInfoFoo; 
 
     jvmtiEnv *const jvmti_;
@@ -90,13 +102,12 @@ private:
     unordered_set<map::HashType> knownThreads;
 
     template<typename T>
-    void writeValue(const T &value);
+    void writeValue(ostream& fout, const T &value);
 
-    void writeWithSize(const char *value);
+    void writeWithSize(ostream& fout, const char *value);
 
-    void inspectMethod(const method_id methodId, const JVMPI_CallFrame &frame);
 
-    void inspectThread(map::HashType &threadId, ThreadBucketPtr& info);
+    ostream& getOut();
 
     jint getLineNo(jint bci, jmethodID methodId);
 

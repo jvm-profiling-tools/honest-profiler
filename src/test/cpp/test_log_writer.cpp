@@ -1,12 +1,13 @@
+#include <stddef.h>
 #include <iostream>
 #include <fstream>
 #include <limits>
 #include <memory>
 
-#include "fixtures.h"
-#include "ostreambuf.h"
 #include "test.h"
+#include "fixtures.h"
 #include "../../main/cpp/log_writer.h"
+#include "ostreambuf.h"
 
 using std::ostream;
 using std::ofstream;
@@ -26,7 +27,7 @@ bool stubFrameInformation(const JVMPI_CallFrame &frame, MethodListener &listener
   char buffer[100] = {};                                                       \
   ostreambuf<char> outputBuffer(buffer, sizeof(buffer));                       \
   ostream output(&outputBuffer);                                               \
-  LogWriter logWriter(output, &stubFrameInformation, NULL);                    \
+  LogWriter logWriter(output, 5, 5, &stubFrameInformation, NULL);              \
   CircularQueue *queue = new CircularQueue(logWriter, DEFAULT_MAX_FRAMES_TO_CAPTURE);  
 
 #define done() delete queue;
@@ -37,7 +38,7 @@ TEST(RecordsStartOfStackTrace) {
   timespec tspec = {44, 55};
   ThreadBucketPtr tptr(threadInfo.get(), false);
 
-  logWriter.recordTraceStart(2, 3, tspec, tptr);
+  logWriter.recordTraceStart(output, 2, 3, tspec, tptr);
   int cnt = 0; 
 
   CHECK_EQUAL(THREAD_META, buffer[cnt]);
@@ -64,7 +65,7 @@ TEST(SupportsHighThreadId) {
   // LONG_MAX
   long bigNumber = std::numeric_limits<long>::max();
   ThreadBucketPtr tBuck(nullptr);
-  logWriter.recordTraceStart(2, (map::HashType)bigNumber, tspec, tBuck);
+  logWriter.recordTraceStart(output, 2, (map::HashType)bigNumber, tspec, tBuck);
 
   CHECK_EQUAL(THREAD_META, buffer[0]);
   CHECK_EQUAL(0, buffer[12]);
@@ -78,7 +79,7 @@ TEST(SupportsHighThreadId) {
 TEST(RecordsStackFrames) {
   givenLogWriter();
 
-  logWriter.recordFrame(5, 6);
+  logWriter.recordFrame(output, 5, 6);
   CHECK_EQUAL(FRAME_BCI_ONLY, buffer[0]);
   CHECK_EQUAL(5, buffer[4]);
   CHECK_EQUAL(0, buffer[3]);
@@ -186,8 +187,22 @@ TEST(DumpTestFile) {
   givenStackTrace();
 
   ofstream output("dump.hpl", ofstream::out | ofstream::binary);
-  LogWriter logWriter(output, &dumpStubFrameInformation, NULL);
+  LogWriter logWriter(output, 5, 5, &dumpStubFrameInformation, NULL);
 
   logWriter.record(trace);
   logWriter.record(trace);
+}
+
+TEST(FileRotation) {
+    givenStackTrace();
+    ofstream output("dump-rotate.hpl", ofstream::out | ofstream::binary);
+    LogWriter logWriter(output, 3, 1, &dumpStubFrameInformation, NULL);
+
+    // write 1M times, which must exceeds 1M log rotation size
+    for (int i = 0; i < 1024*1024; i++) {
+        logWriter.record(trace);
+    }
+    // Now verify the rotated file exists, and it's readable by the log reader
+    std::ifstream infile("dump-rotate.hpl.1");
+    CHECK_EQUAL(0, infile.good());
 }

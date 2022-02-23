@@ -25,6 +25,8 @@ void setProfiler(Profiler *p);
 const int DEFAULT_SAMPLING_INTERVAL = 1;
 const int DEFAULT_MAX_FRAMES_TO_CAPTURE = 128;
 const int MAX_FRAMES_TO_CAPTURE = 2048;
+const int DEFAULT_ROTATE_SIZE_MB = 5;
+const int DEFAULT_ROTATE_NUM = 5;
 
 #if defined(STATIC_ALLOCATION_ALLOCA)
   #define STATIC_ARRAY(NAME, TYPE, SIZE, MAXSZ) TYPE *NAME = (TYPE*)alloca((SIZE) * sizeof(TYPE))
@@ -41,6 +43,8 @@ char *safe_copy_string(const char *value, const char *next);
 struct ConfigurationOptions {
     /** Interval in microseconds */
     int samplingIntervalMin, samplingIntervalMax;
+    /** RotateSize in MB */
+    int rotateNum, rotateSizeMB;
     std::string logFilePath;
     std::string host;
     std::string port;
@@ -50,6 +54,8 @@ struct ConfigurationOptions {
     ConfigurationOptions() :
             samplingIntervalMin(DEFAULT_SAMPLING_INTERVAL),
             samplingIntervalMax(DEFAULT_SAMPLING_INTERVAL),
+            rotateNum(DEFAULT_ROTATE_NUM),
+            rotateSizeMB(DEFAULT_ROTATE_SIZE_MB),
             logFilePath(""),
             host(""),
             port(""),
@@ -60,6 +66,8 @@ struct ConfigurationOptions {
     ConfigurationOptions(const ConfigurationOptions &config) :
             samplingIntervalMin(config.samplingIntervalMin),
             samplingIntervalMax(config.samplingIntervalMax),
+            rotateNum(config.rotateNum),
+            rotateSizeMB(config.rotateSizeMB),
             logFilePath(config.logFilePath),
             host(config.host),
             port(config.port),

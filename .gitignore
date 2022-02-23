@@ -44,3 +44,7 @@ Testing
 .settings
 
 /bin/
+
+.project
+.cproject
+

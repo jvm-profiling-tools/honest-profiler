@@ -281,6 +281,10 @@ static void parseArguments(char *options, ConfigurationOptions &configuration) {
                 configuration.samplingIntervalMax = atoi(value);
             } else if (strstr(key, "interval") == key) {
                 configuration.samplingIntervalMin = configuration.samplingIntervalMax = atoi(value);
+            } else if (strstr(key, "rotateNum") == key) {
+            	configuration.rotateNum = atoi(value);
+            } else if (strstr(key, "rotateSizeMB") == key) {
+            	configuration.rotateSizeMB = atoi(value);
             } else if (strstr(key, "logPath") == key) {
                 configuration.logFilePath.assign(value, STR_SIZE(value, next));
             } else if (strstr(key, "start") == key) {
