@@ -81,28 +81,42 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
     <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <finalName>honest-profiler</finalName>
-                    <appendAssemblyId>false</appendAssemblyId>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>jar-file</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <descriptorRefs>
-                                <descriptorRef>jar-with-dependencies</descriptorRef>
-                            </descriptorRefs>
-                        </configuration>
-                    </execution>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>3.4.1</version>
+          <executions>
+            <execution>
+              <phase>package</phase>
+              <goals>
+                <goal>shade</goal>
+              </goals>
+            <configuration>
+              <finalName>honest-profiler</finalName>
+              <relocations>
+                <relocation>
+                  <pattern>org.slf4j</pattern>
+                  <shadedPattern>honestprofiler.org.slf4j</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>com.fasterxml.jackson</pattern>
+                  <shadedPattern>honestprofiler.com.fasterxml.jackson</shadedPattern>
+                </relocation>
+              </relocations>
+            </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <configuration>
+                <finalName>honest-profiler</finalName>
+                <appendAssemblyId>false</appendAssemblyId>
+            </configuration>
+            <executions>
+                <execution>
                     <execution>
                         <id>zip-file</id>
                         <phase>package</phase>
@@ -116,44 +130,44 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>1.12</version>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>src/main/java</source>
-                                <source>src/main/webapp</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-			    <groupId>org.apache.maven.plugins</groupId>
-			    <artifactId>maven-surefire-plugin</artifactId>
-			    <version>2.19.1</version>
-			    <configuration>
-			    	<argLine>-Duser.country=US -Duser.language=en -Dheadless=true</argLine>
-			    	<forkCount>1.5C</forkCount>
-			    </configuration>
-			</plugin>
+          </plugin>
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-compiler-plugin</artifactId>
+              <version>2.3.2</version>
+              <configuration>
+                  <source>1.8</source>
+                  <target>1.8</target>
+              </configuration>
+          </plugin>
+          <plugin>
+              <groupId>org.codehaus.mojo</groupId>
+              <artifactId>build-helper-maven-plugin</artifactId>
+              <version>1.12</version>
+              <executions>
+                  <execution>
+                      <phase>generate-sources</phase>
+                      <goals>
+                          <goal>add-source</goal>
+                      </goals>
+                      <configuration>
+                          <sources>
+                              <source>src/main/java</source>
+                              <source>src/main/webapp</source>
+                          </sources>
+                      </configuration>
+                  </execution>
+              </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>2.19.1</version>
+            <configuration>
+              <argLine>-Duser.country=US -Duser.language=en -Dheadless=true</argLine>
+              <forkCount>1.5C</forkCount>
+            </configuration>
+          </plugin>
         </plugins>
         <resources>
             <resource>
